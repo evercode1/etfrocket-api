@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services\Imports;
+namespace Tests\Unit\Imports;
 
 use App\Models\Etf;
 use App\Models\EtfDividendHistory;
