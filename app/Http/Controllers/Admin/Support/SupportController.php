@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Admin\Support;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\SupportReplyToTicketRequest;
+use App\Models\SupportTicket;
 use App\Queries\Admin\Support\ShowTicketQuery;
 use App\Services\Support\FiltersForSupportService;
 use App\Services\Support\ReplyFormConfigService;
 use App\Services\Support\SupportReplyToTicketService;
 use App\Services\Support\SupportTableDataService;
 use App\Services\Support\CloseTicketService;
+use App\Models\Status;
 
 
 class SupportController extends Controller
@@ -24,43 +26,47 @@ class SupportController extends Controller
 
         ]);
 
-        return $service->getTickets($request);   
-
+        return $service->getTickets($request);
     }
 
     public function show(int $id)
     {
 
         return ShowTicketQuery::getTicket($id);
-
     }
 
     public function getSupportDataFilters()
     {
 
         return FiltersForSupportService::getFilters();
-
     }
 
     public function getSupportReplyFormConfig()
     {
 
         return ReplyFormConfigService::getReplyFormConfig();
-
     }
 
     public function supportReplyToTicket(SupportReplyToTicketRequest $request)
     {
 
         return SupportReplyToTicketService::storeSupportReplyToTicket($request);
-
     }
 
     public function closeTicket(Request $request)
     {
 
         return CloseTicketService::closeTicket($request);
-
     }
 
+    public function openTicketCount()
+    {
+
+        $open_support_ticket_count = SupportTicket::where('status_id', Status::OPEN)->count();
+
+        return response()->json([
+            'status' => 'success',
+            'open_support_ticket_count' => $open_support_ticket_count,
+        ], 200);
+    }
 }
