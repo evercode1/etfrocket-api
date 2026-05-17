@@ -187,20 +187,14 @@ class HelpArticlesSeederController extends Controller
             }
 
             HelpArticle::updateOrCreate(
-
                 [
                     'slug' => Str::slug($article['title']),
                 ],
-
                 [
                     'help_article_category_id' => $category->id,
-
                     'title' => $article['title'],
-
                     'summary' => $article['summary'],
-
-                    'content' => $article['content'],
-
+                    'content' => trim($article['content']),
                     'is_published' => 1,
                 ]
             );
