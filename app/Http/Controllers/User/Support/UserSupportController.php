@@ -13,6 +13,7 @@ use App\Queries\Support\ShowResponseQuery;
 use App\Queries\Support\ShowSupportTicketQuery;
 use App\Services\Support\RespondToSupportService;
 use App\Services\Support\MarkAsReadService;
+use App\Models\TicketResponse;
 use App\Utilities\Auth;
 
 class UserSupportController extends Controller
@@ -28,42 +29,36 @@ class UserSupportController extends Controller
         ]);
 
         return ListMySupportTicketsService::listMySupportTickets($request);
-
     }
 
     public function newTicketFormConfig()
     {
 
         return NewTicketFormConfigService::getNewTicketFormConfig();
-
     }
 
     public function newResponseFormConfig()
     {
 
         return NewResponseFormConfigService::getNewResponseFormConfig();
-
     }
 
     public function store(Request $request)
     {
 
         return StoreSupportTicketService::storeSupportTicket($request);
-
     }
 
     public function show(int $id)
     {
 
         return ShowSupportTicketQuery::showSupportTicket($id);
-
     }
 
     public function respondToSupport(Request $request)
     {
 
         return RespondToSupportService::respondToSupport($request);
-
     }
 
     public function showResponse(Request $request)
@@ -78,7 +73,6 @@ class UserSupportController extends Controller
         ]);
 
         return ShowResponseQuery::showResponse($request);
-
     }
 
     public function markAsRead(Request $request)
@@ -93,7 +87,55 @@ class UserSupportController extends Controller
         ]);
 
         return MarkAsReadService::markAsRead($request);
-
     }
 
+    public function unreadResponses()
+    {
+        $user_id = Auth::id();
+
+        $baseQuery = TicketResponse::query()
+            ->leftJoin(
+                'support_tickets',
+                'ticket_responses.support_ticket_id',
+                '=',
+                'support_tickets.id'
+            )
+            ->leftJoin(
+                'support_topics',
+                'support_tickets.support_topic_id',
+                '=',
+                'support_topics.id'
+            )
+            ->where('support_tickets.user_id', $user_id)
+            ->where('ticket_responses.is_from_customer', 0)
+            ->where('ticket_responses.is_read', 0);
+
+        $count = (clone $baseQuery)->count();
+
+        if ($count === 0) {
+            return response()->json([
+                'status' => 'success',
+                'unread_support_responses_count' => 0,
+                'tickets' => [],
+            ], 200);
+        }
+
+        $tickets = $baseQuery
+            ->select([
+                'support_topics.support_topic_name as topic',
+                'ticket_responses.id as latest_response_id',
+                'ticket_responses.support_ticket_id as ticket_id',
+                'ticket_responses.response_text as message_preview',
+                'ticket_responses.created_at',
+                'support_tickets.ticket_text as ticket_issue',
+            ])
+            ->orderBy('ticket_responses.created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'unread_support_responses_count' => $count,
+            'tickets' => $tickets,
+        ], 200);
+    }
 }
