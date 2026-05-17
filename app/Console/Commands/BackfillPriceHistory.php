@@ -34,10 +34,6 @@ class BackfillPriceHistory extends Command
         $etf = Etf::where('symbol', $symbol)
             ->first();
 
-        $countBefore = \App\Models\EtfPriceHistory::where('etf_id', $etf->id)->count();
-
-        $this->info("Rows before import: {$countBefore}");
-
         if (! $etf) {
 
             $this->error("ETF with symbol [{$symbol}] was not found.");
@@ -45,7 +41,13 @@ class BackfillPriceHistory extends Command
             return self::FAILURE;
         }
 
-        $filePath = app_path("Imports/PriceData/" . strtolower($symbol) . ".csv");
+        $countBefore = \App\Models\EtfPriceHistory::where('etf_id', $etf->id)->count();
+
+        $this->info("Rows before import: {$countBefore}");
+
+
+
+        $filePath = app_path("Imports/PriceData/" . strtolower($symbol) . ".txt");
 
         if (! file_exists($filePath)) {
 
@@ -67,23 +69,37 @@ class BackfillPriceHistory extends Command
             return self::FAILURE;
         }
 
-        $this->info("Successfully imported price history for {$results['symbol']}.");
+        $this->info("Successfully imported ETF history for {$results['symbol']}.");
 
         $this->table([
             'ETF ID',
             'Symbol',
-            'Rows Imported',
-            'Rows Deleted', 
+
+            'Price Rows Imported',
+            'Price Rows Deleted',
+
+            'Dividend Rows Imported',
+            'Dividend Rows Deleted',
+
             'Start Date',
             'End Date',
+
         ], [[
             $results['etf_id'],
+
             $results['symbol'],
+
             $results['rows_imported'],
+
             $results['rows_deleted'],
+
+            $results['dividend_rows_imported'],
+
+            $results['dividend_rows_deleted'],
+
             $results['start_date'],
+
             $results['end_date'],
-            
         ]]);
 
         return self::SUCCESS;
