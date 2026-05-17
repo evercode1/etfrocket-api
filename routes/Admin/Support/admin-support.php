@@ -39,6 +39,8 @@ Route::group(['middleware' => ['auth:sanctum', 'isAdmin']], function () {
     Route::post('/support-reply-to-ticket', [SupportController::class, 'supportReplyToTicket']);
     Route::post('/close-ticket', [SupportController::class, 'closeTicket']);
 
+    Route::get('/open-support-ticket-count', [SupportController::class, 'openTicketCount']);
+
     // Help Articles
 
     Route::get('/manage-help-articles', [ManageHelpArticlesController::class, 'index']);
