@@ -14,36 +14,52 @@ class TruncateTable extends Command
      *
      * @var string
      */
-    protected $signature = 'db:truncate-table {table}';
+    protected $signature = 'db:truncate-table {tables}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Truncate a database table';
+    protected $description = 'Truncate one or more database tables';
 
     /**
      * Execute the console command.
      */
     public function handle(): int
     {
-        $table = trim($this->argument('table'));
+        $tables = collect(
+            explode(',', $this->argument('tables'))
+        )
+            ->map(fn($table) => trim($table))
+            ->filter()
+            ->values();
+
+        if ($tables->isEmpty()) {
+
+            $this->error('No tables were provided.');
+
+            return self::FAILURE;
+        }
 
         try {
 
-            if (! Schema::hasTable($table)) {
-                throw new InvalidArgumentException(
-                    "Table [{$table}] does not exist."
-                );
-            }
-
             DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
-            DB::table($table)->truncate();
+            foreach ($tables as $table) {
+
+                if (! Schema::hasTable($table)) {
+                    throw new InvalidArgumentException(
+                        "Table [{$table}] does not exist."
+                    );
+                }
+
+                DB::table($table)->truncate();
+
+                $this->info("Successfully truncated table [{$table}].");
+            }
 
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
-
         } catch (\Exception $e) {
 
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
@@ -52,8 +68,6 @@ class TruncateTable extends Command
 
             return self::FAILURE;
         }
-
-        $this->info("Successfully truncated table [{$table}].");
 
         return self::SUCCESS;
     }
