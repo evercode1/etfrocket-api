@@ -27,6 +27,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/create-support-ticket', [UserSupportController::class, 'store']);
     Route::get('/new-support-response-to-ticket-form', [UserSupportController::class, 'newResponseFormConfig']);
     Route::post('/respond-to-support-response', [UserSupportController::class, 'respondToSupport']);
+
+    Route::get('/unread-support-responses', [UserSupportController::class, 'unreadResponses']);
 });
 
 /*
