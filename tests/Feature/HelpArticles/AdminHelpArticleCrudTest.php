@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Admin;
+namespace Tests\Feature\HelpArticles;
 
 use App\Models\HelpArticle;
 use App\Models\HelpArticleCategory;

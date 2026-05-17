@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Console;
+namespace Tests\Unit\Commands;
 
 use App\Models\Etf;
 use App\Models\EtfDividendHistory;
@@ -189,7 +189,7 @@ class BackfillDividendHistoryTest extends TestCase
     private function filePathForSymbol(string $symbol): string
     {
         return app_path(
-            'Imports/DividendData/'.strtolower($symbol).'_dividends.csv'
+            'Imports/DividendData/' . strtolower($symbol) . '_dividends.csv'
         );
     }
 }
