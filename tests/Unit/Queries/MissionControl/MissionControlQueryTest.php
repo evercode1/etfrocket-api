@@ -6,8 +6,8 @@ use App\Models\Portfolio;
 use App\Models\Status;
 use App\Models\User;
 use App\Queries\MissionControl\MissionControlQuery;
-use Laravel\Sanctum\Sanctum;
 use Illuminate\Support\Facades\DB;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class MissionControlQueryTest extends TestCase
@@ -36,7 +36,7 @@ class MissionControlQueryTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $defaultPortfolio = Portfolio::factory()->create([
+        Portfolio::factory()->create([
             'user_id' => $user->id,
             'status_id' => Status::ACTIVE,
             'portfolio_name' => 'Default Portfolio',
@@ -55,6 +55,7 @@ class MissionControlQueryTest extends TestCase
         $this->assertArrayHasKey('portfolios', $data);
         $this->assertArrayHasKey('selected_portfolio', $data);
         $this->assertArrayHasKey('portfolio_snapshot', $data);
+        $this->assertArrayHasKey('portfolio_flight_path', $data);
         $this->assertArrayHasKey('risk_alerts', $data);
         $this->assertArrayHasKey('watchlist', $data);
         $this->assertArrayHasKey('activity', $data);
@@ -71,10 +72,6 @@ class MissionControlQueryTest extends TestCase
             $data['selected_portfolio']->portfolio_name
         );
 
-        $this->assertSame([], $data['risk_alerts']);
-        $this->assertSame([], $data['watchlist']);
-        $this->assertSame([], $data['activity']);
-
         $this->assertSame(
             $selectedPortfolio->id,
             $data['portfolio_snapshot']['portfolio_id']
@@ -84,6 +81,11 @@ class MissionControlQueryTest extends TestCase
             'Selected Portfolio',
             $data['portfolio_snapshot']['portfolio_name']
         );
+
+        $this->assertSame([], $data['portfolio_flight_path']);
+        $this->assertSame([], $data['risk_alerts']);
+        $this->assertSame([], $data['watchlist']);
+        $this->assertSame([], $data['activity']);
     }
 
     public function test_it_uses_default_portfolio_when_no_portfolio_is_selected(): void
@@ -92,7 +94,7 @@ class MissionControlQueryTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $firstPortfolio = Portfolio::factory()->create([
+        Portfolio::factory()->create([
             'user_id' => $user->id,
             'status_id' => Status::ACTIVE,
             'portfolio_name' => 'First Portfolio',
@@ -117,6 +119,8 @@ class MissionControlQueryTest extends TestCase
             $defaultPortfolio->id,
             $data['portfolio_snapshot']['portfolio_id']
         );
+
+        $this->assertSame([], $data['portfolio_flight_path']);
     }
 
     public function test_it_uses_first_portfolio_when_no_selected_or_default_portfolio_exists(): void
@@ -150,6 +154,8 @@ class MissionControlQueryTest extends TestCase
             $firstPortfolio->id,
             $data['portfolio_snapshot']['portfolio_id']
         );
+
+        $this->assertSame([], $data['portfolio_flight_path']);
     }
 
     public function test_it_ignores_selected_portfolio_that_does_not_belong_to_user(): void
@@ -185,6 +191,8 @@ class MissionControlQueryTest extends TestCase
             $defaultPortfolio->id,
             $data['portfolio_snapshot']['portfolio_id']
         );
+
+        $this->assertSame([], $data['portfolio_flight_path']);
     }
 
     public function test_it_returns_null_selected_portfolio_and_snapshot_when_user_has_no_portfolios(): void
@@ -200,6 +208,7 @@ class MissionControlQueryTest extends TestCase
         $this->assertNull($data['selected_portfolio']);
         $this->assertNull($data['portfolio_snapshot']);
 
+        $this->assertSame([], $data['portfolio_flight_path']);
         $this->assertSame([], $data['risk_alerts']);
         $this->assertSame([], $data['watchlist']);
         $this->assertSame([], $data['activity']);

@@ -58,6 +58,7 @@ class PortfolioSnapshotQueryTest extends TestCase
             'symbol' => 'NVII',
             'fund_name' => 'NVII Test ETF',
             'status_id' => Status::ACTIVE,
+            'distribution_frequency_id' => 2,
         ]);
 
         PortfolioTransaction::factory()->create([
@@ -118,7 +119,7 @@ class PortfolioSnapshotQueryTest extends TestCase
         $this->assertSame(200.0, $snapshot['unrealized_gain_loss']);
         $this->assertSame(50.0, $snapshot['total_return_percentage']);
 
-        $this->assertSame(16.5, $snapshot['monthly_income']);
+        $this->assertSame(17.875, $snapshot['monthly_income']);
         $this->assertSame('Stable', $snapshot['nav_health']);
 
         $this->assertCount(1, $snapshot['holdings']);
@@ -130,9 +131,12 @@ class PortfolioSnapshotQueryTest extends TestCase
         $this->assertSame(400.0, $snapshot['holdings'][0]['cost_basis']);
         $this->assertSame(40.0, $snapshot['holdings'][0]['latest_price']);
         $this->assertSame(600.0, $snapshot['holdings'][0]['market_value']);
-        $this->assertSame(16.5, $snapshot['holdings'][0]['estimated_monthly_income']);
+        $this->assertSame(17.875, $snapshot['holdings'][0]['estimated_monthly_income']);
         $this->assertEquals('12.5000', $snapshot['holdings'][0]['total_return_percentage']);
         $this->assertEquals('1.2500', $snapshot['holdings'][0]['nav_erosion_percentage']);
+        $this->assertSame(2, $snapshot['holdings'][0]['distribution_frequency_id']);
+        $this->assertSame(0.275, $snapshot['holdings'][0]['average_dividend']);
+        $this->assertSame(4.3333, $snapshot['holdings'][0]['monthly_distribution_multiplier']);
     }
 
     public function test_it_returns_zero_snapshot_for_portfolio_with_no_holdings(): void

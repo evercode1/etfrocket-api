@@ -19,4 +19,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/get-portfolio-selects', [MissionControlController::class, 'getPortfolioSelects']);
     Route::get('/mission-control', [MissionControlController::class, 'index']);
+    Route::get('/portfolio-income-projection/{portfolio_id}', [
+        MissionControlController::class,
+        'portfolioIncomeProjection'
+    ]);
 });
