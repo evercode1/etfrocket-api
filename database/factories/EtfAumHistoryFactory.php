@@ -22,7 +22,7 @@ class EtfAumHistoryFactory extends Factory
 
         return [
 
-            'etf_id' => rand(1, 7),
+            'etf_id' => rand(1, 4),
 
             'aum_date' => $aumDate,
 
