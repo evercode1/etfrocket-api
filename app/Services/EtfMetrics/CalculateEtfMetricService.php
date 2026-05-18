@@ -18,7 +18,10 @@ class CalculateEtfMetricService
     {
         $endDate = now()->toDateString();
 
-        $startDate = $this->getStartDate($performance_range_type_id);
+        $startDate = $this->getStartDate(
+            $performance_range_type_id,
+            $etf->id
+        );
 
         $startPrice = $this->getStartPrice($etf->id, $startDate);
         $endPrice = $this->getEndPrice($etf->id, $endDate);
@@ -51,6 +54,7 @@ class CalculateEtfMetricService
 
         $dividendsPaid = $this->getDividendsPaid($etf->id, $startDate, $endDate);
         $dividendCount = $this->getDividendCount($etf->id, $startDate, $endDate);
+
         $averageDividend = $dividendCount > 0
             ? round($dividendsPaid / $dividendCount, 4)
             : null;
@@ -62,6 +66,7 @@ class CalculateEtfMetricService
         );
 
         $navChange = $this->calculateRawChange($startNav, $endNav);
+
         $navErosionPercentage = $this->calculateNavErosionPercentage(
             $startNav,
             $endNav,
@@ -112,7 +117,7 @@ class CalculateEtfMetricService
         );
     }
 
-    private function getStartDate(int $performance_range_type_id): ?string
+    private function getStartDate(int $performance_range_type_id, int $etf_id): ?string
     {
         return match ($performance_range_type_id) {
             PerformanceRangeType::FIVE_DAY => now()->subDays(5)->toDateString(),
@@ -120,9 +125,16 @@ class CalculateEtfMetricService
             PerformanceRangeType::NINETY_DAY => now()->subDays(90)->toDateString(),
             PerformanceRangeType::YEAR_TO_DATE => now()->startOfYear()->toDateString(),
             PerformanceRangeType::ONE_YEAR => now()->subYear()->toDateString(),
-            PerformanceRangeType::MAX => null,
+            PerformanceRangeType::MAX => $this->getMaxStartDate($etf_id),
             default => now()->subDays(30)->toDateString(),
         };
+    }
+
+    private function getMaxStartDate(int $etf_id): ?string
+    {
+        return EtfPriceHistory::where('etf_id', $etf_id)
+            ->orderBy('price_date', 'asc')
+            ->value('price_date');
     }
 
     private function getStartPrice(int $etf_id, ?string $startDate): ?float
