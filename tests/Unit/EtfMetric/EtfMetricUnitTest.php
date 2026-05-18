@@ -402,16 +402,10 @@ class EtfMetricUnitTest extends TestCase
 
             $metric = $service->calculate($etf, $rangeTypeId);
 
-            if ($rangeTypeId === PerformanceRangeType::MAX) {
-
-                $this->assertNull($metric->start_date);
-            } else {
-
-                $this->assertEquals(
-                    $expectedStartDate,
-                    $metric->start_date->toDateString()
-                );
-            }
+            $this->assertEquals(
+                $expectedStartDate,
+                $metric->start_date->format('Y-m-d')
+            );
 
             $this->assertEquals(
                 '2026-05-12',
