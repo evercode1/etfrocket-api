@@ -26,17 +26,35 @@ class PortfolioSnapshotQuery
                 'portfolio_transactions.etf_id',
                 'etfs.symbol',
                 'etfs.fund_name',
-                DB::raw('SUM(portfolio_transactions.shares) as shares'),
-                DB::raw('SUM(portfolio_transactions.shares * portfolio_transactions.price_per_share) as cost_basis'),
+                'etfs.distribution_frequency_id',
+                DB::raw('
+                    SUM(
+                        CASE
+                            WHEN portfolio_transactions.transaction_type_id = 1 THEN portfolio_transactions.shares
+                            WHEN portfolio_transactions.transaction_type_id = 2 THEN -portfolio_transactions.shares
+                            ELSE 0
+                        END
+                    ) as shares
+                '),
+                DB::raw('
+                    SUM(
+                        CASE
+                            WHEN portfolio_transactions.transaction_type_id = 1 THEN portfolio_transactions.shares * portfolio_transactions.price_per_share
+                            WHEN portfolio_transactions.transaction_type_id = 2 THEN -portfolio_transactions.shares * portfolio_transactions.price_per_share
+                            ELSE 0
+                        END
+                    ) as cost_basis
+                '),
             ])
             ->join('etfs', 'portfolio_transactions.etf_id', '=', 'etfs.id')
             ->where('portfolio_transactions.portfolio_id', $portfolio->id)
-            ->where('portfolio_transactions.transaction_type_id', 1)
             ->groupBy([
                 'portfolio_transactions.etf_id',
                 'etfs.symbol',
                 'etfs.fund_name',
+                'etfs.distribution_frequency_id',
             ])
+            ->having('shares', '>', 0)
             ->get();
 
         if ($holdings->isEmpty()) {
@@ -68,17 +86,28 @@ class PortfolioSnapshotQuery
                 ->where('performance_range_type_id', PerformanceRangeType::MAX)
                 ->first();
 
-            $averageDividend = EtfDividendHistory::where('etf_id', $holding->etf_id)
+            $recentDividends = EtfDividendHistory::where('etf_id', $holding->etf_id)
                 ->orderByDesc('ex_dividend_date')
                 ->limit(4)
-                ->avg('dividend_amount');
+                ->pluck('dividend_amount');
+
+            $averageDividend = $recentDividends->isNotEmpty()
+                ? $recentDividends->avg()
+                : 0;
+
+            $monthlyMultiplier = $this->getMonthlyDistributionMultiplier(
+                $holding->distribution_frequency_id
+            );
 
             $shares = (float) $holding->shares;
             $holdingCostBasis = (float) $holding->cost_basis;
             $currentPrice = (float) ($latestPrice ?? 0);
             $marketValue = round($shares * $currentPrice, 4);
 
-            $estimatedMonthlyIncome = round($shares * (float) ($averageDividend ?? 0) * 4, 4);
+            $estimatedMonthlyIncome = round(
+                $shares * (float) $averageDividend * $monthlyMultiplier,
+                4
+            );
 
             $portfolioValue += $marketValue;
             $costBasis += $holdingCostBasis;
@@ -88,10 +117,13 @@ class PortfolioSnapshotQuery
                 'etf_id' => $holding->etf_id,
                 'symbol' => $holding->symbol,
                 'fund_name' => $holding->fund_name,
+                'distribution_frequency_id' => $holding->distribution_frequency_id,
                 'shares' => round($shares, 4),
                 'cost_basis' => round($holdingCostBasis, 4),
                 'latest_price' => $latestPrice ? round((float) $latestPrice, 4) : null,
                 'market_value' => $marketValue,
+                'average_dividend' => round((float) $averageDividend, 4),
+                'monthly_distribution_multiplier' => round($monthlyMultiplier, 4),
                 'estimated_monthly_income' => $estimatedMonthlyIncome,
                 'total_return_percentage' => $latestMetric?->total_return_percentage,
                 'nav_erosion_percentage' => $latestMetric?->nav_erosion_percentage,
@@ -115,6 +147,22 @@ class PortfolioSnapshotQuery
             'nav_health' => $this->getNavHealth($holdingRows),
             'holdings' => $holdingRows,
         ];
+    }
+
+    private function getMonthlyDistributionMultiplier(?int $distributionFrequencyId): float
+    {
+        return match ((int) $distributionFrequencyId) {
+            1 => 30.0,
+            2 => 52 / 12,
+            3 => 26 / 12,
+            4 => 1.0,
+            5 => 1 / 3,
+            6 => 1 / 6,
+            7 => 1 / 12,
+            8 => 1.0,
+            9 => 0.0,
+            default => 1.0,
+        };
     }
 
     private function getNavHealth(array $holdings): string

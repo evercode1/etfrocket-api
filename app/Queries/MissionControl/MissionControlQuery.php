@@ -31,6 +31,10 @@ class MissionControlQuery
                 )
                 : null,
 
+            'portfolio_flight_path' => $selectedPortfolio
+                ? (new PortfolioFlightPathQuery())->getData($selectedPortfolio->id)
+                : [],
+
             'risk_alerts' => (new RiskAlertsQuery())->getData(),
 
             'watchlist' => (new WatchlistQuery())->getData(),
