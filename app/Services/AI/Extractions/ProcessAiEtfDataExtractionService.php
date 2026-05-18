@@ -135,7 +135,6 @@ class ProcessAiEtfDataExtractionService
             [
                 'nav_per_share' => $navPerShare,
                 'data_source_id' => $extraction->data_source_id,
-                'source_as_of_date' => $navDate,
                 'retrieved_at' => now(),
             ]
         );
@@ -171,7 +170,6 @@ class ProcessAiEtfDataExtractionService
             [
                 'assets_under_management' => $assetsUnderManagement,
                 'data_source_id' => $extraction->data_source_id,
-                'source_as_of_date' => $aumDate,
                 'retrieved_at' => now(),
             ]
         );
@@ -221,7 +219,6 @@ class ProcessAiEtfDataExtractionService
             [
                 'payment_date' => $paymentDate,
                 'data_source_id' => $extraction->data_source_id,
-                'source_as_of_date' => $exDividendDate,
                 'retrieved_at' => now(),
             ]
         );

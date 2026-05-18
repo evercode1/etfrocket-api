@@ -22,15 +22,13 @@ class EtfNavHistoryFactory extends Factory
 
         return [
 
-            'etf_id' => rand(1,7   ),
+            'etf_id' => rand(1, 7),
 
             'nav_date' => $navDate,
 
             'nav_per_share' => $this->faker->randomFloat(4, 5, 500),
 
             'data_source_id' => DataSource::MANUAL_ENTRY,
-
-            'source_as_of_date' => $navDate,
 
             'retrieved_at' => now(),
 

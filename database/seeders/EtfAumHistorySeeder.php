@@ -68,7 +68,7 @@ class EtfAumHistorySeeder extends Seeder
 
                 $assetsUnderManagement = round(
                     $aumRange['start'] +
-                    (($aumRange['end'] - $aumRange['start']) / $totalDays) * $day
+                        (($aumRange['end'] - $aumRange['start']) / $totalDays) * $day
                 );
 
                 EtfAumHistory::updateOrCreate(
@@ -79,7 +79,6 @@ class EtfAumHistorySeeder extends Seeder
                     [
                         'assets_under_management' => $assetsUnderManagement,
                         'data_source_id' => $dataSourceId,
-                        'source_as_of_date' => $aumDate,
                         'retrieved_at' => now(),
                     ]
                 );

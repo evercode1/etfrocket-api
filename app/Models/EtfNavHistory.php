@@ -16,7 +16,6 @@ class EtfNavHistory extends Model
         'nav_date',
         'nav_per_share',
         'data_source_id',
-        'source_as_of_date',
         'retrieved_at'
 
     ];
@@ -29,7 +28,6 @@ class EtfNavHistory extends Model
             'created_at' => 'date:Y-m-d',
             'updated_at' => 'date:Y-m-d',
             'nav_date' => 'date:Y-m-d',
-            'source_as_of_date' => 'date:Y-m-d',
             'retrieved_at' => 'date:Y-m-d'
 
         ];

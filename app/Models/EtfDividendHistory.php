@@ -17,7 +17,6 @@ class EtfDividendHistory extends Model
         'ex_dividend_date',
         'payment_date',
         'data_source_id',
-        'source_as_of_date',
         'retrieved_at'
 
     ];
@@ -31,9 +30,7 @@ class EtfDividendHistory extends Model
             'updated_at' => 'date:Y-m-d',
             'ex_dividend_date' => 'date:Y-m-d',
             'payment_date' => 'date:Y-m-d',
-            'source_as_of_date' => 'date:Y-m-d',
 
         ];
-
     }
 }

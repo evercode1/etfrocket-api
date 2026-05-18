@@ -7,6 +7,7 @@ use App\Models\Etf;
 use App\Models\EtfDividendHistory;
 use App\Models\EtfPriceHistory;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ImportEtfPriceHistoryService
 {
@@ -40,17 +41,19 @@ class ImportEtfPriceHistoryService
                     'close_price' => $row['close_price'],
                     'volume' => $row['volume'],
                     'data_source_id' => 1,
+                    'retrieved_at' => now(),
                 ]);
             }
 
             foreach ($dividendRows as $row) {
+                $exDividendDate = Carbon::parse($row['ex_dividend_date']);
+
                 EtfDividendHistory::create([
                     'etf_id' => $etf->id,
                     'dividend_amount' => $row['dividend_amount'],
-                    'ex_dividend_date' => $row['ex_dividend_date'],
-                    'payment_date' => null,
+                    'ex_dividend_date' => $exDividendDate->format('Y-m-d'),
+                    'payment_date' => $exDividendDate->copy()->addDay()->format('Y-m-d'),
                     'data_source_id' => 1,
-                    'source_as_of_date' => null,
                     'retrieved_at' => now(),
                 ]);
             }

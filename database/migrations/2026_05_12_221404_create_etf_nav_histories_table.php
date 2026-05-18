@@ -18,16 +18,13 @@ return new class extends Migration
             $table->date('nav_date')->index();
             $table->decimal('nav_per_share', 12, 4);
             $table->unsignedInteger('data_source_id')->nullable();
-            $table->date('source_as_of_date')->nullable();
             $table->timestamp('retrieved_at')->nullable();
             $table->timestamps();
 
             // indexes
 
             $table->unique(['etf_id', 'nav_date']);
-
         });
-        
     }
 
     /**
