@@ -3,10 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Utilities\IncludeRoutes;
 
-Route::get('/health/check', function() {
+Route::get('/health/check', function () {
 
     return response()->json(['status' => 'OK', 'code' => 200, 'message' => 'healthy']);
-
 });
 
 /*
@@ -86,6 +85,17 @@ IncludeRoutes::file('routes/Auth/auth.php');
 */
 
 IncludeRoutes::file('routes/User/Etfs/etfs.php');
+
+/*
+|--------------------------------------------------------------------------
+| Mission Control ROUTES
+|--------------------------------------------------------------------------
+|
+| routes for user mission control, requires authentication
+|
+*/
+
+IncludeRoutes::file('routes/User/MissionControl/mission-control.php');
 
 
 /*
