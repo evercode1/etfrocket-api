@@ -22,7 +22,7 @@ class EtfDividendHistoryFactory extends Factory
 
         return [
 
-            'etf_id' => rand(1,7),
+            'etf_id' => rand(1, 7),
 
             'dividend_amount' => $this->faker->randomFloat(4, 0.01, 5.00),
 
@@ -31,8 +31,6 @@ class EtfDividendHistoryFactory extends Factory
             'payment_date' => $this->faker->dateTimeBetween($exDividendDate, '+14 days')->format('Y-m-d'),
 
             'data_source_id' => DataSource::MANUAL_ENTRY,
-
-            'source_as_of_date' => $exDividendDate,
 
             'retrieved_at' => now(),
 

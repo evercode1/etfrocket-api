@@ -18,7 +18,6 @@ return new class extends Migration
             $table->date('aum_date')->index();
             $table->bigInteger('assets_under_management');
             $table->unsignedInteger('data_source_id')->nullable();
-            $table->date('source_as_of_date')->nullable();
             $table->timestamp('retrieved_at')->nullable();
             $table->timestamps();
 

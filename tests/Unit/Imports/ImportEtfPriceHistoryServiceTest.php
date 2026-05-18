@@ -94,9 +94,8 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             'etf_id' => $etf->id,
             'dividend_amount' => '0.2390',
             'ex_dividend_date' => '2026-05-12',
-            'payment_date' => null,
+            'payment_date' => '2026-05-13',
             'data_source_id' => 1,
-            'source_as_of_date' => null,
         ]);
 
         unlink($filePath);

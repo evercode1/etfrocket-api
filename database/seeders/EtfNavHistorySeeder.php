@@ -69,7 +69,7 @@ class EtfNavHistorySeeder extends Seeder
 
                 $navPerShare = round(
                     $navRange['start'] +
-                    (($navRange['end'] - $navRange['start']) / $totalDays) * $day,
+                        (($navRange['end'] - $navRange['start']) / $totalDays) * $day,
                     4
                 );
 
@@ -81,7 +81,6 @@ class EtfNavHistorySeeder extends Seeder
                     [
                         'nav_per_share' => $navPerShare,
                         'data_source_id' => $dataSourceId,
-                        'source_as_of_date' => $navDate,
                         'retrieved_at' => now(),
                     ]
                 );

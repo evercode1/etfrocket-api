@@ -46,9 +46,9 @@ class EtfDividendHistorySeeder extends Seeder
             ],
 
             'QQQI' => [
-                
+
                 ['amount' => 0.6297, 'ex_date' => '2026-04-22', 'payment_date' => '2026-04-24'],
-                
+
             ],
 
             'NVII' => [
@@ -93,7 +93,6 @@ class EtfDividendHistorySeeder extends Seeder
                         'dividend_amount' => $dividend['amount'],
                         'payment_date' => $dividend['payment_date'],
                         'data_source_id' => $dataSourceId,
-                        'source_as_of_date' => $dividend['ex_date'],
                         'retrieved_at' => now(),
                     ]
                 );
