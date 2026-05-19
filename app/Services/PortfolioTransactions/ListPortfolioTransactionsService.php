@@ -21,14 +21,21 @@ class ListPortfolioTransactionsService
             ->where('id', $portfolioId)
             ->firstOrFail();
 
-        $query = PortfolioTransaction::where('portfolio_id', $portfolioId);
+        $query = PortfolioTransaction::where('portfolio_transactions.portfolio_id', $portfolioId)
+
+            ->leftJoin('etfs', 'portfolio_transactions.etf_id', '=', 'etfs.id')
+
+            ->select([
+                'portfolio_transactions.*',
+                'etfs.symbol',
+            ]);
 
         if ($etfId) {
-            $query->where('etf_id', $etfId);
+            $query->where('portfolio_transactions.etf_id', $etfId);
         }
 
-        $query->orderByDesc('transaction_date')
-            ->orderByDesc('id');
+        $query->orderByDesc('portfolio_transactions.transaction_date')
+            ->orderByDesc('portfolio_transactions.id');
 
         if ($request->filled('limit')) {
             $query->limit((int) $request->limit);
