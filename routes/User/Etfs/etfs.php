@@ -24,5 +24,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/list-etfs', [EtfsListController::class, 'listEtfs']);
 
+    Route::get('/list-etfs-owned-by-user/{portfolioId}', [EtfsListController::class, 'listEtfsOwnedByUser']);
+
     Route::get('/compare-etfs', [EtfComparisonController::class, 'compareEtfs']);
 });

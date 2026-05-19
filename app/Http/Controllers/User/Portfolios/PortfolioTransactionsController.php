@@ -23,9 +23,26 @@ class PortfolioTransactionsController extends Controller
         int $portfolio_id,
         ListPortfolioTransactionsService $service
     ) {
+
+        $etfId = $request->filled('etf_id')
+
+            ? (int) $request->input('etf_id')
+
+            : null;
+
         try {
 
-            $transactions = $service->getData($request, Auth::id(), $portfolio_id, $request->input('etf_id'));
+            $transactions = $service->getData(
+
+                $request,
+
+                Auth::id(),
+
+                $portfolio_id,
+
+                $etfId
+
+            );
         } catch (\Exception $e) {
 
 
