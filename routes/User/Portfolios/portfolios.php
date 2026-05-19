@@ -53,6 +53,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::delete('/delete-all-portfolio-transactions/{portfolio_id}', [PortfolioTransactionsController::class, 'deleteAllPortfolioTransactions']);
 
+    // user bulk upload of portfolio transactions
+
+    Route::post('/csv-upload-portfolio-transactions/{portfolio_id}', [PortfolioTransactionsController::class, 'csvUploadTransactions']);
+
     // import portfolio transactions
 
     Route::get('/get-import-portfolio-transactions-config', [PortfolioTransactionsController::class, 'getImportPortfolioTransactionsConfig']);
