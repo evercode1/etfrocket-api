@@ -343,24 +343,34 @@ class ImportPortfolioTransactionsTest extends TestCase
         $response->assertJson([
             'success' => false,
 
-            'success' => false,
-
             'message' => 'The CSV format is invalid.',
 
             'required_columns' => [
+
                 'symbol',
-                'transaction_type',
+
+                'type',
+
                 'shares',
-                'price_per_share',
-                'transaction_date',
+
+                'price',
+
+                'date',
+
             ],
 
             'example' => [
+
                 'symbol' => 'SCHD',
-                'transaction_type' => 'buy',
+
+                'type' => 'buy',
+
                 'shares' => '10',
-                'price_per_share' => '75.25',
-                'transaction_date' => '2026-05-15',
+
+                'price' => '75.25',
+
+                'date' => '2026-05-15',
+
             ],
         ]);
 
