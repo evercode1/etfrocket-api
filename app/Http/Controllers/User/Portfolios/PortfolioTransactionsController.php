@@ -11,6 +11,7 @@ use App\Services\PortfolioTransactions\UpdatePortfolioTransactionService;
 use App\Services\PortfolioTransactions\ViewPortfolioTransactionFormService;
 use App\Services\PortfolioTransactions\ImportPortfolioTransactionsService;
 use App\Services\PortfolioTransactions\ExportPortfolioTransactionsService;
+use App\Services\PortfolioTransactions\UserBulkTransactionUploadService;
 use App\Utilities\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -27,12 +28,6 @@ class PortfolioTransactionsController extends Controller
             $transactions = $service->getData(Auth::id(), $portfolio_id, $request->input('etf_id'));
         } catch (\Exception $e) {
 
-            Log::error('Failed to list portfolio transactions', [
-                'user_id' => Auth::id(),
-                'portfolio_id' => $portfolio_id,
-                'etf_id' => $request->input('etf_id'),
-                'error' => $e->getMessage(),
-            ]);
 
             return response()->json([
                 'success' => false,
@@ -54,12 +49,6 @@ class PortfolioTransactionsController extends Controller
                 ->where('id', $portfolio_id)
                 ->firstOrFail();
         } catch (\Exception $e) {
-
-            Log::error('Failed to load create portfolio transaction form config', [
-                'user_id' => Auth::id(),
-                'portfolio_id' => $portfolio_id,
-                'error' => $e->getMessage(),
-            ]);
 
             return response()->json([
                 'success' => false,
@@ -98,12 +87,6 @@ class PortfolioTransactionsController extends Controller
             );
         } catch (\Exception $e) {
 
-            Log::error('Failed to create portfolio transaction', [
-                'user_id' => Auth::id(),
-                'portfolio_id' => $portfolio_id,
-                'request' => $request->all(),
-                'error' => $e->getMessage(),
-            ]);
 
             return response()->json([
                 'success' => false,
@@ -126,11 +109,6 @@ class PortfolioTransactionsController extends Controller
             $transaction = $service->getData(Auth::id(), $id);
         } catch (\Exception $e) {
 
-            Log::error('Failed to load update portfolio transaction form config', [
-                'user_id' => Auth::id(),
-                'portfolio_transaction_id' => $id,
-                'error' => $e->getMessage(),
-            ]);
 
             return response()->json([
                 'success' => false,
@@ -170,12 +148,6 @@ class PortfolioTransactionsController extends Controller
             );
         } catch (\Exception $e) {
 
-            Log::error('Failed to update portfolio transaction', [
-                'user_id' => Auth::id(),
-                'portfolio_transaction_id' => $id,
-                'request' => $request->all(),
-                'error' => $e->getMessage(),
-            ]);
 
             return response()->json([
                 'success' => false,
@@ -202,12 +174,6 @@ class PortfolioTransactionsController extends Controller
 
             $transaction->delete();
         } catch (\Exception $e) {
-
-            Log::error('Failed to delete portfolio transaction', [
-                'user_id' => Auth::id(),
-                'portfolio_transaction_id' => $id,
-                'error' => $e->getMessage(),
-            ]);
 
             return response()->json([
                 'success' => false,
@@ -284,11 +250,6 @@ class PortfolioTransactionsController extends Controller
             );
         } catch (\Exception $e) {
 
-            Log::error('Failed to import portfolio transactions', [
-                'user_id' => Auth::id(),
-                'portfolio_id' => $portfolio_id,
-                'error' => $e->getMessage(),
-            ]);
 
             return response()->json([
 
@@ -298,18 +259,18 @@ class PortfolioTransactionsController extends Controller
 
                 'required_columns' => [
                     'symbol',
-                    'transaction_type',
+                    'type',
                     'shares',
-                    'price_per_share',
-                    'transaction_date',
+                    'price',
+                    'date',
                 ],
 
                 'example' => [
                     'symbol' => 'SCHD',
-                    'transaction_type' => 'buy',
+                    'type' => 'buy',
                     'shares' => '10',
-                    'price_per_share' => '75.25',
-                    'transaction_date' => '2026-05-15',
+                    'price' => '75.25',
+                    'date' => '2026-05-15',
                 ],
 
             ], 422);
@@ -333,15 +294,6 @@ class PortfolioTransactionsController extends Controller
                 ->delete();
         } catch (\Exception $e) {
 
-            Log::error('Failed to delete all portfolio transactions', [
-
-                'user_id' => Auth::id(),
-
-                'portfolio_id' => $portfolio_id,
-
-                'error' => $e->getMessage(),
-
-            ]);
 
             return response()->json([
 
@@ -363,6 +315,9 @@ class PortfolioTransactionsController extends Controller
 
     public function getImportPortfolioTransactionsConfig()
     {
+
+        $aliases = config('import_transaction_aliases.aliases');
+
         return response()->json([
 
             'success' => true,
@@ -383,9 +338,7 @@ class PortfolioTransactionsController extends Controller
 
                 ],
 
-                'accepted_transaction_types' => array_keys(
-                    config('import_transaction_aliases.aliases')
-                ),
+                'accepted_transaction_types' => array_keys($aliases),
 
                 'date_format' => 'Y-m-d',
 
@@ -444,5 +397,51 @@ class PortfolioTransactionsController extends Controller
                 'message' => 'Oops, something went wrong. Please try again later.',
             ], 500);
         }
+    }
+
+    public function csvUploadTransactions(
+        Request $request,
+        int $portfolio_id,
+        UserBulkTransactionUploadService $service
+    ) {
+        $request->validate([
+            'csv_file' => ['required', 'file', 'mimes:csv,txt'],
+        ]);
+
+        try {
+
+            $results = $service->import(
+                Auth::id(),
+                $portfolio_id,
+                $request->file('csv_file')
+            );
+        } catch (\Exception $e) {
+
+
+
+            return response()->json([
+                'success' => false,
+                'message' => 'The CSV format is invalid.',
+                'required_columns' => [
+                    'symbol',
+                    'transaction_type',
+                    'shares',
+                    'price_per_share',
+                    'transaction_date',
+                ],
+                'example' => [
+                    'symbol' => 'SCHD',
+                    'transaction_type' => 'buy',
+                    'shares' => '10',
+                    'price_per_share' => '75.25',
+                    'transaction_date' => '2026-05-15',
+                ],
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $results,
+        ], 200);
     }
 }
