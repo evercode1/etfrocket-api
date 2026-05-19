@@ -50,11 +50,19 @@ class EtfsListController extends Controller
 
                 ->leftJoin('etfs', 'portfolio_transactions.etf_id', '=', 'etfs.id')
 
-                ->orderBy('etfs.symbol', 'asc')
+                ->select([
+
+                    'etfs.id',
+
+                    'etfs.symbol',
+
+                ])
 
                 ->distinct()
 
-                ->pluck('etfs.symbol', 'etfs.id');
+                ->orderBy('etfs.symbol', 'asc')
+
+                ->get();
         } catch (\Exception $e) {
 
             Log::error('Failed to fetch user-owned ETFs', [

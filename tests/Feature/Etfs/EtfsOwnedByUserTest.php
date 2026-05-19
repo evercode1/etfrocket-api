@@ -40,17 +40,9 @@ class EtfsOwnedByUserTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $vym = Etf::factory()->create([
-            'symbol' => 'VYM',
-        ]);
-
-        $schd = Etf::factory()->create([
-            'symbol' => 'SCHD',
-        ]);
-
-        $qqqi = Etf::factory()->create([
-            'symbol' => 'QQQI',
-        ]);
+        $vym = Etf::factory()->create(['symbol' => 'VYM']);
+        $schd = Etf::factory()->create(['symbol' => 'SCHD']);
+        $qqqi = Etf::factory()->create(['symbol' => 'QQQI']);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
@@ -74,19 +66,28 @@ class EtfsOwnedByUserTest extends TestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                (string) $qqqi->id => 'QQQI',
-                (string) $schd->id => 'SCHD',
-                (string) $vym->id => 'VYM',
+                [
+                    'id' => $qqqi->id,
+                    'symbol' => 'QQQI',
+                ],
+                [
+                    'id' => $schd->id,
+                    'symbol' => 'SCHD',
+                ],
+                [
+                    'id' => $vym->id,
+                    'symbol' => 'VYM',
+                ],
             ],
         ]);
 
         $this->assertSame(
             [
-                $qqqi->id,
-                $schd->id,
-                $vym->id,
+                'QQQI',
+                'SCHD',
+                'VYM',
             ],
-            array_keys($response->json('data'))
+            collect($response->json('data'))->pluck('symbol')->toArray()
         );
     }
 
@@ -121,7 +122,10 @@ class EtfsOwnedByUserTest extends TestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                (string) $schd->id => 'SCHD',
+                [
+                    'id' => $schd->id,
+                    'symbol' => 'SCHD',
+                ],
             ],
         ]);
 
@@ -165,13 +169,17 @@ class EtfsOwnedByUserTest extends TestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                (string) $schd->id => 'SCHD',
+                [
+                    'id' => $schd->id,
+                    'symbol' => 'SCHD',
+                ],
             ],
         ]);
 
-        $this->assertArrayNotHasKey(
-            (string) $vym->id,
-            $response->json('data')
+        $this->assertFalse(
+            collect($response->json('data'))
+                ->pluck('id')
+                ->contains($vym->id)
         );
     }
 
