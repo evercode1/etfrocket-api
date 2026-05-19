@@ -25,7 +25,7 @@ class PortfolioTransactionsController extends Controller
     ) {
         try {
 
-            $transactions = $service->getData(Auth::id(), $portfolio_id, $request->input('etf_id'));
+            $transactions = $service->getData($request, Auth::id(), $portfolio_id, $request->input('etf_id'));
         } catch (\Exception $e) {
 
 

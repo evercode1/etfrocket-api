@@ -4,11 +4,14 @@ namespace App\Services\PortfolioTransactions;
 
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
 
 class ListPortfolioTransactionsService
 {
     public function getData(
+
+        Request $request,
         int $userId,
         int $portfolioId,
         ?int $etfId = null
@@ -24,9 +27,13 @@ class ListPortfolioTransactionsService
             $query->where('etf_id', $etfId);
         }
 
-        return $query
-            ->orderByDesc('transaction_date')
-            ->orderByDesc('id')
-            ->get();
+        $query->orderByDesc('transaction_date')
+            ->orderByDesc('id');
+
+        if ($request->filled('limit')) {
+            $query->limit((int) $request->limit);
+        }
+
+        return $query->get();
     }
 }
