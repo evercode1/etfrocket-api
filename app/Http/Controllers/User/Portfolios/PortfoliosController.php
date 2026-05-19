@@ -7,6 +7,7 @@ use App\Services\Portfolios\CreatePortfolioService;
 use App\Services\Portfolios\ListPortfoliosService;
 use App\Services\Portfolios\UpdatePortfolioService;
 use App\Services\Portfolios\ViewPortfolioService;
+use App\Queries\Portfolios\PortfolioCardSummariesQuery;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
 use Illuminate\Support\Facades\DB;
@@ -259,6 +260,31 @@ class PortfoliosController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Portfolio deleted successfully.',
+        ], 200);
+    }
+
+    public function portfolioCardSummaries()
+    {
+        try {
+
+            $user_id = Auth::id();
+
+            $summaries = (new PortfolioCardSummariesQuery())->getData($user_id);
+        } catch (\Exception $e) {
+
+            return response()->json([
+
+                'success' => false,
+                'message' => 'An error occurred while fetching portfolio summaries.',
+
+            ], 500);
+        }
+
+        return response()->json([
+
+            'success' => true,
+            'data' => $summaries,
+
         ], 200);
     }
 }

@@ -21,6 +21,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/list-portfolios', [PortfoliosController::class, 'listPortfolios']);
 
+    Route::get('/portfolio-card-summaries', [PortfoliosController::class, 'portfolioCardSummaries']);
+
     Route::get('/view-portfolio/{id}', [PortfoliosController::class, 'viewPortfolio']);
 
     Route::get('/get-create-portfolio-form-config', [PortfoliosController::class, 'getCreatePortfolioFormConfig']);
@@ -37,26 +39,25 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // portfolio Transactions
 
 
-    Route::get('/list-portfolio-transactions/{portfolio_id}', [ PortfolioTransactionsController::class, 'listPortfolioTransactions']);
+    Route::get('/list-portfolio-transactions/{portfolio_id}', [PortfolioTransactionsController::class, 'listPortfolioTransactions']);
 
-    Route::get('/get-create-portfolio-transaction-form-config/{portfolio_id}', [ PortfolioTransactionsController::class, 'getCreatePortfolioTransactionFormConfig']);
+    Route::get('/get-create-portfolio-transaction-form-config/{portfolio_id}', [PortfolioTransactionsController::class, 'getCreatePortfolioTransactionFormConfig']);
 
-    Route::post('/create-portfolio-transaction/{portfolio_id}', [ PortfolioTransactionsController::class, 'createPortfolioTransaction']);
-    
-    Route::get('/get-update-portfolio-transaction-form-config/{id}', [ PortfolioTransactionsController::class, 'getUpdatePortfolioTransactionFormConfig']);
+    Route::post('/create-portfolio-transaction/{portfolio_id}', [PortfolioTransactionsController::class, 'createPortfolioTransaction']);
 
-    Route::put('/update-portfolio-transaction/{id}', [ PortfolioTransactionsController::class, 'updatePortfolioTransaction']);
+    Route::get('/get-update-portfolio-transaction-form-config/{id}', [PortfolioTransactionsController::class, 'getUpdatePortfolioTransactionFormConfig']);
 
-    Route::delete('/delete-portfolio-transaction/{id}', [ PortfolioTransactionsController::class, 'deletePortfolioTransaction']);
+    Route::put('/update-portfolio-transaction/{id}', [PortfolioTransactionsController::class, 'updatePortfolioTransaction']);
 
-    Route::delete('/delete-all-portfolio-transactions/{portfolio_id}', [PortfolioTransactionsController::class,'deleteAllPortfolioTransactions']);
+    Route::delete('/delete-portfolio-transaction/{id}', [PortfolioTransactionsController::class, 'deletePortfolioTransaction']);
+
+    Route::delete('/delete-all-portfolio-transactions/{portfolio_id}', [PortfolioTransactionsController::class, 'deleteAllPortfolioTransactions']);
 
     // import portfolio transactions
 
-    Route::get('/get-import-portfolio-transactions-config', [PortfolioTransactionsController::class,'getImportPortfolioTransactionsConfig']);
+    Route::get('/get-import-portfolio-transactions-config', [PortfolioTransactionsController::class, 'getImportPortfolioTransactionsConfig']);
 
-    Route::post('/import-portfolio-transactions/{portfolio_id}', [PortfolioTransactionsController::class,'importPortfolioTransactions']);
+    Route::post('/import-portfolio-transactions/{portfolio_id}', [PortfolioTransactionsController::class, 'importPortfolioTransactions']);
 
-    Route::get('/export-portfolio-transactions/{portfolio_id}', [PortfolioTransactionsController::class,'exportPortfolioTransactions']);
-
+    Route::get('/export-portfolio-transactions/{portfolio_id}', [PortfolioTransactionsController::class, 'exportPortfolioTransactions']);
 });
