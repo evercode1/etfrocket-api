@@ -10,7 +10,7 @@ class Etf extends Model
     /** @use HasFactory<\Database\Factories\EtfFactory> */
     use HasFactory;
 
-     protected $fillable = [
+    protected $fillable = [
 
         'symbol',
         'fund_name',
@@ -35,6 +35,13 @@ class Etf extends Model
             'updated_at' => 'date:Y-m-d'
 
         ];
+    }
 
+    public static function getSelects()
+    {
+
+        return self::orderBy('symbol', 'asc')
+
+            ->pluck('symbol', 'id');
     }
 }

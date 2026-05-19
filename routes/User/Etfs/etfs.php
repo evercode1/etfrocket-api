@@ -20,9 +20,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/get-etf-filters', [EtfsFilterController::class, 'getFilters']);
 
+    Route::get('/get-etf-selects', [EtfsFilterController::class, 'getSelects']);
+
     Route::get('/list-etfs', [EtfsListController::class, 'listEtfs']);
 
     Route::get('/compare-etfs', [EtfComparisonController::class, 'compareEtfs']);
-   
-
 });
