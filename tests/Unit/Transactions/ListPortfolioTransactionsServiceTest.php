@@ -190,4 +190,55 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             $otherPortfolio->id
         );
     }
+
+    public function test_it_returns_etf_symbol_with_transactions(): void
+
+    {
+
+        $user = User::factory()->create();
+
+        $portfolio = Portfolio::factory()->create([
+
+            'user_id' => $user->id,
+
+        ]);
+
+        $etf = Etf::factory()->create([
+
+            'symbol' => 'SCHD',
+
+        ]);
+
+        PortfolioTransaction::factory()->create([
+
+            'portfolio_id' => $portfolio->id,
+
+            'etf_id' => $etf->id,
+
+            'transaction_date' => '2026-05-15',
+
+        ]);
+
+        $service = new ListPortfolioTransactionsService();
+
+        $results = $service->getData(
+
+            new Request(),
+
+            $user->id,
+
+            $portfolio->id
+
+        );
+
+        $this->assertCount(1, $results);
+
+        $this->assertSame(
+
+            'SCHD',
+
+            $results->first()->symbol
+
+        );
+    }
 }
