@@ -11,14 +11,14 @@ class DividendHistoryController extends Controller
 {
     public function index(
         Request $request,
-        int $portfolio_id,
+        $portfolio_id,
         DividendHistoryQuery $query
     ) {
         try {
-            $dividends = $query->getData(
+            $data = $query->getData(
                 $request,
                 Auth::id(),
-                $portfolio_id
+                (int) $portfolio_id
             );
         } catch (\Exception $e) {
             return response()->json([
@@ -29,7 +29,7 @@ class DividendHistoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $dividends,
+            'data' => $data,
         ], 200);
     }
 }

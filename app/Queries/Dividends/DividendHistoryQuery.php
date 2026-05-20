@@ -4,7 +4,6 @@ namespace App\Queries\Dividends;
 
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -17,7 +16,7 @@ class DividendHistoryQuery
         Request $request,
         int $userId,
         int $portfolioId
-    ): LengthAwarePaginator {
+    ): array {
         Portfolio::where('id', $portfolioId)
             ->where('user_id', $userId)
             ->firstOrFail();
@@ -60,26 +59,46 @@ class DividendHistoryQuery
             ]);
 
         if ($request->filled('symbol')) {
-            $query->where('etfs.symbol', 'like', '%' . $request->input('symbol') . '%');
+            $query->where(
+                'etfs.symbol',
+                'like',
+                '%' . $request->input('symbol') . '%'
+            );
         }
 
         if ($request->filled('frequency_id')) {
-            $query->where('etfs.distribution_frequency_id', (int) $request->input('frequency_id'));
+            $query->where(
+                'etfs.distribution_frequency_id',
+                (int) $request->input('frequency_id')
+            );
         }
 
         if ($request->filled('date_from')) {
-            $query->whereDate('etf_dividend_histories.ex_dividend_date', '>=', $request->input('date_from'));
+            $query->whereDate(
+                'etf_dividend_histories.ex_dividend_date',
+                '>=',
+                $request->input('date_from')
+            );
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('etf_dividend_histories.ex_dividend_date', '<=', $request->input('date_to'));
+            $query->whereDate(
+                'etf_dividend_histories.ex_dividend_date',
+                '<=',
+                $request->input('date_to')
+            );
         }
+
+        $totalPaid = (clone $query)->sum('etf_dividend_histories.dividend_amount');
 
         $query->orderByDesc('etf_dividend_histories.ex_dividend_date')
             ->orderBy('etfs.symbol');
 
         $perPage = (int) $request->input('per_page', 25);
 
-        return $query->paginate($perPage);
+        return [
+            'total_paid' => round((float) $totalPaid, 4),
+            'dividends' => $query->paginate($perPage),
+        ];
     }
 }
