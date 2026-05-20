@@ -26,13 +26,19 @@ class MissionControlQuery
             'selected_portfolio' => $selectedPortfolio,
 
             'portfolio_snapshot' => $selectedPortfolio
-                ? (new PortfolioSnapshotQuery())->getData(
+
+                ? app(PortfolioSnapshotQuery::class)->getData(
+
                     $selectedPortfolio->id
+
                 )
+
                 : null,
 
             'portfolio_flight_path' => $selectedPortfolio
-                ? (new PortfolioFlightPathQuery())->getData($selectedPortfolio->id)
+
+                ? app(PortfolioFlightPathQuery::class)->getData($selectedPortfolio->id)
+
                 : [],
 
             'risk_alerts' => (new RiskAlertsQuery())->getData(),

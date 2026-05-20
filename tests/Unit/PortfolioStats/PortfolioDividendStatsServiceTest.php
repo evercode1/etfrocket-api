@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services\PortfolioStats;
+namespace Tests\Unit\PortfolioStats;
 
 use App\Models\Etf;
 use App\Models\EtfDividendHistory;

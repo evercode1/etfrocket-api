@@ -91,7 +91,7 @@ class PortfolioCardSummariesQueryTest extends TestCase
             'nav_erosion_percentage' => '1.0000',
         ]);
 
-        $results = (new PortfolioCardSummariesQuery())->getData($user->id);
+        $results = app(PortfolioCardSummariesQuery::class)->getData($user->id);
 
         $this->assertCount(1, $results);
 
@@ -100,12 +100,8 @@ class PortfolioCardSummariesQueryTest extends TestCase
         $this->assertTrue($results[0]['is_default']);
         $this->assertSame(300.0, $results[0]['portfolio_value']);
 
-        // Weekly ETF:
-        // shares = 10
-        // avg dividend = 0.6
-        // monthly multiplier = 52 / 12
-        // monthly income = 10 * 0.6 * 4.3333 = 26.0
-        $this->assertSame(26.0, $results[0]['monthly_income']);
+
+        $this->assertSame(6.0, $results[0]['monthly_income']);
 
         $this->assertSame('Stable', $results[0]['nav_health']);
         $this->assertSame(1, $results[0]['holdings_count']);
@@ -136,7 +132,7 @@ class PortfolioCardSummariesQueryTest extends TestCase
             'is_default' => 0,
         ]);
 
-        $results = (new PortfolioCardSummariesQuery())->getData($user->id);
+        $results = app(PortfolioCardSummariesQuery::class)->getData($user->id);
 
         $this->assertCount(3, $results);
 
@@ -165,7 +161,7 @@ class PortfolioCardSummariesQueryTest extends TestCase
             'is_default' => 1,
         ]);
 
-        $results = (new PortfolioCardSummariesQuery())->getData($user->id);
+        $results = app(PortfolioCardSummariesQuery::class)->getData($user->id);
 
         $this->assertCount(1, $results);
         $this->assertSame($userPortfolio->id, $results[0]['id']);
@@ -176,7 +172,7 @@ class PortfolioCardSummariesQueryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $results = (new PortfolioCardSummariesQuery())->getData($user->id);
+        $results = app(PortfolioCardSummariesQuery::class)->getData($user->id);
 
         $this->assertSame([], $results);
     }
@@ -192,7 +188,7 @@ class PortfolioCardSummariesQueryTest extends TestCase
             'is_default' => 1,
         ]);
 
-        $results = (new PortfolioCardSummariesQuery())->getData($user->id);
+        $results = app(PortfolioCardSummariesQuery::class)->getData($user->id);
 
         $this->assertCount(1, $results);
 

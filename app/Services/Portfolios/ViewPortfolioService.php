@@ -7,13 +7,19 @@ use App\Queries\MissionControl\PortfolioSnapshotQuery;
 
 class ViewPortfolioService
 {
+    public function __construct(
+
+        private PortfolioSnapshotQuery $portfolioSnapshotQuery
+
+    ) {}
+
     public function getData(int $userId, int $portfolioId): array
     {
         $portfolio = Portfolio::where('user_id', $userId)
             ->where('id', $portfolioId)
             ->firstOrFail();
 
-        $snapshot = (new PortfolioSnapshotQuery())->getData($portfolio->id);
+        $snapshot = $this->portfolioSnapshotQuery->getData($portfolio->id);
 
         $holdings = collect($snapshot['holdings'] ?? [])
             ->map(function (array $holding) use ($snapshot) {
