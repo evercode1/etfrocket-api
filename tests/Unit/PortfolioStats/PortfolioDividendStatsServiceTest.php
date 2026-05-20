@@ -172,8 +172,8 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
 
-        $this->createDividend($etf->id, '1.0000', '2026-04-15');
-        $this->createDividend($etf->id, '1.5000', '2026-05-15');
+        $this->createDividend($etf->id, '1.0000', '2026-03-15');
+        $this->createDividend($etf->id, '1.5000', '2026-04-15');
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -192,8 +192,8 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
 
-        $this->createDividend($etf->id, '1.0000', '2026-04-15');
-        $this->createDividend($etf->id, '0.7500', '2026-05-15');
+        $this->createDividend($etf->id, '1.0000', '2026-03-15');
+        $this->createDividend($etf->id, '0.7500', '2026-04-15');
 
         $holdings = $this->getHoldings($portfolio->id);
 
