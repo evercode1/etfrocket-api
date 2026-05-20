@@ -45,7 +45,7 @@ class DividendIntelligenceSummaryQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $summary = (new DividendIntelligenceSummaryQuery())->getData($portfolio->id);
+        $summary = app(DividendIntelligenceSummaryQuery::class)->getData($portfolio->id);
 
         $this->assertFalse($summary['has_holdings']);
         $this->assertSame(0, $summary['projected_monthly_income']);
@@ -127,7 +127,7 @@ class DividendIntelligenceSummaryQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $summary = (new DividendIntelligenceSummaryQuery())->getData($portfolio->id);
+        $summary = app(DividendIntelligenceSummaryQuery::class)->getData($portfolio->id);
 
         $this->assertTrue($summary['has_holdings']);
 
@@ -191,7 +191,7 @@ class DividendIntelligenceSummaryQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $summary = (new DividendIntelligenceSummaryQuery())->getData($portfolio->id);
+        $summary = app(DividendIntelligenceSummaryQuery::class)->getData($portfolio->id);
 
         $this->assertFalse($summary['has_holdings']);
         $this->assertSame(0, $summary['projected_monthly_income']);
@@ -239,7 +239,7 @@ class DividendIntelligenceSummaryQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $summary = (new DividendIntelligenceSummaryQuery())->getData($portfolio->id);
+        $summary = app(DividendIntelligenceSummaryQuery::class)->getData($portfolio->id);
 
         $this->assertSame(50.0, $summary['dividend_growth_percentage']);
     }
