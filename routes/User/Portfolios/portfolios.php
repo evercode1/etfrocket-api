@@ -7,7 +7,7 @@ use App\Http\Controllers\User\Portfolios\PortfolioTransactionsController;
 
 /*
 |--------------------------------------------------------------------------
-| User Support ROUTES
+| User Portfolios ROUTES
 |--------------------------------------------------------------------------
 |
 | Users that have access to these routes must be logged in.
