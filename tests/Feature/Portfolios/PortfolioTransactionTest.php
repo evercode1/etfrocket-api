@@ -52,15 +52,15 @@ class PortfolioTransactionTest extends TestCase
             'transaction_date' => '2026-05-10',
         ]);
 
-        $response = $this->getJson("/api/list-portfolio-transactions/{$portfolio->id}");
+        $response = $this->getJson("/api/list-portfolio-transactions/{$portfolio->id}?sortBy=1&sortOrder=desc");
 
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
 
-        $this->assertCount(2, $response->json('data'));
+        $this->assertCount(2, $response->json('data.data'));
 
-        $response->assertJsonPath('data.0.transaction_date', '2026-05-10');
-        $response->assertJsonPath('data.1.transaction_date', '2026-05-01');
+        $response->assertJsonPath('data.data.0.transaction_date', '2026-05-10');
+        $response->assertJsonPath('data.data.1.transaction_date', '2026-05-01');
     }
 
     public function test_list_portfolio_transactions_can_filter_by_etf(): void
@@ -86,13 +86,12 @@ class PortfolioTransactionTest extends TestCase
             'transaction_date' => '2026-05-02',
         ]);
 
-        $response = $this->getJson("/api/list-portfolio-transactions/{$portfolio->id}?etf_id={$schd->id}");
-
+        $response = $this->getJson("/api/list-portfolio-transactions/{$portfolio->id}?etf_id={$schd->id}&sortBy=1&sortOrder=desc");
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
 
-        $this->assertCount(1, $response->json('data'));
-        $response->assertJsonPath('data.0.etf_id', $schd->id);
+        $this->assertCount(1, $response->json('data.data'));
+        $response->assertJsonPath('data.data.0.etf_id', $schd->id);
     }
 
     public function test_guest_cannot_list_portfolio_transactions(): void
