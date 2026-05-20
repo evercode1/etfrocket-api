@@ -54,7 +54,7 @@ class DividendIntelligenceSummaryQueryTest extends TestCase
         $this->assertNull($summary['dividend_growth_percentage']);
     }
 
-    public function test_it_calculates_dividend_summary_for_current_holdings(): void
+    public function test_it_calculates_dividend_summary_for_current_holdings_using_recent_monthly_income_average(): void
     {
         $user = User::factory()->create();
 
@@ -95,21 +95,35 @@ class DividendIntelligenceSummaryQueryTest extends TestCase
             'transaction_date' => '2026-01-01',
         ]);
 
-        foreach (['0.2000', '0.3000', '0.4000', '0.5000'] as $index => $amount) {
-            EtfDividendHistory::factory()->create([
-                'etf_id' => $weeklyEtf->id,
-                'dividend_amount' => $amount,
-                'ex_dividend_date' => now()->subDays($index + 1)->toDateString(),
-                'payment_date' => now()->subDays($index)->toDateString(),
-                'data_source_id' => 1,
-            ]);
-        }
+        EtfDividendHistory::factory()->create([
+            'etf_id' => $weeklyEtf->id,
+            'dividend_amount' => '0.5000',
+            'ex_dividend_date' => '2026-05-15',
+            'payment_date' => '2026-05-16',
+            'data_source_id' => 1,
+        ]);
+
+        EtfDividendHistory::factory()->create([
+            'etf_id' => $weeklyEtf->id,
+            'dividend_amount' => '0.4000',
+            'ex_dividend_date' => '2026-05-08',
+            'payment_date' => '2026-05-09',
+            'data_source_id' => 1,
+        ]);
+
+        EtfDividendHistory::factory()->create([
+            'etf_id' => $weeklyEtf->id,
+            'dividend_amount' => '0.3000',
+            'ex_dividend_date' => '2026-04-15',
+            'payment_date' => '2026-04-16',
+            'data_source_id' => 1,
+        ]);
 
         EtfDividendHistory::factory()->create([
             'etf_id' => $monthlyEtf->id,
             'dividend_amount' => '1.0000',
-            'ex_dividend_date' => now()->subDays(1)->toDateString(),
-            'payment_date' => now()->toDateString(),
+            'ex_dividend_date' => '2026-05-01',
+            'payment_date' => '2026-05-02',
             'data_source_id' => 1,
         ]);
 
@@ -117,17 +131,23 @@ class DividendIntelligenceSummaryQueryTest extends TestCase
 
         $this->assertTrue($summary['has_holdings']);
 
-        // Weekly ETF: avg .35 * 10 shares * 52/12 = 15.1667
-        // Monthly ETF: avg 1.00 * 5 shares * 1 = 5.0000
-        // Total = 20.1667
-        $this->assertSame(20.1667, $summary['projected_monthly_income']);
+        // May income:
+        // Weekly ETF: 10 shares * (.50 + .40) = 9.00
+        // Monthly ETF: 5 shares * 1.00 = 5.00
+        // May total = 14.00
+        //
+        // April income:
+        // Weekly ETF: 10 shares * .30 = 3.00
+        //
+        // Average of non-zero recent monthly income rows = (14 + 3) / 2 = 8.50
+        $this->assertSame(8.5, $summary['projected_monthly_income']);
 
         $this->assertSame(1, $summary['upcoming_weekly_events_count']);
 
-        // Annualized income: 20.1667 * 12 = 242.0004
+        // Annualized income: 8.50 * 12 = 102
         // Cost basis: 250 + 250 = 500
-        // Forward yield: 48.4001%
-        $this->assertSame(48.4, $summary['forward_yield_percentage']);
+        // Forward yield: 20.4%
+        $this->assertSame(20.4, $summary['forward_yield_percentage']);
     }
 
     public function test_it_excludes_fully_sold_positions_from_summary(): void

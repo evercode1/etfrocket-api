@@ -55,7 +55,7 @@ class DividendIncomeTimelineQueryTest extends TestCase
         $this->assertSame([], $timeline);
     }
 
-    public function test_it_returns_five_month_projected_income_timeline(): void
+    public function test_it_returns_five_month_projected_income_timeline_using_recent_monthly_income_average(): void
     {
         $user = User::factory()->create();
 
@@ -96,15 +96,29 @@ class DividendIncomeTimelineQueryTest extends TestCase
             'transaction_date' => '2026-01-01',
         ]);
 
-        foreach (['0.2000', '0.3000', '0.4000', '0.5000'] as $index => $amount) {
-            EtfDividendHistory::factory()->create([
-                'etf_id' => $weeklyEtf->id,
-                'dividend_amount' => $amount,
-                'ex_dividend_date' => Carbon::parse('2026-05-15')->subDays($index)->toDateString(),
-                'payment_date' => Carbon::parse('2026-05-16')->subDays($index)->toDateString(),
-                'data_source_id' => 1,
-            ]);
-        }
+        EtfDividendHistory::factory()->create([
+            'etf_id' => $weeklyEtf->id,
+            'dividend_amount' => '0.5000',
+            'ex_dividend_date' => '2026-05-15',
+            'payment_date' => '2026-05-16',
+            'data_source_id' => 1,
+        ]);
+
+        EtfDividendHistory::factory()->create([
+            'etf_id' => $weeklyEtf->id,
+            'dividend_amount' => '0.4000',
+            'ex_dividend_date' => '2026-05-08',
+            'payment_date' => '2026-05-09',
+            'data_source_id' => 1,
+        ]);
+
+        EtfDividendHistory::factory()->create([
+            'etf_id' => $weeklyEtf->id,
+            'dividend_amount' => '0.3000',
+            'ex_dividend_date' => '2026-04-15',
+            'payment_date' => '2026-04-16',
+            'data_source_id' => 1,
+        ]);
 
         EtfDividendHistory::factory()->create([
             'etf_id' => $monthlyEtf->id,
@@ -123,11 +137,17 @@ class DividendIncomeTimelineQueryTest extends TestCase
             collect($timeline)->pluck('month')->toArray()
         );
 
-        // Weekly ETF: avg .35 * 10 shares * 52/12 = 15.1667
-        // Monthly ETF: avg 1.00 * 5 shares * 1 = 5.0000
-        // Total rounded chart income = 20.17
+        // May income:
+        // Weekly ETF: 10 shares * (.50 + .40) = 9.00
+        // Monthly ETF: 5 shares * 1.00 = 5.00
+        // May total = 14.00
+        //
+        // April income:
+        // Weekly ETF: 10 shares * .30 = 3.00
+        //
+        // Average of non-zero recent monthly income rows = (14 + 3) / 2 = 8.50
         foreach ($timeline as $month) {
-            $this->assertSame(20.17, $month['income']);
+            $this->assertSame(8.5, $month['income']);
         }
     }
 

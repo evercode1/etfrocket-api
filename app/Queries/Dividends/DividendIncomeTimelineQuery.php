@@ -12,6 +12,8 @@ class DividendIncomeTimelineQuery
 {
     private const BUY = 1;
     private const SELL = 2;
+    private const RECENT_MONTHS_TO_AVERAGE = 3;
+    private const FUTURE_MONTHS_TO_PROJECT = 5;
 
     public function getData(int $portfolioId): array
     {
@@ -21,19 +23,19 @@ class DividendIncomeTimelineQuery
             return [];
         }
 
+        $projectedMonthlyIncome = $this->getAverageRecentMonthlyIncome(
+            $holdings
+        );
+
         $startMonth = Carbon::now()->startOfMonth();
 
-        return collect(range(0, 4))
-            ->map(function (int $monthOffset) use ($holdings, $startMonth) {
-
+        return collect(range(0, self::FUTURE_MONTHS_TO_PROJECT - 1))
+            ->map(function (int $monthOffset) use ($projectedMonthlyIncome, $startMonth) {
                 $month = $startMonth->copy()->addMonths($monthOffset);
 
                 return [
                     'month' => $month->format('M'),
-                    'income' => round(
-                        $this->getProjectedIncomeForMonth($holdings, $month),
-                        2
-                    ),
+                    'income' => round($projectedMonthlyIncome, 2),
                 ];
             })
             ->toArray();
@@ -67,52 +69,50 @@ class DividendIncomeTimelineQuery
             ->get();
     }
 
-    private function getProjectedIncomeForMonth(Collection $holdings, Carbon $month): float
+    private function getAverageRecentMonthlyIncome(Collection $holdings): float
     {
-        $income = 0;
+        $etfIds = $holdings->pluck('etf_id')->toArray();
 
-        foreach ($holdings as $holding) {
-            $averageDividend = $this->getAverageRecentDividend(
-                (int) $holding->etf_id
-            );
+        $latestDividendDate = EtfDividendHistory::whereIn('etf_id', $etfIds)
+            ->max('ex_dividend_date');
 
-            $monthlyMultiplier = $this->getMonthlyDistributionMultiplier(
-                (int) $holding->distribution_frequency_id
-            );
-
-            $income += (float) $holding->shares * $averageDividend * $monthlyMultiplier;
-        }
-
-        return $income;
-    }
-
-    private function getAverageRecentDividend(int $etfId): float
-    {
-        $recentDividends = EtfDividendHistory::where('etf_id', $etfId)
-            ->orderByDesc('ex_dividend_date')
-            ->limit(4)
-            ->pluck('dividend_amount');
-
-        if ($recentDividends->isEmpty()) {
+        if (! $latestDividendDate) {
             return 0;
         }
 
-        return (float) $recentDividends->avg();
+        $latestMonth = Carbon::parse($latestDividendDate)->startOfMonth();
+
+        $monthlyIncomeRows = collect(range(0, self::RECENT_MONTHS_TO_AVERAGE - 1))
+            ->map(function (int $monthOffset) use ($holdings, $latestMonth) {
+                $month = $latestMonth->copy()->subMonths($monthOffset);
+
+                return $this->getMonthlyDividendIncome($holdings, $month);
+            })
+            ->filter(fn(float $income) => $income > 0)
+            ->values();
+
+        if ($monthlyIncomeRows->isEmpty()) {
+            return 0;
+        }
+
+        return (float) $monthlyIncomeRows->avg();
     }
 
-    private function getMonthlyDistributionMultiplier(int $distributionFrequencyId): float
+    private function getMonthlyDividendIncome(Collection $holdings, Carbon $month): float
     {
-        return match ($distributionFrequencyId) {
-            1 => 30.0,
-            2 => 52 / 12,
-            3 => 26 / 12,
-            4 => 1.0,
-            5 => 1 / 3,
-            6 => 1 / 6,
-            7 => 1 / 12,
-            8 => 1.0,
-            9 => 0.0,
-            default => 1.0,
-        };
+        $monthStart = $month->copy()->startOfMonth()->toDateString();
+        $monthEnd = $month->copy()->endOfMonth()->toDateString();
+
+        $income = 0;
+
+        foreach ($holdings as $holding) {
+            $dividendTotal = EtfDividendHistory::where('etf_id', $holding->etf_id)
+                ->whereBetween('ex_dividend_date', [$monthStart, $monthEnd])
+                ->sum('dividend_amount');
+
+            $income += (float) $holding->shares * (float) $dividendTotal;
+        }
+
+        return $income;
     }
 }

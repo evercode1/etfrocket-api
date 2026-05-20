@@ -13,6 +13,7 @@ class DividendIntelligenceSummaryQuery
     private const BUY = 1;
     private const SELL = 2;
     private const WEEKLY = 2;
+    private const RECENT_MONTHS_TO_AVERAGE = 3;
 
     public function getData(int $portfolioId): array
     {
@@ -28,28 +29,20 @@ class DividendIntelligenceSummaryQuery
             ];
         }
 
-        $projectedMonthlyIncome = 0;
         $costBasis = 0;
         $upcomingWeeklyEventsCount = 0;
 
         foreach ($holdings as $holding) {
-            $shares = (float) $holding->shares;
             $costBasis += (float) $holding->cost_basis;
 
             if ((int) $holding->distribution_frequency_id === self::WEEKLY) {
                 $upcomingWeeklyEventsCount++;
             }
-
-            $averageDividend = $this->getAverageRecentDividend(
-                (int) $holding->etf_id
-            );
-
-            $monthlyMultiplier = $this->getMonthlyDistributionMultiplier(
-                (int) $holding->distribution_frequency_id
-            );
-
-            $projectedMonthlyIncome += $shares * $averageDividend * $monthlyMultiplier;
         }
+
+        $projectedMonthlyIncome = $this->getAverageRecentMonthlyIncome(
+            $holdings
+        );
 
         $forwardYieldPercentage = $costBasis > 0
             ? (($projectedMonthlyIncome * 12) / $costBasis) * 100
@@ -113,18 +106,33 @@ class DividendIntelligenceSummaryQuery
             ->get();
     }
 
-    private function getAverageRecentDividend(int $etfId): float
+    private function getAverageRecentMonthlyIncome(Collection $holdings): float
     {
-        $recentDividends = EtfDividendHistory::where('etf_id', $etfId)
-            ->orderByDesc('ex_dividend_date')
-            ->limit(4)
-            ->pluck('dividend_amount');
+        $etfIds = $holdings->pluck('etf_id')->toArray();
 
-        if ($recentDividends->isEmpty()) {
+        $latestDividendDate = EtfDividendHistory::whereIn('etf_id', $etfIds)
+            ->max('ex_dividend_date');
+
+        if (! $latestDividendDate) {
             return 0;
         }
 
-        return (float) $recentDividends->avg();
+        $latestMonth = Carbon::parse($latestDividendDate)->startOfMonth();
+
+        $monthlyIncomeRows = collect(range(0, self::RECENT_MONTHS_TO_AVERAGE - 1))
+            ->map(function (int $monthOffset) use ($holdings, $latestMonth) {
+                $month = $latestMonth->copy()->subMonths($monthOffset);
+
+                return $this->getMonthlyDividendIncome($holdings, $month);
+            })
+            ->filter(fn(float $income) => $income > 0)
+            ->values();
+
+        if ($monthlyIncomeRows->isEmpty()) {
+            return 0;
+        }
+
+        return (float) $monthlyIncomeRows->avg();
     }
 
     private function getDividendGrowthPercentage(Collection $holdings): ?float
@@ -177,21 +185,5 @@ class DividendIntelligenceSummaryQuery
         }
 
         return $income;
-    }
-
-    private function getMonthlyDistributionMultiplier(int $distributionFrequencyId): float
-    {
-        return match ($distributionFrequencyId) {
-            1 => 30.0,
-            2 => 52 / 12,
-            3 => 26 / 12,
-            4 => 1.0,
-            5 => 1 / 3,
-            6 => 1 / 6,
-            7 => 1 / 12,
-            8 => 1.0,
-            9 => 0.0,
-            default => 1.0,
-        };
     }
 }
