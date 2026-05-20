@@ -50,7 +50,7 @@ class DividendIncomeTimelineQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $timeline = (new DividendIncomeTimelineQuery())->getData($portfolio->id);
+        $timeline = app(DividendIncomeTimelineQuery::class)->getData($portfolio->id);
 
         $this->assertSame([], $timeline);
     }
@@ -128,7 +128,7 @@ class DividendIncomeTimelineQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $timeline = (new DividendIncomeTimelineQuery())->getData($portfolio->id);
+        $timeline = app(DividendIncomeTimelineQuery::class)->getData($portfolio->id);
 
         $this->assertCount(5, $timeline);
 
@@ -137,15 +137,6 @@ class DividendIncomeTimelineQueryTest extends TestCase
             collect($timeline)->pluck('month')->toArray()
         );
 
-        // May income:
-        // Weekly ETF: 10 shares * (.50 + .40) = 9.00
-        // Monthly ETF: 5 shares * 1.00 = 5.00
-        // May total = 14.00
-        //
-        // April income:
-        // Weekly ETF: 10 shares * .30 = 3.00
-        //
-        // Average of non-zero recent monthly income rows = (14 + 3) / 2 = 8.50
         foreach ($timeline as $month) {
             $this->assertSame(8.5, $month['income']);
         }
@@ -192,7 +183,7 @@ class DividendIncomeTimelineQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $timeline = (new DividendIncomeTimelineQuery())->getData($portfolio->id);
+        $timeline = app(DividendIncomeTimelineQuery::class)->getData($portfolio->id);
 
         $this->assertSame([], $timeline);
     }
@@ -221,7 +212,7 @@ class DividendIncomeTimelineQueryTest extends TestCase
             'transaction_date' => '2026-01-01',
         ]);
 
-        $timeline = (new DividendIncomeTimelineQuery())->getData($portfolio->id);
+        $timeline = app(DividendIncomeTimelineQuery::class)->getData($portfolio->id);
 
         $this->assertCount(5, $timeline);
 

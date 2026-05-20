@@ -50,7 +50,7 @@ class DividendSignalsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $signals = (new DividendSignalsQuery())->getData($portfolio->id);
+        $signals = app(DividendSignalsQuery::class)->getData($portfolio->id);
 
         $this->assertSame([], $signals);
     }
@@ -83,7 +83,7 @@ class DividendSignalsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $signals = (new DividendSignalsQuery())->getData($portfolio->id);
+        $signals = app(DividendSignalsQuery::class)->getData($portfolio->id);
 
         $distributionGrowthSignal = $signals[0];
 
@@ -122,7 +122,7 @@ class DividendSignalsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $signals = (new DividendSignalsQuery())->getData($portfolio->id);
+        $signals = app(DividendSignalsQuery::class)->getData($portfolio->id);
 
         $distributionGrowthSignal = $signals[0];
 
@@ -154,7 +154,7 @@ class DividendSignalsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $signals = (new DividendSignalsQuery())->getData($portfolio->id);
+        $signals = app(DividendSignalsQuery::class)->getData($portfolio->id);
 
         $weeklyCadenceSignal = $signals[1];
 
@@ -186,7 +186,7 @@ class DividendSignalsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $signals = (new DividendSignalsQuery())->getData($portfolio->id);
+        $signals = app(DividendSignalsQuery::class)->getData($portfolio->id);
 
         $weeklyCadenceSignal = $signals[1];
 
@@ -218,7 +218,7 @@ class DividendSignalsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $signals = (new DividendSignalsQuery())->getData($portfolio->id);
+        $signals = app(DividendSignalsQuery::class)->getData($portfolio->id);
 
         $weeklyCadenceSignal = $signals[1];
 
@@ -258,7 +258,7 @@ class DividendSignalsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $signals = (new DividendSignalsQuery())->getData($portfolio->id);
+        $signals = app(DividendSignalsQuery::class)->getData($portfolio->id);
 
         $incomeStabilitySignal = $signals[2];
 
@@ -298,7 +298,7 @@ class DividendSignalsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $signals = (new DividendSignalsQuery())->getData($portfolio->id);
+        $signals = app(DividendSignalsQuery::class)->getData($portfolio->id);
 
         $incomeStabilitySignal = $signals[2];
 
@@ -329,7 +329,7 @@ class DividendSignalsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $signals = (new DividendSignalsQuery())->getData($portfolio->id);
+        $signals = app(DividendSignalsQuery::class)->getData($portfolio->id);
 
         $incomeStabilitySignal = $signals[2];
 
@@ -369,7 +369,7 @@ class DividendSignalsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $signals = (new DividendSignalsQuery())->getData($portfolio->id);
+        $signals = app(DividendSignalsQuery::class)->getData($portfolio->id);
 
         $this->assertSame([], $signals);
     }

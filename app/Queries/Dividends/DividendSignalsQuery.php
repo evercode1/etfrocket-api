@@ -3,20 +3,23 @@
 namespace App\Queries\Dividends;
 
 use App\Models\EtfDividendHistory;
-use App\Models\PortfolioTransaction;
+use App\Services\PortfolioStats\PortfolioDividendStatsService;
+use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class DividendSignalsQuery
 {
-    private const BUY = 1;
-    private const SELL = 2;
     private const WEEKLY = 2;
+
+    public function __construct(
+        private PortfolioHoldingsStatsService $holdingsStatsService,
+        private PortfolioDividendStatsService $dividendStatsService
+    ) {}
 
     public function getData(int $portfolioId): array
     {
-        $holdings = $this->getHoldings($portfolioId);
+        $holdings = $this->holdingsStatsService->getCurrentHoldings($portfolioId);
 
         if ($holdings->isEmpty()) {
             return [];
@@ -29,40 +32,12 @@ class DividendSignalsQuery
         ];
     }
 
-    private function getHoldings(int $portfolioId): Collection
-    {
-        return PortfolioTransaction::query()
-            ->select([
-                'portfolio_transactions.etf_id',
-                'etfs.symbol',
-                'etfs.distribution_frequency_id',
-                DB::raw('
-                    SUM(
-                        CASE
-                            WHEN portfolio_transactions.transaction_type_id = ' . self::BUY . ' THEN portfolio_transactions.shares
-                            WHEN portfolio_transactions.transaction_type_id = ' . self::SELL . ' THEN -portfolio_transactions.shares
-                            ELSE 0
-                        END
-                    ) as shares
-                '),
-            ])
-            ->join('etfs', 'portfolio_transactions.etf_id', '=', 'etfs.id')
-            ->where('portfolio_transactions.portfolio_id', $portfolioId)
-            ->groupBy([
-                'portfolio_transactions.etf_id',
-                'etfs.symbol',
-                'etfs.distribution_frequency_id',
-            ])
-            ->having('shares', '>', 0)
-            ->get();
-    }
-
     private function getDistributionGrowthSignal(Collection $holdings): array
     {
         $growthRows = [];
 
         foreach ($holdings as $holding) {
-            $latestTwoDividends = EtfDividendHistory::where('etf_id', $holding->etf_id)
+            $latestTwoDividends = EtfDividendHistory::where('etf_id', $holding['etf_id'])
                 ->orderByDesc('ex_dividend_date')
                 ->limit(2)
                 ->get();
@@ -82,7 +57,7 @@ class DividendSignalsQuery
 
             if ($growthPercentage > 0) {
                 $growthRows[] = [
-                    'symbol' => $holding->symbol,
+                    'symbol' => $holding['symbol'],
                     'growth_percentage' => round($growthPercentage, 2),
                 ];
             }
@@ -125,8 +100,8 @@ class DividendSignalsQuery
 
     private function getWeeklyCadenceSignal(Collection $holdings): array
     {
-        $weeklyHoldings = $holdings->filter(function ($holding) {
-            return (int) $holding->distribution_frequency_id === self::WEEKLY;
+        $weeklyHoldings = $holdings->filter(function (array $holding) {
+            return (int) $holding['distribution_frequency_id'] === self::WEEKLY;
         });
 
         if ($weeklyHoldings->isEmpty()) {
@@ -148,7 +123,7 @@ class DividendSignalsQuery
         $expectedEtfs = [];
 
         foreach ($weeklyHoldings as $holding) {
-            $futureDeclaredDividend = EtfDividendHistory::where('etf_id', $holding->etf_id)
+            $futureDeclaredDividend = EtfDividendHistory::where('etf_id', $holding['etf_id'])
                 ->whereDate('ex_dividend_date', '>=', $today->toDateString())
                 ->exists();
 
@@ -156,12 +131,12 @@ class DividendSignalsQuery
                 continue;
             }
 
-            $latestDividend = EtfDividendHistory::where('etf_id', $holding->etf_id)
+            $latestDividend = EtfDividendHistory::where('etf_id', $holding['etf_id'])
                 ->orderByDesc('ex_dividend_date')
                 ->first();
 
             if ($latestDividend) {
-                $expectedEtfs[] = $holding->symbol;
+                $expectedEtfs[] = $holding['symbol'];
             }
         }
 
@@ -268,7 +243,10 @@ class DividendSignalsQuery
 
                 return [
                     'month' => $month->format('Y-m'),
-                    'income' => $this->getMonthlyDividendIncome($holdings, $month),
+                    'income' => $this->dividendStatsService->getMonthlyDividendIncome(
+                        $holdings,
+                        $month
+                    ),
                 ];
             })
             ->filter(function (array $row) {
@@ -276,23 +254,5 @@ class DividendSignalsQuery
             })
             ->values()
             ->toArray();
-    }
-
-    private function getMonthlyDividendIncome(Collection $holdings, Carbon $month): float
-    {
-        $monthStart = $month->copy()->startOfMonth()->toDateString();
-        $monthEnd = $month->copy()->endOfMonth()->toDateString();
-
-        $income = 0;
-
-        foreach ($holdings as $holding) {
-            $dividendTotal = EtfDividendHistory::where('etf_id', $holding->etf_id)
-                ->whereBetween('ex_dividend_date', [$monthStart, $monthEnd])
-                ->sum('dividend_amount');
-
-            $income += (float) $holding->shares * (float) $dividendTotal;
-        }
-
-        return $income;
     }
 }

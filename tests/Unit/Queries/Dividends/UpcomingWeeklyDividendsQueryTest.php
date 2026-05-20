@@ -50,7 +50,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $results = (new UpcomingWeeklyDividendsQuery())->getData($portfolio->id);
+        $results = app(UpcomingWeeklyDividendsQuery::class)->getData($portfolio->id);
 
         $this->assertSame([], $results);
     }
@@ -88,7 +88,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $results = (new UpcomingWeeklyDividendsQuery())->getData($portfolio->id);
+        $results = app(UpcomingWeeklyDividendsQuery::class)->getData($portfolio->id);
 
         $this->assertCount(1, $results);
 
@@ -136,7 +136,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $results = (new UpcomingWeeklyDividendsQuery())->getData($portfolio->id);
+        $results = app(UpcomingWeeklyDividendsQuery::class)->getData($portfolio->id);
 
         $this->assertCount(1, $results);
 
@@ -181,7 +181,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $results = (new UpcomingWeeklyDividendsQuery())->getData($portfolio->id);
+        $results = app(UpcomingWeeklyDividendsQuery::class)->getData($portfolio->id);
 
         $this->assertSame([], $results);
     }
@@ -227,7 +227,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $results = (new UpcomingWeeklyDividendsQuery())->getData($portfolio->id);
+        $results = app(UpcomingWeeklyDividendsQuery::class)->getData($portfolio->id);
 
         $this->assertSame([], $results);
     }
@@ -257,7 +257,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'transaction_date' => '2026-01-01',
         ]);
 
-        $results = (new UpcomingWeeklyDividendsQuery())->getData($portfolio->id);
+        $results = app(UpcomingWeeklyDividendsQuery::class)->getData($portfolio->id);
 
         $this->assertCount(1, $results);
 
