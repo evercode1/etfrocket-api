@@ -69,31 +69,34 @@ class PortfolioDividendStatsService
             return null;
         }
 
-        $latestDividendDate = $this->getLatestDividendDate($holdings);
+        $latestCompleteMonth = Carbon::now()
+            ->subMonth()
+            ->startOfMonth();
 
-        if (! $latestDividendDate) {
+        $previousCompleteMonth = $latestCompleteMonth
+            ->copy()
+            ->subMonth();
+
+        $latestCompleteMonthIncome = $this->getMonthlyDividendIncome(
+            $holdings,
+            $latestCompleteMonth
+        );
+
+        $previousCompleteMonthIncome = $this->getMonthlyDividendIncome(
+            $holdings,
+            $previousCompleteMonth
+        );
+
+        if ($previousCompleteMonthIncome <= 0) {
             return null;
         }
 
-        $latestMonth = Carbon::parse($latestDividendDate)->startOfMonth();
-        $previousMonth = $latestMonth->copy()->subMonth();
-
-        $latestMonthIncome = $this->getMonthlyDividendIncome(
-            $holdings,
-            $latestMonth
-        );
-
-        $previousMonthIncome = $this->getMonthlyDividendIncome(
-            $holdings,
-            $previousMonth
-        );
-
-        if ($previousMonthIncome <= 0) {
+        if ($latestCompleteMonthIncome <= 0) {
             return null;
         }
 
         return round(
-            (($latestMonthIncome - $previousMonthIncome) / $previousMonthIncome) * 100,
+            (($latestCompleteMonthIncome - $previousCompleteMonthIncome) / $previousCompleteMonthIncome) * 100,
             4
         );
     }
@@ -122,6 +125,7 @@ class PortfolioDividendStatsService
         return EtfDividendHistory::whereIn('etf_id', $etfIds)
             ->max('ex_dividend_date');
     }
+
     public function getProjectedIncomeTimeline(
         Collection $holdings,
         int $months = 5,

@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Queries\Dividends\DividendIntelligenceSummaryQuery;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
+use Carbon\Carbon;
 
 class DividendIntelligenceSummaryQueryTest extends TestCase
 {
@@ -23,6 +24,8 @@ class DividendIntelligenceSummaryQueryTest extends TestCase
         DB::table('etf_dividend_histories')->truncate();
         DB::table('etfs')->truncate();
         DB::table('users')->truncate();
+
+        Carbon::setTestNow(Carbon::parse('2026-05-20'));
     }
 
     protected function tearDown(): void
@@ -32,6 +35,8 @@ class DividendIntelligenceSummaryQueryTest extends TestCase
         DB::table('etf_dividend_histories')->truncate();
         DB::table('etfs')->truncate();
         DB::table('users')->truncate();
+
+        Carbon::setTestNow();
 
         parent::tearDown();
     }
@@ -226,16 +231,16 @@ class DividendIntelligenceSummaryQueryTest extends TestCase
         EtfDividendHistory::factory()->create([
             'etf_id' => $etf->id,
             'dividend_amount' => '1.0000',
-            'ex_dividend_date' => '2026-04-15',
-            'payment_date' => '2026-04-16',
+            'ex_dividend_date' => '2026-03-15',
+            'payment_date' => '2026-03-16',
             'data_source_id' => 1,
         ]);
 
         EtfDividendHistory::factory()->create([
             'etf_id' => $etf->id,
             'dividend_amount' => '1.5000',
-            'ex_dividend_date' => '2026-05-15',
-            'payment_date' => '2026-05-16',
+            'ex_dividend_date' => '2026-04-15',
+            'payment_date' => '2026-04-16',
             'data_source_id' => 1,
         ]);
 
