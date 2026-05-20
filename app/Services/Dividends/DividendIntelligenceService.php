@@ -40,6 +40,11 @@ class DividendIntelligenceService
                 'has_holdings' => (bool) ($summary['has_holdings'] ?? false),
             ],
 
+            'portfolio_selects' => Portfolio::where('user_id', $userId)
+                ->orderByDesc('is_default')
+                ->orderBy('portfolio_name')
+                ->pluck('portfolio_name', 'id'),
+
             'summary' => [
                 'projected_monthly_income' => (float) ($summary['projected_monthly_income'] ?? 0),
                 'upcoming_weekly_events_count' => (int) ($summary['upcoming_weekly_events_count'] ?? 0),
