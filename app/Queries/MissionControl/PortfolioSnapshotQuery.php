@@ -68,6 +68,8 @@ class PortfolioSnapshotQuery
                 'monthly_income' => 0,
                 'nav_health' => 'No Holdings',
                 'holdings' => [],
+                'holdings_count' => 0,
+                'has_holdings' => false,
             ];
         }
 
@@ -146,6 +148,8 @@ class PortfolioSnapshotQuery
             'monthly_income' => round($projectedMonthlyIncome, 4),
             'nav_health' => $this->getNavHealth($holdingRows),
             'holdings' => $holdingRows,
+            'holdings_count' => count($holdingRows),
+            'has_holdings' => count($holdingRows) > 0,
         ];
     }
 

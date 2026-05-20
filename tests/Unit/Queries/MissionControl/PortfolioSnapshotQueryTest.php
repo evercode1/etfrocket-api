@@ -122,6 +122,9 @@ class PortfolioSnapshotQueryTest extends TestCase
         $this->assertSame(17.875, $snapshot['monthly_income']);
         $this->assertSame('Stable', $snapshot['nav_health']);
 
+        $this->assertSame(1, $snapshot['holdings_count']);
+        $this->assertTrue($snapshot['has_holdings']);
+
         $this->assertCount(1, $snapshot['holdings']);
 
         $this->assertSame($etf->id, $snapshot['holdings'][0]['etf_id']);
@@ -160,6 +163,8 @@ class PortfolioSnapshotQueryTest extends TestCase
         $this->assertNull($snapshot['total_return_percentage']);
         $this->assertSame(0, $snapshot['monthly_income']);
         $this->assertSame('No Holdings', $snapshot['nav_health']);
+        $this->assertSame(0, $snapshot['holdings_count']);
+        $this->assertFalse($snapshot['has_holdings']);
         $this->assertSame([], $snapshot['holdings']);
     }
 
