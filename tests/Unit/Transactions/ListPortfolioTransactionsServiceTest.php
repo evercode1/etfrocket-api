@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services\PortfolioTransactions;
+namespace Tests\Unit\Transactions;
 
 use App\Models\Etf;
 use App\Models\Portfolio;

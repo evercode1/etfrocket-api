@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\MissionControl;
+namespace Tests\Feature\Portfolios;
 
 use App\Models\Portfolio;
 use App\Models\Status;
