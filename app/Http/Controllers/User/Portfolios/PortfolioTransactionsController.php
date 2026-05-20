@@ -461,4 +461,42 @@ class PortfolioTransactionsController extends Controller
             'data' => $results,
         ], 200);
     }
+
+    public function showPortfolioTransaction(int $transaction_id)
+    {
+        try {
+
+            $transaction = PortfolioTransaction::where('portfolio_transactions.id', $transaction_id)
+
+                ->leftJoin('portfolios', 'portfolio_transactions.portfolio_id', '=', 'portfolios.id')
+
+                ->leftJoin('etfs', 'portfolio_transactions.etf_id', '=', 'etfs.id')
+
+                ->where('portfolios.user_id', Auth::id())
+
+                ->select([
+                    'portfolio_transactions.*',
+                    'etfs.symbol',
+                ])
+
+                ->firstOrFail();
+        } catch (\Exception $e) {
+
+            Log::error('Failed to show portfolio transaction', [
+                'user_id' => Auth::id(),
+                'transaction_id' => $transaction_id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Oops, something went wrong. Please try again later.',
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $transaction,
+        ], 200);
+    }
 }
