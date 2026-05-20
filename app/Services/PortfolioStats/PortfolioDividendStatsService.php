@@ -122,4 +122,37 @@ class PortfolioDividendStatsService
         return EtfDividendHistory::whereIn('etf_id', $etfIds)
             ->max('ex_dividend_date');
     }
+    public function getProjectedIncomeTimeline(
+        Collection $holdings,
+        int $months = 5,
+        float $annualGrowthRate = 0.08
+    ): array {
+        $projectedMonthlyIncome = $this->getProjectedMonthlyIncome($holdings);
+
+        $monthlyGrowthRate = $annualGrowthRate / 12;
+
+        $currentMonth = Carbon::now()->startOfMonth();
+
+        return collect(range(0, $months - 1))
+            ->map(function (int $monthOffset) use (
+                $projectedMonthlyIncome,
+                $monthlyGrowthRate,
+                $currentMonth
+            ) {
+                $month = $currentMonth->copy()->addMonths($monthOffset);
+
+                $growthMultiplier = pow(
+                    1 + $monthlyGrowthRate,
+                    $monthOffset
+                );
+
+                $projectedIncome = $projectedMonthlyIncome * $growthMultiplier;
+
+                return [
+                    'month' => $month->format('M'),
+                    'income' => round($projectedIncome, 2),
+                ];
+            })
+            ->toArray();
+    }
 }

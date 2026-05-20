@@ -137,9 +137,15 @@ class DividendIncomeTimelineQueryTest extends TestCase
             collect($timeline)->pluck('month')->toArray()
         );
 
-        foreach ($timeline as $month) {
-            $this->assertSame(8.5, $month['income']);
-        }
+        $this->assertSame(8.50, $timeline[0]['income']);
+
+        $this->assertSame(8.56, $timeline[1]['income']);
+
+        $this->assertSame(8.61, $timeline[2]['income']);
+
+        $this->assertSame(8.67, $timeline[3]['income']);
+
+        $this->assertSame(8.73, $timeline[4]['income']);
     }
 
     public function test_it_excludes_fully_sold_positions_from_timeline(): void
