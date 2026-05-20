@@ -54,7 +54,7 @@ class PortfolioFlightPathQueryTest extends TestCase
             'portfolio_name' => 'Empty Portfolio',
         ]);
 
-        $results = (new PortfolioFlightPathQuery())->getData($portfolio->id);
+        $results = app(PortfolioFlightPathQuery::class)->getData($portfolio->id);
 
         $this->assertSame([], $results);
     }
@@ -121,7 +121,7 @@ class PortfolioFlightPathQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $results = (new PortfolioFlightPathQuery())->getData($portfolio->id);
+        $results = app(PortfolioFlightPathQuery::class)->getData($portfolio->id);
 
         $this->assertCount(3, $results);
 
@@ -193,7 +193,7 @@ class PortfolioFlightPathQueryTest extends TestCase
             'volume' => 100000,
         ]);
 
-        $results = (new PortfolioFlightPathQuery())->getData($portfolio->id);
+        $results = app(PortfolioFlightPathQuery::class)->getData($portfolio->id);
 
         $this->assertSame(200.0, $results[0]['value']);
         $this->assertSame(180.0, $results[1]['value']);
@@ -263,7 +263,7 @@ class PortfolioFlightPathQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $results = (new PortfolioFlightPathQuery())->getData($portfolio->id);
+        $results = app(PortfolioFlightPathQuery::class)->getData($portfolio->id);
 
         $this->assertSame(3.0, $results[1]['income']);
     }
@@ -307,7 +307,7 @@ class PortfolioFlightPathQueryTest extends TestCase
             'volume' => 100000,
         ]);
 
-        $results = (new PortfolioFlightPathQuery())->getData($portfolio->id);
+        $results = app(PortfolioFlightPathQuery::class)->getData($portfolio->id);
 
         $this->assertSame(220.0, $results[0]['value']);
         $this->assertSame(240.0, $results[1]['value']);

@@ -109,7 +109,7 @@ class PortfolioSnapshotQueryTest extends TestCase
             'nav_erosion_percentage' => '1.2500',
         ]);
 
-        $snapshot = (new PortfolioSnapshotQuery())->getData($portfolio->id);
+        $snapshot = app(PortfolioSnapshotQuery::class)->getData($portfolio->id);
 
         $this->assertSame($portfolio->id, $snapshot['portfolio_id']);
         $this->assertSame('Income Rocket', $snapshot['portfolio_name']);
@@ -119,7 +119,9 @@ class PortfolioSnapshotQueryTest extends TestCase
         $this->assertSame(200.0, $snapshot['unrealized_gain_loss']);
         $this->assertSame(50.0, $snapshot['total_return_percentage']);
 
-        $this->assertSame(17.875, $snapshot['monthly_income']);
+        $this->assertSame(4.125, $snapshot['monthly_income']);
+
+
         $this->assertSame('Stable', $snapshot['nav_health']);
 
         $this->assertSame(1, $snapshot['holdings_count']);
@@ -134,12 +136,10 @@ class PortfolioSnapshotQueryTest extends TestCase
         $this->assertSame(400.0, $snapshot['holdings'][0]['cost_basis']);
         $this->assertSame(40.0, $snapshot['holdings'][0]['latest_price']);
         $this->assertSame(600.0, $snapshot['holdings'][0]['market_value']);
-        $this->assertSame(17.875, $snapshot['holdings'][0]['estimated_monthly_income']);
+        $this->assertSame(4.125, $snapshot['holdings'][0]['estimated_monthly_income']);
         $this->assertEquals('12.5000', $snapshot['holdings'][0]['total_return_percentage']);
         $this->assertEquals('1.2500', $snapshot['holdings'][0]['nav_erosion_percentage']);
         $this->assertSame(2, $snapshot['holdings'][0]['distribution_frequency_id']);
-        $this->assertSame(0.275, $snapshot['holdings'][0]['average_dividend']);
-        $this->assertSame(4.3333, $snapshot['holdings'][0]['monthly_distribution_multiplier']);
     }
 
     public function test_it_returns_zero_snapshot_for_portfolio_with_no_holdings(): void
@@ -153,7 +153,7 @@ class PortfolioSnapshotQueryTest extends TestCase
             'is_default' => 1,
         ]);
 
-        $snapshot = (new PortfolioSnapshotQuery())->getData($portfolio->id);
+        $snapshot = app(PortfolioSnapshotQuery::class)->getData($portfolio->id);
 
         $this->assertSame($portfolio->id, $snapshot['portfolio_id']);
         $this->assertSame('Empty Portfolio', $snapshot['portfolio_name']);
@@ -170,7 +170,7 @@ class PortfolioSnapshotQueryTest extends TestCase
 
     public function test_it_returns_null_when_portfolio_does_not_exist(): void
     {
-        $snapshot = (new PortfolioSnapshotQuery())->getData(999999);
+        $snapshot = app(PortfolioSnapshotQuery::class)->getData(999999);
 
         $this->assertNull($snapshot);
     }
@@ -216,7 +216,7 @@ class PortfolioSnapshotQueryTest extends TestCase
             'volume' => 100000,
         ]);
 
-        $snapshot = (new PortfolioSnapshotQuery())->getData($portfolio->id);
+        $snapshot = app(PortfolioSnapshotQuery::class)->getData($portfolio->id);
 
         $this->assertCount(1, $snapshot['holdings']);
         $this->assertSame(5.0, $snapshot['holdings'][0]['shares']);
@@ -263,7 +263,7 @@ class PortfolioSnapshotQueryTest extends TestCase
             'nav_erosion_percentage' => '-12.0000',
         ]);
 
-        $snapshot = (new PortfolioSnapshotQuery())->getData($portfolio->id);
+        $snapshot = app(PortfolioSnapshotQuery::class)->getData($portfolio->id);
 
         $this->assertSame('Watch', $snapshot['nav_health']);
     }

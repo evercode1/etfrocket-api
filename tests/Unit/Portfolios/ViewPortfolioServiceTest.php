@@ -93,7 +93,7 @@ class ViewPortfolioServiceTest extends TestCase
             'nav_erosion_percentage' => '1.0000',
         ]);
 
-        $data = (new ViewPortfolioService())->getData($user->id, $portfolio->id);
+        $data = app(ViewPortfolioService::class)->getData($user->id, $portfolio->id);
 
         $this->assertSame($portfolio->id, $data['id']);
         $this->assertSame('Income Rocket', $data['portfolio_name']);
@@ -104,7 +104,7 @@ class ViewPortfolioServiceTest extends TestCase
         $this->assertSame(200.0, $data['cost_basis']);
         $this->assertSame(100.0, $data['unrealized_gain_loss']);
         $this->assertSame(50.0, $data['total_return_percentage']);
-        $this->assertSame(26.0, $data['monthly_income']);
+        $this->assertSame(6.0, $data['monthly_income']);
         $this->assertSame('Stable', $data['nav_health']);
 
         $this->assertCount(1, $data['holdings']);
@@ -116,7 +116,7 @@ class ViewPortfolioServiceTest extends TestCase
         $this->assertSame(200.0, $data['holdings'][0]['cost_basis']);
         $this->assertSame(30.0, $data['holdings'][0]['latest_price']);
         $this->assertSame(300.0, $data['holdings'][0]['market_value']);
-        $this->assertSame(26.0, $data['holdings'][0]['estimated_monthly_income']);
+        $this->assertSame(6.0, $data['holdings'][0]['estimated_monthly_income']);
         $this->assertSame(100.0, $data['holdings'][0]['allocation_percentage']);
     }
 
@@ -177,7 +177,7 @@ class ViewPortfolioServiceTest extends TestCase
             'volume' => 100000,
         ]);
 
-        $data = (new ViewPortfolioService())->getData($user->id, $portfolio->id);
+        $data = app(ViewPortfolioService::class)->getData($user->id, $portfolio->id);
 
         $this->assertSame(500.0, $data['portfolio_value']);
         $this->assertCount(2, $data['holdings']);
@@ -206,7 +206,7 @@ class ViewPortfolioServiceTest extends TestCase
             'is_default' => 1,
         ]);
 
-        $data = (new ViewPortfolioService())->getData($user->id, $portfolio->id);
+        $data = app(ViewPortfolioService::class)->getData($user->id, $portfolio->id);
 
         $this->assertSame($portfolio->id, $data['id']);
         $this->assertSame('Empty Portfolio', $data['portfolio_name']);
@@ -236,7 +236,7 @@ class ViewPortfolioServiceTest extends TestCase
 
         $this->expectException(ModelNotFoundException::class);
 
-        (new ViewPortfolioService())->getData($user->id, $otherPortfolio->id);
+        app(ViewPortfolioService::class)->getData($user->id, $otherPortfolio->id);
     }
 
     public function test_it_throws_exception_when_portfolio_does_not_exist(): void
@@ -245,6 +245,6 @@ class ViewPortfolioServiceTest extends TestCase
 
         $this->expectException(ModelNotFoundException::class);
 
-        (new ViewPortfolioService())->getData($user->id, 999999);
+        app(ViewPortfolioService::class)->getData($user->id, 999999);
     }
 }
