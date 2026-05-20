@@ -53,6 +53,16 @@ class DividendIntelligenceFeatureTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
+        $secondPortfolio = Portfolio::factory()->create([
+
+            'user_id' => $user->id,
+
+            'portfolio_name' => 'Second Portfolio',
+
+            'status_id' => Status::ACTIVE,
+
+        ]);
+
         $etf = Etf::factory()->create([
             'symbol' => 'NVII',
             'fund_name' => 'NVII Test ETF',
@@ -105,6 +115,7 @@ class DividendIntelligenceFeatureTest extends TestCase
                     'name',
                     'has_holdings',
                 ],
+                'portfolio_selects',
                 'summary' => [
                     'projected_monthly_income',
                     'upcoming_weekly_events_count',
@@ -147,6 +158,22 @@ class DividendIntelligenceFeatureTest extends TestCase
         $response->assertJsonPath('data.upcoming_weekly_dividends.0.symbol', 'NVII');
         $response->assertJsonPath('data.upcoming_weekly_dividends.0.status', 'Declared');
         $response->assertJsonPath('data.signals.0.title', 'Distribution Growth');
+
+        $response->assertJsonPath(
+
+            "data.portfolio_selects.{$portfolio->id}",
+
+            'Income Portfolio'
+
+        );
+
+        $response->assertJsonPath(
+
+            "data.portfolio_selects.{$secondPortfolio->id}",
+
+            'Second Portfolio'
+
+        );
     }
 
     public function test_authenticated_user_gets_empty_dividend_intelligence_for_portfolio_with_no_holdings(): void
