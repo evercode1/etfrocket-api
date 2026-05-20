@@ -41,6 +41,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/list-portfolio-transactions/{portfolio_id}', [PortfolioTransactionsController::class, 'listPortfolioTransactions']);
 
+    Route::get('/show-portfolio-transaction/{transaction_id}', [PortfolioTransactionsController::class, 'showPortfolioTransaction']);
+
+    Route::put('/update-portfolio-transaction/{transaction_id}', [PortfolioTransactionsController::class, 'updatePortfolioTransaction']);
+
     Route::get('/get-create-portfolio-transaction-form-config/{portfolio_id}', [PortfolioTransactionsController::class, 'getCreatePortfolioTransactionFormConfig']);
 
     Route::post('/create-portfolio-transaction/{portfolio_id}', [PortfolioTransactionsController::class, 'createPortfolioTransaction']);
