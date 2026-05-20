@@ -140,6 +140,20 @@ class PortfolioSnapshotQueryTest extends TestCase
         $this->assertEquals('12.5000', $snapshot['holdings'][0]['total_return_percentage']);
         $this->assertEquals('1.2500', $snapshot['holdings'][0]['nav_erosion_percentage']);
         $this->assertSame(2, $snapshot['holdings'][0]['distribution_frequency_id']);
+        $this->assertCount(12, $snapshot['income_projection']);
+
+        $this->assertSame(
+            [
+                'month' => now()->startOfMonth()->format('M'),
+                'income' => 4.13,
+            ],
+            $snapshot['income_projection'][0]
+        );
+
+        $this->assertGreaterThan(
+            $snapshot['income_projection'][0]['income'],
+            $snapshot['income_projection'][11]['income']
+        );
     }
 
     public function test_it_returns_zero_snapshot_for_portfolio_with_no_holdings(): void
@@ -166,6 +180,7 @@ class PortfolioSnapshotQueryTest extends TestCase
         $this->assertSame(0, $snapshot['holdings_count']);
         $this->assertFalse($snapshot['has_holdings']);
         $this->assertSame([], $snapshot['holdings']);
+        $this->assertSame([], $snapshot['income_projection']);
     }
 
     public function test_it_returns_null_when_portfolio_does_not_exist(): void

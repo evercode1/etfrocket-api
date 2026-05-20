@@ -39,6 +39,7 @@ class PortfolioSnapshotQuery
                 'holdings' => [],
                 'holdings_count' => 0,
                 'has_holdings' => false,
+                'income_projection' => [],
             ];
         }
 
@@ -103,6 +104,8 @@ class PortfolioSnapshotQuery
             'holdings' => $holdingRows,
             'holdings_count' => count($holdingRows),
             'has_holdings' => count($holdingRows) > 0,
+            'income_projection' => $this->dividendStatsService
+                ->getProjectedIncomeTimeline($holdings, 12),
         ];
     }
 

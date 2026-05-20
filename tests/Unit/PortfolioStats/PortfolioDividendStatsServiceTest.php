@@ -394,4 +394,49 @@ class PortfolioDividendStatsServiceTest extends TestCase
             $portfolioId
         );
     }
+
+    public function test_it_returns_projected_income_timeline_with_growth(): void
+    {
+        $portfolio = $this->createPortfolio();
+
+        $etf = $this->createEtf('NVII', 2);
+
+        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
+
+        EtfDividendHistory::factory()->create([
+            'etf_id' => $etf->id,
+            'dividend_amount' => '1.0000',
+            'ex_dividend_date' => '2026-05-15',
+            'payment_date' => '2026-05-16',
+            'data_source_id' => 1,
+        ]);
+
+        $holdings = $this->getHoldings($portfolio->id);
+
+        $timeline = (new PortfolioDividendStatsService())
+            ->getProjectedIncomeTimeline($holdings);
+
+        $this->assertCount(5, $timeline);
+
+        $this->assertSame(
+            ['May', 'Jun', 'Jul', 'Aug', 'Sep'],
+            collect($timeline)->pluck('month')->toArray()
+        );
+
+        // Base projected monthly income:
+        // 10 shares * 1.00 = 10.00
+        //
+        // Then compounded monthly at 8% annual:
+        // Month 0 = 10.00
+        // Month 1 ≈ 10.07
+        // Month 2 ≈ 10.13
+        // Month 3 ≈ 10.20
+        // Month 4 ≈ 10.27
+
+        $this->assertSame(10.00, $timeline[0]['income']);
+        $this->assertSame(10.07, $timeline[1]['income']);
+        $this->assertSame(10.13, $timeline[2]['income']);
+        $this->assertSame(10.20, $timeline[3]['income']);
+        $this->assertSame(10.27, $timeline[4]['income']);
+    }
 }
