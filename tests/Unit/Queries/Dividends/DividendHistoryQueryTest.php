@@ -86,9 +86,13 @@ class DividendHistoryQueryTest extends TestCase
             $portfolio->id
         );
 
-        $this->assertSame(2, $result->total());
+        $this->assertSame(1.5, $result['total_paid']);
 
-        $rows = collect($result->items());
+        $dividends = $result['dividends'];
+
+        $this->assertSame(2, $dividends->total());
+
+        $rows = collect($dividends->items());
 
         $this->assertSame('NVII', $rows[0]->symbol);
         $this->assertSame('2026-05-15', $rows[0]->ex_dividend_date);
@@ -132,7 +136,8 @@ class DividendHistoryQueryTest extends TestCase
             $portfolio->id
         );
 
-        $this->assertSame(0, $result->total());
+        $this->assertSame(0.0, $result['total_paid']);
+        $this->assertSame(0, $result['dividends']->total());
     }
 
     public function test_it_excludes_dividends_for_etfs_not_currently_held(): void
@@ -180,8 +185,9 @@ class DividendHistoryQueryTest extends TestCase
             $portfolio->id
         );
 
-        $this->assertSame(1, $result->total());
-        $this->assertSame('HELD', $result->items()[0]->symbol);
+        $this->assertSame(0.4, $result['total_paid']);
+        $this->assertSame(1, $result['dividends']->total());
+        $this->assertSame('HELD', $result['dividends']->items()[0]->symbol);
     }
 
     public function test_it_excludes_fully_sold_positions(): void
@@ -224,7 +230,8 @@ class DividendHistoryQueryTest extends TestCase
             $portfolio->id
         );
 
-        $this->assertSame(0, $result->total());
+        $this->assertSame(0.0, $result['total_paid']);
+        $this->assertSame(0, $result['dividends']->total());
     }
 
     public function test_it_filters_by_symbol(): void
@@ -276,8 +283,9 @@ class DividendHistoryQueryTest extends TestCase
             $portfolio->id
         );
 
-        $this->assertSame(1, $result->total());
-        $this->assertSame('NVII', $result->items()[0]->symbol);
+        $this->assertSame(0.5, $result['total_paid']);
+        $this->assertSame(1, $result['dividends']->total());
+        $this->assertSame('NVII', $result['dividends']->items()[0]->symbol);
     }
 
     public function test_it_filters_by_frequency_id(): void
@@ -329,8 +337,9 @@ class DividendHistoryQueryTest extends TestCase
             $portfolio->id
         );
 
-        $this->assertSame(1, $result->total());
-        $this->assertSame('MONTH', $result->items()[0]->symbol);
+        $this->assertSame(1.0, $result['total_paid']);
+        $this->assertSame(1, $result['dividends']->total());
+        $this->assertSame('MONTH', $result['dividends']->items()[0]->symbol);
     }
 
     public function test_it_filters_by_ex_dividend_date_range(): void
@@ -376,8 +385,9 @@ class DividendHistoryQueryTest extends TestCase
             $portfolio->id
         );
 
-        $this->assertSame(1, $result->total());
-        $this->assertSame('2026-05-15', $result->items()[0]->ex_dividend_date);
+        $this->assertSame(0.5, $result['total_paid']);
+        $this->assertSame(1, $result['dividends']->total());
+        $this->assertSame('2026-05-15', $result['dividends']->items()[0]->ex_dividend_date);
     }
 
     public function test_it_throws_exception_when_portfolio_does_not_belong_to_user(): void
