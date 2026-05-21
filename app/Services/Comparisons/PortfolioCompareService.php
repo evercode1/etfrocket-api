@@ -45,9 +45,10 @@ class PortfolioCompareService
 
         $maxEtfs = $this->comparisonService->getMaxEtfs();
 
-        $comparisonHoldings = $holdings
-            ->take($maxEtfs)
-            ->values();
+        $comparisonHoldings = $this->getTopHoldingsForComparison(
+            $holdings,
+            $maxEtfs
+        );
 
         $etfIds = $comparisonHoldings
             ->pluck('etf_id')
@@ -92,6 +93,12 @@ class PortfolioCompareService
             'table_rows' => $tableRows->toArray(),
 
             'chart_rows' => $this->buildChartRows($resolved, $comparisonHoldings),
+            'comparison_limit' => [
+                'max_etfs' => $maxEtfs,
+                'total_holdings_count' => $holdings->count(),
+                'included_holdings_count' => $comparisonHoldings->count(),
+                'selection_method' => 'Top holdings by current market value',
+            ],
         ];
     }
 
@@ -120,16 +127,27 @@ class PortfolioCompareService
                     PerformanceRangeType::MAX
                 );
 
-                $latestPrice = EtfPriceHistory::where('etf_id', $etfId)
+                $shares = (float) ($holding['shares'] ?? 0);
+
+                $price = array_key_exists('latest_price', $holding)
+                    ? $holding['latest_price']
+                    : EtfPriceHistory::where('etf_id', $etfId)
                     ->orderByDesc('price_date')
                     ->value('close_price');
 
-                $shares = (float) ($holding['shares'] ?? 0);
-                $price = is_null($latestPrice) ? null : (float) $latestPrice;
+                $price = is_null($price) ? null : (float) $price;
 
-                $marketValue = is_null($price)
+                $marketValue = array_key_exists('market_value', $holding)
+                    ? $holding['market_value']
+                    : (
+                        is_null($price)
+                        ? null
+                        : round($shares * $price, 4)
+                    );
+
+                $marketValue = is_null($marketValue)
                     ? null
-                    : round($shares * $price, 4);
+                    : round((float) $marketValue, 4);
 
                 $monthlyIncome = $this->dividendStatsService
                     ->getProjectedMonthlyIncome(collect([$holding]));
@@ -172,8 +190,10 @@ class PortfolioCompareService
                     'nav_health' => $this->navHealth(
                         $this->metricValue($maxMetric, 'nav_erosion_percentage')
                     ),
+
                 ];
             })
+            ->sortByDesc(fn(array $row) => (float) ($row['market_value'] ?? 0))
             ->values();
     }
 
@@ -300,6 +320,17 @@ class PortfolioCompareService
             ],
             'table_rows' => [],
             'chart_rows' => [],
+            'comparison_limit' => [
+
+                'max_etfs' => $this->comparisonService->getMaxEtfs(),
+
+                'total_holdings_count' => 0,
+
+                'included_holdings_count' => 0,
+
+                'selection_method' => 'Top holdings by current market value',
+
+            ],
         ];
     }
 
@@ -340,5 +371,33 @@ class PortfolioCompareService
         }
 
         return 'Stable';
+    }
+
+    private function getTopHoldingsForComparison(
+        Collection $holdings,
+        int $maxEtfs
+    ): Collection {
+        $latestPrices = EtfPriceHistory::query()
+            ->whereIn('etf_id', $holdings->pluck('etf_id')->toArray())
+            ->orderByDesc('price_date')
+            ->get()
+            ->groupBy('etf_id')
+            ->map(fn($prices) => (float) $prices->first()->close_price);
+
+        return $holdings
+            ->map(function (array $holding) use ($latestPrices) {
+                $price = $latestPrices->get((int) $holding['etf_id'], 0);
+
+                $holding['latest_price'] = round((float) $price, 4);
+                $holding['market_value'] = round(
+                    (float) $holding['shares'] * (float) $price,
+                    4
+                );
+
+                return $holding;
+            })
+            ->sortByDesc('market_value')
+            ->take($maxEtfs)
+            ->values();
     }
 }
