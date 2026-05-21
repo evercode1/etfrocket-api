@@ -4,13 +4,17 @@ namespace App\Queries\Dividends;
 
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Services\PortfolioStats\PortfolioHistoricalStatsService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class DividendHistoryQuery
 {
-    private const BUY = 1;
-    private const SELL = 2;
+    public function __construct(
+        private PortfolioHistoricalStatsService $historicalStatsService
+    ) {}
 
     public function getData(
         Request $request,
@@ -21,20 +25,10 @@ class DividendHistoryQuery
             ->where('user_id', $userId)
             ->firstOrFail();
 
-        $holdingEtfIds = PortfolioTransaction::query()
-            ->select('portfolio_transactions.etf_id')
-            ->where('portfolio_transactions.portfolio_id', $portfolioId)
-            ->groupBy('portfolio_transactions.etf_id')
-            ->havingRaw('
-                SUM(
-                    CASE
-                        WHEN portfolio_transactions.transaction_type_id = ? THEN portfolio_transactions.shares
-                        WHEN portfolio_transactions.transaction_type_id = ? THEN -portfolio_transactions.shares
-                        ELSE 0
-                    END
-                ) > 0
-            ', [self::BUY, self::SELL])
-            ->pluck('portfolio_transactions.etf_id');
+        $portfolioEtfIds = PortfolioTransaction::query()
+            ->where('portfolio_id', $portfolioId)
+            ->distinct()
+            ->pluck('etf_id');
 
         $query = DB::table('etf_dividend_histories')
             ->join('etfs', 'etf_dividend_histories.etf_id', '=', 'etfs.id')
@@ -44,7 +38,7 @@ class DividendHistoryQuery
                 '=',
                 'distribution_frequencies.id'
             )
-            ->whereIn('etf_dividend_histories.etf_id', $holdingEtfIds)
+            ->whereIn('etf_dividend_histories.etf_id', $portfolioEtfIds)
             ->whereNotNull('etf_dividend_histories.payment_date')
             ->select([
                 'etf_dividend_histories.id',
@@ -89,16 +83,80 @@ class DividendHistoryQuery
             );
         }
 
-        $totalPaid = (clone $query)->sum('etf_dividend_histories.dividend_amount');
+        $rows = $query
+            ->orderByDesc('etf_dividend_histories.ex_dividend_date')
+            ->orderBy('etfs.symbol')
+            ->get()
+            ->map(function ($row) use ($portfolioId) {
+                $sharesOwned = $this->historicalStatsService
+                    ->getSharesOwnedAsOfDate(
+                        $portfolioId,
+                        (int) $row->etf_id,
+                        $row->ex_dividend_date
+                    );
 
-        $query->orderByDesc('etf_dividend_histories.ex_dividend_date')
-            ->orderBy('etfs.symbol');
+                $row->shares_owned = round($sharesOwned, 4);
+
+                $row->estimated_payment_amount = round(
+                    $sharesOwned * (float) $row->dividend_amount,
+                    4
+                );
+
+                return $row;
+            })
+            ->filter(function ($row) {
+                return (float) $row->shares_owned > 0;
+            })
+            ->values();
+
+        $totalPaid = round(
+            (float) $rows->sum('estimated_payment_amount'),
+            4
+        );
+
+        $today = Carbon::today();
+
+        $monthToDatePaid = round(
+            (float) $rows
+                ->filter(function ($row) use ($today) {
+                    return $row->payment_date >= $today->copy()->startOfMonth()->toDateString()
+                        && $row->payment_date <= $today->toDateString();
+                })
+                ->sum('estimated_payment_amount'),
+            4
+        );
+
+        $lastMonth = Carbon::today()->subMonth();
+
+        $lastMonthPaid = round(
+            (float) $rows
+                ->filter(function ($row) use ($lastMonth) {
+                    return $row->payment_date >= $lastMonth->copy()->startOfMonth()->toDateString()
+                        && $row->payment_date <= $lastMonth->copy()->endOfMonth()->toDateString();
+                })
+                ->sum('estimated_payment_amount'),
+            4
+        );
 
         $perPage = (int) $request->input('per_page', 25);
+        $page = (int) $request->input('page', 1);
+
+        $paginatedRows = new LengthAwarePaginator(
+            $rows->forPage($page, $perPage)->values(),
+            $rows->count(),
+            $perPage,
+            $page,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
 
         return [
-            'total_paid' => round((float) $totalPaid, 4),
-            'dividends' => $query->paginate($perPage),
+            'total_paid' => $totalPaid,
+            'month_to_date_paid' => $monthToDatePaid,
+            'last_month_paid' => $lastMonthPaid,
+            'dividends' => $paginatedRows,
         ];
     }
 }
