@@ -29,9 +29,12 @@ return [
     ],
 
     'ranges' => [
+        '5d' => 5,
         '30d' => 30,
         '90d' => 90,
+        'ytd' => 'ytd',
         '1y' => 365,
+        'max' => 'max',
     ],
 
     'defaults' => [
