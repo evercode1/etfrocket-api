@@ -263,13 +263,13 @@ class PortfoliosController extends Controller
         ], 200);
     }
 
-    public function portfolioCardSummaries()
+    public function portfolioCardSummaries(PortfolioCardSummariesQuery $query)
     {
         try {
 
             $user_id = Auth::id();
 
-            $summaries = (new PortfolioCardSummariesQuery())->getData($user_id);
+            $summaries = $query->getData(Auth::id());
         } catch (\Exception $e) {
 
             return response()->json([

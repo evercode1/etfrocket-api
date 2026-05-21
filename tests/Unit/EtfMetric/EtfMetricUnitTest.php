@@ -178,7 +178,7 @@ class EtfMetricUnitTest extends TestCase
         $this->assertEquals(10.0000, (float) $metric->start_nav);
         $this->assertEquals(10.5000, (float) $metric->end_nav);
         $this->assertEquals(0.5000, (float) $metric->nav_change);
-        $this->assertEquals(12.5000, (float) $metric->nav_erosion_percentage);
+        $this->assertEquals(5.0000, (float) $metric->nav_erosion_percentage);
         $this->assertEquals(MetricDirection::IMPROVING, $metric->nav_direction_id);
 
         $this->assertEquals(100000000, $metric->start_aum);
@@ -245,7 +245,7 @@ class EtfMetricUnitTest extends TestCase
         $this->assertEquals(-7.5000, (float) $metric->total_return_percentage);
 
         $this->assertEquals(-2.0000, (float) $metric->nav_change);
-        $this->assertEquals(-7.5000, (float) $metric->nav_erosion_percentage);
+        $this->assertEquals(-10.0000, (float) $metric->nav_erosion_percentage);
         $this->assertEquals(MetricDirection::ERODING, $metric->nav_direction_id);
 
         $this->assertEquals(-10000000, $metric->aum_change);

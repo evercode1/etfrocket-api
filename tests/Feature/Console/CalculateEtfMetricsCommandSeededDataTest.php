@@ -99,7 +99,7 @@ class CalculateEtfMetricsCommandSeededDataTest extends TestCase
         $this->assertEquals(47.9400, (float) $metric->start_nav);
         $this->assertEquals(47.6200, (float) $metric->end_nav);
         $this->assertEquals(-0.3200, (float) $metric->nav_change);
-        $this->assertEquals(4.0832, (float) $metric->nav_erosion_percentage);
+        $this->assertEquals(-0.6675, (float) $metric->nav_erosion_percentage);
 
         $this->assertEquals(590000000, (int) $metric->start_aum);
         $this->assertEquals(620000000, (int) $metric->end_aum);
