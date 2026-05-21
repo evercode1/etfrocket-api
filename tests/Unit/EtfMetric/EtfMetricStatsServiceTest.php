@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services\EtfMetrics;
+namespace Tests\Unit\EtfMetric;
 
 use App\Models\Etf;
 use App\Models\EtfMetric;

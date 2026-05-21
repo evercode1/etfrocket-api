@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\PortfolioSignals;
+namespace Tests\Feature\Portfolios\Signals;
 
 use App\Models\Etf;
 use App\Models\EtfMetric;
