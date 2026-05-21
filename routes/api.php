@@ -77,6 +77,17 @@ IncludeRoutes::file('routes/Auth/auth.php');
 
 /*
 |--------------------------------------------------------------------------
+| Comparison ROUTES
+|--------------------------------------------------------------------------
+|
+| routes for user comparisons, requires authentication
+|
+*/
+
+IncludeRoutes::file('routes/User/Comparisons/comparisons.php');
+
+/*
+|--------------------------------------------------------------------------
 | Dividends ROUTES
 |--------------------------------------------------------------------------
 |

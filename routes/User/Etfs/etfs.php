@@ -8,7 +8,7 @@ use App\Http\Controllers\User\Etfs\EtfComparisonController;
 
 /*
 |--------------------------------------------------------------------------
-| User Support ROUTES
+| User Etfs ROUTES
 |--------------------------------------------------------------------------
 |
 | Users that have access to these routes must be logged in.

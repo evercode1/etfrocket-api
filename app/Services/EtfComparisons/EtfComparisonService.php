@@ -8,12 +8,16 @@ class EtfComparisonService
 {
     public function getConfig(): array
     {
-        return config('etf_comparison');
+
+        $etf_config = config('etf_comparison');
+
+        return $etf_config ?: [];
     }
 
     public function getMetrics(): array
     {
-        return config('etf_comparison.metrics', []);
+        $metrics = config('etf_comparison.metrics');
+        return $metrics ?: [];
     }
 
     public function getMetric(string $metric): array
@@ -29,10 +33,11 @@ class EtfComparisonService
 
     public function getRanges(): array
     {
-        return config('etf_comparison.ranges', []);
+        $ranges = config('etf_comparison.ranges');
+        return $ranges ?: [];
     }
 
-    public function getRange(string $range): int
+    public function getRange(string $range): int|string
     {
         $ranges = $this->getRanges();
 
@@ -45,7 +50,8 @@ class EtfComparisonService
 
     public function getDefaults(): array
     {
-        return config('etf_comparison.defaults', []);
+        $defaults = config('etf_comparison.defaults');
+        return $defaults ?: [];
     }
 
     public function getDefaultMetric(): string
@@ -92,8 +98,8 @@ class EtfComparisonService
         }
 
         $etfIds = collect($etfIds)
-            ->map(fn ($id) => (int) $id)
-            ->filter(fn ($id) => $id > 0)
+            ->map(fn($id) => (int) $id)
+            ->filter(fn($id) => $id > 0)
             ->unique()
             ->values()
             ->toArray();
@@ -119,14 +125,23 @@ class EtfComparisonService
         $days = $this->getRange($range);
 
         return [
+
             'metric' => $metric,
+
             'range' => $range,
+
             'days' => $days,
+
             'etf_ids' => $etfIds,
+
             'metric_config' => $metricConfig,
-            'table' => $metricConfig['table'],
-            'date_column' => $metricConfig['date_column'],
-            'value_column' => $metricConfig['value_column'],
+
+            'table' => $metricConfig['table'] ?? null,
+
+            'date_column' => $metricConfig['date_column'] ?? null,
+
+            'value_column' => $metricConfig['value_column'] ?? null,
+
         ];
     }
 
