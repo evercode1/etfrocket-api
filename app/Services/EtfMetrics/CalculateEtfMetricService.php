@@ -69,8 +69,7 @@ class CalculateEtfMetricService
 
         $navErosionPercentage = $this->calculateNavErosionPercentage(
             $startNav,
-            $endNav,
-            $dividendsPaid
+            $endNav
         );
 
         $navDirectionId = $this->getNavDirectionId($navErosionPercentage);
@@ -245,13 +244,13 @@ class CalculateEtfMetricService
         return round((($endPrice - $startPrice + $dividendsPaid) / $startPrice) * 100, 4);
     }
 
-    private function calculateNavErosionPercentage(?float $startNav, ?float $endNav, float $dividendsPaid): ?float
+    private function calculateNavErosionPercentage(?float $startNav, ?float $endNav): ?float
     {
         if (is_null($startNav) || is_null($endNav) || (float) $startNav === 0.0) {
             return null;
         }
 
-        return round((($endNav - $startNav + $dividendsPaid) / $startNav) * 100, 4);
+        return round((($endNav - $startNav) / $startNav) * 100, 4);
     }
 
     private function getNavDirectionId(?float $navErosionPercentage): ?int
