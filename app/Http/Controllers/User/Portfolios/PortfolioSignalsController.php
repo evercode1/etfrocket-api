@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Portfolio;
 use App\Services\PortfolioStats\Signals\PortfolioDistributionGrowthSignalService;
 use App\Services\PortfolioStats\Signals\PortfolioAumGrowthSignalService;
+use App\Services\PortfolioStats\Signals\PortfolioNavStabilitySignalService;
 use Illuminate\Support\Facades\Auth;
 
 class PortfolioSignalsController extends Controller
@@ -81,6 +82,29 @@ class PortfolioSignalsController extends Controller
 
             'data' => $data,
 
+        ], 200);
+    }
+
+    public function showNavStabilitySignal(
+        int $portfolio_id,
+        PortfolioNavStabilitySignalService $service
+    ) {
+        try {
+            Portfolio::where('id', $portfolio_id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
+            $data = $service->getSignalData($portfolio_id);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Oops, something went wrong. Please try again later.',
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data,
         ], 200);
     }
 }
