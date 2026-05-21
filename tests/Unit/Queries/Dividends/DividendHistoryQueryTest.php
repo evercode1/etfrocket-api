@@ -9,6 +9,7 @@ use App\Models\PortfolioTransaction;
 use App\Models\Status;
 use App\Models\User;
 use App\Queries\Dividends\DividendHistoryQuery;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,8 @@ class DividendHistoryQueryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Carbon::setTestNow(Carbon::parse('2026-05-20'));
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
@@ -34,6 +37,8 @@ class DividendHistoryQueryTest extends TestCase
         DB::table('etf_dividend_histories')->truncate();
         DB::table('etfs')->truncate();
         DB::table('users')->truncate();
+
+        Carbon::setTestNow();
 
         parent::tearDown();
     }
@@ -75,18 +80,20 @@ class DividendHistoryQueryTest extends TestCase
         EtfDividendHistory::factory()->create([
             'etf_id' => $monthlyEtf->id,
             'dividend_amount' => '1.0000',
-            'ex_dividend_date' => '2026-05-01',
+            'ex_dividend_date' => '2026-04-30',
             'payment_date' => '2026-05-05',
             'data_source_id' => 1,
         ]);
 
-        $result = (new DividendHistoryQuery())->getData(
+        $result = app(DividendHistoryQuery::class)->getData(
             new Request(['per_page' => 25]),
             $user->id,
             $portfolio->id
         );
 
-        $this->assertSame(1.5, $result['total_paid']);
+        $this->assertSame(10.0, $result['total_paid']);
+        $this->assertSame(10.0, $result['month_to_date_paid']);
+        $this->assertSame(0.0, $result['last_month_paid']);
 
         $dividends = $result['dividends'];
 
@@ -98,11 +105,67 @@ class DividendHistoryQueryTest extends TestCase
         $this->assertSame('2026-05-15', $rows[0]->ex_dividend_date);
         $this->assertSame('2026-05-16', $rows[0]->payment_date);
         $this->assertSame('0.5000', (string) $rows[0]->dividend_amount);
+        $this->assertSame(10.0, $rows[0]->shares_owned);
+        $this->assertSame(5.0, $rows[0]->estimated_payment_amount);
 
         $this->assertSame('JEPI', $rows[1]->symbol);
-        $this->assertSame('2026-05-01', $rows[1]->ex_dividend_date);
+        $this->assertSame('2026-04-30', $rows[1]->ex_dividend_date);
         $this->assertSame('2026-05-05', $rows[1]->payment_date);
         $this->assertSame('1.0000', (string) $rows[1]->dividend_amount);
+        $this->assertSame(5.0, $rows[1]->shares_owned);
+        $this->assertSame(5.0, $rows[1]->estimated_payment_amount);
+    }
+
+    public function test_it_calculates_month_to_date_and_last_month_paid_totals(): void
+    {
+        $user = User::factory()->create();
+
+        $portfolio = Portfolio::factory()->create([
+            'user_id' => $user->id,
+            'status_id' => Status::ACTIVE,
+        ]);
+
+        $etf = Etf::factory()->create([
+            'symbol' => 'NVII',
+            'status_id' => Status::ACTIVE,
+            'distribution_frequency_id' => 2,
+        ]);
+
+        $this->createBuyTransaction($portfolio->id, $etf->id, 10);
+
+        EtfDividendHistory::factory()->create([
+            'etf_id' => $etf->id,
+            'dividend_amount' => '0.5000',
+            'ex_dividend_date' => '2026-05-15',
+            'payment_date' => '2026-05-16',
+            'data_source_id' => 1,
+        ]);
+
+        EtfDividendHistory::factory()->create([
+            'etf_id' => $etf->id,
+            'dividend_amount' => '0.4000',
+            'ex_dividend_date' => '2026-04-15',
+            'payment_date' => '2026-04-16',
+            'data_source_id' => 1,
+        ]);
+
+        EtfDividendHistory::factory()->create([
+            'etf_id' => $etf->id,
+            'dividend_amount' => '0.3000',
+            'ex_dividend_date' => '2026-03-15',
+            'payment_date' => '2026-03-16',
+            'data_source_id' => 1,
+        ]);
+
+        $result = app(DividendHistoryQuery::class)->getData(
+            new Request(['per_page' => 25]),
+            $user->id,
+            $portfolio->id
+        );
+
+        $this->assertSame(12.0, $result['total_paid']);
+        $this->assertSame(5.0, $result['month_to_date_paid']);
+        $this->assertSame(4.0, $result['last_month_paid']);
     }
 
     public function test_it_excludes_unpaid_dividend_history(): void
@@ -130,17 +193,19 @@ class DividendHistoryQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $result = (new DividendHistoryQuery())->getData(
+        $result = app(DividendHistoryQuery::class)->getData(
             new Request(['per_page' => 25]),
             $user->id,
             $portfolio->id
         );
 
         $this->assertSame(0.0, $result['total_paid']);
+        $this->assertSame(0.0, $result['month_to_date_paid']);
+        $this->assertSame(0.0, $result['last_month_paid']);
         $this->assertSame(0, $result['dividends']->total());
     }
 
-    public function test_it_excludes_dividends_for_etfs_not_currently_held(): void
+    public function test_it_excludes_dividends_for_etfs_never_owned_by_portfolio(): void
     {
         $user = User::factory()->create();
 
@@ -179,18 +244,22 @@ class DividendHistoryQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $result = (new DividendHistoryQuery())->getData(
+        $result = app(DividendHistoryQuery::class)->getData(
             new Request(['per_page' => 25]),
             $user->id,
             $portfolio->id
         );
 
-        $this->assertSame(0.4, $result['total_paid']);
+        $this->assertSame(4.0, $result['total_paid']);
+        $this->assertSame(4.0, $result['month_to_date_paid']);
+        $this->assertSame(0.0, $result['last_month_paid']);
         $this->assertSame(1, $result['dividends']->total());
         $this->assertSame('HELD', $result['dividends']->items()[0]->symbol);
+        $this->assertSame(10.0, $result['dividends']->items()[0]->shares_owned);
+        $this->assertSame(4.0, $result['dividends']->items()[0]->estimated_payment_amount);
     }
 
-    public function test_it_excludes_fully_sold_positions(): void
+    public function test_it_excludes_dividends_when_position_was_sold_before_ex_date(): void
     {
         $user = User::factory()->create();
 
@@ -224,14 +293,65 @@ class DividendHistoryQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $result = (new DividendHistoryQuery())->getData(
+        $result = app(DividendHistoryQuery::class)->getData(
             new Request(['per_page' => 25]),
             $user->id,
             $portfolio->id
         );
 
         $this->assertSame(0.0, $result['total_paid']);
+        $this->assertSame(0.0, $result['month_to_date_paid']);
+        $this->assertSame(0.0, $result['last_month_paid']);
         $this->assertSame(0, $result['dividends']->total());
+    }
+
+    public function test_it_includes_dividends_for_positions_owned_on_ex_date_even_if_sold_later(): void
+    {
+        $user = User::factory()->create();
+
+        $portfolio = Portfolio::factory()->create([
+            'user_id' => $user->id,
+            'status_id' => Status::ACTIVE,
+        ]);
+
+        $etf = Etf::factory()->create([
+            'symbol' => 'PAID',
+            'status_id' => Status::ACTIVE,
+            'distribution_frequency_id' => 2,
+        ]);
+
+        $this->createBuyTransaction($portfolio->id, $etf->id, 10);
+
+        EtfDividendHistory::factory()->create([
+            'etf_id' => $etf->id,
+            'dividend_amount' => '0.5000',
+            'ex_dividend_date' => '2026-05-15',
+            'payment_date' => '2026-05-16',
+            'data_source_id' => 1,
+        ]);
+
+        PortfolioTransaction::factory()->create([
+            'portfolio_id' => $portfolio->id,
+            'etf_id' => $etf->id,
+            'transaction_type_id' => 2,
+            'shares' => 10,
+            'price_per_share' => 30,
+            'transaction_date' => '2026-06-01',
+        ]);
+
+        $result = app(DividendHistoryQuery::class)->getData(
+            new Request(['per_page' => 25]),
+            $user->id,
+            $portfolio->id
+        );
+
+        $this->assertSame(5.0, $result['total_paid']);
+        $this->assertSame(5.0, $result['month_to_date_paid']);
+        $this->assertSame(0.0, $result['last_month_paid']);
+        $this->assertSame(1, $result['dividends']->total());
+        $this->assertSame('PAID', $result['dividends']->items()[0]->symbol);
+        $this->assertSame(10.0, $result['dividends']->items()[0]->shares_owned);
+        $this->assertSame(5.0, $result['dividends']->items()[0]->estimated_payment_amount);
     }
 
     public function test_it_filters_by_symbol(): void
@@ -274,7 +394,7 @@ class DividendHistoryQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $result = (new DividendHistoryQuery())->getData(
+        $result = app(DividendHistoryQuery::class)->getData(
             new Request([
                 'symbol' => 'NV',
                 'per_page' => 25,
@@ -283,7 +403,9 @@ class DividendHistoryQueryTest extends TestCase
             $portfolio->id
         );
 
-        $this->assertSame(0.5, $result['total_paid']);
+        $this->assertSame(5.0, $result['total_paid']);
+        $this->assertSame(5.0, $result['month_to_date_paid']);
+        $this->assertSame(0.0, $result['last_month_paid']);
         $this->assertSame(1, $result['dividends']->total());
         $this->assertSame('NVII', $result['dividends']->items()[0]->symbol);
     }
@@ -328,7 +450,7 @@ class DividendHistoryQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $result = (new DividendHistoryQuery())->getData(
+        $result = app(DividendHistoryQuery::class)->getData(
             new Request([
                 'frequency_id' => 4,
                 'per_page' => 25,
@@ -337,7 +459,9 @@ class DividendHistoryQueryTest extends TestCase
             $portfolio->id
         );
 
-        $this->assertSame(1.0, $result['total_paid']);
+        $this->assertSame(10.0, $result['total_paid']);
+        $this->assertSame(10.0, $result['month_to_date_paid']);
+        $this->assertSame(0.0, $result['last_month_paid']);
         $this->assertSame(1, $result['dividends']->total());
         $this->assertSame('MONTH', $result['dividends']->items()[0]->symbol);
     }
@@ -375,7 +499,7 @@ class DividendHistoryQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $result = (new DividendHistoryQuery())->getData(
+        $result = app(DividendHistoryQuery::class)->getData(
             new Request([
                 'date_from' => '2026-05-01',
                 'date_to' => '2026-05-31',
@@ -385,7 +509,9 @@ class DividendHistoryQueryTest extends TestCase
             $portfolio->id
         );
 
-        $this->assertSame(0.5, $result['total_paid']);
+        $this->assertSame(5.0, $result['total_paid']);
+        $this->assertSame(5.0, $result['month_to_date_paid']);
+        $this->assertSame(0.0, $result['last_month_paid']);
         $this->assertSame(1, $result['dividends']->total());
         $this->assertSame('2026-05-15', $result['dividends']->items()[0]->ex_dividend_date);
     }
@@ -403,7 +529,7 @@ class DividendHistoryQueryTest extends TestCase
 
         $this->expectException(ModelNotFoundException::class);
 
-        (new DividendHistoryQuery())->getData(
+        app(DividendHistoryQuery::class)->getData(
             new Request(['per_page' => 25]),
             $user->id,
             $portfolio->id
