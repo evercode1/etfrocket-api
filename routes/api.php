@@ -122,6 +122,17 @@ IncludeRoutes::file('routes/User/Portfolios/portfolios.php');
 
 /*
 |--------------------------------------------------------------------------
+| Portfolio stats ROUTES
+|--------------------------------------------------------------------------
+|
+| routes for user portfolio stats, requires authentication
+|
+*/
+
+IncludeRoutes::file('routes/User/Portfolios/portfolio-stats.php');
+
+/*
+|--------------------------------------------------------------------------
 | Settings ROUTES
 |--------------------------------------------------------------------------
 |
