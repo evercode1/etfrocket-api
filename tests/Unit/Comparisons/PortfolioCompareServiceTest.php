@@ -145,6 +145,99 @@ class PortfolioCompareServiceTest extends TestCase
         $this->assertSame([], $data['chart_rows']);
     }
 
+    public function test_it_limits_comparison_to_top_holdings_by_market_value(): void
+    {
+        config([
+            'etf_comparison.defaults.max_etfs' => 2,
+        ]);
+
+        $user = User::factory()->create();
+
+        $portfolio = $this->createPortfolio($user->id, 'Main Portfolio');
+
+        $smallEtf = $this->createEtf('SMALL');
+        $mediumEtf = $this->createEtf('MED');
+        $largeEtf = $this->createEtf('LARGE');
+
+        $this->createBuyTransaction($portfolio->id, $smallEtf->id, 10, 10);
+        $this->createBuyTransaction($portfolio->id, $mediumEtf->id, 10, 10);
+        $this->createBuyTransaction($portfolio->id, $largeEtf->id, 10, 10);
+
+        EtfPriceHistory::factory()->create([
+            'etf_id' => $smallEtf->id,
+            'price_date' => '2026-05-20',
+            'close_price' => '10.0000',
+            'volume' => 1000,
+        ]);
+
+        EtfPriceHistory::factory()->create([
+            'etf_id' => $mediumEtf->id,
+            'price_date' => '2026-05-20',
+            'close_price' => '25.0000',
+            'volume' => 1000,
+        ]);
+
+        EtfPriceHistory::factory()->create([
+            'etf_id' => $largeEtf->id,
+            'price_date' => '2026-05-20',
+            'close_price' => '50.0000',
+            'volume' => 1000,
+        ]);
+
+        $data = app(PortfolioCompareService::class)->getData(
+            $user->id,
+            $portfolio->id,
+            [
+                'metric' => 'price',
+                'range' => '30d',
+            ]
+        );
+
+        $this->assertSame(3, $data['comparison_limit']['total_holdings_count']);
+        $this->assertSame(2, $data['comparison_limit']['included_holdings_count']);
+        $this->assertSame(2, $data['comparison_limit']['max_etfs']);
+        $this->assertSame(
+            'Top holdings by current market value',
+            $data['comparison_limit']['selection_method']
+        );
+
+        $this->assertCount(2, $data['table_rows']);
+
+        $this->assertSame('LARGE', $data['table_rows'][0]['symbol']);
+        $this->assertSame(500.0, $data['table_rows'][0]['market_value']);
+
+        $this->assertSame('MED', $data['table_rows'][1]['symbol']);
+        $this->assertSame(250.0, $data['table_rows'][1]['market_value']);
+
+        $symbols = collect($data['table_rows'])->pluck('symbol')->toArray();
+
+        $this->assertNotContains('SMALL', $symbols);
+    }
+
+    public function test_empty_payload_includes_comparison_limit_metadata(): void
+    {
+        config([
+            'etf_comparison.defaults.max_etfs' => 5,
+        ]);
+
+        $user = User::factory()->create();
+
+        $portfolio = $this->createPortfolio($user->id, 'Empty Portfolio');
+
+        $data = app(PortfolioCompareService::class)->getData(
+            $user->id,
+            $portfolio->id
+        );
+
+        $this->assertSame(5, $data['comparison_limit']['max_etfs']);
+        $this->assertSame(0, $data['comparison_limit']['total_holdings_count']);
+        $this->assertSame(0, $data['comparison_limit']['included_holdings_count']);
+        $this->assertSame(
+            'Top holdings by current market value',
+            $data['comparison_limit']['selection_method']
+        );
+    }
+
     public function test_it_throws_exception_when_portfolio_does_not_belong_to_user(): void
     {
         $user = User::factory()->create();
