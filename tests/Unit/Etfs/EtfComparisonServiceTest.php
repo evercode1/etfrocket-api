@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Etfs;
 
-use App\Services\EtfComparisons\EtfComparisonService;
+use App\Services\Comparisons\EtfComparisonService;
 use InvalidArgumentException;
 use Tests\TestCase;
 
