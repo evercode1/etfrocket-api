@@ -15,7 +15,7 @@ class CompareSymbolsService
         string $range = '90d'
     ): array {
 
-        $symbols = collect($symbols)
+        $requestedSymbols = collect($symbols)
 
             ->map(fn($symbol) => strtoupper(trim($symbol)))
 
@@ -23,30 +23,35 @@ class CompareSymbolsService
 
             ->unique()
 
+            ->values();
+
+        $etfs = Etf::whereIn('symbol', $requestedSymbols)
+
+            ->get();
+
+        $foundSymbols = $etfs->pluck('symbol');
+
+        $invalidSymbols = $requestedSymbols
+
+            ->diff($foundSymbols)
+
             ->values()
 
             ->toArray();
 
-        $etfs = Etf::whereIn('symbol', $symbols)
+        $performanceRangeTypeId = $this->resolveRangeType($range);
 
-            ->get();
+        $tableRows = $etfs->map(function ($etf) use (
+            $performanceRangeTypeId,
+            $metric,
+            $range
+        ) {
 
-        $tableRows = $etfs->map(function ($etf) {
-
-            $metric30 = EtfMetric::where('etf_id', $etf->id)
-
-                ->where(
-                    'performance_range_type_id',
-                    PerformanceRangeType::THIRTY_DAY
-                )
-
-                ->first();
-
-            $metric90 = EtfMetric::where('etf_id', $etf->id)
+            $metricRecord = EtfMetric::where('etf_id', $etf->id)
 
                 ->where(
                     'performance_range_type_id',
-                    PerformanceRangeType::NINETY_DAY
+                    $performanceRangeTypeId
                 )
 
                 ->first();
@@ -65,15 +70,31 @@ class CompareSymbolsService
 
                 'fund_name' => $etf->fund_name,
 
+                'selected_metric' => $metric,
+
+                'selected_range' => $range,
+
                 'latest_price' => optional($latestPrice)->close_price,
 
-                'nav_health' => optional($metric30)->nav_direction_id,
+                'nav_health' => $this->resolveNavHealth($metricRecord),
 
-                'aum_change_percentage_30_day' =>
-                optional($metric30)->aum_change_percentage,
+                'aum_change_percentage' =>
+                optional($metricRecord)->aum_change_percentage,
 
-                'total_return_percentage_90_day' =>
-                optional($metric90)->total_return_percentage,
+                'total_return_percentage' =>
+                optional($metricRecord)->total_return_percentage,
+
+                'nav_erosion_percentage' =>
+                optional($metricRecord)->nav_erosion_percentage,
+
+                'price_change_percentage' =>
+                optional($metricRecord)->price_change_percentage,
+
+                'chart_value' => $this->resolveChartValue(
+                    metric: $metric,
+                    latestPrice: optional($latestPrice)->close_price,
+                    metricRecord: $metricRecord
+                ),
 
             ];
         })
@@ -88,7 +109,13 @@ class CompareSymbolsService
 
                 'compared_etfs_count' => count($tableRows),
 
+                'selected_metric' => $metric,
+
+                'selected_range' => $range,
+
             ],
+
+            'invalid_symbols' => $invalidSymbols,
 
             'table_rows' => $tableRows,
 
@@ -130,10 +157,124 @@ class CompareSymbolsService
 
                     ],
 
+                    [
+
+                        'label' => 'NAV Erosion',
+
+                        'value' => 'nav',
+
+                    ],
+
+                ],
+
+                'ranges' => [
+
+                    [
+
+                        'label' => '5D',
+
+                        'value' => '5d',
+
+                    ],
+
+                    [
+
+                        'label' => '30D',
+
+                        'value' => '30d',
+
+                    ],
+
+                    [
+
+                        'label' => '90D',
+
+                        'value' => '90d',
+
+                    ],
+
+                    [
+
+                        'label' => '1Y',
+
+                        'value' => '1y',
+
+                    ],
+
+                    [
+
+                        'label' => 'MAX',
+
+                        'value' => 'max',
+
+                    ],
+
                 ],
 
             ],
 
         ];
+    }
+
+    private function resolveRangeType(string $range): int
+    {
+        return match ($range) {
+
+            '5d' => PerformanceRangeType::FIVE_DAY,
+
+            '30d' => PerformanceRangeType::THIRTY_DAY,
+
+            '90d' => PerformanceRangeType::NINETY_DAY,
+
+            '1y' => PerformanceRangeType::ONE_YEAR,
+
+            'max' => PerformanceRangeType::MAX,
+
+            default => PerformanceRangeType::NINETY_DAY,
+        };
+    }
+
+    private function resolveChartValue(
+        string $metric,
+        mixed $latestPrice,
+        ?EtfMetric $metricRecord
+    ): mixed {
+
+        return match ($metric) {
+
+            'return' =>
+            optional($metricRecord)->total_return_percentage,
+
+            'aum' =>
+            optional($metricRecord)->aum_change_percentage,
+
+            'nav' =>
+            optional($metricRecord)->nav_erosion_percentage,
+
+            'income' =>
+            optional($metricRecord)->dividends_paid,
+
+            default =>
+            $latestPrice,
+        };
+    }
+
+    private function resolveNavHealth(?EtfMetric $metricRecord): string
+    {
+        if (!$metricRecord) {
+            return 'Unknown';
+        }
+
+        $nav = (float) ($metricRecord->nav_erosion_percentage ?? 0);
+
+        if ($nav >= 0) {
+            return 'Stable';
+        }
+
+        if ($nav <= -10) {
+            return 'Watch';
+        }
+
+        return 'Mixed';
     }
 }
