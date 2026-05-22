@@ -32,6 +32,15 @@ class PortfolioHoldingsAnalysisService
                 'summary' => $this->emptySummary(),
                 'insights' => $this->emptyInsights(),
                 'holdings' => [],
+                'portfolio_selects' => Portfolio::where('user_id', $userId)
+
+                    ->orderByDesc('is_default')
+
+                    ->orderBy('portfolio_name')
+
+                    ->pluck('portfolio_name', 'id')
+
+                    ->toArray(),
             ];
         }
 
@@ -65,6 +74,15 @@ class PortfolioHoldingsAnalysisService
             'summary' => $summary,
             'insights' => $this->buildInsights($rows),
             'holdings' => $rows->toArray(),
+            'portfolio_selects' => Portfolio::where('user_id', $userId)
+
+                ->orderByDesc('is_default')
+
+                ->orderBy('portfolio_name')
+
+                ->pluck('portfolio_name', 'id')
+
+                ->toArray(),
         ];
     }
 
