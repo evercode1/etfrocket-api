@@ -50,6 +50,15 @@ class ViewPortfolioService
             'nav_health' => $snapshot['nav_health'] ?? 'Unknown',
 
             'holdings' => $holdings,
+            'portfolio_selects' => Portfolio::where('user_id', $userId)
+
+                ->orderByDesc('is_default')
+
+                ->orderBy('portfolio_name')
+
+                ->pluck('portfolio_name', 'id')
+
+                ->toArray(),
         ];
     }
 }
