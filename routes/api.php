@@ -77,6 +77,17 @@ IncludeRoutes::file('routes/Auth/auth.php');
 
 /*
 |--------------------------------------------------------------------------
+| BackTesting ROUTES
+|--------------------------------------------------------------------------
+|
+| routes for user backtesting, requires authentication
+|
+*/
+
+IncludeRoutes::file('routes/User/BackTesting/back-testing.php');
+
+/*
+|--------------------------------------------------------------------------
 | Comparison ROUTES
 |--------------------------------------------------------------------------
 |
