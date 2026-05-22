@@ -38,6 +38,8 @@ class CompareSymbolsServiceTest extends TestCase
 
             'etf_id' => $etf->id,
 
+            'price_date' => now(),
+
             'close_price' => 55.12,
 
         ]);
@@ -47,22 +49,6 @@ class CompareSymbolsServiceTest extends TestCase
             'etf_id' => $etf->id,
 
             'performance_range_type_id' =>
-            PerformanceRangeType::THIRTY_DAY,
-
-            'aum_change_percentage' => 12.50,
-
-            'nav_erosion_percentage' => 3.50,
-
-            'price_change_percentage' => 5.25,
-
-        ]);
-
-        EtfMetric::factory()->create([
-
-            'etf_id' => $etf->id,
-
-            'performance_range_type_id' =>
-
             PerformanceRangeType::NINETY_DAY,
 
             'total_return_percentage' => 24.80,
@@ -135,11 +121,26 @@ class CompareSymbolsServiceTest extends TestCase
             'Stable',
             $data['table_rows'][0]['nav_health']
         );
+
+        $this->assertCount(
+            1,
+            $data['chart_rows']
+        );
+
+        $this->assertArrayHasKey(
+            'CHPY',
+            $data['chart_rows'][0]
+        );
+
+        $this->assertEquals(
+            55.12,
+            $data['chart_rows'][0]['CHPY']
+        );
     }
 
     public function test_it_returns_invalid_symbols()
     {
-        $etf = $this->createEtf('CHPY');
+        $this->createEtf('CHPY');
 
         $data = (new CompareSymbolsService)->getData(
 
@@ -152,9 +153,9 @@ class CompareSymbolsServiceTest extends TestCase
             $data['invalid_symbols']
         );
 
-        $this->assertEquals(
+        $this->assertCount(
             1,
-            count($data['table_rows'])
+            $data['table_rows']
         );
 
         $this->assertEquals(
@@ -336,6 +337,8 @@ class CompareSymbolsServiceTest extends TestCase
 
             'etf_id' => $etf->id,
 
+            'price_date' => now(),
+
             'close_price' => 77.77,
 
         ]);
@@ -349,6 +352,115 @@ class CompareSymbolsServiceTest extends TestCase
         $this->assertEquals(
             77.77,
             $data['table_rows'][0]['chart_value']
+        );
+    }
+
+    public function test_it_generates_multiple_chart_rows()
+    {
+        $etf = $this->createEtf('CHPY');
+
+        EtfPriceHistory::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'price_date' => now()->subDays(2),
+
+            'close_price' => 50,
+
+        ]);
+
+        EtfPriceHistory::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'price_date' => now()->subDay(),
+
+            'close_price' => 55,
+
+        ]);
+
+        EtfPriceHistory::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'price_date' => now(),
+
+            'close_price' => 60,
+
+        ]);
+
+        $data = (new CompareSymbolsService)->getData(
+
+            symbols: ['CHPY']
+
+        );
+
+        $this->assertCount(
+            3,
+            $data['chart_rows']
+        );
+
+        $this->assertEquals(
+            50,
+            $data['chart_rows'][0]['CHPY']
+        );
+
+        $this->assertEquals(
+            55,
+            $data['chart_rows'][1]['CHPY']
+        );
+
+        $this->assertEquals(
+            60,
+            $data['chart_rows'][2]['CHPY']
+        );
+    }
+
+    public function test_it_generates_chart_rows_for_multiple_symbols()
+    {
+        $chpy = $this->createEtf('CHPY');
+
+        $amdy = $this->createEtf('AMDY');
+
+        EtfPriceHistory::factory()->create([
+
+            'etf_id' => $chpy->id,
+
+            'price_date' => now(),
+
+            'close_price' => 70,
+
+        ]);
+
+        EtfPriceHistory::factory()->create([
+
+            'etf_id' => $amdy->id,
+
+            'price_date' => now(),
+
+            'close_price' => 40,
+
+        ]);
+
+        $data = (new CompareSymbolsService)->getData(
+
+            symbols: ['CHPY', 'AMDY']
+
+        );
+
+        $this->assertCount(
+            1,
+            $data['chart_rows']
+        );
+
+        $this->assertEquals(
+            70,
+            $data['chart_rows'][0]['CHPY']
+        );
+
+        $this->assertEquals(
+            40,
+            $data['chart_rows'][0]['AMDY']
         );
     }
 

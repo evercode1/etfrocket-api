@@ -103,6 +103,55 @@ class CompareSymbolsService
 
             ->toArray();
 
+        $chartRows = [];
+
+        if ($metric === 'price') {
+
+            $startDate = $this->resolveStartDate($range);
+
+            $priceHistories = EtfPriceHistory::whereIn(
+                'etf_id',
+                $etfs->pluck('id')
+            )
+
+                ->where('price_date', '>=', $startDate)
+
+                ->orderBy('price_date')
+
+                ->get();
+
+            $groupedByDate = [];
+
+            foreach ($priceHistories as $history) {
+
+                $symbol = $etfs
+
+                    ->firstWhere('id', $history->etf_id)
+
+                    ?->symbol;
+
+                if (!$symbol) {
+                    continue;
+                }
+
+                $date = $history->price_date->toDateString();
+
+                if (!isset($groupedByDate[$date])) {
+
+                    $groupedByDate[$date] = [
+
+                        'date' => $date,
+
+                    ];
+                }
+
+                $groupedByDate[$date][$symbol] =
+                    (float) $history->close_price;
+            }
+
+            $chartRows = array_values($groupedByDate);
+        }
+
         return [
 
             'summary' => [
@@ -119,7 +168,7 @@ class CompareSymbolsService
 
             'table_rows' => $tableRows,
 
-            'chart_rows' => [],
+            'chart_rows' => $chartRows,
 
             'options' => [
 
@@ -276,5 +325,23 @@ class CompareSymbolsService
         }
 
         return 'Mixed';
+    }
+
+    private function resolveStartDate(string $range): string
+    {
+        return match ($range) {
+
+            '5d' => now()->subDays(5)->toDateString(),
+
+            '30d' => now()->subDays(30)->toDateString(),
+
+            '90d' => now()->subDays(90)->toDateString(),
+
+            '1y' => now()->subYear()->toDateString(),
+
+            'max' => '1900-01-01',
+
+            default => now()->subDays(90)->toDateString(),
+        };
     }
 }

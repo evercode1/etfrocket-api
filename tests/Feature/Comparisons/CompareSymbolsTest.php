@@ -236,4 +236,159 @@ class CompareSymbolsTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    public function test_it_returns_chart_rows()
+    {
+        $user = User::factory()->create();
+
+        Sanctum::actingAs($user, ['*']);
+
+        $etf = Etf::factory()->create([
+
+            'symbol' => 'CHPY',
+
+        ]);
+
+        \App\Models\EtfPriceHistory::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'price_date' => now(),
+
+            'close_price' => 55.12,
+
+        ]);
+
+        $response = $this->getJson(
+
+            '/api/compare-symbols?symbols[]=CHPY'
+
+        );
+
+        $response->assertStatus(200);
+
+        $response->assertJsonPath(
+
+            'data.chart_rows.0.CHPY',
+
+            55.12
+
+        );
+
+        $response->assertJsonStructure([
+
+            'data' => [
+
+                'chart_rows' => [
+
+                    [
+
+                        'date',
+
+                        'CHPY',
+
+                    ],
+
+                ],
+
+            ],
+
+        ]);
+    }
+
+    public function test_it_respects_metric_selection()
+    {
+        $user = User::factory()->create();
+
+        Sanctum::actingAs($user, ['*']);
+
+        $etf = Etf::factory()->create([
+
+            'symbol' => 'CHPY',
+
+        ]);
+
+        \App\Models\EtfMetric::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'performance_range_type_id' =>
+            \App\Models\PerformanceRangeType::NINETY_DAY,
+
+            'aum_change_percentage' => 8.80,
+
+        ]);
+
+        $response = $this->getJson(
+
+            '/api/compare-symbols?symbols[]=CHPY&metric=aum'
+
+        );
+
+        $response->assertStatus(200);
+
+        $response->assertJsonPath(
+
+            'data.summary.selected_metric',
+
+            'aum'
+
+        );
+
+        $response->assertJsonPath(
+
+            'data.table_rows.0.chart_value',
+
+            '8.8000'
+
+        );
+    }
+
+    public function test_it_respects_range_selection()
+    {
+        $user = User::factory()->create();
+
+        Sanctum::actingAs($user, ['*']);
+
+        $etf = Etf::factory()->create([
+
+            'symbol' => 'CHPY',
+
+        ]);
+
+        \App\Models\EtfMetric::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'performance_range_type_id' =>
+            \App\Models\PerformanceRangeType::ONE_YEAR,
+
+            'total_return_percentage' => 44.44,
+
+        ]);
+
+        $response = $this->getJson(
+
+            '/api/compare-symbols?symbols[]=CHPY&range=1y'
+
+        );
+
+        $response->assertStatus(200);
+
+        $response->assertJsonPath(
+
+            'data.summary.selected_range',
+
+            '1y'
+
+        );
+
+        $response->assertJsonPath(
+
+            'data.table_rows.0.total_return_percentage',
+
+            '44.4400'
+
+        );
+    }
 }
