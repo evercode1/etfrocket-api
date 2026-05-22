@@ -117,6 +117,63 @@ class PortfolioHoldingsTest extends TestCase
         $response->assertJsonPath('data.insights.highest_gain.value', 50);
     }
 
+    public function test_authenticated_user_gets_portfolio_selects_for_holdings_page(): void
+    {
+        $user = User::factory()->create();
+
+        Sanctum::actingAs($user, ['*']);
+
+        $defaultPortfolio = Portfolio::factory()->create([
+            'user_id' => $user->id,
+            'portfolio_name' => 'Main Portfolio',
+            'is_default' => true,
+            'status_id' => Status::ACTIVE,
+        ]);
+
+        $secondPortfolio = Portfolio::factory()->create([
+            'user_id' => $user->id,
+            'portfolio_name' => 'Income Rocket',
+            'is_default' => false,
+            'status_id' => Status::ACTIVE,
+        ]);
+
+        $otherUser = User::factory()->create();
+
+        Portfolio::factory()->create([
+            'user_id' => $otherUser->id,
+            'portfolio_name' => 'Other User Portfolio',
+            'is_default' => true,
+            'status_id' => Status::ACTIVE,
+        ]);
+
+        $response = $this->getJson("/api/portfolio-holdings/{$defaultPortfolio->id}");
+
+        $response->assertStatus(200);
+
+        $portfolioSelects = $response->json('data.portfolio_selects');
+
+        $this->assertIsArray($portfolioSelects);
+
+        $this->assertSame(
+            'Main Portfolio',
+            $portfolioSelects[(string) $defaultPortfolio->id]
+                ?? $portfolioSelects[$defaultPortfolio->id]
+                ?? null
+        );
+
+        $this->assertSame(
+            'Income Rocket',
+            $portfolioSelects[(string) $secondPortfolio->id]
+                ?? $portfolioSelects[$secondPortfolio->id]
+                ?? null
+        );
+
+        $this->assertNotContains(
+            'Other User Portfolio',
+            array_values($portfolioSelects)
+        );
+    }
+
     public function test_authenticated_user_gets_empty_payload_for_portfolio_with_no_holdings(): void
     {
         $user = User::factory()->create();
