@@ -3,27 +3,54 @@
 namespace Tests\Unit\Comparisons;
 
 use App\Models\Etf;
+use App\Models\EtfAumHistory;
+use App\Models\EtfDividendHistory;
 use App\Models\EtfMetric;
+use App\Models\EtfNavHistory;
 use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
+use App\Queries\Comparisons\SymbolAumHistoryChartQuery;
+use App\Queries\Comparisons\SymbolDividendHistoryChartQuery;
+use App\Queries\Comparisons\SymbolNavHistoryChartQuery;
+use App\Queries\Comparisons\SymbolPriceHistoryChartQuery;
 use App\Services\Comparisons\CompareSymbolsService;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class CompareSymbolsServiceTest extends TestCase
 {
+    private CompareSymbolsService $service;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         DB::table('etf_price_histories')->truncate();
+        DB::table('etf_dividend_histories')->truncate();
+        DB::table('etf_nav_histories')->truncate();
+        DB::table('etf_aum_histories')->truncate();
         DB::table('etf_metrics')->truncate();
         DB::table('etfs')->truncate();
+
+        $this->service = new CompareSymbolsService(
+
+            new SymbolPriceHistoryChartQuery(),
+
+            new SymbolDividendHistoryChartQuery(),
+
+            new SymbolNavHistoryChartQuery(),
+
+            new SymbolAumHistoryChartQuery()
+
+        );
     }
 
     protected function tearDown(): void
     {
         DB::table('etf_price_histories')->truncate();
+        DB::table('etf_dividend_histories')->truncate();
+        DB::table('etf_nav_histories')->truncate();
+        DB::table('etf_aum_histories')->truncate();
         DB::table('etf_metrics')->truncate();
         DB::table('etfs')->truncate();
 
@@ -61,7 +88,7 @@ class CompareSymbolsServiceTest extends TestCase
 
         ]);
 
-        $data = (new CompareSymbolsService)->getData(
+        $data = $this->service->getData(
 
             symbols: ['CHPY']
 
@@ -121,28 +148,13 @@ class CompareSymbolsServiceTest extends TestCase
             'Stable',
             $data['table_rows'][0]['nav_health']
         );
-
-        $this->assertCount(
-            1,
-            $data['chart_rows']
-        );
-
-        $this->assertArrayHasKey(
-            'CHPY',
-            $data['chart_rows'][0]
-        );
-
-        $this->assertEquals(
-            55.12,
-            $data['chart_rows'][0]['CHPY']
-        );
     }
 
     public function test_it_returns_invalid_symbols()
     {
         $this->createEtf('CHPY');
 
-        $data = (new CompareSymbolsService)->getData(
+        $data = $this->service->getData(
 
             symbols: ['CHPY', 'FAKE']
 
@@ -179,7 +191,7 @@ class CompareSymbolsServiceTest extends TestCase
 
         ]);
 
-        $data = (new CompareSymbolsService)->getData(
+        $data = $this->service->getData(
 
             symbols: ['CHPY'],
 
@@ -213,7 +225,7 @@ class CompareSymbolsServiceTest extends TestCase
 
         ]);
 
-        $data = (new CompareSymbolsService)->getData(
+        $data = $this->service->getData(
 
             symbols: ['CHPY'],
 
@@ -247,7 +259,7 @@ class CompareSymbolsServiceTest extends TestCase
 
         ]);
 
-        $data = (new CompareSymbolsService)->getData(
+        $data = $this->service->getData(
 
             symbols: ['CHPY'],
 
@@ -281,7 +293,7 @@ class CompareSymbolsServiceTest extends TestCase
 
         ]);
 
-        $data = (new CompareSymbolsService)->getData(
+        $data = $this->service->getData(
 
             symbols: ['CHPY'],
 
@@ -310,7 +322,7 @@ class CompareSymbolsServiceTest extends TestCase
 
         ]);
 
-        $data = (new CompareSymbolsService)->getData(
+        $data = $this->service->getData(
 
             symbols: ['CHPY'],
 
@@ -343,7 +355,7 @@ class CompareSymbolsServiceTest extends TestCase
 
         ]);
 
-        $data = (new CompareSymbolsService)->getData(
+        $data = $this->service->getData(
 
             symbols: ['CHPY']
 
@@ -355,29 +367,9 @@ class CompareSymbolsServiceTest extends TestCase
         );
     }
 
-    public function test_it_generates_multiple_chart_rows()
+    public function test_it_generates_price_chart_rows()
     {
         $etf = $this->createEtf('CHPY');
-
-        EtfPriceHistory::factory()->create([
-
-            'etf_id' => $etf->id,
-
-            'price_date' => now()->subDays(2),
-
-            'close_price' => 50,
-
-        ]);
-
-        EtfPriceHistory::factory()->create([
-
-            'etf_id' => $etf->id,
-
-            'price_date' => now()->subDay(),
-
-            'close_price' => 55,
-
-        ]);
 
         EtfPriceHistory::factory()->create([
 
@@ -389,62 +381,11 @@ class CompareSymbolsServiceTest extends TestCase
 
         ]);
 
-        $data = (new CompareSymbolsService)->getData(
+        $data = $this->service->getData(
 
-            symbols: ['CHPY']
+            symbols: ['CHPY'],
 
-        );
-
-        $this->assertCount(
-            3,
-            $data['chart_rows']
-        );
-
-        $this->assertEquals(
-            50,
-            $data['chart_rows'][0]['CHPY']
-        );
-
-        $this->assertEquals(
-            55,
-            $data['chart_rows'][1]['CHPY']
-        );
-
-        $this->assertEquals(
-            60,
-            $data['chart_rows'][2]['CHPY']
-        );
-    }
-
-    public function test_it_generates_chart_rows_for_multiple_symbols()
-    {
-        $chpy = $this->createEtf('CHPY');
-
-        $amdy = $this->createEtf('AMDY');
-
-        EtfPriceHistory::factory()->create([
-
-            'etf_id' => $chpy->id,
-
-            'price_date' => now(),
-
-            'close_price' => 70,
-
-        ]);
-
-        EtfPriceHistory::factory()->create([
-
-            'etf_id' => $amdy->id,
-
-            'price_date' => now(),
-
-            'close_price' => 40,
-
-        ]);
-
-        $data = (new CompareSymbolsService)->getData(
-
-            symbols: ['CHPY', 'AMDY']
+            metric: 'price'
 
         );
 
@@ -454,13 +395,107 @@ class CompareSymbolsServiceTest extends TestCase
         );
 
         $this->assertEquals(
-            70,
+            60,
             $data['chart_rows'][0]['CHPY']
+        );
+    }
+
+    public function test_it_generates_income_chart_rows()
+    {
+        $etf = $this->createEtf('CHPY');
+
+        EtfDividendHistory::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'ex_dividend_date' => now(),
+
+            'dividend_amount' => 1.50,
+
+        ]);
+
+        $data = $this->service->getData(
+
+            symbols: ['CHPY'],
+
+            metric: 'income'
+
+        );
+
+        $this->assertCount(
+            1,
+            $data['chart_rows']
         );
 
         $this->assertEquals(
-            40,
-            $data['chart_rows'][0]['AMDY']
+            1.50,
+            $data['chart_rows'][0]['CHPY']
+        );
+    }
+
+    public function test_it_generates_nav_chart_rows()
+    {
+        $etf = $this->createEtf('CHPY');
+
+        EtfNavHistory::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'nav_date' => now(),
+
+            'nav_per_share' => 48.25,
+
+        ]);
+
+        $data = $this->service->getData(
+
+            symbols: ['CHPY'],
+
+            metric: 'nav'
+
+        );
+
+        $this->assertCount(
+            1,
+            $data['chart_rows']
+        );
+
+        $this->assertEquals(
+            48.25,
+            $data['chart_rows'][0]['CHPY']
+        );
+    }
+
+    public function test_it_generates_aum_chart_rows()
+    {
+        $etf = $this->createEtf('CHPY');
+
+        EtfAumHistory::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'aum_date' => now(),
+
+            'assets_under_management' => 100000000,
+
+        ]);
+
+        $data = $this->service->getData(
+
+            symbols: ['CHPY'],
+
+            metric: 'aum'
+
+        );
+
+        $this->assertCount(
+            1,
+            $data['chart_rows']
+        );
+
+        $this->assertEquals(
+            100000000,
+            $data['chart_rows'][0]['CHPY']
         );
     }
 

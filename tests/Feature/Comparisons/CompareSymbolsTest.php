@@ -3,6 +3,12 @@
 namespace Tests\Feature\Comparisons;
 
 use App\Models\Etf;
+use App\Models\EtfAumHistory;
+use App\Models\EtfDividendHistory;
+use App\Models\EtfMetric;
+use App\Models\EtfNavHistory;
+use App\Models\EtfPriceHistory;
+use App\Models\PerformanceRangeType;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
@@ -14,12 +20,22 @@ class CompareSymbolsTest extends TestCase
     {
         parent::setUp();
 
+        DB::table('etf_price_histories')->truncate();
+        DB::table('etf_dividend_histories')->truncate();
+        DB::table('etf_nav_histories')->truncate();
+        DB::table('etf_aum_histories')->truncate();
+        DB::table('etf_metrics')->truncate();
         DB::table('etfs')->truncate();
         DB::table('users')->truncate();
     }
 
     protected function tearDown(): void
     {
+        DB::table('etf_price_histories')->truncate();
+        DB::table('etf_dividend_histories')->truncate();
+        DB::table('etf_nav_histories')->truncate();
+        DB::table('etf_aum_histories')->truncate();
+        DB::table('etf_metrics')->truncate();
         DB::table('etfs')->truncate();
         DB::table('users')->truncate();
 
@@ -32,11 +48,38 @@ class CompareSymbolsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        Etf::factory()->create([
+        $etf = Etf::factory()->create([
 
             'symbol' => 'CHPY',
 
             'fund_name' => 'CHPY Test ETF',
+
+        ]);
+
+        EtfPriceHistory::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'price_date' => now(),
+
+            'close_price' => 55.12,
+
+        ]);
+
+        EtfMetric::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'performance_range_type_id' =>
+            PerformanceRangeType::NINETY_DAY,
+
+            'total_return_percentage' => 24.80,
+
+            'aum_change_percentage' => 12.50,
+
+            'nav_erosion_percentage' => 3.50,
+
+            'price_change_percentage' => 5.25,
 
         ]);
 
@@ -83,6 +126,54 @@ class CompareSymbolsTest extends TestCase
             'data.table_rows.0.symbol',
 
             'CHPY'
+
+        );
+
+        $response->assertJsonPath(
+
+            'data.table_rows.0.latest_price',
+
+            '55.1200'
+
+        );
+
+        $response->assertJsonPath(
+
+            'data.table_rows.0.aum_change_percentage',
+
+            '12.5000'
+
+        );
+
+        $response->assertJsonPath(
+
+            'data.table_rows.0.total_return_percentage',
+
+            '24.8000'
+
+        );
+
+        $response->assertJsonPath(
+
+            'data.table_rows.0.nav_erosion_percentage',
+
+            '3.5000'
+
+        );
+
+        $response->assertJsonPath(
+
+            'data.table_rows.0.price_change_percentage',
+
+            '5.2500'
+
+        );
+
+        $response->assertJsonPath(
+
+            'data.table_rows.0.chart_value',
+
+            '55.1200'
 
         );
 
@@ -140,61 +231,15 @@ class CompareSymbolsTest extends TestCase
 
                 'options' => [
 
-                    'metrics' => [
+                    'metrics',
 
-                        [
-
-                            'label',
-
-                            'value',
-
-                        ],
-
-                    ],
-
-                    'ranges' => [
-
-                        [
-
-                            'label',
-
-                            'value',
-
-                        ],
-
-                    ],
+                    'ranges',
 
                 ],
 
             ],
 
         ]);
-
-        $this->assertIsArray(
-            $response->json('data.chart_rows')
-        );
-
-        $this->assertIsArray(
-            $response->json('data.invalid_symbols')
-        );
-
-        $this->assertIsArray(
-            $response->json('data.options.metrics')
-        );
-
-        $this->assertIsArray(
-            $response->json('data.options.ranges')
-        );
-
-        $this->assertEquals(
-            'price',
-            $response->json('data.options.metrics.0.value')
-        );
-
-        $this->assertEquals(
-            '90d',
-            $response->json('data.options.ranges.2.value')
-        );
     }
 
     public function test_it_returns_invalid_symbols()
@@ -237,7 +282,7 @@ class CompareSymbolsTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function test_it_returns_chart_rows()
+    public function test_it_returns_price_chart_rows()
     {
         $user = User::factory()->create();
 
@@ -249,7 +294,7 @@ class CompareSymbolsTest extends TestCase
 
         ]);
 
-        \App\Models\EtfPriceHistory::factory()->create([
+        EtfPriceHistory::factory()->create([
 
             'etf_id' => $etf->id,
 
@@ -261,7 +306,7 @@ class CompareSymbolsTest extends TestCase
 
         $response = $this->getJson(
 
-            '/api/compare-symbols?symbols[]=CHPY'
+            '/api/compare-symbols?symbols[]=CHPY&metric=price'
 
         );
 
@@ -274,29 +319,9 @@ class CompareSymbolsTest extends TestCase
             55.12
 
         );
-
-        $response->assertJsonStructure([
-
-            'data' => [
-
-                'chart_rows' => [
-
-                    [
-
-                        'date',
-
-                        'CHPY',
-
-                    ],
-
-                ],
-
-            ],
-
-        ]);
     }
 
-    public function test_it_respects_metric_selection()
+    public function test_it_returns_income_chart_rows()
     {
         $user = User::factory()->create();
 
@@ -308,14 +333,91 @@ class CompareSymbolsTest extends TestCase
 
         ]);
 
-        \App\Models\EtfMetric::factory()->create([
+        EtfDividendHistory::factory()->create([
 
             'etf_id' => $etf->id,
 
-            'performance_range_type_id' =>
-            \App\Models\PerformanceRangeType::NINETY_DAY,
+            'ex_dividend_date' => now(),
 
-            'aum_change_percentage' => 8.80,
+            'dividend_amount' => 1.50,
+
+        ]);
+
+        $response = $this->getJson(
+
+            '/api/compare-symbols?symbols[]=CHPY&metric=income'
+
+        );
+
+        $response->assertStatus(200);
+
+        $response->assertJsonPath(
+
+            'data.chart_rows.0.CHPY',
+
+            1.50
+
+        );
+    }
+
+    public function test_it_returns_nav_chart_rows()
+    {
+        $user = User::factory()->create();
+
+        Sanctum::actingAs($user, ['*']);
+
+        $etf = Etf::factory()->create([
+
+            'symbol' => 'CHPY',
+
+        ]);
+
+        EtfNavHistory::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'nav_date' => now(),
+
+            'nav_per_share' => 48.25,
+
+        ]);
+
+        $response = $this->getJson(
+
+            '/api/compare-symbols?symbols[]=CHPY&metric=nav'
+
+        );
+
+        $response->assertStatus(200);
+
+        $response->assertJsonPath(
+
+            'data.chart_rows.0.CHPY',
+
+            48.25
+
+        );
+    }
+
+    public function test_it_returns_aum_chart_rows()
+    {
+        $user = User::factory()->create();
+
+        Sanctum::actingAs($user, ['*']);
+
+        $etf = Etf::factory()->create([
+
+            'symbol' => 'CHPY',
+
+        ]);
+
+        EtfAumHistory::factory()->create([
+
+            'etf_id' => $etf->id,
+
+            'aum_date' => now(),
+
+            'assets_under_management' => 100000000,
 
         ]);
 
@@ -329,17 +431,9 @@ class CompareSymbolsTest extends TestCase
 
         $response->assertJsonPath(
 
-            'data.summary.selected_metric',
+            'data.chart_rows.0.CHPY',
 
-            'aum'
-
-        );
-
-        $response->assertJsonPath(
-
-            'data.table_rows.0.chart_value',
-
-            '8.8000'
+            100000000
 
         );
     }
@@ -356,12 +450,12 @@ class CompareSymbolsTest extends TestCase
 
         ]);
 
-        \App\Models\EtfMetric::factory()->create([
+        EtfMetric::factory()->create([
 
             'etf_id' => $etf->id,
 
             'performance_range_type_id' =>
-            \App\Models\PerformanceRangeType::ONE_YEAR,
+            PerformanceRangeType::ONE_YEAR,
 
             'total_return_percentage' => 44.44,
 

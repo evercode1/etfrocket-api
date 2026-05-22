@@ -6,9 +6,25 @@ use App\Models\Etf;
 use App\Models\EtfMetric;
 use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
+use App\Queries\Comparisons\SymbolAumHistoryChartQuery;
+use App\Queries\Comparisons\SymbolDividendHistoryChartQuery;
+use App\Queries\Comparisons\SymbolNavHistoryChartQuery;
+use App\Queries\Comparisons\SymbolPriceHistoryChartQuery;
 
 class CompareSymbolsService
 {
+    public function __construct(
+
+        private SymbolPriceHistoryChartQuery $priceHistoryChartQuery,
+
+        private SymbolDividendHistoryChartQuery $dividendHistoryChartQuery,
+
+        private SymbolNavHistoryChartQuery $navHistoryChartQuery,
+
+        private SymbolAumHistoryChartQuery $aumHistoryChartQuery
+
+    ) {}
+
     public function getData(
         array $symbols,
         string $metric = 'price',
@@ -103,54 +119,15 @@ class CompareSymbolsService
 
             ->toArray();
 
-        $chartRows = [];
+        $chartRows = $this->resolveChartRows(
 
-        if ($metric === 'price') {
+            metric: $metric,
 
-            $startDate = $this->resolveStartDate($range);
+            etfIds: $etfs->pluck('id')->toArray(),
 
-            $priceHistories = EtfPriceHistory::whereIn(
-                'etf_id',
-                $etfs->pluck('id')
-            )
+            startDate: $this->resolveStartDate($range)
 
-                ->where('price_date', '>=', $startDate)
-
-                ->orderBy('price_date')
-
-                ->get();
-
-            $groupedByDate = [];
-
-            foreach ($priceHistories as $history) {
-
-                $symbol = $etfs
-
-                    ->firstWhere('id', $history->etf_id)
-
-                    ?->symbol;
-
-                if (!$symbol) {
-                    continue;
-                }
-
-                $date = $history->price_date->toDateString();
-
-                if (!isset($groupedByDate[$date])) {
-
-                    $groupedByDate[$date] = [
-
-                        'date' => $date,
-
-                    ];
-                }
-
-                $groupedByDate[$date][$symbol] =
-                    (float) $history->close_price;
-            }
-
-            $chartRows = array_values($groupedByDate);
-        }
+        );
 
         return [
 
@@ -263,6 +240,48 @@ class CompareSymbolsService
             ],
 
         ];
+    }
+
+    private function resolveChartRows(
+        string $metric,
+        array $etfIds,
+        string $startDate
+    ): array {
+
+        return match ($metric) {
+
+            'income' => $this->dividendHistoryChartQuery->getData(
+
+                etfIds: $etfIds,
+
+                startDate: $startDate
+
+            ),
+
+            'nav' => $this->navHistoryChartQuery->getData(
+
+                etfIds: $etfIds,
+
+                startDate: $startDate
+
+            ),
+
+            'aum' => $this->aumHistoryChartQuery->getData(
+
+                etfIds: $etfIds,
+
+                startDate: $startDate
+
+            ),
+
+            default => $this->priceHistoryChartQuery->getData(
+
+                etfIds: $etfIds,
+
+                startDate: $startDate
+
+            ),
+        };
     }
 
     private function resolveRangeType(string $range): int
