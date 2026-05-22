@@ -21,6 +21,26 @@ class ComparisonController extends Controller
 
     ) {
 
+        $request->validate([
+
+            'metric' => [
+
+                'nullable',
+
+                'string',
+
+            ],
+
+            'range' => [
+
+                'nullable',
+
+                'string',
+
+            ],
+
+        ]);
+
         try {
 
             $data = $service->getData(

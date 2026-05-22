@@ -15,6 +15,8 @@ class EtfComparisonController extends Controller
         Request $request,
         EtfComparisonService $comparisonService
     ) {
+
+        Log::info($request->all());
         try {
 
             $resolved = $comparisonService->resolve(
@@ -24,7 +26,6 @@ class EtfComparisonController extends Controller
             $comparison = (new CompareEtfsQuery())->getData(
                 $resolved
             );
-
         } catch (\Exception $e) {
 
             Log::error('Failed to compare ETFs', [
@@ -44,7 +45,6 @@ class EtfComparisonController extends Controller
                 'message' => 'Oops, something went wrong. Please try again later.',
 
             ], 500);
-
         }
 
         return response()->json([
