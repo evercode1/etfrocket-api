@@ -110,6 +110,17 @@ IncludeRoutes::file('routes/User/Etfs/etfs.php');
 
 /*
 |--------------------------------------------------------------------------
+| Holdings ROUTES
+|--------------------------------------------------------------------------
+|
+| routes for user holdings, requires authentication
+|
+*/
+
+IncludeRoutes::file('routes/User/Holdings/holdings.php');
+
+/*
+|--------------------------------------------------------------------------
 | Mission Control ROUTES
 |--------------------------------------------------------------------------
 |
