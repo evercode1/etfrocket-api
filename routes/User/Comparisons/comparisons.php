@@ -16,4 +16,5 @@ use App\Http\Controllers\User\Comparisons\ComparisonController;
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/portfolio-compare/{portfolio_id}', [ComparisonController::class, 'showPortfolioComparison']);
+    Route::get('/compare-symbols', [ComparisonController::class, 'compareSymbols']);
 });
