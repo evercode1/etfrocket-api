@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\EtfComparisons;
+namespace App\Services\Comparisons;
 
 use InvalidArgumentException;
 

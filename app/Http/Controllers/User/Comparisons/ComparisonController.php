@@ -5,6 +5,9 @@ namespace App\Http\Controllers\User\Comparisons;
 use App\Http\Controllers\Controller;
 use App\Services\Comparisons\PortfolioCompareService;
 use App\Services\Comparisons\CompareSymbolsService;
+use App\Services\Comparisons\MetricExplorerService;
+use App\Services\Comparisons\EtfComparisonService;
+use App\Queries\Etfs\CompareEtfsQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -94,11 +97,11 @@ class ComparisonController extends Controller
 
             $data = $service->getData(
 
-                symbols: $request->get('symbols', []),
+                symbols: $request->input('symbols', []),
 
-                metric: $request->get('metric', 'price'),
+                metric: $request->input('metric', 'price'),
 
-                range: $request->get('range', '90d')
+                range: $request->input('range', '90d')
 
             );
         } catch (\Exception $e) {
@@ -120,5 +123,130 @@ class ComparisonController extends Controller
             'data' => $data,
 
         ]);
+    }
+
+    public function metricExplorer(
+        Request $request,
+        MetricExplorerService $metricExplorerService
+    ) {
+        $request->validate([
+
+            'metric' => [
+
+                'nullable',
+
+                'string',
+
+            ],
+
+            'range' => [
+
+                'nullable',
+
+                'string',
+
+            ],
+
+            'sort_direction' => [
+
+                'nullable',
+
+                'in:asc,desc',
+
+            ],
+
+            'limit' => [
+
+                'nullable',
+
+                'integer',
+
+                'min:1',
+
+                'max:100',
+
+            ],
+
+        ]);
+
+        try {
+
+            $data = $metricExplorerService->getData(
+
+                metric: $request->input('metric'),
+
+                range: $request->input('range'),
+
+                sortDirection: $request->input(
+                    'sort_direction'
+                ),
+
+                limit: $request->input('limit'),
+
+            );
+        } catch (\Exception $e) {
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' =>
+                'Oops, something went wrong. Please try again later.',
+
+            ], 500);
+        }
+
+        return response()->json([
+
+            'success' => true,
+
+            'data' => $data,
+
+        ], 200);
+    }
+
+    public function compareEtfs(
+        Request $request,
+        EtfComparisonService $comparisonService
+    ) {
+
+        Log::info($request->all());
+        try {
+
+            $resolved = $comparisonService->resolve(
+                $request->all()
+            );
+
+            $comparison = (new CompareEtfsQuery())->getData(
+                $resolved
+            );
+        } catch (\Exception $e) {
+
+            Log::error('Failed to compare ETFs', [
+
+                'user_id' => Auth::id(),
+
+                'request' => $request->all(),
+
+                'error' => $e->getMessage(),
+
+            ]);
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' => 'Oops, something went wrong. Please try again later.',
+
+            ], 500);
+        }
+
+        return response()->json([
+
+            'success' => true,
+
+            'data' => $comparison,
+
+        ], 200);
     }
 }

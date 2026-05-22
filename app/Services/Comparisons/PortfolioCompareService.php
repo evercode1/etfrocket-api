@@ -5,7 +5,7 @@ namespace App\Services\Comparisons;
 use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
-use App\Services\EtfComparisons\EtfComparisonService;
+use App\Services\Comparisons\EtfComparisonService;
 use App\Services\EtfMetrics\EtfMetricStatsService;
 use App\Services\PortfolioStats\PortfolioDividendStatsService;
 use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
