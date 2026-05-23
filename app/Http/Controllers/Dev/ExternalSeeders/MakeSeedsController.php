@@ -31,6 +31,7 @@ class MakeSeedsController extends Controller
             'MetricDirections',
             'PerformanceRangeTypes',
             'Portfolios',
+            'SignalTypes',
             'Statuses',
             'SupportTopics',
             'TransactionTypes',
