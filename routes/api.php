@@ -77,6 +77,17 @@ IncludeRoutes::file('routes/Auth/auth.php');
 
 /*
 |--------------------------------------------------------------------------
+| Ai Signals ROUTES
+|--------------------------------------------------------------------------
+|
+| routes for user AI signals, requires authentication
+|
+*/
+
+IncludeRoutes::file('routes/User/AiSignals/ai-signals.php');
+
+/*
+|--------------------------------------------------------------------------
 | BackTesting ROUTES
 |--------------------------------------------------------------------------
 |
