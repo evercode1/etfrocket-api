@@ -20,6 +20,7 @@ class MakeSeedsController extends Controller
 
         $models = [
 
+            'AiMarketSignals',
             'DataSources',
             'DistributionFrequency',
             'Etfs',
