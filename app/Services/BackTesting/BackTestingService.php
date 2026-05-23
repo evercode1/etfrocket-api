@@ -140,8 +140,12 @@ class BackTestingService
             }
 
             $dividend =
-                $dividendMap[$row['date']]['dividend']
-                ?? 0;
+
+                collect($dividends)
+
+                ->where('date', $row['date'])
+
+                ->sum('dividend');
 
             if ($dividend > 0) {
 
