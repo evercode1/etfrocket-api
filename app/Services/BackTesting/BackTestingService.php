@@ -149,12 +149,16 @@ class BackTestingService
                     $shares *
                     $dividend;
 
-                $cashDividends +=
-                    $dividendIncome;
-
                 $reinvestedAmount =
                     $dividendIncome *
                     ($dripPercentage / 100);
+
+                $cashPortion =
+                    $dividendIncome -
+                    $reinvestedAmount;
+
+                $cashDividends +=
+                    $cashPortion;
 
                 if (
                     $reinvestedAmount > 0

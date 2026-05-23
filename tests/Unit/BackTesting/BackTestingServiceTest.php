@@ -242,8 +242,11 @@ class BackTestingServiceTest extends TestCase
         );
 
         $this->assertEquals(
-            100,
+
+            0,
+
             $data['summary']['total_dividends']
+
         );
     }
 
@@ -386,6 +389,8 @@ class BackTestingServiceTest extends TestCase
             endDate: '2024-12-31',
 
             initialInvestment: 10000,
+
+            dripPercentage: 0,
 
         );
 
