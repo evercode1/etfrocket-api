@@ -2,23 +2,28 @@
 
 namespace App\Services\Crons;
 
-use Carbon\Carbon;
 use App\Models\CronLog;
 use App\Models\Interval;
-use App\Models\Status;
 use App\Models\NotificationStatus;
+use App\Models\Status;
 use App\Services\Crons\Notifications\CronFailNotificationService;
+use Carbon\Carbon;
 
 class CronService
 {
-
     public static function runAndLogCron(
 
         string $command_signature,
+
         string $command_description,
+
         string $handler_class_name,
+
         string $handler_method_name,
-        string $interval
+
+        string $interval,
+
+        array $payload = []
 
     ) {
 
@@ -26,62 +31,54 @@ class CronService
         |--------------------------------------------------------------------------
         | Initial Values
         |--------------------------------------------------------------------------
-        |
-        | Set some initial values to start
-        | We have 5 values coming in
-        | $command_signature is the name of the command, not the class name, see the command file for reference.
-        | $handler_class_name is the name of the handler class we will need
-        | $handler_method_name is the method we will call on the handler to process the cron
-        | 
         */
 
         $start_time = Carbon::now();
 
-        $cron_fail_details = NULL;
+        $cron_fail_details = null;
 
-        $success = NULL;
+        $success = null;
 
-        $interval_id = Interval::getIntervalId($interval);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Invoke the Handler dynamically
-        |--------------------------------------------------------------------------
-        |
-        | $handler_class_name is passed in through the command_signature, so we know which class we need.
-        | We do it dymanically, so all commands can be sent to Cron Service
-        | The handler is a separate class that does the actual cron work.
-        | 
-        */
-
-        $class = '\\App\\Services\\Crons\\Handlers\\' . $handler_class_name;
-
-        $handler = app($class);
+        $interval_id =
+            Interval::getIntervalId(
+                $interval
+            );
 
         /*
         |--------------------------------------------------------------------------
-        | dynamically call the correct handler method
+        | Invoke Handler Dynamically
         |--------------------------------------------------------------------------
-        |
-        | dynamically call the correct handler method
-        | returns an array with success set to 1 or 0, and 
-        | cron_fail_details set to null if all is good orwe get the actual error message
-        | 
         */
 
-        $handler_results = $handler->$handler_method_name();
+        $class =
+            '\\App\\Services\\Crons\\Handlers\\' .
+            $handler_class_name;
 
-        $cron_failure_details = $handler_results['cron_fail_details'];
+        $handler =
+            app($class);
 
-        // set end time after handler runs
+        /*
+        |--------------------------------------------------------------------------
+        | Dynamically Call Handler Method
+        |--------------------------------------------------------------------------
+        */
+
+        $handler_results =
+
+            $handler->$handler_method_name(
+                $payload
+            );
+
+        $cron_failure_details =
+            $handler_results['cron_fail_details'];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Timing
+        |--------------------------------------------------------------------------
+        */
 
         $end_time = Carbon::now();
-
-        // Calculate the difference with Carbon from start to finish
-
-        $time_difference = $start_time->diff($end_time);
-
-        // run time in seconds:
 
         $run_time =
 
@@ -93,91 +90,128 @@ class CronService
 
         /*
         |--------------------------------------------------------------------------
-        | Set Success Status
+        | Status Handling
         |--------------------------------------------------------------------------
-        |
-        | Was the cron successful?  if so, $handler_results['success'] will equal 1.
-        | then it will find and set the appropriate status id for 'completed' or 'failed'
-        | 
         */
 
-        $status_id = Status::setSuccessStatusId($handler_results['success']);
+        $status_id =
 
-        // if successful there is no notification necessary, so we set that as initial value
+            Status::setSuccessStatusId(
 
-        $notification_status_id = NotificationStatus::getNotificationStatusId('nothing to send');
+                $handler_results['success']
+
+            );
+
+        $notification_status_id =
+
+            NotificationStatus::getNotificationStatusId(
+
+                'nothing to send'
+
+            );
 
         /*
         |--------------------------------------------------------------------------
-        | Handle Cron Failure
+        | Failure Handling
         |--------------------------------------------------------------------------
-        |
-        | if the cron fails, set appropriate values and send notfications
-        | with failure, we have to determine whether or not to send a notification
-        | if success == 0, the cron has failed
-        | 
         */
 
-        if ($handler_results['success'] == 0) {
+        if (
+            $handler_results['success'] == 0
+        ) {
 
-            // with a failed cron, we need some additional values
+            $start_day =
+                $start_time->format(
+                    'Y-m-d'
+                );
 
-            // Extract the day part from $start_time
+            $failed_status_id =
 
-            $start_day = $start_time->format('Y-m-d');
+                Status::getStatusId(
+                    'failed'
+                );
 
-            // get failed status
+            $previously_sent =
 
-            $failed_status_id = Status::getStatusId('failed');
+                NotificationStatus::getNotificationStatusId(
+                    'previously sent'
+                );
 
-            // get notification status values, these return a notification_status_id
+            $sent =
 
-            $previously_sent = NotificationStatus::getNotificationStatusId('previously sent');
+                NotificationStatus::getNotificationStatusId(
+                    'sent'
+                );
 
-            $sent = NotificationStatus::getNotificationStatusId('sent');
+            if (
 
-            // if cron fails, check to see if notification has been sent previously
-            // if previously sent, set the notification status id for previously sent
+                CronLog::whereDate(
+                    'created_at',
+                    $start_day
+                )
 
-            if (CronLog::whereDate('created_at', $start_day)
+                ->where(
+                    'status_id',
+                    $failed_status_id
+                )
 
-                ->where('status_id', $failed_status_id)
-                ->where('notification_status_id', $sent)
+                ->where(
+                    'notification_status_id',
+                    $sent
+                )
 
                 ->exists()
+
             ) {
 
-                $notification_status_id = $previously_sent;
+                $notification_status_id =
+                    $previously_sent;
             } else {
 
-                // send cron fail notification
+                // CronFailNotificationService::sendNotifications(
+                //     $command_signature,
+                //     $cron_failure_details
+                // );
 
-                // CronFailNotificationService::sendNotifications($command_signature, $cron_failure_details);
-
-                $notification_status_id = $sent;
+                $notification_status_id =
+                    $sent;
             }
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Save the Cron Log record
+        | Save Cron Log
         |--------------------------------------------------------------------------
-        |
-        | All values are formatted ready to be saved.
-        | 
         */
 
-        $cronLog = CronLog::create([
+        CronLog::create([
 
-            'cron_name' => $command_signature,
-            'status_id' => $status_id,
-            'cron_description' => $command_description,
-            'cron_fail_details' => $cron_failure_details,
-            'interval_id' => $interval_id,
-            'run_time' => $run_time,
-            'start_time' => $start_time,
-            'end_time' => $end_time,
-            'notification_status_id' => $notification_status_id
+            'cron_name' =>
+            $command_signature,
+
+            'status_id' =>
+            $status_id,
+
+            'cron_description' =>
+            $command_description,
+
+            'cron_fail_details' =>
+            $cron_failure_details,
+
+            'interval_id' =>
+            $interval_id,
+
+            'run_time' =>
+            $run_time,
+
+            'start_time' =>
+            $start_time,
+
+            'end_time' =>
+            $end_time,
+
+            'notification_status_id' =>
+            $notification_status_id,
 
         ]);
     }

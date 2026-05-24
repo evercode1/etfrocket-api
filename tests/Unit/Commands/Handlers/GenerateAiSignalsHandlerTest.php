@@ -1,19 +1,20 @@
 <?php
 
-namespace Tests\Unit\Commands;
+namespace Tests\Unit\Services\Crons\Handlers;
 
-use App\Models\CronLog;
+use App\Models\AiMarketSignal;
 use App\Models\SignalType;
-use Database\Seeders\IntervalSeeder;
-use Database\Seeders\NotificationStatusSeeder;
+use App\Services\Crons\Handlers\GenerateAiSignalsHandler;
 use Database\Seeders\SignalTypeSeeder;
-use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
-class GenerateAiSignalCommandTest extends TestCase
+class GenerateAiSignalsHandlerTest extends TestCase
 {
+    private GenerateAiSignalsHandler
+        $handler;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -21,35 +22,12 @@ class GenerateAiSignalCommandTest extends TestCase
         DB::table('ai_market_signals')
             ->truncate();
 
-        DB::table('cron_logs')
-            ->truncate();
-
         DB::table('signal_types')
             ->truncate();
 
-        DB::table('intervals')
-            ->truncate();
-
-        DB::table('statuses')
-            ->truncate();
-
-        DB::table('notification_statuses')
-            ->truncate();
-
-        DB::table('cron_logs')
-            ->truncate();
-
-        $this->seed([
-
-            IntervalSeeder::class,
-
-            StatusSeeder::class,
-
-            NotificationStatusSeeder::class,
-
-            SignalTypeSeeder::class,
-
-        ]);
+        $this->seed(
+            SignalTypeSeeder::class
+        );
 
         Http::fake(function ($request) {
 
@@ -174,6 +152,11 @@ class GenerateAiSignalCommandTest extends TestCase
 
             ], 200);
         });
+
+        $this->handler =
+            app(
+                GenerateAiSignalsHandler::class
+            );
     }
 
     protected function tearDown(): void
@@ -181,22 +164,7 @@ class GenerateAiSignalCommandTest extends TestCase
         DB::table('ai_market_signals')
             ->truncate();
 
-        DB::table('cron_logs')
-            ->truncate();
-
         DB::table('signal_types')
-            ->truncate();
-
-        DB::table('intervals')
-            ->truncate();
-
-        DB::table('statuses')
-            ->truncate();
-
-        DB::table('notification_statuses')
-            ->truncate();
-
-        DB::table('cron_logs')
             ->truncate();
 
         parent::tearDown();
@@ -204,14 +172,25 @@ class GenerateAiSignalCommandTest extends TestCase
 
     public function test_it_generates_all_ai_signals()
     {
-        $this->artisan(
-            'ai:generate-signals'
-        )->assertExitCode(0);
+        $results =
+            $this->handler
+            ->handleGenerateAiSignals();
 
-        $this->assertDatabaseCount(
-            'ai_market_signals',
-            3
+        $this->assertEquals(
+            1,
+            $results['success']
         );
+
+        $this->assertEquals(
+            3,
+            AiMarketSignal::count()
+        );
+    }
+
+    public function test_it_generates_market_snapshot_signal()
+    {
+        $this->handler
+            ->handleGenerateAiSignals();
 
         $this->assertDatabaseHas(
             'ai_market_signals',
@@ -220,8 +199,17 @@ class GenerateAiSignalCommandTest extends TestCase
                 'signal_type_id' =>
                 SignalType::MARKET_SNAPSHOT,
 
+                'title' =>
+                'AI Market Snapshot',
+
             ]
         );
+    }
+
+    public function test_it_generates_market_conditions_signal()
+    {
+        $this->handler
+            ->handleGenerateAiSignals();
 
         $this->assertDatabaseHas(
             'ai_market_signals',
@@ -230,8 +218,17 @@ class GenerateAiSignalCommandTest extends TestCase
                 'signal_type_id' =>
                 SignalType::MARKET_CONDITIONS,
 
+                'title' =>
+                'AI Market Conditions',
+
             ]
         );
+    }
+
+    public function test_it_generates_market_events_signal()
+    {
+        $this->handler
+            ->handleGenerateAiSignals();
 
         $this->assertDatabaseHas(
             'ai_market_signals',
@@ -240,31 +237,8 @@ class GenerateAiSignalCommandTest extends TestCase
                 'signal_type_id' =>
                 SignalType::MARKET_EVENTS,
 
-            ]
-        );
-    }
-
-    public function test_it_creates_cron_log_record()
-    {
-        $this->artisan(
-            'ai:generate-signals'
-        )->assertExitCode(0);
-
-        $this->assertDatabaseCount(
-            'cron_logs',
-            1
-        );
-
-        $this->assertDatabaseHas(
-            'cron_logs',
-            [
-
-                'cron_name' =>
-                'ai:generate-signals
-        {--type=}',
-
-                'cron_description' =>
-                'Generate AI market signals',
+                'title' =>
+                'AI Market Events',
 
             ]
         );
@@ -272,14 +246,11 @@ class GenerateAiSignalCommandTest extends TestCase
 
     public function test_it_stores_markdown_content()
     {
-        $this->artisan(
-            'ai:generate-signals'
-        )->assertExitCode(0);
+        $this->handler
+            ->handleGenerateAiSignals();
 
         $signal =
-            DB::table(
-                'ai_market_signals'
-            )->first();
+            AiMarketSignal::first();
 
         $this->assertNotNull(
             $signal
@@ -293,14 +264,11 @@ class GenerateAiSignalCommandTest extends TestCase
 
     public function test_it_sets_generated_at()
     {
-        $this->artisan(
-            'ai:generate-signals'
-        )->assertExitCode(0);
+        $this->handler
+            ->handleGenerateAiSignals();
 
         $signal =
-            DB::table(
-                'ai_market_signals'
-            )->first();
+            AiMarketSignal::first();
 
         $this->assertNotNull(
             $signal->generated_at
@@ -309,14 +277,11 @@ class GenerateAiSignalCommandTest extends TestCase
 
     public function test_it_sets_expires_at()
     {
-        $this->artisan(
-            'ai:generate-signals'
-        )->assertExitCode(0);
+        $this->handler
+            ->handleGenerateAiSignals();
 
         $signal =
-            DB::table(
-                'ai_market_signals'
-            )->first();
+            AiMarketSignal::first();
 
         $this->assertNotNull(
             $signal->expires_at
@@ -325,9 +290,8 @@ class GenerateAiSignalCommandTest extends TestCase
 
     public function test_it_sets_signal_as_active()
     {
-        $this->artisan(
-            'ai:generate-signals'
-        )->assertExitCode(0);
+        $this->handler
+            ->handleGenerateAiSignals();
 
         $this->assertDatabaseHas(
             'ai_market_signals',
@@ -339,33 +303,19 @@ class GenerateAiSignalCommandTest extends TestCase
         );
     }
 
-    public function test_it_creates_successful_cron_log()
+    public function test_it_returns_success_response()
     {
-        $this->artisan(
-            'ai:generate-signals'
-        )->assertExitCode(0);
+        $results =
+            $this->handler
+            ->handleGenerateAiSignals();
 
-        $cronLog =
-            CronLog::first();
-
-        $this->assertNotNull(
-            $cronLog
+        $this->assertEquals(
+            1,
+            $results['success']
         );
 
-        $this->assertNotNull(
-            $cronLog->status_id
-        );
-
-        $this->assertNotNull(
-            $cronLog->run_time
-        );
-
-        $this->assertNotNull(
-            $cronLog->start_time
-        );
-
-        $this->assertNotNull(
-            $cronLog->end_time
+        $this->assertNull(
+            $results['cron_fail_details']
         );
     }
 }

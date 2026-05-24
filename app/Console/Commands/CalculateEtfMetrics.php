@@ -2,85 +2,46 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Etf;
-use App\Models\PerformanceRangeType;
-use App\Models\Status;
-use App\Services\EtfMetrics\CalculateEtfMetricService;
+use App\Services\Crons\CronService;
 use Illuminate\Console\Command;
-use Throwable;
 
 class CalculateEtfMetrics extends Command
 {
-    protected $signature = 'etfs:calculate-metrics {--symbol= : Calculate metrics for a single ETF symbol}';
+    protected $signature =
+    'etfs:calculate-metrics
+        {--symbol= : Calculate metrics for a single ETF symbol}';
 
-    protected $description = 'Calculate ETF performance metrics for all active ETFs and performance range types.';
+    protected $description =
+    'Calculate ETF performance metrics for all active ETFs and performance range types.';
 
-    public function handle(CalculateEtfMetricService $service): int
+    public function handle(): void
     {
-        $symbol = $this->option('symbol');
+        $interval = 'Daily';
 
-        $etfs = Etf::where('status_id', Status::ACTIVE)
-            ->when($symbol, function ($query) use ($symbol) {
-                $query->where('symbol', strtoupper($symbol));
-            })
-            ->orderBy('symbol')
-            ->get();
+        $payload = [
 
-        if ($etfs->isEmpty()) {
-            $this->warn('No active ETFs found.');
+            'symbol' =>
 
-            return self::SUCCESS;
-        }
+            $this->option(
+                'symbol'
+            ),
 
-        $rangeTypes = PerformanceRangeType::orderBy('id')
-            ->get();
+        ];
 
-        if ($rangeTypes->isEmpty()) {
-            $this->warn('No active performance range types found.');
+        CronService::runAndLogCron(
 
-            return self::SUCCESS;
-        }
+            $this->signature,
 
-        $this->info('Starting ETF metric calculations...');
-        $this->info('ETFs found: ' . $etfs->count());
-        $this->info('Range types found: ' . $rangeTypes->count());
+            $this->description,
 
-        $successCount = 0;
-        $failureCount = 0;
+            'CalculateEtfMetricsHandler',
 
-        foreach ($etfs as $etf) {
+            'handleCalculateEtfMetrics',
 
-            $this->line('Processing ETF: ' . $etf->symbol);
+            $interval,
 
-            foreach ($rangeTypes as $rangeType) {
+            $payload
 
-                try {
-
-                    $service->calculate($etf, $rangeType->id);
-
-                    $successCount++;
-
-                    $this->line(
-                        ' - Calculated ' . $rangeType->performance_range_type_name
-                    );
-
-                } catch (Throwable $e) {
-
-                    $failureCount++;
-
-                    report($e);
-
-                    $this->error(
-                        ' - Failed ' . $rangeType->performance_range_type_name . ': ' . $e->getMessage()
-                    );
-                }
-            }
-        }
-
-        $this->info('ETF metric calculations complete.');
-        $this->info('Successful calculations: ' . $successCount);
-        $this->info('Failed calculations: ' . $failureCount);
-
-        return $failureCount > 0 ? self::FAILURE : self::SUCCESS;
+        );
     }
 }
