@@ -8,8 +8,13 @@ use App\Models\CronLog;
 class TrimCronLogsHandler
 {
 
-    public function handleTrimCronLogs()
-    {
+    // we ignore payload, but we need it for dynamic method calling in CronService
+
+    public function handleTrimCronLogs(
+
+        array $payload = []
+
+    ): array {
 
         // Get the date one week ago
 

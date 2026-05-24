@@ -16,6 +16,8 @@ use Database\Seeders\EtfPriceHistorySeeder;
 use Database\Seeders\EtfSeeder;
 use Database\Seeders\PerformanceRangeTypeSeeder;
 use Database\Seeders\StatusSeeder;
+use Database\Seeders\IntervalSeeder;
+use Database\Seeders\NotificationStatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -35,6 +37,9 @@ class CalculateEtfMetricsCommandSeededDataTest extends TestCase
         DB::table('etfs')->truncate();
         DB::table('statuses')->truncate();
         DB::table('performance_range_types')->truncate();
+        DB::table('cron_logs')->truncate();
+        DB::table('intervals')->truncate();
+        DB::table('notification_statuses')->truncate();
 
         $this->seed(StatusSeeder::class);
         $this->seed(PerformanceRangeTypeSeeder::class);
@@ -43,6 +48,8 @@ class CalculateEtfMetricsCommandSeededDataTest extends TestCase
         $this->seed(EtfNavHistorySeeder::class);
         $this->seed(EtfAumHistorySeeder::class);
         $this->seed(EtfDividendHistorySeeder::class);
+        $this->seed(IntervalSeeder::class);
+        $this->seed(NotificationStatusSeeder::class);
     }
 
     protected function tearDown(): void
@@ -55,6 +62,9 @@ class CalculateEtfMetricsCommandSeededDataTest extends TestCase
         DB::table('etfs')->truncate();
         DB::table('statuses')->truncate();
         DB::table('performance_range_types')->truncate();
+        DB::table('cron_logs')->truncate();
+        DB::table('intervals')->truncate();
+        DB::table('notification_statuses')->truncate();
 
         Carbon::setTestNow();
 

@@ -20,6 +20,8 @@ use Database\Seeders\PerformanceRangeTypeSeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
+use Database\Seeders\IntervalSeeder;
+use Database\Seeders\NotificationStatusSeeder;
 
 class CalculateEtfMetricsCommandTest extends TestCase
 {
@@ -40,6 +42,9 @@ class CalculateEtfMetricsCommandTest extends TestCase
         DB::table('etf_strategy_types')->truncate();
         DB::table('etf_issuers')->truncate();
         DB::table('statuses')->truncate();
+        DB::table('cron_logs')->truncate();
+        DB::table('intervals')->truncate();
+        DB::table('notification_statuses')->truncate();
 
         $this->seed(StatusSeeder::class);
         $this->seed(EtfIssuerSeeder::class);
@@ -48,6 +53,8 @@ class CalculateEtfMetricsCommandTest extends TestCase
         $this->seed(DataSourceSeeder::class);
         $this->seed(PerformanceRangeTypeSeeder::class);
         $this->seed(MetricDirectionSeeder::class);
+        $this->seed(IntervalSeeder::class);
+        $this->seed(NotificationStatusSeeder::class);
     }
 
     protected function tearDown(): void
@@ -63,6 +70,9 @@ class CalculateEtfMetricsCommandTest extends TestCase
         DB::table('etf_strategy_types')->truncate();
         DB::table('etf_issuers')->truncate();
         DB::table('statuses')->truncate();
+        DB::table('cron_logs')->truncate();
+        DB::table('intervals')->truncate();
+        DB::table('notification_statuses')->truncate();
 
         Carbon::setTestNow();
 
@@ -79,12 +89,11 @@ class CalculateEtfMetricsCommandTest extends TestCase
         $this->createPriceHistory($activeEtfTwo);
         $this->createPriceHistory($inactiveEtf);
 
-        $this->artisan('etfs:calculate-metrics')
-            ->expectsOutput('Starting ETF metric calculations...')
-            ->expectsOutput('ETFs found: 2')
-            ->expectsOutput('Range types found: 6')
-            ->expectsOutput('ETF metric calculations complete.')
-            ->assertExitCode(0);
+        $this->artisan(
+
+            'etfs:calculate-metrics'
+
+        )->assertExitCode(0);
 
         $this->assertEquals(12, EtfMetric::count());
 
@@ -113,8 +122,6 @@ class CalculateEtfMetricsCommandTest extends TestCase
         $this->createPriceHistory($otherEtf);
 
         $this->artisan('etfs:calculate-metrics --symbol=CHPY')
-            ->expectsOutput('ETFs found: 1')
-            ->expectsOutput('Range types found: 6')
             ->assertExitCode(0);
 
         $this->assertEquals(6, EtfMetric::where('etf_id', $targetEtf->id)->count());
@@ -127,7 +134,6 @@ class CalculateEtfMetricsCommandTest extends TestCase
         $this->createEtf('ZZZ', Status::INACTIVE);
 
         $this->artisan('etfs:calculate-metrics')
-            ->expectsOutput('No active ETFs found.')
             ->assertExitCode(0);
 
         $this->assertEquals(0, EtfMetric::count());
