@@ -9,3 +9,14 @@ Schedule::command('etfs:run-ai-extraction')
 Schedule::command('etf:calculate-metrics')
     ->dailyAt('02:00')
     ->withoutOverlapping();
+
+Schedule::command('app:trim-cron-logs')
+    ->weekly()
+    ->weeklyOn(
+
+        0,
+
+        '04:00'
+
+    )
+    ->withoutOverlapping();
