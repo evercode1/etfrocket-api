@@ -13,7 +13,6 @@ use App\Http\Controllers\User\AiSignals\AiSignalsController;
 |
 */
 
-Route::group(['middleware' => ['auth:sanctum']], function () {
+Route::get('/get-ai-signals', [AiSignalsController::class, 'index']);
 
-    Route::get('/get-ai-signals', [AiSignalsController::class, 'index']);
-});
+Route::group(['middleware' => ['auth:sanctum']], function () {});
