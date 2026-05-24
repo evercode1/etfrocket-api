@@ -14,13 +14,15 @@ class ForgotPasswordEmail extends Mailable
     use Queueable, SerializesModels;
 
     public string $token;
+    public string $email;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(string $token)
+    public function __construct(string $token, string $email)
     {
         $this->token = $token;
+        $this->email = $email;
     }
 
     /**
@@ -46,7 +48,15 @@ class ForgotPasswordEmail extends Mailable
 
             with: [
 
-                'url' => env('FRONTEND_URL') . '/api/reset-password/' . $this->token
+                'url' => env('FRONTEND_URL')
+
+                    . '/auth/reset-password/'
+
+                    . $this->token
+
+                    . '?email='
+
+                    . urlencode($this->email)
 
             ],
 
