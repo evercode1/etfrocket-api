@@ -16,16 +16,16 @@ class ResetPasswordService
         $request->validate([
 
             'password' => 'required|string|confirmed',
-            'user_id' => 'required|integer',
+            'email' => 'required|email',
             'token' => 'required|string'
 
         ]);
 
         $passwordReset = PasswordResetToken::where('token', $request->token)->first();
 
-        $id = $request->user_id;
+        $email = $request->email;
 
-        $user = User::find($id);
+        $user = User::where('email', $email)->first();
 
         if ($passwordReset->email !== $user->email) {
 
@@ -43,7 +43,7 @@ class ResetPasswordService
 
         DB::table('users')
 
-            ->where('id', $id)
+            ->where('email', $email)
 
             ->update(['password' => $password]);
 

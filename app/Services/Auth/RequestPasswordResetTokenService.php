@@ -49,7 +49,7 @@ class RequestPasswordResetTokenService
 
         ]);
 
-        Mail::to($email)->send(new ForgotPasswordEmail($token));
+        Mail::to($email)->send(new ForgotPasswordEmail($token, $email));
 
         return response()->json([
 
