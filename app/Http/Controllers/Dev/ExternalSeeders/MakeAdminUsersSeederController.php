@@ -47,29 +47,6 @@ class MakeAdminUsersSeederController extends Controller
         ]);
 
 
-        // use UserFactory to create 100 random users, no admins. 
-        User::factory()
-            ->count(98)
-            ->create()
-            ->each(function ($user) {
-
-                $createdAt = Carbon::now()->subDays(rand(0, 730));
-
-                $isVerified = rand(1, 100) <= 70;
-
-                $user->created_at = $createdAt;
-
-                $user->updated_at = $createdAt;
-
-                $user->email_verified_at = $isVerified
-                    ? $createdAt->copy()->addDays(rand(0, 14))
-                    : null;
-
-                $user->is_admin = 0;
-
-                $user->save();
-            });
-
 
         return ['message' => 'Admin Users Seeded'];
     }
