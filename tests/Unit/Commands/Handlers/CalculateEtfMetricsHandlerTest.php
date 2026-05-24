@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services\Crons\Handlers;
+namespace Tests\Unit\Commands\Handlers;
 
 use App\Models\DataSource;
 use App\Models\DistributionFrequency;

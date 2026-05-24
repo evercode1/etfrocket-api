@@ -21,6 +21,17 @@ IncludeRoutes::file('routes/Admin/admin.php');
 
 /*
 |--------------------------------------------------------------------------
+| Monitoring ROUTES
+|--------------------------------------------------------------------------
+|
+| routes for monitoring functionalities, requires authentication
+|
+*/
+
+IncludeRoutes::file('routes/Admin/Monitoring/monitoring.php');
+
+/*
+|--------------------------------------------------------------------------
 | Admin Support ROUTES
 |--------------------------------------------------------------------------
 |

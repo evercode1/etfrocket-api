@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services\Crons;
+namespace Tests\Unit\Crons;
 
 use App\Models\CronLog;
 use App\Models\Interval;
