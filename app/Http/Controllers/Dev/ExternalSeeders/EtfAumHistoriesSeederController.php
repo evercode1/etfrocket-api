@@ -7,6 +7,7 @@ use App\Models\DataSource;
 use App\Models\Etf;
 use App\Models\EtfAumHistory;
 use App\Models\EtfNavHistory;
+use Faker\Factory as Faker;
 use Carbon\Carbon;
 
 class EtfAumHistoriesSeederController extends Controller
@@ -70,6 +71,8 @@ class EtfAumHistoriesSeederController extends Controller
 
         $endDate = now();
 
+        $faker = Faker::create();
+
         while ($startDate->lte($endDate)) {
 
             /*
@@ -78,11 +81,11 @@ class EtfAumHistoriesSeederController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $currentNav += fake()->randomFloat(4, -0.65, 0.65);
+            $currentNav += $faker->randomFloat(4, -0.65, 0.65);
 
             $currentNav = max($currentNav, 5);
 
-            $currentAum += fake()->numberBetween(-5000000, 7000000);
+            $currentAum += $faker->numberBetween(-5000000, 7000000);
 
             $currentAum = max($currentAum, 1000000);
 
