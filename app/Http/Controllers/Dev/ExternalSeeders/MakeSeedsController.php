@@ -29,6 +29,7 @@ class MakeSeedsController extends Controller
             'EtfAumHistories',
             'HelpArticleCategories',
             'HelpArticles',
+            'ImportTypes',
             'Intervals',
             'MetricDirections',
             'NotificationStatuses',

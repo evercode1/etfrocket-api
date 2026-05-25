@@ -25,6 +25,12 @@ return [
 
         'https://etfrocket.com',
 
+        env('APP_ENV') !== 'production'
+
+            ? 'http://localhost:5173'
+
+            : null,
+
     ],
 
     'allowed_origins_patterns' => [],
