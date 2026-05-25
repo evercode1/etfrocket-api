@@ -2,77 +2,76 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Etf;
+use App\Services\Crons\CronService;
+
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
-use App\Services\AI\Extractions\AiEtfDataExtractionService;
-use App\Services\AI\Extractions\ProcessAiEtfDataExtractionService;
 
 class RunAiEtfDataExtractions extends Command
+
 {
-    protected $signature = 'etfs:run-ai-extraction
+
+    protected $signature =
+
+    'etfs:run-ai-extraction
+
         {--symbol= : Run extraction for a single ETF symbol}
-        {--limit= : Limit the number of ETFs processed}';
 
-    protected $description = 'Run AI ETF data extraction and process extracted ETF data.';
+        {--limit= : Limit the number of ETFs processed}
 
-    public function handle(
-        AiEtfDataExtractionService $aiEtfDataExtractionService,
-        ProcessAiEtfDataExtractionService $processAiEtfDataExtractionService
-    ): int {
-        $query = Etf::query()->orderBy('symbol');
+        {--force : Force extraction even if no fresh price data exists}';
 
-        if ($this->option('symbol')) {
-            $query->where('symbol', strtoupper($this->option('symbol')));
-        }
+    protected $description =
 
-        if ($this->option('limit')) {
-            $query->limit((int) $this->option('limit'));
-        }
+    'Run AI ETF data extraction and process extracted ETF data.';
 
-        $etfs = $query->get();
+    public function handle(): void
 
-        if ($etfs->isEmpty()) {
-            $this->warn('No ETFs found for AI extraction.');
+    {
 
-            return self::SUCCESS;
-        }
+        $interval = 'Daily';
 
-        $successCount = 0;
-        $failureCount = 0;
+        $payload = [
 
-        $this->info("Starting AI ETF extraction for {$etfs->count()} ETF(s).");
+            'symbol' =>
 
-        foreach ($etfs as $etf) {
-            try {
-                $this->line("Processing {$etf->symbol}...");
+            $this->option(
 
-                $extraction = $aiEtfDataExtractionService->extract($etf);
+                'symbol'
 
-                $processAiEtfDataExtractionService->process($extraction);
+            ),
 
-                $successCount++;
+            'limit' =>
 
-                $this->info("Processed {$etf->symbol} successfully.");
-            } catch (\Throwable $e) {
-                $failureCount++;
+            $this->option(
 
-                Log::error('AI ETF extraction command failed for ETF.', [
-                    'etf_id' => $etf->id,
-                    'symbol' => $etf->symbol,
-                    'message' => $e->getMessage(),
-                    'exception' => $e,
-                ]);
+                'limit'
 
-                $this->error("Failed processing {$etf->symbol}: {$e->getMessage()}");
-            }
-        }
+            ),
 
-        $this->newLine();
-        $this->info('AI ETF extraction complete.');
-        $this->info("Successful: {$successCount}");
-        $this->info("Failed: {$failureCount}");
+            'force' =>
 
-        return $failureCount > 0 ? self::FAILURE : self::SUCCESS;
+            $this->option(
+
+                'force'
+
+            ),
+
+        ];
+
+        CronService::runAndLogCron(
+
+            $this->signature,
+
+            $this->description,
+
+            'RunAiEtfDataExtractionsHandler',
+
+            'handleRunAiEtfDataExtractions',
+
+            $interval,
+
+            $payload
+
+        );
     }
 }
