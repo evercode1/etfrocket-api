@@ -50,6 +50,49 @@ class GenerateAiSignalServiceTest extends TestCase
                     $request['input'][1]['content']
                 );
 
+            /*
+            |--------------------------------------------------------------------------
+            | Market Mood Prompt
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                str_contains(
+                    $content,
+                    'classify the current market mood'
+                )
+            ) {
+
+                return Http::response([
+
+                    'output' => [
+
+                        [
+
+                            'content' => [
+
+                                [
+
+                                    'text' =>
+                                    'Bullish',
+
+                                ],
+
+                            ],
+
+                        ],
+
+                    ],
+
+                ], 200);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Signal Content Prompts
+            |--------------------------------------------------------------------------
+            */
+
             if (
                 str_contains(
                     $content,
@@ -314,14 +357,24 @@ class GenerateAiSignalServiceTest extends TestCase
 
             );
 
-        $this->assertGreaterThanOrEqual(
-            72,
+        $this->assertEquals(
+            88,
             $signal->confidence_score
         );
+    }
 
-        $this->assertLessThanOrEqual(
-            94,
-            $signal->confidence_score
+    public function test_it_sets_market_mood()
+    {
+        $signal =
+            $this->service->generate(
+
+                SignalType::MARKET_SNAPSHOT
+
+            );
+
+        $this->assertEquals(
+            'Bullish',
+            $signal->market_mood
         );
     }
 
@@ -340,6 +393,11 @@ class GenerateAiSignalServiceTest extends TestCase
 
         $this->assertArrayHasKey(
             'template_used',
+            $signal->payload_json
+        );
+
+        $this->assertArrayHasKey(
+            'market_status',
             $signal->payload_json
         );
     }

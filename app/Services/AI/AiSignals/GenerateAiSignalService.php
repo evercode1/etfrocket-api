@@ -30,6 +30,8 @@ class GenerateAiSignalService
                 $signal_type_id
             );
 
+        $moodData = $this->getMarketMood();
+
         $signal =
             AiMarketSignal::create([
 
@@ -47,12 +49,12 @@ class GenerateAiSignalService
                 ),
 
                 'market_mood' =>
-                $this->getMarketMood(
-                    $signal_type_id
-                ),
+
+                $moodData['market_mood'],
 
                 'confidence_score' =>
-                rand(72, 94),
+
+                $moodData['confidence_score'],
 
                 'markdown_content' =>
                 $generatedMarkdown,
@@ -170,27 +172,13 @@ class GenerateAiSignalService
         };
     }
 
-    private function getMarketMood(
-        int $signal_type_id
-    ): string {
+    private function getMarketMood(): array
+    {
 
-        return match ($signal_type_id) {
+        return app(
 
-            SignalType::MARKET_SNAPSHOT =>
+            \App\Services\AI\MarketAnalytics\MarketMoodService::class
 
-            'Risk-On',
-
-            SignalType::MARKET_CONDITIONS =>
-
-            'Neutral',
-
-            SignalType::MARKET_EVENTS =>
-
-            'Event Driven',
-
-            default =>
-
-            'Neutral',
-        };
+        )->determine();
     }
 }
