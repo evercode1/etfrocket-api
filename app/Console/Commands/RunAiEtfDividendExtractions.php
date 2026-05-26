@@ -3,31 +3,26 @@
 namespace App\Console\Commands;
 
 use App\Services\Crons\CronService;
-
 use Illuminate\Console\Command;
 
-class RunAiEtfDataExtractions extends Command
-
+class RunAiEtfDividendExtractions extends Command
 {
-
     protected $signature =
 
-    'etfs:run-ai-extraction
+    'etfs:run-ai-dividend-extraction
 
         {--symbol= : Run extraction for a single ETF symbol}
 
         {--limit= : Limit the number of ETFs processed}
 
-        {--force : Force extraction even if no fresh price data exists}';
+        {--force : Force extraction even if no fresh dividend data exists}';
 
     protected $description =
 
-    'Run AI ETF data extraction and process extracted ETF data.';
+    'Run AI ETF dividend extraction and process extracted ETF dividend data.';
 
     public function handle(): void
-
     {
-
         $interval = 'Daily';
 
         $payload = [
@@ -35,25 +30,19 @@ class RunAiEtfDataExtractions extends Command
             'symbol' =>
 
             $this->option(
-
                 'symbol'
-
             ),
 
             'limit' =>
 
             $this->option(
-
                 'limit'
-
             ),
 
             'force' =>
 
             $this->option(
-
                 'force'
-
             ),
 
         ];
@@ -64,9 +53,9 @@ class RunAiEtfDataExtractions extends Command
 
             $this->description,
 
-            'RunAiEtfDataExtractionsHandler',
+            'RunAiEtfDividendExtractionsHandler',
 
-            'handleRunAiEtfDataExtractions',
+            'handleRunAiEtfDividendExtractions',
 
             $interval,
 

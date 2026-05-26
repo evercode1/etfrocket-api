@@ -25,6 +25,19 @@ class EtfStrategyType extends Model
     const COLLAR_STRATEGY = 13;
     const BUFFER_ETF = 14;
     const TARGET_INCOME = 15;
+    const ALTERNATIVE_INCOME = 16;
+    const COLLAR = 17;
+    const LEVERAGED = 18;
+    const HEDGED_EQUITY = 19;
+    const HIGH_YIELD_BOND = 20;
+    const CASH_ALTERNATIVE = 21;
+    const ENERGY_INFRASTRUCTURE = 22;
+    const BOND = 23;
+    const CRYPTO_INCOME = 24;
+    const PRECIOUS_METALS = 25;
+    const DEFENSE = 26;
+    const RISK_MANAGED = 27;
+
 
     protected $fillable = [
 

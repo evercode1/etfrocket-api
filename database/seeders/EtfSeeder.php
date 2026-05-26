@@ -50,7 +50,7 @@ class EtfSeeder extends Seeder
             [
                 'symbol' => 'NVII',
                 'fund_name' => 'REX NVDA Growth & Income ETF',
-                'etf_issuer_id' => EtfIssuer::REX_SHARES,
+                'etf_issuer_id' => EtfIssuer::REX,
                 'etf_strategy_type_id' => EtfStrategyType::LEVERAGED_COVERED_CALL,
                 'distribution_frequency_id' => DistributionFrequency::WEEKLY,
                 'status_id' => Status::ACTIVE,
@@ -106,7 +106,7 @@ class EtfSeeder extends Seeder
             [
                 'symbol' => 'QQQI',
                 'fund_name' => 'NEOS Nasdaq-100 High Income ETF',
-                'etf_issuer_id' => EtfIssuer::NEOS_INVESTMENTS,
+                'etf_issuer_id' => EtfIssuer::NEOS,
                 'etf_strategy_type_id' => EtfStrategyType::OPTION_INCOME,
                 'distribution_frequency_id' => DistributionFrequency::MONTHLY,
                 'status_id' => Status::ACTIVE,

@@ -26,7 +26,8 @@ class Status extends Model
     const INACTIVE = 14;
     const SUCCESS = 15;
     const FAILED = 16;
-    
+    const PROCESSING = 17;
+
 
     protected $fillable = [
 
@@ -43,7 +44,6 @@ class Status extends Model
             'updated_at' => 'date:Y-m-d'
 
         ];
-
     }
 
     public static function getStatusId(string $name)
@@ -52,7 +52,6 @@ class Status extends Model
         $status = self::where('status_name', $name)->first();
 
         return $status->id;
-
     }
 
     public static function setSuccessStatusId(int $success)
@@ -61,14 +60,12 @@ class Status extends Model
         // for crons, we need to determine if the cron ran successfully
         // and return the correct status
 
-        if ( $success == 1 ) {
+        if ($success == 1) {
 
-           return self::getStatusId('completed');
-            
+            return self::getStatusId('completed');
         }
 
         return self::getStatusId('failed');
-
     }
 
     public static function getStatusNameFromId(int $id)
@@ -77,7 +74,5 @@ class Status extends Model
         $status = self::find($id);
 
         return $status->status_name;
-
     }
-
 }

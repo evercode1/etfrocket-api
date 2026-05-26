@@ -30,6 +30,18 @@ class EtfStrategyTypesSeederController extends Controller
             'Collar Strategy',
             'Buffer ETF',
             'Target Income',
+            'Alternative Income',
+            'Collar',
+            'Leveraged',
+            'Hedged Equity',
+            'High Yield Bond',
+            'Cash Alternative',
+            'Energy Infrastructure',
+            'Bond',
+            'Crypto Income',
+            'Precious Metals',
+            'Defense',
+            'Risk Managed'
 
         ];
 
