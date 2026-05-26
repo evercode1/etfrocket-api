@@ -70,6 +70,10 @@ class EtfIssuersSeederController extends Controller
                 'etf_issuer_name' => 'NicholasX',
                 'website_url' => 'https://www.nicholasx.com',
             ],
+            [
+                'etf_issuer_name' => 'TappAlpha',
+                'website_url' => 'https://www.tappalphafunds.com',
+            ],
 
         ];
 
@@ -89,5 +93,3 @@ class EtfIssuersSeederController extends Controller
         }
     }
 }
-
-

@@ -21,6 +21,7 @@ class EtfIssuer extends Model
     const NEOS = 9;
     const KURV = 10;
     const NICHOLASX = 11;
+    const TAPPALPHA = 12;
 
     protected $fillable = [
 

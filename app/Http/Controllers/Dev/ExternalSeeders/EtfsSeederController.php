@@ -3593,7 +3593,64 @@ class EtfsSeederController extends Controller
                 'notes' => 'Tail-risk hedged ETF',
             ],
 
+            [
+                'symbol' => 'TSPY',
+                'fund_name' => 'TappAlpha S&P 500 Growth & Daily Income ETF',
+                'etf_issuer_id' => EtfIssuer::TAPPALPHA,
+                'etf_strategy_type_id' => EtfStrategyType::OPTION_INCOME,
+                'distribution_frequency_id' => DistributionFrequency::MONTHLY,
+                'status_id' => Status::ACTIVE,
+                'expense_ratio' => 0.77,
+                'inception_date' => '2024-08-14',
+                'source' => 'official_issuer_page',
+                'website_url' => 'https://www.tappalphafunds.com/etfs/tspy',
+                'notes' => 'Daily covered call income strategy ETF',
+            ],
+
+            [
+                'symbol' => 'TDAQ',
+                'fund_name' => 'TappAlpha Innovation 100 Growth & Daily Income ETF',
+                'etf_issuer_id' => EtfIssuer::TAPPALPHA,
+                'etf_strategy_type_id' => EtfStrategyType::OPTION_INCOME,
+                'distribution_frequency_id' => DistributionFrequency::MONTHLY,
+                'status_id' => Status::ACTIVE,
+                'expense_ratio' => 0.77,
+                'inception_date' => '2025-09-04',
+                'source' => 'official_issuer_page',
+                'website_url' => 'https://www.tappalphafunds.com/etfs/tdaq',
+                'notes' => 'NASDAQ-100 daily covered call strategy ETF',
+            ],
+
+            [
+                'symbol' => 'TDAX',
+                'fund_name' => 'TDAQ Lift ETF',
+                'etf_issuer_id' => EtfIssuer::TAPPALPHA,
+                'etf_strategy_type_id' => EtfStrategyType::LEVERAGED,
+                'distribution_frequency_id' => DistributionFrequency::WEEKLY,
+                'status_id' => Status::ACTIVE,
+                'expense_ratio' => 0.98,
+                'inception_date' => '2026-01-07',
+                'source' => 'official_issuer_page',
+                'website_url' => 'https://www.tappalphafunds.com/etfs/tdax',
+                'notes' => '30% leveraged TDAQ strategy ETF',
+            ],
+
+            [
+                'symbol' => 'TSYX',
+                'fund_name' => 'TSPY Lift ETF',
+                'etf_issuer_id' => EtfIssuer::TAPPALPHA,
+                'etf_strategy_type_id' => EtfStrategyType::LEVERAGED,
+                'distribution_frequency_id' => DistributionFrequency::WEEKLY,
+                'status_id' => Status::ACTIVE,
+                'expense_ratio' => 0.98,
+                'inception_date' => '2026-01-07',
+                'source' => 'official_issuer_page',
+                'website_url' => 'https://www.tappalphafunds.com/etfs/tsyx',
+                'notes' => '30% leveraged TSPY strategy ETF',
+            ],
         ];
+
+
 
         $now = now();
 
