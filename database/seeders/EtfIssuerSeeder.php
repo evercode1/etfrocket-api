@@ -70,6 +70,11 @@ class EtfIssuerSeeder extends Seeder
                 'website_url' => 'https://www.nicholasx.com',
             ],
 
+            [
+                'etf_issuer_name' => 'TappAlpha',
+                'website_url' => 'https://www.tappalphafunds.com',
+            ],
+
         ];
 
         foreach ($issuers as $issuer) {
