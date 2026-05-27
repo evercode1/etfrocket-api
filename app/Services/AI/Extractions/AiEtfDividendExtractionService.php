@@ -207,6 +207,10 @@ Rules:
 - Dates must be YYYY-MM-DD.
 - Numbers must be raw numeric values.
 - Return ONLY valid JSON matching the schema.
+- Use the MOST RECENT confirmed dividend with a published dividend_amount.
+- Only return dividends where dividend_amount is officially available.
+- Do not return placeholder announcements or future ex-dividend dates without confirmed payout amounts.
+- If no confirmed dividend_amount exists, do not include the dividend in results.
 
 ";
     }

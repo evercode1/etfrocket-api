@@ -125,33 +125,37 @@ class RunAiEtfAumExtractionsHandlerTest extends TestCase
         );
     }
 
-    public function test_it_skips_when_aum_data_is_fresh()
+    public function test_it_skips_when_all_active_etfs_have_fresh_aum_data()
     {
-        EtfAumHistory::create([
+        foreach (
 
-            'etf_id' =>
-            Etf::first()->id,
+            Etf::where(
+                'status_id',
+                Status::ACTIVE
+            )->get()
 
-            'assets_under_management' =>
-            100000000,
+            as $etf
 
-            'aum_date' =>
-            now()->toDateString(),
+        ) {
 
-            'data_source_id' => 1,
+            EtfAumHistory::create([
 
-            'retrieved_at' =>
-            now(),
+                'etf_id' =>
+                $etf->id,
 
-        ]);
+                'assets_under_management' =>
+                100000000,
 
-        AiDataExtraction::factory()
-            ->create([
+                'aum_date' =>
+                now()->toDateString(),
 
-                'created_at' =>
+                'data_source_id' => 1,
+
+                'retrieved_at' =>
                 now(),
 
             ]);
+        }
 
         $results =
             $this->handler
@@ -163,5 +167,10 @@ class RunAiEtfAumExtractionsHandlerTest extends TestCase
         );
 
         Queue::assertNothingPushed();
+
+        $this->assertDatabaseCount(
+            'etf_ingestion_batches',
+            0
+        );
     }
 }

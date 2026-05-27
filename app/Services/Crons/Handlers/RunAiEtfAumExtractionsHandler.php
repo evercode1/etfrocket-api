@@ -3,13 +3,13 @@
 namespace App\Services\Crons\Handlers;
 
 use App\Jobs\RunAiEtfAumExtractionJob;
-use App\Models\AiDataExtraction;
 use App\Models\Etf;
 use App\Models\EtfAumHistory;
 use App\Models\EtfIngestionBatch;
 use App\Models\EtfIngestionBatchItem;
 use App\Models\ImportType;
 use App\Models\Status;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -20,6 +20,8 @@ class RunAiEtfAumExtractionsHandler
     ): array {
 
         try {
+
+            Log::info('AUM EXTRACTION HANDLER STARTED');
 
             $symbol =
                 $payload['symbol']
@@ -39,32 +41,54 @@ class RunAiEtfAumExtractionsHandler
             |--------------------------------------------------------------------------
             */
 
-            $latestAumDate =
-                EtfAumHistory::max(
-                    'aum_date'
-                );
+            $today =
+                now()->toDateString();
 
-            $latestExtractionDate =
-                optional(
+            $totalEtfCount =
 
-                    AiDataExtraction::latest(
-                        'created_at'
-                    )->first()
+                Etf::where(
+                    'status_id',
+                    Status::ACTIVE
+                )
 
-                )?->created_at?->toDateString();
+                ->count();
+
+            $updatedEtfCount =
+
+                EtfAumHistory::whereDate(
+                    'retrieved_at',
+                    $today
+                )
+
+                ->distinct('etf_id')
+
+                ->count('etf_id');
+
+            Log::info('AUM FRESHNESS CHECK', [
+
+                'today' =>
+                $today,
+
+                'total_etf_count' =>
+                $totalEtfCount,
+
+                'updated_etf_count' =>
+                $updatedEtfCount,
+
+            ]);
 
             if (
 
                 ! $force &&
 
-                $latestAumDate &&
-
-                $latestExtractionDate &&
-
-                $latestAumDate ===
-                $latestExtractionDate
+                $updatedEtfCount >=
+                $totalEtfCount
 
             ) {
+
+                Log::warning(
+                    'AUM EXTRACTION SKIPPED - ALL ETFS ALREADY UPDATED'
+                );
 
                 return [
 
@@ -84,24 +108,67 @@ class RunAiEtfAumExtractionsHandler
             $query =
                 Etf::query()
 
+                ->where(
+                    'status_id',
+                    Status::ACTIVE
+                )
+
                 ->orderBy('symbol');
 
             if ($symbol) {
 
-                $query->where('symbol', strtoupper($symbol));
+                $query->where(
+                    'symbol',
+                    strtoupper($symbol)
+                );
             }
 
             if ($limit) {
 
-                $query->limit((int) $limit);
+                $query->limit(
+                    (int) $limit
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Exclude Already Updated ETFs
+            |--------------------------------------------------------------------------
+            */
+
+            if (! $force) {
+
+                $query->whereNotIn(
+
+                    'id',
+
+                    EtfAumHistory::whereDate(
+                        'retrieved_at',
+                        $today
+                    )
+
+                        ->pluck('etf_id')
+
+                );
             }
 
             $etfs =
                 $query->get();
 
+            Log::info('AUM ETF QUERY COMPLETE', [
+
+                'count' =>
+                $etfs->count(),
+
+            ]);
+
             if (
                 $etfs->isEmpty()
             ) {
+
+                Log::warning(
+                    'NO ETFS FOUND FOR AUM PROCESSING'
+                );
 
                 return [
 
@@ -121,13 +188,17 @@ class RunAiEtfAumExtractionsHandler
             $batch =
                 EtfIngestionBatch::create([
 
-                    'batch_uuid' => Str::uuid()->toString(),
+                    'batch_uuid' =>
+                    Str::uuid()->toString(),
 
-                    'import_type_id' => ImportType::AI_DATA_EXTRACTION,
+                    'import_type_id' =>
+                    ImportType::AI_DATA_EXTRACTION,
 
-                    'status_id' => Status::PENDING,
+                    'status_id' =>
+                    Status::PENDING,
 
-                    'total_etfs' =>  $etfs->count(),
+                    'total_etfs' =>
+                    $etfs->count(),
 
                     'processed_count' => 0,
 
@@ -140,13 +211,15 @@ class RunAiEtfAumExtractionsHandler
                     'passed_data_integrity_check' => false,
 
                     'processing_notes' =>
+
                     $force
 
                         ? 'Forced AI ETF AUM extraction batch queued.'
 
                         : 'AI ETF AUM extraction batch queued.',
 
-                    'started_at' => now(),
+                    'started_at' =>
+                    now(),
 
                 ]);
 
@@ -162,11 +235,14 @@ class RunAiEtfAumExtractionsHandler
 
                 EtfIngestionBatchItem::create([
 
-                    'etf_ingestion_batch_id' => $batch->id,
+                    'etf_ingestion_batch_id' =>
+                    $batch->id,
 
-                    'etf_id' => $etf->id,
+                    'etf_id' =>
+                    $etf->id,
 
-                    'status_id' => Status::PENDING,
+                    'status_id' =>
+                    Status::PENDING,
 
                     'attempts' => 0,
 
@@ -185,6 +261,8 @@ class RunAiEtfAumExtractionsHandler
                 );
             }
 
+            Log::info('AUM EXTRACTION HANDLER COMPLETE');
+
             return [
 
                 'success' => 1,
@@ -194,6 +272,22 @@ class RunAiEtfAumExtractionsHandler
             ];
         } catch (Throwable $e) {
 
+            Log::error(
+
+                'AUM EXTRACTION HANDLER FAILED',
+
+                [
+
+                    'message' =>
+                    $e->getMessage(),
+
+                    'trace' =>
+                    $e->getTraceAsString(),
+
+                ]
+
+            );
+
             report($e);
 
             return [
@@ -202,7 +296,8 @@ class RunAiEtfAumExtractionsHandler
 
                 'cron_fail_details' =>
 
-                $this->errorMessage() . $e->getMessage(),
+                $this->errorMessage() .
+                    $e->getMessage(),
 
             ];
         }

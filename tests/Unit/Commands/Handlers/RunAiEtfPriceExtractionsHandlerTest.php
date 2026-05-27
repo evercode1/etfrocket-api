@@ -280,36 +280,43 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
         );
     }
 
-    public function test_it_skips_when_price_data_is_not_fresh()
+    public function test_it_skips_when_all_active_etfs_have_fresh_price_data()
     {
-        EtfPriceHistory::create([
+        $today =
+            now()->toDateString();
 
-            'etf_id' =>
-            Etf::first()->id,
+        foreach (
 
-            'price_date' =>
-            now()->toDateString(),
+            Etf::where(
+                'status_id',
+                Status::ACTIVE
+            )->get()
 
-            'close_price' =>
-            25.44,
+            as $etf
 
-            'volume' =>
-            100000,
+        ) {
 
-            'data_source_id' => 1,
+            EtfPriceHistory::create([
 
-            'retrieved_at' =>
-            now(),
+                'etf_id' =>
+                $etf->id,
 
-        ]);
+                'price_date' =>
+                $today,
 
-        AiDataExtraction::factory()
-            ->create([
+                'close_price' =>
+                25.44,
 
-                'created_at' =>
+                'volume' =>
+                100000,
+
+                'data_source_id' => 1,
+
+                'retrieved_at' =>
                 now(),
 
             ]);
+        }
 
         $results =
             $this->handler
