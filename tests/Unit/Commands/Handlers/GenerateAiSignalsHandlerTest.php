@@ -2,8 +2,10 @@
 
 namespace Tests\Unit\Commands\Handlers;
 
+use App\Jobs\GenerateAiSignalJob;
 use App\Models\AiMarketSignal;
-use App\Models\ImportLog;
+use App\Models\AiSignalBatch;
+use App\Models\AiSignalBatchItem;
 use App\Models\ImportType;
 use App\Models\SignalType;
 use App\Models\Status;
@@ -13,648 +15,345 @@ use Database\Seeders\ImportTypeSeeder;
 use Database\Seeders\SignalTypeSeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
+use Mockery;
 use Tests\TestCase;
 
 class GenerateAiSignalsHandlerTest extends TestCase
-
 {
-
     private GenerateAiSignalsHandler
-
         $handler;
+
+    private $marketOpenService;
 
     protected function setUp(): void
     {
-
         parent::setUp();
 
-        DB::table('import_logs')->truncate();
-        DB::table('import_types')->truncate();
-        DB::table('ai_market_signals')->truncate();
-        DB::table('signal_types')->truncate();
-        DB::table('statuses')->truncate();
+        DB::table('ai_signal_batch_items')
+            ->truncate();
+
+        DB::table('ai_signal_batches')
+            ->truncate();
+
+        DB::table('ai_market_signals')
+            ->truncate();
+
+        DB::table('import_types')
+            ->truncate();
+
+        DB::table('signal_types')
+            ->truncate();
+
+        DB::table('statuses')
+            ->truncate();
 
         $this->seed([
 
-            SignalTypeSeeder::class,
+            StatusSeeder::class,
 
             ImportTypeSeeder::class,
 
-            StatusSeeder::class,
+            SignalTypeSeeder::class,
 
         ]);
 
-        $isMarketOpenService =
+        Queue::fake();
 
-            $this->mock(
-
+        $this->marketOpenService =
+            Mockery::mock(
                 IsMarketOpenService::class
-
             );
 
-        $isMarketOpenService
-
-            ->shouldReceive('isOpen')
-
-            ->andReturn(true);
-
-        Http::fake(function ($request) {
-
-            $content =
-
-                strtolower(
-
-                    $request['input'][1]['content']
-
-                );
-
-            if (
-
-                str_contains(
-
-                    $content,
-
-                    'market snapshot'
-
-                )
-
-            ) {
-
-                return Http::response([
-
-                    'output' => [
-
-                        [
-
-                            'content' => [
-
-                                [
-
-                                    'text' =>
-
-                                    '# Market Snapshot',
-
-                                ],
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ], 200);
-            }
-
-            if (
-
-                str_contains(
-
-                    $content,
-
-                    'market conditions'
-
-                )
-
-            ) {
-
-                return Http::response([
-
-                    'output' => [
-
-                        [
-
-                            'content' => [
-
-                                [
-
-                                    'text' =>
-
-                                    '# Market Conditions',
-
-                                ],
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ], 200);
-            }
-
-            if (
-
-                str_contains(
-
-                    $content,
-
-                    'market events'
-
-                )
-
-            ) {
-
-                return Http::response([
-
-                    'output' => [
-
-                        [
-
-                            'content' => [
-
-                                [
-
-                                    'text' =>
-
-                                    '# Upcoming Market Events',
-
-                                ],
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ], 200);
-            }
-
-            return Http::response([
-
-                'output' => [
-
-                    [
-
-                        'content' => [
-
-                            [
-
-                                'text' =>
-
-                                '# AI Signal',
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ],
-
-            ], 200);
-        });
-
         $this->handler =
+            new GenerateAiSignalsHandler(
 
-            app(
-
-                GenerateAiSignalsHandler::class
+                $this->marketOpenService
 
             );
     }
 
     protected function tearDown(): void
     {
+        Mockery::close();
 
-        DB::table('import_logs')->truncate();
-        DB::table('import_types')->truncate();
-        DB::table('ai_market_signals')->truncate();
-        DB::table('signal_types')->truncate();
-        DB::table('statuses')->truncate();
+        DB::table('ai_signal_batch_items')
+            ->truncate();
+
+        DB::table('ai_signal_batches')
+            ->truncate();
+
+        DB::table('ai_market_signals')
+            ->truncate();
+
+        DB::table('import_types')
+            ->truncate();
+
+        DB::table('signal_types')
+            ->truncate();
+
+        DB::table('statuses')
+            ->truncate();
 
         parent::tearDown();
     }
 
-    public function test_it_generates_all_ai_signals()
+    public function test_it_dispatches_all_signal_jobs()
     {
+        $this->marketOpenService
+            ->shouldReceive('isOpen')
+            ->once()
+            ->andReturn(true);
 
         $results =
-
             $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
+            ->handleGenerateAiSignals();
 
         $this->assertEquals(
-
             1,
-
             $results['success']
-
         );
 
-        $this->assertEquals(
+        Queue::assertPushed(
+            GenerateAiSignalJob::class,
+            3
+        );
 
-            3,
+        $this->assertDatabaseCount(
+            'ai_signal_batches',
+            1
+        );
 
-            AiMarketSignal::count()
+        $this->assertDatabaseCount(
+            'ai_signal_batch_items',
+            3
+        );
+    }
+
+    public function test_it_creates_batch_record()
+    {
+        $this->marketOpenService
+            ->shouldReceive('isOpen')
+            ->once()
+            ->andReturn(true);
+
+        $this->handler
+            ->handleGenerateAiSignals();
+
+        $this->assertDatabaseHas(
+
+            'ai_signal_batches',
+
+            [
+
+                'status_id' =>
+                Status::PENDING,
+
+                'total_signals' => 3,
+
+                'processed_count' => 0,
+
+                'success_count' => 0,
+
+                'failure_count' => 0,
+
+            ]
 
         );
     }
 
-    public function test_it_generates_market_snapshot_signal()
+    public function test_it_creates_batch_items()
     {
+        $this->marketOpenService
+            ->shouldReceive('isOpen')
+            ->once()
+            ->andReturn(true);
 
         $this->handler
+            ->handleGenerateAiSignals();
 
-            ->handleGenerateAiSignals([
+        $batch =
+            AiSignalBatch::first();
 
-                'force' => true,
+        $this->assertNotNull(
+            $batch
+        );
 
-            ]);
+        $this->assertEquals(
+            3,
+            AiSignalBatchItem::count()
+        );
 
         $this->assertDatabaseHas(
 
-            'ai_market_signals',
+            'ai_signal_batch_items',
 
             [
 
-                'signal_type_id' =>
+                'ai_signal_batch_id' =>
+                $batch->id,
 
+                'signal_type_id' =>
                 SignalType::MARKET_SNAPSHOT,
 
-                'title' =>
-
-                'AI Market Snapshot',
-
-            ]
-
-        );
-    }
-
-    public function test_it_generates_market_conditions_signal()
-    {
-
-        $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
-
-        $this->assertDatabaseHas(
-
-            'ai_market_signals',
-
-            [
-
-                'signal_type_id' =>
-
-                SignalType::MARKET_CONDITIONS,
-
-                'title' =>
-
-                'AI Market Conditions',
-
-            ]
-
-        );
-    }
-
-    public function test_it_generates_market_events_signal()
-    {
-
-        $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
-
-        $this->assertDatabaseHas(
-
-            'ai_market_signals',
-
-            [
-
-                'signal_type_id' =>
-
-                SignalType::MARKET_EVENTS,
-
-                'title' =>
-
-                'AI Market Events',
-
-            ]
-
-        );
-    }
-
-    public function test_it_stores_markdown_content()
-    {
-
-        $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
-
-        $signal =
-
-            AiMarketSignal::first();
-
-        $this->assertNotNull(
-
-            $signal
-
-        );
-
-        $this->assertStringContainsString(
-
-            '#',
-
-            $signal->markdown_content
-
-        );
-    }
-
-    public function test_it_sets_generated_at()
-    {
-
-        $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
-
-        $signal =
-
-            AiMarketSignal::first();
-
-        $this->assertNotNull(
-
-            $signal->generated_at
-
-        );
-    }
-
-    public function test_it_sets_expires_at()
-    {
-
-        $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
-
-        $signal =
-
-            AiMarketSignal::first();
-
-        $this->assertNotNull(
-
-            $signal->expires_at
-
-        );
-    }
-
-    public function test_it_sets_signal_as_active()
-    {
-
-        $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
-
-        $this->assertDatabaseHas(
-
-            'ai_market_signals',
-
-            [
-
-                'is_active' => 1,
-
-            ]
-
-        );
-    }
-
-    public function test_it_returns_success_response()
-    {
-
-        $results =
-
-            $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
-
-        $this->assertEquals(
-
-            1,
-
-            $results['success']
-
-        );
-
-        $this->assertNull(
-
-            $results['cron_fail_details']
-
-        );
-    }
-
-    public function test_it_creates_import_logs_for_each_signal_type()
-    {
-
-        $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
-
-        $this->assertDatabaseHas(
-
-            'import_logs',
-
-            [
-
                 'import_type_id' =>
-
                 ImportType::MARKET_SNAPSHOT,
 
                 'status_id' =>
+                Status::PENDING,
 
-                Status::COMPLETED,
+                'is_processed' => 0,
 
-            ]
-
-        );
-
-        $this->assertDatabaseHas(
-
-            'import_logs',
-
-            [
-
-                'import_type_id' =>
-
-                ImportType::MARKET_CONDITIONS,
-
-                'status_id' =>
-
-                Status::COMPLETED,
-
-            ]
-
-        );
-
-        $this->assertDatabaseHas(
-
-            'import_logs',
-
-            [
-
-                'import_type_id' =>
-
-                ImportType::MARKET_EVENTS,
-
-                'status_id' =>
-
-                Status::COMPLETED,
+                'is_success' => 0,
 
             ]
 
         );
     }
 
-    public function test_it_logs_generated_markdown()
+    public function test_it_skips_when_market_is_closed()
     {
+        $this->marketOpenService
+            ->shouldReceive('isOpen')
+            ->once()
+            ->andReturn(false);
 
-        $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
-
-        $log =
-
-            ImportLog::where(
-
-                'import_type_id',
-
-                ImportType::MARKET_SNAPSHOT
-
-            )->first();
-
-        $this->assertNotNull(
-
-            $log
-
-        );
-
-        $this->assertStringContainsString(
-
-            '#',
-
-            $log->generated_markdown
-
-        );
-    }
-
-    public function test_it_logs_processing_notes()
-    {
-
-        $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
-
-        $log =
-
-            ImportLog::first();
-
-        $this->assertNotNull(
-
-            $log
-
-        );
-
-        $this->assertStringContainsString(
-
-            'Forced AI signal generation executed successfully.',
-
-            $log->processing_notes
-
-        );
-    }
-
-    public function test_it_logs_runtime_and_processing_counts()
-    {
-
-        $this->handler
-
-            ->handleGenerateAiSignals([
-
-                'force' => true,
-
-            ]);
-
-        $log =
-
-            ImportLog::first();
-
-        $this->assertNotNull(
-
-            $log
-
-        );
+        $results =
+            $this->handler
+            ->handleGenerateAiSignals();
 
         $this->assertEquals(
-
             1,
-
-            $log->rows_processed
-
+            $results['success']
         );
 
-        $this->assertEquals(
+        Queue::assertNothingPushed();
 
+        $this->assertDatabaseCount(
+            'ai_signal_batches',
+            0
+        );
+    }
+
+    public function test_it_skips_when_signals_are_fresh()
+    {
+        $this->marketOpenService
+            ->shouldReceive('isOpen')
+            ->once()
+            ->andReturn(true);
+
+        AiMarketSignal::create([
+
+            'signal_type_id' =>
+            SignalType::MARKET_SNAPSHOT,
+
+            'title' =>
+            'Test Signal',
+
+            'subtitle' =>
+            'Test Subtitle',
+
+            'market_mood' =>
+            'Bullish',
+
+            'confidence_score' =>
+            88,
+
+            'markdown_content' =>
+            '# Test',
+
+            'payload_json' => [],
+
+            'generated_at' =>
+            now(),
+
+            'expires_at' =>
+            now()->addDay(),
+
+            'is_active' => true,
+
+            'ai_model' =>
+            'gpt-4.1-mini',
+
+        ]);
+
+        $results =
+            $this->handler
+            ->handleGenerateAiSignals();
+
+        $this->assertEquals(
             1,
-
-            $log->records_created
-
+            $results['success']
         );
+
+        Queue::assertNothingPushed();
+
+        $this->assertDatabaseCount(
+            'ai_signal_batches',
+            0
+        );
+    }
+
+    public function test_force_flag_bypasses_freshness_check()
+    {
+
+
+        AiMarketSignal::create([
+
+            'signal_type_id' =>
+            SignalType::MARKET_SNAPSHOT,
+
+            'title' =>
+            'Test Signal',
+
+            'subtitle' =>
+            'Test Subtitle',
+
+            'market_mood' =>
+            'Bullish',
+
+            'confidence_score' =>
+            88,
+
+            'markdown_content' =>
+            '# Test',
+
+            'payload_json' => [],
+
+            'generated_at' =>
+            now(),
+
+            'expires_at' =>
+            now()->addDay(),
+
+            'is_active' => true,
+
+            'ai_model' =>
+            'gpt-4.1-mini',
+
+        ]);
+
+        $results =
+            $this->handler
+            ->handleGenerateAiSignals([
+
+                'force' => true,
+
+            ]);
 
         $this->assertEquals(
-
-            0,
-
-            $log->failure_count
-
+            1,
+            $results['success']
         );
 
-        $this->assertGreaterThanOrEqual(
+        Queue::assertPushed(
+            GenerateAiSignalJob::class,
+            3
+        );
 
-            0,
-
-            $log->run_time
-
+        $this->assertDatabaseCount(
+            'ai_signal_batches',
+            1
         );
     }
 }

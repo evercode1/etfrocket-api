@@ -2,19 +2,17 @@
 
 namespace App\Jobs;
 
-use App\Jobs\FinalizeEtfPriceExtractionBatchJob;
-use App\Models\Etf;
-use App\Models\EtfIngestionBatch;
-use App\Models\EtfIngestionBatchItem;
+use App\Jobs\FinalizeAiSignalBatchJob;
+use App\Models\AiSignalBatch;
+use App\Models\AiSignalBatchItem;
 use App\Models\Status;
-use App\Services\AI\Extractions\AiEtfPriceExtractionService;
-use App\Services\AI\Extractions\ProcessAiEtfPriceExtractionService;
+use App\Services\AI\AiSignals\GenerateAiSignalService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class RunAiEtfPriceExtractionJob implements ShouldQueue
+class GenerateAiSignalJob implements ShouldQueue
 {
     use Queueable;
 
@@ -26,17 +24,18 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
         public int $batchId,
 
-        public int $etfId
+        public int $signalTypeId,
+
+        public int $importTypeId,
+
+        public bool $force = false
 
     ) {}
 
     public function handle(
 
-        AiEtfPriceExtractionService
-        $aiEtfPriceExtractionService,
-
-        ProcessAiEtfPriceExtractionService
-        $processAiEtfPriceExtractionService
+        GenerateAiSignalService
+        $generateAiSignalService
 
     ): void {
 
@@ -46,14 +45,27 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
         |--------------------------------------------------------------------------
         */
 
+        Log::info('AI SIGNAL JOB START', [
+
+            'batch_id' =>
+            $this->batchId,
+
+            'signal_type_id' =>
+            $this->signalTypeId,
+
+            'attempt' =>
+            $this->attempts(),
+
+        ]);
+
         $startedAt =
             microtime(true);
 
         $batchItem =
 
-            EtfIngestionBatchItem::where(
+            AiSignalBatchItem::where(
 
-                'etf_ingestion_batch_id',
+                'ai_signal_batch_id',
 
                 $this->batchId
 
@@ -61,9 +73,9 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
             ->where(
 
-                'etf_id',
+                'signal_type_id',
 
-                $this->etfId
+                $this->signalTypeId
 
             )
 
@@ -90,54 +102,43 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
             ]);
 
-            Log::info('BATCH ITEM MARKED PROCESSING', [
+            Log::info('AI SIGNAL BATCH ITEM PROCESSING', [
 
                 'batch_id' =>
                 $this->batchId,
 
-                'etf_id' =>
-                $this->etfId,
+                'signal_type_id' =>
+                $this->signalTypeId,
 
             ]);
 
             /*
             |--------------------------------------------------------------------------
-            | ETF Lookup
+            | Generate Signal
             |--------------------------------------------------------------------------
             */
 
-            $etf =
+            $signal =
 
-                Etf::findOrFail(
-                    $this->etfId
+                $generateAiSignalService
+                ->generate(
+
+                    $this->signalTypeId
+
                 );
 
+            Log::info('AI SIGNAL GENERATED', [
 
-            /*
-            |--------------------------------------------------------------------------
-            | AI Extraction
-            |--------------------------------------------------------------------------
-            */
+                'batch_id' =>
+                $this->batchId,
 
-            $extraction =
+                'signal_type_id' =>
+                $this->signalTypeId,
 
-                $aiEtfPriceExtractionService
-                ->extract(
-                    $etf
-                );
+                'signal_id' =>
+                $signal->id ?? null,
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Processing
-            |--------------------------------------------------------------------------
-            */
-
-            $processAiEtfPriceExtractionService
-                ->process(
-                    $extraction
-                );
-
+            ]);
 
             /*
             |--------------------------------------------------------------------------
@@ -178,12 +179,16 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
                         'runtime_ms' =>
                         $runtimeMs,
 
+                        'is_processed' => true,
+
+                        'is_success' => true,
+
                         'completed_at' =>
                         now(),
 
                     ]);
 
-                    EtfIngestionBatch::where(
+                    AiSignalBatch::where(
 
                         'id',
 
@@ -192,12 +197,10 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
                     )
 
                         ->increment(
-
                             'processed_count'
-
                         );
 
-                    EtfIngestionBatch::where(
+                    AiSignalBatch::where(
 
                         'id',
 
@@ -206,14 +209,21 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
                     )
 
                         ->increment(
-
                             'success_count'
-
                         );
                 }
 
             );
 
+            Log::info('AI SIGNAL BATCH COUNTS UPDATED', [
+
+                'batch_id' =>
+                $this->batchId,
+
+                'signal_type_id' =>
+                $this->signalTypeId,
+
+            ]);
 
             /*
             |--------------------------------------------------------------------------
@@ -230,6 +240,21 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
             |--------------------------------------------------------------------------
             */
 
+            Log::error('AI SIGNAL JOB FAILED', [
+
+                'batch_id' =>
+                $this->batchId,
+
+                'signal_type_id' =>
+                $this->signalTypeId,
+
+                'attempt' =>
+                $this->attempts(),
+
+                'message' =>
+                $e->getMessage(),
+
+            ]);
 
             /*
             |--------------------------------------------------------------------------
@@ -288,6 +313,12 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
                         'runtime_ms' =>
                         $runtimeMs,
 
+                        'is_processed' =>
+
+                        $statusId === Status::FAILED,
+
+                        'is_success' => false,
+
                         'error_message' =>
                         $e->getMessage(),
 
@@ -314,7 +345,7 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
                     ) {
 
-                        EtfIngestionBatch::where(
+                        AiSignalBatch::where(
 
                             'id',
 
@@ -323,12 +354,10 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
                         )
 
                             ->increment(
-
                                 'processed_count'
-
                             );
 
-                        EtfIngestionBatch::where(
+                        AiSignalBatch::where(
 
                             'id',
 
@@ -337,14 +366,22 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
                         )
 
                             ->increment(
-
                                 'failure_count'
-
                             );
                     }
                 }
 
             );
+
+            Log::error('AI SIGNAL FAILURE STATE SAVED', [
+
+                'batch_id' =>
+                $this->batchId,
+
+                'signal_type_id' =>
+                $this->signalTypeId,
+
+            ]);
 
             /*
             |--------------------------------------------------------------------------
@@ -368,10 +405,16 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
     private function checkForBatchCompletion(): void
     {
+        Log::info('CHECKING AI SIGNAL BATCH COMPLETION', [
+
+            'batch_id' =>
+            $this->batchId,
+
+        ]);
 
         $batch =
 
-            EtfIngestionBatch::findOrFail(
+            AiSignalBatch::findOrFail(
                 $this->batchId
             );
 
@@ -384,9 +427,22 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
         if (
 
             $batch->processed_count >=
-            $batch->total_etfs
+            $batch->total_signals
 
         ) {
+
+            Log::info('AI SIGNAL BATCH COMPLETE', [
+
+                'batch_id' =>
+                $this->batchId,
+
+                'processed_count' =>
+                $batch->processed_count,
+
+                'total_signals' =>
+                $batch->total_signals,
+
+            ]);
 
             /*
             |--------------------------------------------------------------------------
@@ -396,7 +452,7 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
             $updated =
 
-                EtfIngestionBatch::where(
+                AiSignalBatch::where(
 
                     'id',
 
@@ -419,8 +475,14 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
             if ($updated) {
 
+                Log::info('AI SIGNAL FINALIZER DISPATCHED', [
 
-                FinalizeEtfPriceExtractionBatchJob::dispatch(
+                    'batch_id' =>
+                    $this->batchId,
+
+                ]);
+
+                FinalizeAiSignalBatchJob::dispatch(
 
                     $batch->id
 
