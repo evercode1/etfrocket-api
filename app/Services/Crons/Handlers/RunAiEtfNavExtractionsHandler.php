@@ -3,13 +3,13 @@
 namespace App\Services\Crons\Handlers;
 
 use App\Jobs\RunAiEtfNavExtractionJob;
-use App\Models\AiDataExtraction;
 use App\Models\Etf;
 use App\Models\EtfIngestionBatch;
 use App\Models\EtfIngestionBatchItem;
 use App\Models\EtfNavHistory;
 use App\Models\ImportType;
 use App\Models\Status;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -20,6 +20,8 @@ class RunAiEtfNavExtractionsHandler
     ): array {
 
         try {
+
+            Log::info('NAV EXTRACTION HANDLER STARTED');
 
             $symbol =
                 $payload['symbol']
@@ -39,32 +41,54 @@ class RunAiEtfNavExtractionsHandler
             |--------------------------------------------------------------------------
             */
 
-            $latestNavDate =
-                EtfNavHistory::max(
-                    'nav_date'
-                );
+            $today =
+                now()->toDateString();
 
-            $latestExtractionDate =
-                optional(
+            $totalEtfCount =
 
-                    AiDataExtraction::latest(
-                        'created_at'
-                    )->first()
+                Etf::where(
+                    'status_id',
+                    Status::ACTIVE
+                )
 
-                )?->created_at?->toDateString();
+                ->count();
+
+            $updatedEtfCount =
+
+                EtfNavHistory::whereDate(
+                    'retrieved_at',
+                    $today
+                )
+
+                ->distinct('etf_id')
+
+                ->count('etf_id');
+
+            Log::info('NAV FRESHNESS CHECK', [
+
+                'today' =>
+                $today,
+
+                'total_etf_count' =>
+                $totalEtfCount,
+
+                'updated_etf_count' =>
+                $updatedEtfCount,
+
+            ]);
 
             if (
 
                 ! $force &&
 
-                $latestNavDate &&
-
-                $latestExtractionDate &&
-
-                $latestNavDate ===
-                $latestExtractionDate
+                $updatedEtfCount >=
+                $totalEtfCount
 
             ) {
+
+                Log::warning(
+                    'NAV EXTRACTION SKIPPED - ALL ETFS ALREADY UPDATED'
+                );
 
                 return [
 
@@ -84,24 +108,67 @@ class RunAiEtfNavExtractionsHandler
             $query =
                 Etf::query()
 
+                ->where(
+                    'status_id',
+                    Status::ACTIVE
+                )
+
                 ->orderBy('symbol');
 
             if ($symbol) {
 
-                $query->where('symbol', strtoupper($symbol));
+                $query->where(
+                    'symbol',
+                    strtoupper($symbol)
+                );
             }
 
             if ($limit) {
 
-                $query->limit((int) $limit);
+                $query->limit(
+                    (int) $limit
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Exclude Already Updated ETFs
+            |--------------------------------------------------------------------------
+            */
+
+            if (! $force) {
+
+                $query->whereNotIn(
+
+                    'id',
+
+                    EtfNavHistory::whereDate(
+                        'retrieved_at',
+                        $today
+                    )
+
+                        ->pluck('etf_id')
+
+                );
             }
 
             $etfs =
                 $query->get();
 
+            Log::info('NAV ETF QUERY COMPLETE', [
+
+                'count' =>
+                $etfs->count(),
+
+            ]);
+
             if (
                 $etfs->isEmpty()
             ) {
+
+                Log::warning(
+                    'NO ETFS FOUND FOR NAV PROCESSING'
+                );
 
                 return [
 
@@ -121,13 +188,17 @@ class RunAiEtfNavExtractionsHandler
             $batch =
                 EtfIngestionBatch::create([
 
-                    'batch_uuid' => Str::uuid()->toString(),
+                    'batch_uuid' =>
+                    Str::uuid()->toString(),
 
-                    'import_type_id' => ImportType::AI_DATA_EXTRACTION,
+                    'import_type_id' =>
+                    ImportType::AI_DATA_EXTRACTION,
 
-                    'status_id' => Status::PENDING,
+                    'status_id' =>
+                    Status::PENDING,
 
-                    'total_etfs' =>  $etfs->count(),
+                    'total_etfs' =>
+                    $etfs->count(),
 
                     'processed_count' => 0,
 
@@ -140,13 +211,15 @@ class RunAiEtfNavExtractionsHandler
                     'passed_data_integrity_check' => false,
 
                     'processing_notes' =>
+
                     $force
 
                         ? 'Forced AI ETF NAV extraction batch queued.'
 
                         : 'AI ETF NAV extraction batch queued.',
 
-                    'started_at' => now(),
+                    'started_at' =>
+                    now(),
 
                 ]);
 
@@ -162,11 +235,14 @@ class RunAiEtfNavExtractionsHandler
 
                 EtfIngestionBatchItem::create([
 
-                    'etf_ingestion_batch_id' => $batch->id,
+                    'etf_ingestion_batch_id' =>
+                    $batch->id,
 
-                    'etf_id' => $etf->id,
+                    'etf_id' =>
+                    $etf->id,
 
-                    'status_id' => Status::PENDING,
+                    'status_id' =>
+                    Status::PENDING,
 
                     'attempts' => 0,
 
@@ -185,6 +261,8 @@ class RunAiEtfNavExtractionsHandler
                 );
             }
 
+            Log::info('NAV EXTRACTION HANDLER COMPLETE');
+
             return [
 
                 'success' => 1,
@@ -194,6 +272,22 @@ class RunAiEtfNavExtractionsHandler
             ];
         } catch (Throwable $e) {
 
+            Log::error(
+
+                'NAV EXTRACTION HANDLER FAILED',
+
+                [
+
+                    'message' =>
+                    $e->getMessage(),
+
+                    'trace' =>
+                    $e->getTraceAsString(),
+
+                ]
+
+            );
+
             report($e);
 
             return [
@@ -202,7 +296,8 @@ class RunAiEtfNavExtractionsHandler
 
                 'cron_fail_details' =>
 
-                $this->errorMessage() . $e->getMessage(),
+                $this->errorMessage() .
+                    $e->getMessage(),
 
             ];
         }

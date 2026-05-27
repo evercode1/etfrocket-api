@@ -126,36 +126,42 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
         );
     }
 
-    public function test_it_skips_when_dividend_data_is_fresh()
+    public function test_it_skips_when_all_active_etfs_have_fresh_dividend_data()
     {
-        EtfDividendHistory::create([
+        foreach (
 
-            'etf_id' =>
-            Etf::first()->id,
+            Etf::where(
+                'status_id',
+                Status::ACTIVE
+            )->get()
 
-            'dividend_amount' =>
-            0.25,
+            as $etf
 
-            'ex_dividend_date' =>
-            now()->toDateString(),
+        ) {
 
-            'payment_date' =>
-            now()->addDays(5)->toDateString(),
+            EtfDividendHistory::create([
 
-            'data_source_id' => 1,
+                'etf_id' =>
+                $etf->id,
 
-            'retrieved_at' =>
-            now(),
+                'dividend_amount' =>
+                0.25,
 
-        ]);
+                'ex_dividend_date' =>
+                now()->toDateString(),
 
-        AiDataExtraction::factory()
-            ->create([
+                'payment_date' =>
+                now()
+                    ->addDays(5)
+                    ->toDateString(),
 
-                'created_at' =>
+                'data_source_id' => 1,
+
+                'retrieved_at' =>
                 now(),
 
             ]);
+        }
 
         $results =
             $this->handler
@@ -167,5 +173,10 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
         );
 
         Queue::assertNothingPushed();
+
+        $this->assertDatabaseCount(
+            'etf_ingestion_batches',
+            0
+        );
     }
 }

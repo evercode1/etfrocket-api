@@ -3,13 +3,13 @@
 namespace App\Services\Crons\Handlers;
 
 use App\Jobs\RunAiEtfPriceExtractionJob;
-use App\Models\AiDataExtraction;
 use App\Models\Etf;
 use App\Models\EtfIngestionBatch;
 use App\Models\EtfIngestionBatchItem;
 use App\Models\EtfPriceHistory;
 use App\Models\ImportType;
 use App\Models\Status;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -39,30 +39,35 @@ class RunAiEtfPriceExtractionsHandler
             |--------------------------------------------------------------------------
             */
 
-            $latestPriceDate =
-                EtfPriceHistory::max(
-                    'price_date'
-                );
+            $today =
+                now()->toDateString();
 
-            $latestExtractionDate =
-                optional(
+            $totalEtfCount =
 
-                    AiDataExtraction::latest(
-                        'created_at'
-                    )->first()
+                Etf::where(
+                    'status_id',
+                    Status::ACTIVE
+                )
 
-                )?->created_at?->toDateString();
+                ->count();
+
+            $updatedEtfCount =
+
+                EtfPriceHistory::where(
+                    'price_date',
+                    $today
+                )
+
+                ->distinct('etf_id')
+
+                ->count('etf_id');
 
             if (
 
                 ! $force &&
 
-                $latestPriceDate &&
-
-                $latestExtractionDate &&
-
-                $latestPriceDate ===
-                $latestExtractionDate
+                $updatedEtfCount >=
+                $totalEtfCount
 
             ) {
 
@@ -84,16 +89,48 @@ class RunAiEtfPriceExtractionsHandler
             $query =
                 Etf::query()
 
+                ->where(
+                    'status_id',
+                    Status::ACTIVE
+                )
+
                 ->orderBy('symbol');
 
             if ($symbol) {
 
-                $query->where('symbol', strtoupper($symbol));
+                $query->where(
+                    'symbol',
+                    strtoupper($symbol)
+                );
             }
 
             if ($limit) {
 
-                $query->limit((int) $limit);
+                $query->limit(
+                    (int) $limit
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Exclude Already Updated ETFs
+            |--------------------------------------------------------------------------
+            */
+
+            if (! $force) {
+
+                $query->whereNotIn(
+
+                    'id',
+
+                    EtfPriceHistory::where(
+                        'price_date',
+                        $today
+                    )
+
+                        ->pluck('etf_id')
+
+                );
             }
 
             $etfs =
@@ -121,13 +158,17 @@ class RunAiEtfPriceExtractionsHandler
             $batch =
                 EtfIngestionBatch::create([
 
-                    'batch_uuid' => Str::uuid()->toString(),
+                    'batch_uuid' =>
+                    Str::uuid()->toString(),
 
-                    'import_type_id' => ImportType::AI_DATA_EXTRACTION,
+                    'import_type_id' =>
+                    ImportType::AI_DATA_EXTRACTION,
 
-                    'status_id' => Status::PENDING,
+                    'status_id' =>
+                    Status::PENDING,
 
-                    'total_etfs' =>  $etfs->count(),
+                    'total_etfs' =>
+                    $etfs->count(),
 
                     'processed_count' => 0,
 
@@ -140,13 +181,15 @@ class RunAiEtfPriceExtractionsHandler
                     'passed_data_integrity_check' => false,
 
                     'processing_notes' =>
+
                     $force
 
                         ? 'Forced AI ETF price extraction batch queued.'
 
                         : 'AI ETF price extraction batch queued.',
 
-                    'started_at' => now(),
+                    'started_at' =>
+                    now(),
 
                 ]);
 
@@ -162,11 +205,14 @@ class RunAiEtfPriceExtractionsHandler
 
                 EtfIngestionBatchItem::create([
 
-                    'etf_ingestion_batch_id' => $batch->id,
+                    'etf_ingestion_batch_id' =>
+                    $batch->id,
 
-                    'etf_id' => $etf->id,
+                    'etf_id' =>
+                    $etf->id,
 
-                    'status_id' => Status::PENDING,
+                    'status_id' =>
+                    Status::PENDING,
 
                     'attempts' => 0,
 
@@ -194,6 +240,22 @@ class RunAiEtfPriceExtractionsHandler
             ];
         } catch (Throwable $e) {
 
+            Log::error(
+
+                'PRICE EXTRACTION HANDLER FAILED',
+
+                [
+
+                    'message' =>
+                    $e->getMessage(),
+
+                    'trace' =>
+                    $e->getTraceAsString(),
+
+                ]
+
+            );
+
             report($e);
 
             return [
@@ -202,7 +264,8 @@ class RunAiEtfPriceExtractionsHandler
 
                 'cron_fail_details' =>
 
-                $this->errorMessage() . $e->getMessage(),
+                $this->errorMessage() .
+                    $e->getMessage(),
 
             ];
         }

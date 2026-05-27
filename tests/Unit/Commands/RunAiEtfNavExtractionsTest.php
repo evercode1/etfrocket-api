@@ -6,6 +6,7 @@ use App\Jobs\RunAiEtfNavExtractionJob;
 use App\Models\AiDataExtraction;
 use App\Models\Etf;
 use App\Models\EtfNavHistory;
+use App\Models\Status;
 use Database\Seeders\EtfSeeder;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
@@ -195,33 +196,37 @@ class RunAiEtfNavExtractionsTest extends TestCase
         );
     }
 
-    public function test_it_skips_dispatch_when_nav_data_is_fresh()
+    public function test_it_skips_dispatch_when_all_active_etfs_have_fresh_nav_data()
     {
-        EtfNavHistory::create([
+        foreach (
 
-            'etf_id' =>
-            Etf::first()->id,
+            Etf::where(
+                'status_id',
+                Status::ACTIVE
+            )->get()
 
-            'nav_per_share' =>
-            25.44,
+            as $etf
 
-            'nav_date' =>
-            now()->toDateString(),
+        ) {
 
-            'data_source_id' => 1,
+            EtfNavHistory::create([
 
-            'retrieved_at' =>
-            now(),
+                'etf_id' =>
+                $etf->id,
 
-        ]);
+                'nav_per_share' =>
+                25.44,
 
-        AiDataExtraction::factory()
-            ->create([
+                'nav_date' =>
+                now()->toDateString(),
 
-                'created_at' =>
+                'data_source_id' => 1,
+
+                'retrieved_at' =>
                 now(),
 
             ]);
+        }
 
         $this->artisan(
             'etfs:run-ai-nav-extraction'

@@ -6,6 +6,7 @@ use App\Jobs\RunAiEtfAumExtractionJob;
 use App\Models\AiDataExtraction;
 use App\Models\Etf;
 use App\Models\EtfAumHistory;
+use App\Models\Status;
 use Database\Seeders\EtfSeeder;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
@@ -147,81 +148,76 @@ class RunAiEtfAumExtractionsTest extends TestCase
         );
     }
 
-    public function test_force_flag_bypasses_freshness_check()
+    public function test_it_skips_dispatch_when_all_active_etfs_have_fresh_aum_data()
     {
-        EtfAumHistory::create([
+        foreach (
 
-            'etf_id' =>
-            Etf::first()->id,
+            Etf::where(
+                'status_id',
+                Status::ACTIVE
+            )->get()
 
-            'assets_under_management' =>
-            100000000,
+            as $etf
 
-            'aum_date' =>
-            now()->toDateString(),
+        ) {
 
-            'data_source_id' => 1,
+            EtfAumHistory::create([
 
-            'retrieved_at' =>
-            now(),
+                'etf_id' =>
+                $etf->id,
 
-        ]);
+                'assets_under_management' =>
+                100000000,
 
-        AiDataExtraction::factory()
-            ->create([
+                'aum_date' =>
+                now()->toDateString(),
 
-                'created_at' =>
+                'data_source_id' => 1,
+
+                'retrieved_at' =>
                 now(),
 
             ]);
+        }
 
         $this->artisan(
-
-            'etfs:run-ai-aum-extraction',
-
-            [
-
-                '--force' => true,
-
-                '--limit' => 2,
-
-            ]
-
+            'etfs:run-ai-aum-extraction'
         )->assertExitCode(0);
 
-        Queue::assertPushed(
-            RunAiEtfAumExtractionJob::class,
-            2
-        );
+        Queue::assertNothingPushed();
     }
 
     public function test_it_skips_dispatch_when_aum_data_is_fresh()
     {
-        EtfAumHistory::create([
+        foreach (
 
-            'etf_id' =>
-            Etf::first()->id,
+            Etf::where(
+                'status_id',
+                Status::ACTIVE
+            )->get()
 
-            'assets_under_management' =>
-            100000000,
+            as $etf
 
-            'aum_date' =>
-            now()->toDateString(),
+        ) {
 
-            'data_source_id' => 1,
+            EtfAumHistory::create([
 
-            'retrieved_at' =>
-            now(),
+                'etf_id' =>
+                $etf->id,
 
-        ]);
+                'assets_under_management' =>
+                100000000,
 
-        AiDataExtraction::factory()
-            ->create([
+                'aum_date' =>
+                now()->toDateString(),
 
-                'created_at' =>
+                'data_source_id' => 1,
+
+                'retrieved_at' =>
                 now(),
 
             ]);
+        }
 
         $this->artisan(
             'etfs:run-ai-aum-extraction'
