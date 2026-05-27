@@ -2,64 +2,45 @@
 
 namespace App\Services\Crons\Handlers;
 
+use App\Jobs\GenerateAiSignalJob;
 use App\Models\AiMarketSignal;
-
+use App\Models\AiSignalBatch;
+use App\Models\AiSignalBatchItem;
 use App\Models\ImportType;
-
 use App\Models\SignalType;
-
 use App\Models\Status;
-
-use App\Services\AI\AiSignals\GenerateAiSignalService;
-
 use App\Services\AI\AiSignals\IsMarketOpenService;
-
 use App\Services\ImportLogs\ImportLogsService;
-
+use Illuminate\Support\Str;
 use Throwable;
 
 class GenerateAiSignalsHandler
-
 {
-
     public function __construct(
 
-        private GenerateAiSignalService
-
-        $generateAiSignalService,
-
         private IsMarketOpenService
-
         $isMarketOpenService
 
     ) {}
 
-    // we ignore payload, but we need it for dynamic method calling in CronService
-
     public function handleGenerateAiSignals(
-
         array $payload = []
-
     ): array {
 
-        $startedAt = now();
+        $startedAt =
+            now();
 
         try {
 
             $force =
 
                 $payload['force']
-
                 ?? false;
 
             /*
-
             |--------------------------------------------------------------------------
-
             | Market Open Check
-
             |--------------------------------------------------------------------------
-
             */
 
             if (
@@ -67,7 +48,6 @@ class GenerateAiSignalsHandler
                 ! $force &&
 
                 ! $this->isMarketOpenService
-
                     ->isOpen()
 
             ) {
@@ -83,9 +63,7 @@ class GenerateAiSignalsHandler
                     status_id: Status::COMPLETED,
 
                     run_time: $startedAt->diffInSeconds(
-
                         now()
-
                     ),
 
                     rows_processed: 0,
@@ -118,13 +96,9 @@ class GenerateAiSignalsHandler
             }
 
             /*
-
             |--------------------------------------------------------------------------
-
             | Freshness Check
-
             |--------------------------------------------------------------------------
-
             */
 
             $latestSignalDate =
@@ -132,15 +106,12 @@ class GenerateAiSignalsHandler
                 optional(
 
                     AiMarketSignal::latest(
-
                         'generated_at'
-
                     )->first()
 
                 )?->generated_at?->toDateString();
 
             $today =
-
                 now()->toDateString();
 
             if (
@@ -148,7 +119,6 @@ class GenerateAiSignalsHandler
                 ! $force &&
 
                 $latestSignalDate ===
-
                 $today
 
             ) {
@@ -164,9 +134,7 @@ class GenerateAiSignalsHandler
                     status_id: Status::COMPLETED,
 
                     run_time: $startedAt->diffInSeconds(
-
                         now()
-
                     ),
 
                     rows_processed: 0,
@@ -199,13 +167,9 @@ class GenerateAiSignalsHandler
             }
 
             /*
-
             |--------------------------------------------------------------------------
-
             | Signal Types
-
             |--------------------------------------------------------------------------
-
             */
 
             $signalTypes = [
@@ -225,13 +189,49 @@ class GenerateAiSignalsHandler
             ];
 
             /*
-
             |--------------------------------------------------------------------------
-
-            | Generate Signals
-
+            | Create Batch
             |--------------------------------------------------------------------------
+            */
 
+            $batch =
+                AiSignalBatch::create([
+
+                    'batch_uuid' =>
+
+                    Str::uuid()->toString(),
+
+                    'status_id' =>
+                    Status::PENDING,
+
+                    'total_signals' =>
+                    count($signalTypes),
+
+                    'processed_count' => 0,
+
+                    'success_count' => 0,
+
+                    'failure_count' => 0,
+
+                    'passed_data_integrity_check' => false,
+
+                    'processing_notes' =>
+
+                    $force
+
+                        ? 'Forced AI signal batch queued.'
+
+                        : 'AI signal batch queued.',
+
+                    'started_at' =>
+                    now(),
+
+                ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Create Batch Items + Dispatch Jobs
+            |--------------------------------------------------------------------------
             */
 
             foreach (
@@ -244,99 +244,39 @@ class GenerateAiSignalsHandler
 
             ) {
 
-                $signalStartedAt =
+                AiSignalBatchItem::create([
 
-                    now();
+                    'ai_signal_batch_id' =>
+                    $batch->id,
 
-                try {
+                    'signal_type_id' =>
+                    $signalTypeId,
 
-                    $signal =
+                    'import_type_id' =>
+                    $importTypeId,
 
-                        $this->generateAiSignalService
+                    'status_id' =>
+                    Status::PENDING,
 
-                        ->generate(
+                    'attempts' => 0,
 
-                            $signalTypeId
+                    'is_processed' => false,
 
-                        );
+                    'is_success' => false,
 
-                    ImportLogsService::log(
+                ]);
 
-                        import_type_id: $importTypeId,
+                GenerateAiSignalJob::dispatch(
 
-                        status_id: Status::COMPLETED,
+                    $batch->id,
 
-                        run_time: $signalStartedAt
+                    $signalTypeId,
 
-                            ->diffInSeconds(
+                    $importTypeId,
 
-                                now()
+                    $force
 
-                            ),
-
-                        rows_processed: 1,
-
-                        records_created: 1,
-
-                        records_updated: 0,
-
-                        duplicate_rows: 0,
-
-                        failure_count: 0,
-
-                        passed_data_integrity_check: true,
-
-                        generated_markdown: $signal->markdown_content,
-
-                        processing_notes: $force
-
-                            ? 'Forced AI signal generation executed successfully.'
-
-                            : 'AI signal generated successfully.',
-
-                        started_at: $signalStartedAt,
-
-                        completed_at: now(),
-
-                    );
-                } catch (Throwable $e) {
-
-                    ImportLogsService::log(
-
-                        import_type_id: $importTypeId,
-
-                        status_id: Status::FAILED,
-
-                        run_time: $signalStartedAt
-
-                            ->diffInSeconds(
-
-                                now()
-
-                            ),
-
-                        rows_processed: 1,
-
-                        records_created: 0,
-
-                        records_updated: 0,
-
-                        duplicate_rows: 0,
-
-                        failure_count: 1,
-
-                        passed_data_integrity_check: false,
-
-                        processing_notes: 'AI signal generation failed.',
-
-                        import_fail_details: $e->getMessage(),
-
-                        started_at: $signalStartedAt,
-
-                        completed_at: now(),
-
-                    );
-                }
+                );
             }
 
             return [
@@ -365,11 +305,8 @@ class GenerateAiSignalsHandler
     }
 
     public function errorMessage(): string
-
     {
-
         return
-
             'AI signal generation failed. ';
     }
 }
