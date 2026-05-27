@@ -20,8 +20,6 @@ class GenerateAiSignalCommand extends Command
 
     'ai:generate-signals
 
-        {--type=}
-
         {--force : Force signal generation even if no fresh data exists}';
 
     /**
@@ -47,14 +45,6 @@ class GenerateAiSignalCommand extends Command
         $interval = 'Hourly';
 
         $payload = [
-
-            'type' =>
-
-            $this->option(
-
-                'type'
-
-            ),
 
             'force' =>
 

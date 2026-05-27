@@ -13,15 +13,69 @@ class IntervalsSeederController extends Controller
 
         $intervals = [
 
+            'everySecond',
+
+            'everyTwoSeconds',
+
+            'everyThreeSeconds',
+
+            'everyTenSeconds',
+
+            'everyFifteenSeconds',
+
+            'everyTwentySeconds',
+
+            'everyThirtySeconds',
+
+            'everyMinute',
+
+            'everyTwoMinutes',
+
+            'everyThreeMinutes',
+
+            'everyFourMinutes',
+
+            'everyFiveMinutes',
+
+            'everyTenMinutes',
+
+            'everyFifteenMinutes',
+
+            'Hourly',
+
+            'HourlyAt',
+
+            'everyOddHour',
+
+            'everyTwoHours',
+
+            'everyThreeHours',
+
+            'everyFourHours',
+
+            'everySixHours',
+
             'Daily',
+
+            'DailyAt',
+
+            'twiceDaily',
+
             'Weekly',
-            'Bi-Weekly',
+
             'Monthly',
-            'Quarterly',
-            'Semi-Annual',
-            'Annual',
-            'Variable',
-            'None',
+
+            'twiceMonthly',
+
+            'lastDayOfMonth',
+
+            'quarterly',
+
+            'quarterlyOn',
+
+            'yearly',
+
+            'yearlyOn',
 
         ];
 
