@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('etf_aum_histories', function (Blueprint $table) {
 
             $table->id();
-            $table->unsignedInteger('etf_id')->index();
+            $table->unsignedInteger('security_id')->index();
             $table->date('aum_date')->index();
             $table->bigInteger('assets_under_management');
             $table->unsignedInteger('data_source_id')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
 
             // indexes
 
-            $table->unique(['etf_id', 'aum_date']);
+            $table->unique(['security_id', 'aum_date']);
         });
     }
 
