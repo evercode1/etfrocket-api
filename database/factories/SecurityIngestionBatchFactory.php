@@ -2,16 +2,16 @@
 
 namespace Database\Factories;
 
-use App\Models\EtfIngestionBatch;
 use App\Models\ImportType;
+use App\Models\SecurityIngestionBatch;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-class EtfIngestionBatchFactory extends Factory
+class SecurityIngestionBatchFactory extends Factory
 {
     protected $model =
-        EtfIngestionBatch::class;
+        SecurityIngestionBatch::class;
 
     public function definition(): array
     {
@@ -23,7 +23,7 @@ class EtfIngestionBatchFactory extends Factory
 
             'status_id' => Status::PENDING,
 
-            'total_etfs' => 10,
+            'total_securities' => 10,
 
             'processed_count' => 0,
 

@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('portfolio_id');
 
-            $table->unsignedBigInteger('etf_id');
+            $table->unsignedBigInteger('security_id');
 
             $table->unsignedInteger('transaction_type_id');
 
@@ -37,13 +37,13 @@ return new class extends Migration
 
             $table->index('portfolio_id');
 
-            $table->index('etf_id');
+            $table->index('security_id');
 
             $table->index('transaction_type_id');
 
             $table->index([
                 'portfolio_id',
-                'etf_id',
+                'security_id',
             ]);
 
             $table->index([
@@ -52,7 +52,7 @@ return new class extends Migration
             ]);
 
             $table->index([
-                'etf_id',
+                'security_id',
                 'transaction_date',
             ]);
         });

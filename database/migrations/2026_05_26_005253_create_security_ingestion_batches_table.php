@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create(
 
-            'etf_ingestion_batches',
+            'security_ingestion_batches',
 
             function (Blueprint $table) {
 
@@ -22,7 +22,7 @@ return new class extends Migration
 
                 $table->unsignedBigInteger('status_id')->nullable();
 
-                $table->integer('total_etfs')->default(0);
+                $table->integer('total_securities')->default(0);
 
                 $table->integer('processed_count')->default(0);
 
@@ -51,7 +51,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists(
-            'etf_ingestion_batches'
+            'security_ingestion_batches'
         );
     }
 };

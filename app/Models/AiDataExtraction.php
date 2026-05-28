@@ -13,7 +13,7 @@ class AiDataExtraction extends Model
 
     protected $fillable = [
 
-        'etf_id',
+        'security_id',
         'data_source_id',
         'source_url',
         'raw_payload',

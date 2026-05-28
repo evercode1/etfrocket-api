@@ -18,25 +18,13 @@ class PortfolioTransactionFactory extends Factory
      */
     public function definition(): array
     {
-        $etfId = rand(1, 4);
+        $securityId = rand(1, 4);
 
         return [
 
             'portfolio_id' => rand(1, 2),
 
-            /*
-            |--------------------------------------------------------------------------
-            | ETFs Currently Seeded With Realistic History
-            |--------------------------------------------------------------------------
-            |
-            | 1 = AMDY
-            | 2 = NVII
-            | 3 = CHPY
-            | 4 = GOOY
-            |
-            */
-
-            'etf_id' => $etfId,
+            'security_id' => $securityId,
 
             'transaction_type_id' => 1,
 
@@ -46,15 +34,15 @@ class PortfolioTransactionFactory extends Factory
             |--------------------------------------------------------------------------
             */
 
-            'shares' => match ($etfId) {
+            'shares' => match ($securityId) {
 
-                1 => $this->randomFloat(5, 250), // AMDY
+                1 => $this->randomFloat(5, 250), // AAPW
 
-                2 => $this->randomFloat(5, 200), // NVII
+                2 => $this->randomFloat(5, 200), // AAPY
 
-                3 => $this->randomFloat(5, 300), // CHPY
+                3 => $this->randomFloat(5, 300), // ABNY
 
-                4 => $this->randomFloat(5, 200), // GOOY
+                4 => $this->randomFloat(5, 200), // AIPI
 
                 default => $this->randomFloat(1, 100),
             },
@@ -65,15 +53,15 @@ class PortfolioTransactionFactory extends Factory
             |--------------------------------------------------------------------------
             */
 
-            'price_per_share' => match ($etfId) {
+            'price_per_share' => match ($securityId) {
 
-                1 => $this->randomFloat(18, 35), // AMDY
+                1 => $this->randomFloat(18, 35), // AAPW
 
-                2 => $this->randomFloat(22, 35), // NVII
+                2 => $this->randomFloat(22, 35), // AAPY
 
-                3 => $this->randomFloat(20, 40), // CHPY
+                3 => $this->randomFloat(20, 40), // ABNY
 
-                4 => $this->randomFloat(18, 35), // GOOY
+                4 => $this->randomFloat(18, 35), // AIPI
 
                 default => $this->randomFloat(10, 100),
             },
