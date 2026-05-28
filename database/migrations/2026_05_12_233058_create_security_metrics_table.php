@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('etf_metrics', function (Blueprint $table) {
+        Schema::create('security_metrics', function (Blueprint $table) {
 
             $table->id();
 
-            $table->unsignedInteger('etf_id')->index();
+            $table->unsignedInteger('security_id')->index();
             $table->unsignedInteger('performance_range_type_id')->index();
 
             $table->date('start_date')->nullable();
@@ -49,8 +49,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(
-                ['etf_id', 'performance_range_type_id'],
-                'etf_metrics_unique'
+                ['security_id', 'performance_range_type_id'],
+                'security_metrics_unique'
             );
         });
     }
@@ -60,6 +60,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('etf_metrics');
+        Schema::dropIfExists('security_metrics');
     }
 };

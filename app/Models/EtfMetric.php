@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use Database\Factories\EtfMetricFactory;
+use Database\Factories\SecurityMetricFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EtfMetric extends Model
+class SecurityMetric extends Model
 {
-    /** @use HasFactory<EtfMetricFactory> */
+    /** @use HasFactory<SecurityMetricFactory> */
     use HasFactory;
 
     protected $fillable = [
 
-        'etf_id',
+        'security_id',
         'performance_range_type_id',
         'start_date',
         'end_date',

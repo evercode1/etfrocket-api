@@ -2,15 +2,15 @@
 
 namespace Database\Factories;
 
-use App\Models\EtfMetric;
 use App\Models\MetricDirection;
 use App\Models\PerformanceRangeType;
+use App\Models\SecurityMetric;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<EtfMetric>
+ * @extends Factory<SecurityMetric>
  */
-class EtfMetricFactory extends Factory
+class SecurityMetricFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -43,7 +43,7 @@ class EtfMetricFactory extends Factory
 
         return [
 
-            'etf_id' => rand(1, 7),
+            'security_id' => rand(1, 7),
 
             'performance_range_type_id' => PerformanceRangeType::THIRTY_DAY,
 
