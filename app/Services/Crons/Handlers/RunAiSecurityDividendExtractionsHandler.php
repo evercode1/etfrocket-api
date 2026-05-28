@@ -2,20 +2,20 @@
 
 namespace App\Services\Crons\Handlers;
 
-use App\Jobs\RunAiEtfDividendExtractionJob;
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfIngestionBatch;
-use App\Models\EtfIngestionBatchItem;
+use App\Jobs\RunAiSecurityDividendExtractionJob;
 use App\Models\ImportType;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityIngestionBatch;
+use App\Models\SecurityIngestionBatchItem;
 use App\Models\Status;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
-class RunAiEtfDividendExtractionsHandler
+class RunAiSecurityDividendExtractionsHandler
 {
-    public function handleRunAiEtfDividendExtractions(
+    public function handleRunAiSecurityDividendExtractions(
         array $payload = []
     ): array {
 
@@ -44,30 +44,30 @@ class RunAiEtfDividendExtractionsHandler
             $today =
                 now()->toDateString();
 
-            $totalEtfCount =
+            $totalSecurityCount =
 
-                Etf::where(
+                Security::where(
                     'status_id',
                     Status::ACTIVE
                 )
                     ->count();
 
-            $updatedEtfCount =
+            $updatedSecurityCount =
 
-                EtfDividendHistory::whereDate(
+                SecurityDividendHistory::whereDate(
                     'retrieved_at',
                     $today
                 )
-                    ->distinct('etf_id')
-                    ->count('etf_id');
+                    ->distinct('security_id')
+                    ->count('security_id');
 
             Log::info('DIVIDEND FRESHNESS CHECK', [
 
                 'today' => $today,
 
-                'total_etf_count' => $totalEtfCount,
+                'total_security_count' => $totalSecurityCount,
 
-                'updated_etf_count' => $updatedEtfCount,
+                'updated_security_count' => $updatedSecurityCount,
 
             ]);
 
@@ -75,13 +75,13 @@ class RunAiEtfDividendExtractionsHandler
 
                 ! $force &&
 
-                $updatedEtfCount >=
-                $totalEtfCount
+                $updatedSecurityCount >=
+                $totalSecurityCount
 
             ) {
 
                 Log::warning(
-                    'DIVIDEND EXTRACTION SKIPPED - ALL ETFS ALREADY UPDATED'
+                    'DIVIDEND EXTRACTION SKIPPED - ALL SECURITIES ALREADY UPDATED'
                 );
 
                 return [
@@ -95,12 +95,12 @@ class RunAiEtfDividendExtractionsHandler
 
             /*
             |--------------------------------------------------------------------------
-            | ETF Query
+            | Security Query
             |--------------------------------------------------------------------------
             */
 
             $query =
-                Etf::query()
+                Security::query()
                     ->where(
                         'status_id',
                         Status::ACTIVE
@@ -124,7 +124,7 @@ class RunAiEtfDividendExtractionsHandler
 
             /*
             |--------------------------------------------------------------------------
-            | Exclude Already Updated ETFs
+            | Exclude Already Updated Securities
             |--------------------------------------------------------------------------
             */
 
@@ -134,31 +134,31 @@ class RunAiEtfDividendExtractionsHandler
 
                     'id',
 
-                    EtfDividendHistory::whereDate(
+                    SecurityDividendHistory::whereDate(
                         'retrieved_at',
                         $today
                     )
 
-                        ->pluck('etf_id')
+                        ->pluck('security_id')
 
                 );
             }
 
-            $etfs =
+            $securities =
                 $query->get();
 
-            Log::info('DIVIDEND ETF QUERY COMPLETE', [
+            Log::info('DIVIDEND SECURITY QUERY COMPLETE', [
 
-                'count' => $etfs->count(),
+                'count' => $securities->count(),
 
             ]);
 
             if (
-                $etfs->isEmpty()
+                $securities->isEmpty()
             ) {
 
                 Log::warning(
-                    'NO ETFS FOUND FOR DIVIDEND PROCESSING'
+                    'NO SECURITIES FOUND FOR DIVIDEND PROCESSING'
                 );
 
                 return [
@@ -177,7 +177,7 @@ class RunAiEtfDividendExtractionsHandler
             */
 
             $batch =
-                EtfIngestionBatch::create([
+                SecurityIngestionBatch::create([
 
                     'batch_uuid' => Str::uuid()->toString(),
 
@@ -185,7 +185,7 @@ class RunAiEtfDividendExtractionsHandler
 
                     'status_id' => Status::PENDING,
 
-                    'total_etfs' => $etfs->count(),
+                    'total_securities' => $securities->count(),
 
                     'processed_count' => 0,
 
@@ -198,10 +198,8 @@ class RunAiEtfDividendExtractionsHandler
                     'passed_data_integrity_check' => false,
 
                     'processing_notes' => $force
-
-                        ? 'Forced AI ETF dividend extraction batch queued.'
-
-                        : 'AI ETF dividend extraction batch queued.',
+                        ? 'Forced AI security dividend extraction batch queued.'
+                        : 'AI security dividend extraction batch queued.',
 
                     'started_at' => now(),
 
@@ -214,14 +212,14 @@ class RunAiEtfDividendExtractionsHandler
             */
 
             foreach (
-                $etfs as $etf
+                $securities as $security
             ) {
 
-                EtfIngestionBatchItem::create([
+                SecurityIngestionBatchItem::create([
 
-                    'etf_ingestion_batch_id' => $batch->id,
+                    'security_ingestion_batch_id' => $batch->id,
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'status_id' => Status::PENDING,
 
@@ -233,11 +231,11 @@ class RunAiEtfDividendExtractionsHandler
 
                 ]);
 
-                RunAiEtfDividendExtractionJob::dispatch(
+                RunAiSecurityDividendExtractionJob::dispatch(
 
                     $batch->id,
 
-                    $etf->id
+                    $security->id
 
                 );
             }
@@ -282,6 +280,6 @@ class RunAiEtfDividendExtractionsHandler
 
     public function errorMessage(): string
     {
-        return 'AI ETF dividend extraction failed. ';
+        return 'AI security dividend extraction failed. ';
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Services\PortfolioStats;
 
-use App\Models\EtfDividendHistory;
-use App\Models\EtfPriceHistory;
 use App\Models\PortfolioTransaction;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityPriceHistory;
 use Illuminate\Support\Collection;
 
 class PortfolioHistoricalStatsService
@@ -50,7 +50,7 @@ class PortfolioHistoricalStatsService
         $value = 0;
 
         foreach ($holdings as $holding) {
-            $price = EtfPriceHistory::where('etf_id', $holding['etf_id'])
+            $price = SecurityPriceHistory::where('security_id', $holding['security_id'])
                 ->where('price_date', '<=', $asOfDate)
                 ->orderByDesc('price_date')
                 ->value('close_price');
@@ -70,7 +70,7 @@ class PortfolioHistoricalStatsService
         string $startDate,
         string $endDate
     ): float {
-        $dividends = EtfDividendHistory::whereBetween('ex_dividend_date', [
+        $dividends = SecurityDividendHistory::whereBetween('ex_dividend_date', [
             $startDate,
             $endDate,
         ])->get();
@@ -80,7 +80,7 @@ class PortfolioHistoricalStatsService
         foreach ($dividends as $dividend) {
             $sharesOwned = $this->getSharesOwnedAsOfDate(
                 $portfolioId,
-                (int) $dividend->etf_id,
+                (int) $dividend->security_id,
                 $dividend->ex_dividend_date
             );
 
@@ -96,12 +96,12 @@ class PortfolioHistoricalStatsService
 
     public function getSharesOwnedAsOfDate(
         int $portfolioId,
-        int $etfId,
+        int $securityId,
         string $asOfDate
     ): float {
         $shares = PortfolioTransaction::query()
             ->where('portfolio_id', $portfolioId)
-            ->where('etf_id', $etfId)
+            ->where('security_id', $securityId)
             ->where('transaction_date', '<=', $asOfDate)
             ->selectRaw('
                 SUM(

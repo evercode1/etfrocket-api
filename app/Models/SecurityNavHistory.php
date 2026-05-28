@@ -2,20 +2,20 @@
 
 namespace App\Models;
 
-use Database\Factories\EtfAumHistoryFactory;
+use Database\Factories\SecurityNavHistoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EtfAumHistory extends Model
+class SecurityNavHistory extends Model
 {
-    /** @use HasFactory<EtfAumHistoryFactory> */
+    /** @use HasFactory<SecurityNavHistoryFactory> */
     use HasFactory;
 
     protected $fillable = [
 
         'security_id',
-        'aum_date',
-        'assets_under_management',
+        'nav_date',
+        'nav_per_share',
         'data_source_id',
         'retrieved_at',
 
@@ -28,7 +28,7 @@ class EtfAumHistory extends Model
 
             'created_at' => 'date:Y-m-d',
             'updated_at' => 'date:Y-m-d',
-            'aum_date' => 'date:Y-m-d',
+            'nav_date' => 'date:Y-m-d',
             'retrieved_at' => 'date:Y-m-d',
 
         ];

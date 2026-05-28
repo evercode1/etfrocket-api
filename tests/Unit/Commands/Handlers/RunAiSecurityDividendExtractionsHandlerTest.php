@@ -2,36 +2,36 @@
 
 namespace Tests\Unit\Commands\Handlers;
 
-use App\Jobs\RunAiEtfDividendExtractionJob;
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
+use App\Jobs\RunAiSecurityDividendExtractionJob;
 use App\Models\ImportType;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
 use App\Models\Status;
-use App\Services\Crons\Handlers\RunAiEtfDividendExtractionsHandler;
-use Database\Seeders\EtfSeeder;
+use App\Services\Crons\Handlers\RunAiSecurityDividendExtractionsHandler;
 use Database\Seeders\ImportTypeSeeder;
+use Database\Seeders\SecuritySeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
-class RunAiEtfDividendExtractionsHandlerTest extends TestCase
+class RunAiSecurityDividendExtractionsHandlerTest extends TestCase
 {
-    private RunAiEtfDividendExtractionsHandler $handler;
+    private RunAiSecurityDividendExtractionsHandler $handler;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_ingestion_batch_items')->truncate();
+        DB::table('security_ingestion_batch_items')->truncate();
 
-        DB::table('etf_ingestion_batches')->truncate();
+        DB::table('security_ingestion_batches')->truncate();
 
-        DB::table('etf_dividend_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
         DB::table('import_types')->truncate();
 
@@ -43,7 +43,7 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
 
             ImportTypeSeeder::class,
 
-            EtfSeeder::class,
+            SecuritySeeder::class,
 
         ]);
 
@@ -51,21 +51,21 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
 
         $this->handler =
             app(
-                RunAiEtfDividendExtractionsHandler::class
+                RunAiSecurityDividendExtractionsHandler::class
             );
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_ingestion_batch_items')->truncate();
+        DB::table('security_ingestion_batch_items')->truncate();
 
-        DB::table('etf_ingestion_batches')->truncate();
+        DB::table('security_ingestion_batches')->truncate();
 
-        DB::table('etf_dividend_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
         DB::table('import_types')->truncate();
 
@@ -74,14 +74,14 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_dispatches_jobs_for_all_etfs()
+    public function test_it_dispatches_jobs_for_all_securities()
     {
-        $etfCount =
-            Etf::count();
+        $securityCount =
+            Security::count();
 
         $results =
             $this->handler
-                ->handleRunAiEtfDividendExtractions();
+                ->handleRunAiSecurityDividendExtractions();
 
         $this->assertEquals(
             1,
@@ -89,15 +89,15 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
         );
 
         Queue::assertPushed(
-            RunAiEtfDividendExtractionJob::class,
-            $etfCount
+            RunAiSecurityDividendExtractionJob::class,
+            $securityCount
         );
     }
 
     public function test_it_creates_batch_record()
     {
         $this->handler
-            ->handleRunAiEtfDividendExtractions([
+            ->handleRunAiSecurityDividendExtractions([
 
                 'limit' => 2,
 
@@ -105,7 +105,7 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
 
         $this->assertDatabaseHas(
 
-            'etf_ingestion_batches',
+            'security_ingestion_batches',
 
             [
 
@@ -113,27 +113,27 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
 
                 'status_id' => Status::PENDING,
 
-                'total_etfs' => 2,
+                'total_securities' => 2,
 
             ]
 
         );
     }
 
-    public function test_it_skips_when_all_active_etfs_have_fresh_dividend_data()
+    public function test_it_skips_when_all_active_securities_have_fresh_dividend_data()
     {
         foreach (
 
-            Etf::where(
+            Security::where(
                 'status_id',
                 Status::ACTIVE
-            )->get() as $etf
+            )->get() as $security
 
         ) {
 
-            EtfDividendHistory::create([
+            SecurityDividendHistory::create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'dividend_amount' => 0.25,
 
@@ -152,7 +152,7 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
 
         $results =
             $this->handler
-                ->handleRunAiEtfDividendExtractions();
+                ->handleRunAiSecurityDividendExtractions();
 
         $this->assertEquals(
             1,
@@ -162,7 +162,7 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
         Queue::assertNothingPushed();
 
         $this->assertDatabaseCount(
-            'etf_ingestion_batches',
+            'security_ingestion_batches',
             0
         );
     }

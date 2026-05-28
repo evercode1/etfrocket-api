@@ -2,26 +2,25 @@
 
 namespace Tests\Feature\Console;
 
-use App\Models\Etf;
-use App\Models\EtfAumHistory;
-use App\Models\EtfMetric;
-use App\Models\EtfNavHistory;
-use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
+use App\Models\Security;
+use App\Models\SecurityAumHistory;
+use App\Models\SecurityMetric;
+use App\Models\SecurityNavHistory;
+use App\Models\SecurityPriceHistory;
 use Carbon\Carbon;
-use Database\Seeders\EtfAumHistorySeeder;
-use Database\Seeders\EtfDividendHistorySeeder;
-use Database\Seeders\EtfNavHistorySeeder;
-use Database\Seeders\EtfPriceHistorySeeder;
-use Database\Seeders\EtfSeeder;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
 use Database\Seeders\PerformanceRangeTypeSeeder;
+use Database\Seeders\SecurityAumHistorySeeder;
+use Database\Seeders\SecurityDividendHistorySeeder;
+use Database\Seeders\SecurityNavHistorySeeder;
+use Database\Seeders\SecuritySeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class CalculateEtfMetricsCommandSeededDataTest extends TestCase
+class CalculateSecurityMetricsCommandSeededDataTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -29,12 +28,12 @@ class CalculateEtfMetricsCommandSeededDataTest extends TestCase
 
         Carbon::setTestNow('2026-05-01 12:00:00');
 
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_aum_histories')->truncate();
-        DB::table('etf_nav_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('statuses')->truncate();
         DB::table('performance_range_types')->truncate();
         DB::table('cron_logs')->truncate();
@@ -43,23 +42,23 @@ class CalculateEtfMetricsCommandSeededDataTest extends TestCase
 
         $this->seed(StatusSeeder::class);
         $this->seed(PerformanceRangeTypeSeeder::class);
-        $this->seed(EtfSeeder::class);
-        $this->seed(EtfPriceHistorySeeder::class);
-        $this->seed(EtfNavHistorySeeder::class);
-        $this->seed(EtfAumHistorySeeder::class);
-        $this->seed(EtfDividendHistorySeeder::class);
+        $this->seed(SecuritySeeder::class);
+        $this->seed(SecurityPriceHistorySeeder::class);
+        $this->seed(SecurityNavHistorySeeder::class);
+        $this->seed(SecurityAumHistorySeeder::class);
+        $this->seed(SecurityDividendHistorySeeder::class);
         $this->seed(IntervalSeeder::class);
         $this->seed(NotificationStatusSeeder::class);
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_aum_histories')->truncate();
-        DB::table('etf_nav_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('statuses')->truncate();
         DB::table('performance_range_types')->truncate();
         DB::table('cron_logs')->truncate();
@@ -73,20 +72,20 @@ class CalculateEtfMetricsCommandSeededDataTest extends TestCase
 
     public function test_it_calculates_metrics_from_seeded_historical_data()
     {
-        $this->assertEquals(7, Etf::count());
-        $this->assertEquals(217, DB::table('etf_price_histories')->count());
-        $this->assertEquals(217, DB::table('etf_nav_histories')->count());
-        $this->assertEquals(217, DB::table('etf_aum_histories')->count());
-        $this->assertGreaterThan(0, DB::table('etf_dividend_histories')->count());
+        $this->assertEquals(7, Security::count());
+        $this->assertEquals(217, DB::table('security_price_histories')->count());
+        $this->assertEquals(217, DB::table('security_nav_histories')->count());
+        $this->assertEquals(217, DB::table('security_aum_histories')->count());
+        $this->assertGreaterThan(0, DB::table('security_dividend_histories')->count());
 
-        $this->artisan('etfs:calculate-metrics')
+        $this->artisan('securities:calculate-metrics')
             ->assertExitCode(0);
 
-        $this->assertGreaterThan(0, EtfMetric::count());
+        $this->assertGreaterThan(0, SecurityMetric::count());
 
-        $chpy = Etf::where('symbol', 'CHPY')->firstOrFail();
+        $chpy = Security::where('symbol', 'CHPY')->firstOrFail();
 
-        $metric = EtfMetric::where('etf_id', $chpy->id)
+        $metric = SecurityMetric::where('security_id', $chpy->id)
             ->where('performance_range_type_id', PerformanceRangeType::THIRTY_DAY)
             ->first();
 
@@ -119,45 +118,45 @@ class CalculateEtfMetricsCommandSeededDataTest extends TestCase
 
     public function test_it_updates_seeded_metrics_instead_of_creating_duplicates()
     {
-        $this->artisan('etfs:calculate-metrics')
+        $this->artisan('securities:calculate-metrics')
             ->assertExitCode(0);
 
-        $firstCount = EtfMetric::count();
+        $firstCount = SecurityMetric::count();
 
         $this->assertGreaterThan(0, $firstCount);
 
-        $this->artisan('etfs:calculate-metrics')
+        $this->artisan('securities:calculate-metrics')
             ->assertExitCode(0);
 
-        $this->assertEquals($firstCount, EtfMetric::count());
+        $this->assertEquals($firstCount, SecurityMetric::count());
     }
 
     public function test_it_calculates_ninety_day_metric_when_older_history_exists()
     {
-        $chpy = Etf::where('symbol', 'CHPY')->firstOrFail();
+        $chpy = Security::where('symbol', 'CHPY')->firstOrFail();
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $chpy->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $chpy->id,
             'price_date' => '2026-01-31',
             'close_price' => 45.0000,
         ]);
 
-        EtfNavHistory::factory()->create([
-            'etf_id' => $chpy->id,
+        SecurityNavHistory::factory()->create([
+            'security_id' => $chpy->id,
             'nav_date' => '2026-01-31',
             'nav_per_share' => 46.0000,
         ]);
 
-        EtfAumHistory::factory()->create([
-            'etf_id' => $chpy->id,
+        SecurityAumHistory::factory()->create([
+            'security_id' => $chpy->id,
             'aum_date' => '2026-01-31',
             'assets_under_management' => 500000000,
         ]);
 
-        $this->artisan('etfs:calculate-metrics --symbol=CHPY')
+        $this->artisan('securities:calculate-metrics --symbol=CHPY')
             ->assertExitCode(0);
 
-        $metric = EtfMetric::where('etf_id', $chpy->id)
+        $metric = SecurityMetric::where('security_id', $chpy->id)
             ->where('performance_range_type_id', PerformanceRangeType::NINETY_DAY)
             ->first();
 
@@ -171,30 +170,30 @@ class CalculateEtfMetricsCommandSeededDataTest extends TestCase
 
     public function test_it_calculates_one_year_metric_when_older_history_exists()
     {
-        $chpy = Etf::where('symbol', 'CHPY')->firstOrFail();
+        $chpy = Security::where('symbol', 'CHPY')->firstOrFail();
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $chpy->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $chpy->id,
             'price_date' => '2025-05-01',
             'close_price' => 40.0000,
         ]);
 
-        EtfNavHistory::factory()->create([
-            'etf_id' => $chpy->id,
+        SecurityNavHistory::factory()->create([
+            'security_id' => $chpy->id,
             'nav_date' => '2025-05-01',
             'nav_per_share' => 42.0000,
         ]);
 
-        EtfAumHistory::factory()->create([
-            'etf_id' => $chpy->id,
+        SecurityAumHistory::factory()->create([
+            'security_id' => $chpy->id,
             'aum_date' => '2025-05-01',
             'assets_under_management' => 400000000,
         ]);
 
-        $this->artisan('etfs:calculate-metrics --symbol=CHPY')
+        $this->artisan('securities:calculate-metrics --symbol=CHPY')
             ->assertExitCode(0);
 
-        $metric = EtfMetric::where('etf_id', $chpy->id)
+        $metric = SecurityMetric::where('security_id', $chpy->id)
             ->where('performance_range_type_id', PerformanceRangeType::ONE_YEAR)
             ->first();
 

@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Dividends;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
 use App\Models\Status;
 use App\Models\User;
 use Carbon\Carbon;
@@ -23,8 +23,8 @@ class DividendIntelligenceFeatureTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -32,8 +32,8 @@ class DividendIntelligenceFeatureTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -63,32 +63,31 @@ class DividendIntelligenceFeatureTest extends TestCase
 
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test ETF',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 25,
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.0000',
             'ex_dividend_date' => '2026-05-13',
             'payment_date' => '2026-05-15',
             'data_source_id' => 1,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.2500',
             'ex_dividend_date' => '2026-05-25',
             'payment_date' => '2026-05-27',
@@ -130,9 +129,9 @@ class DividendIntelligenceFeatureTest extends TestCase
                 ],
                 'upcoming_weekly_dividends' => [
                     '*' => [
-                        'etf_id',
+                        'security_id',
                         'symbol',
-                        'fund_name',
+                        'security_name',
                         'shares',
                         'distribution_amount',
                         'estimated_payment_amount',

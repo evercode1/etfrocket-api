@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Holdings;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfMetric;
-use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityMetric;
+use App\Models\SecurityPriceHistory;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\Holdings\PortfolioHoldingsAnalysisService;
@@ -27,10 +27,10 @@ class PortfolioHoldingsAnalysisServiceTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -38,10 +38,10 @@ class PortfolioHoldingsAnalysisServiceTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -55,8 +55,8 @@ class PortfolioHoldingsAnalysisServiceTest extends TestCase
 
         $portfolio = $this->createPortfolio($user->id, 'Main Portfolio');
 
-        $nvi = $this->createEtf('NVII');
-        $chpy = $this->createEtf('CHPY');
+        $nvi = $this->createSecurity('NVII');
+        $chpy = $this->createSecurity('CHPY');
 
         $this->createBuyTransaction($portfolio->id, $nvi->id, 10, 20);
         $this->createBuyTransaction($portfolio->id, $chpy->id, 5, 30);
@@ -179,23 +179,23 @@ class PortfolioHoldingsAnalysisServiceTest extends TestCase
 
         $portfolio = $this->createPortfolio($user->id, 'Main Portfolio');
 
-        $heldEtf = $this->createEtf('HELD');
-        $soldEtf = $this->createEtf('SOLD');
+        $heldSecurity = $this->createSecurity('HELD');
+        $soldSecurity = $this->createSecurity('SOLD');
 
-        $this->createBuyTransaction($portfolio->id, $heldEtf->id, 10, 20);
-        $this->createBuyTransaction($portfolio->id, $soldEtf->id, 10, 20);
+        $this->createBuyTransaction($portfolio->id, $heldSecurity->id, 10, 20);
+        $this->createBuyTransaction($portfolio->id, $soldSecurity->id, 10, 20);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $soldEtf->id,
+            'security_id' => $soldSecurity->id,
             'transaction_type_id' => 2,
             'shares' => 10,
             'price_per_share' => 20,
             'transaction_date' => '2026-02-01',
         ]);
 
-        $this->createPrice($heldEtf->id, 25);
-        $this->createPrice($soldEtf->id, 50);
+        $this->createPrice($heldSecurity->id, 25);
+        $this->createPrice($soldSecurity->id, 50);
 
         $data = app(PortfolioHoldingsAnalysisService::class)->getData(
             $user->id,
@@ -213,9 +213,9 @@ class PortfolioHoldingsAnalysisServiceTest extends TestCase
 
         $portfolio = $this->createPortfolio($user->id, 'Main Portfolio');
 
-        $etf = $this->createEtf('MISS');
+        $security = $this->createSecurity('MISS');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 10, 20);
+        $this->createBuyTransaction($portfolio->id, $security->id, 10, 20);
 
         $data = app(PortfolioHoldingsAnalysisService::class)->getData(
             $user->id,
@@ -259,24 +259,23 @@ class PortfolioHoldingsAnalysisServiceTest extends TestCase
         ]);
     }
 
-    private function createEtf(string $symbol): Etf
+    private function createSecurity(string $symbol): Security
     {
-        return Etf::factory()->create([
+        return Security::factory()->create([
             'symbol' => $symbol,
-            'fund_name' => "{$symbol} Test ETF",
             'status_id' => Status::ACTIVE,
         ]);
     }
 
     private function createBuyTransaction(
         int $portfolioId,
-        int $etfId,
+        int $securityId,
         float $shares,
         float $price
     ): PortfolioTransaction {
         return PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolioId,
-            'etf_id' => $etfId,
+            'security_id' => $securityId,
             'transaction_type_id' => 1,
             'shares' => $shares,
             'price_per_share' => $price,
@@ -284,10 +283,10 @@ class PortfolioHoldingsAnalysisServiceTest extends TestCase
         ]);
     }
 
-    private function createPrice(int $etfId, float $price): EtfPriceHistory
+    private function createPrice(int $securityId, float $price): SecurityPriceHistory
     {
-        return EtfPriceHistory::factory()->create([
-            'etf_id' => $etfId,
+        return SecurityPriceHistory::factory()->create([
+            'security_id' => $securityId,
             'price_date' => '2026-05-20',
             'close_price' => $price,
             'volume' => 1000,
@@ -295,12 +294,12 @@ class PortfolioHoldingsAnalysisServiceTest extends TestCase
     }
 
     private function createMonthlyDividend(
-        int $etfId,
+        int $securityId,
         string $date,
         float $amount
-    ): EtfDividendHistory {
-        return EtfDividendHistory::factory()->create([
-            'etf_id' => $etfId,
+    ): SecurityDividendHistory {
+        return SecurityDividendHistory::factory()->create([
+            'security_id' => $securityId,
             'dividend_amount' => $amount,
             'ex_dividend_date' => $date,
             'payment_date' => $date,
@@ -309,12 +308,12 @@ class PortfolioHoldingsAnalysisServiceTest extends TestCase
     }
 
     private function createMetric(
-        int $etfId,
+        int $securityId,
         int $rangeTypeId,
         array $overrides = []
-    ): EtfMetric {
-        return EtfMetric::factory()->create(array_merge([
-            'etf_id' => $etfId,
+    ): SecurityMetric {
+        return SecurityMetric::factory()->create(array_merge([
+            'security_id' => $securityId,
             'performance_range_type_id' => $rangeTypeId,
             'start_date' => '2026-01-01',
             'end_date' => '2026-05-20',

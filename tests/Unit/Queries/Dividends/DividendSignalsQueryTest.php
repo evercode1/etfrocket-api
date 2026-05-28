@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Queries\Dividends;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
 use App\Models\Status;
 use App\Models\User;
 use App\Queries\Dividends\DividendSignalsQuery;
@@ -23,8 +23,8 @@ class DividendSignalsQueryTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -32,8 +32,8 @@ class DividendSignalsQueryTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -59,24 +59,24 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 10);
+        $this->createBuyTransaction($portfolio->id, $security->id, 10);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.0000',
             'ex_dividend_date' => '2026-05-01',
             'payment_date' => '2026-05-02',
             'data_source_id' => 1,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.2500',
             'ex_dividend_date' => '2026-05-15',
             'payment_date' => '2026-05-16',
@@ -98,24 +98,24 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'QQQI',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 10);
+        $this->createBuyTransaction($portfolio->id, $security->id, 10);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.2500',
             'ex_dividend_date' => '2026-05-01',
             'payment_date' => '2026-05-02',
             'data_source_id' => 1,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.0000',
             'ex_dividend_date' => '2026-05-15',
             'payment_date' => '2026-05-16',
@@ -138,16 +138,16 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'XDTE',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 10);
+        $this->createBuyTransaction($portfolio->id, $security->id, 10);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.3000',
             'ex_dividend_date' => '2026-05-13',
             'payment_date' => '2026-05-15',
@@ -170,16 +170,16 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'QDTE',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 10);
+        $this->createBuyTransaction($portfolio->id, $security->id, 10);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.3000',
             'ex_dividend_date' => '2026-05-27',
             'payment_date' => '2026-05-29',
@@ -202,16 +202,16 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'JEPI',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 4,
         ]);
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 10);
+        $this->createBuyTransaction($portfolio->id, $security->id, 10);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.4000',
             'ex_dividend_date' => '2026-05-01',
             'payment_date' => '2026-05-03',
@@ -234,24 +234,24 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 10);
+        $this->createBuyTransaction($portfolio->id, $security->id, 10);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.0000',
             'ex_dividend_date' => '2026-04-15',
             'payment_date' => '2026-04-16',
             'data_source_id' => 1,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.1000',
             'ex_dividend_date' => '2026-05-15',
             'payment_date' => '2026-05-16',
@@ -274,24 +274,24 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'AMDY',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 10);
+        $this->createBuyTransaction($portfolio->id, $security->id, 10);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.5000',
             'ex_dividend_date' => '2026-04-15',
             'payment_date' => '2026-04-16',
             'data_source_id' => 1,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.5000',
             'ex_dividend_date' => '2026-05-15',
             'payment_date' => '2026-05-16',
@@ -313,16 +313,16 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NEWF',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 10);
+        $this->createBuyTransaction($portfolio->id, $security->id, 10);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.0000',
             'ex_dividend_date' => '2026-05-15',
             'payment_date' => '2026-05-16',
@@ -344,25 +344,25 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'SOLD',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 10);
+        $this->createBuyTransaction($portfolio->id, $security->id, 10);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 2,
             'shares' => 10,
             'price_per_share' => 30,
             'transaction_date' => '2026-02-01',
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.0000',
             'ex_dividend_date' => '2026-05-15',
             'payment_date' => '2026-05-16',
@@ -386,12 +386,12 @@ class DividendSignalsQueryTest extends TestCase
 
     private function createBuyTransaction(
         int $portfolioId,
-        int $etfId,
+        int $securityId,
         float $shares
     ): PortfolioTransaction {
         return PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolioId,
-            'etf_id' => $etfId,
+            'security_id' => $securityId,
             'transaction_type_id' => 1,
             'shares' => $shares,
             'price_per_share' => 25,

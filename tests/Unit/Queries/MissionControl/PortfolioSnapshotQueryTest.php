@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Queries\MissionControl;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfMetric;
-use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityMetric;
+use App\Models\SecurityPriceHistory;
 use App\Models\Status;
 use App\Models\User;
 use App\Queries\MissionControl\PortfolioSnapshotQuery;
@@ -23,10 +23,10 @@ class PortfolioSnapshotQueryTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -34,10 +34,10 @@ class PortfolioSnapshotQueryTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -54,16 +54,15 @@ class PortfolioSnapshotQueryTest extends TestCase
             'is_default' => 1,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test ETF',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 25,
@@ -72,38 +71,38 @@ class PortfolioSnapshotQueryTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 5,
             'price_per_share' => 30,
             'transaction_date' => '2026-02-01',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-15',
             'close_price' => '40.0000',
             'volume' => 100000,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.2500',
             'ex_dividend_date' => '2026-05-01',
             'payment_date' => '2026-05-02',
             'data_source_id' => 1,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.3000',
             'ex_dividend_date' => '2026-04-01',
             'payment_date' => '2026-04-02',
             'data_source_id' => 1,
         ]);
 
-        EtfMetric::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityMetric::factory()->create([
+            'security_id' => $security->id,
             'performance_range_type_id' => PerformanceRangeType::MAX,
             'total_return_percentage' => '12.5000',
             'nav_erosion_percentage' => '1.2500',
@@ -128,9 +127,8 @@ class PortfolioSnapshotQueryTest extends TestCase
 
         $this->assertCount(1, $snapshot['holdings']);
 
-        $this->assertSame($etf->id, $snapshot['holdings'][0]['etf_id']);
+        $this->assertSame($security->id, $snapshot['holdings'][0]['security_id']);
         $this->assertSame('NVII', $snapshot['holdings'][0]['symbol']);
-        $this->assertSame('NVII Test ETF', $snapshot['holdings'][0]['fund_name']);
         $this->assertSame(15.0, $snapshot['holdings'][0]['shares']);
         $this->assertSame(400.0, $snapshot['holdings'][0]['cost_basis']);
         $this->assertSame(40.0, $snapshot['holdings'][0]['latest_price']);
@@ -199,15 +197,14 @@ class PortfolioSnapshotQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'AMDY',
-            'fund_name' => 'AMDY Test ETF',
             'status_id' => Status::ACTIVE,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 2,
             'price_per_share' => 20,
@@ -216,15 +213,15 @@ class PortfolioSnapshotQueryTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 3,
             'price_per_share' => 30,
             'transaction_date' => '2026-02-01',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-15',
             'close_price' => '40.0000',
             'volume' => 100000,
@@ -248,30 +245,29 @@ class PortfolioSnapshotQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'GOOY',
-            'fund_name' => 'GOOY Test ETF',
             'status_id' => Status::ACTIVE,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 25,
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-15',
             'close_price' => '20.0000',
             'volume' => 100000,
         ]);
 
-        EtfMetric::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityMetric::factory()->create([
+            'security_id' => $security->id,
             'performance_range_type_id' => PerformanceRangeType::MAX,
             'total_return_percentage' => '-5.0000',
             'nav_erosion_percentage' => '-12.0000',

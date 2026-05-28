@@ -2,7 +2,7 @@
 
 namespace App\Services\PortfolioStats;
 
-use App\Models\EtfDividendHistory;
+use App\Models\SecurityDividendHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -16,7 +16,7 @@ class PortfolioDividendStatsService
         $income = 0;
 
         foreach ($holdings as $holding) {
-            $dividendTotal = EtfDividendHistory::where('etf_id', $holding['etf_id'])
+            $dividendTotal = SecurityDividendHistory::where('security_id', $holding['security_id'])
                 ->whereBetween('ex_dividend_date', [$monthStart, $monthEnd])
                 ->sum('dividend_amount');
 
@@ -116,13 +116,13 @@ class PortfolioDividendStatsService
 
     public function getLatestDividendDate(Collection $holdings): ?string
     {
-        $etfIds = $holdings->pluck('etf_id')->toArray();
+        $securityIds = $holdings->pluck('security_id')->toArray();
 
-        if (empty($etfIds)) {
+        if (empty($securityIds)) {
             return null;
         }
 
-        return EtfDividendHistory::whereIn('etf_id', $etfIds)
+        return SecurityDividendHistory::whereIn('security_id', $securityIds)
             ->max('ex_dividend_date');
     }
 

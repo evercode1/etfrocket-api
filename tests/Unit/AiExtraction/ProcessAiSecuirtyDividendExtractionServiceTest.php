@@ -4,63 +4,63 @@ namespace Tests\Unit\AiExtraction;
 
 use App\Models\AiDataExtraction;
 use App\Models\DataSource;
-use App\Models\Etf;
-use App\Services\AI\Extractions\ProcessAiEtfDividendExtractionService;
-use Database\Seeders\EtfSeeder;
+use App\Models\Security;
+use App\Services\AI\Extractions\ProcessAiSecurityDividendExtractionService;
+use Database\Seeders\SecuritySeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class ProcessAiEtfDividendExtractionServiceTest extends TestCase
+class ProcessAiSecurityDividendExtractionServiceTest extends TestCase
 {
-    private ProcessAiEtfDividendExtractionService $service;
+    private ProcessAiSecurityDividendExtractionService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_dividend_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
         $this->seed(
-            EtfSeeder::class
+            SecuritySeeder::class
         );
 
         $this->service =
             app(
-                ProcessAiEtfDividendExtractionService::class
+                ProcessAiSecurityDividendExtractionService::class
             );
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_dividend_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
         parent::tearDown();
     }
 
     public function test_it_processes_dividend_extraction()
     {
-        $etf =
-            Etf::firstOrFail();
+        $security =
+            Security::firstOrFail();
 
         $extraction =
             AiDataExtraction::factory()
                 ->create([
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'data_source_id' => DataSource::MANUAL_ENTRY,
 
                     'extracted_data' => [
 
-                        'symbol' => $etf->symbol,
+                        'symbol' => $security->symbol,
 
                         'dividend_amount' => 0.25,
 
@@ -83,7 +83,7 @@ class ProcessAiEtfDividendExtractionServiceTest extends TestCase
         );
 
         $this->assertDatabaseHas(
-            'etf_dividend_histories',
+            'security_dividend_histories',
             [
 
                 'dividend_amount' => 0.25,
@@ -94,14 +94,14 @@ class ProcessAiEtfDividendExtractionServiceTest extends TestCase
 
     public function test_it_fails_if_symbol_does_not_match()
     {
-        $etf =
-            Etf::firstOrFail();
+        $security =
+            Security::firstOrFail();
 
         $extraction =
             AiDataExtraction::factory()
                 ->create([
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'extracted_data' => [
 

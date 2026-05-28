@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Comparisons;
 
-use App\Models\Etf;
-use App\Models\EtfAumHistory;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfMetric;
-use App\Models\EtfNavHistory;
-use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
+use App\Models\Security;
+use App\Models\SecurityAumHistory;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityMetric;
+use App\Models\SecurityNavHistory;
+use App\Models\SecurityPriceHistory;
 use App\Queries\Comparisons\SymbolAumHistoryChartQuery;
 use App\Queries\Comparisons\SymbolDividendHistoryChartQuery;
 use App\Queries\Comparisons\SymbolNavHistoryChartQuery;
@@ -25,12 +25,12 @@ class CompareSymbolsServiceTest extends TestCase
     {
         parent::setUp();
 
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_nav_histories')->truncate();
-        DB::table('etf_aum_histories')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
 
         $this->service = new CompareSymbolsService(
 
@@ -47,23 +47,23 @@ class CompareSymbolsServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_nav_histories')->truncate();
-        DB::table('etf_aum_histories')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
 
         parent::tearDown();
     }
 
     public function test_it_returns_comparison_data()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => now(),
 
@@ -71,9 +71,9 @@ class CompareSymbolsServiceTest extends TestCase
 
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -151,7 +151,7 @@ class CompareSymbolsServiceTest extends TestCase
 
     public function test_it_returns_invalid_symbols()
     {
-        $this->createEtf('CHPY');
+        $this->createSecurity('CHPY');
 
         $data = $this->service->getData(
 
@@ -177,11 +177,11 @@ class CompareSymbolsServiceTest extends TestCase
 
     public function test_it_uses_correct_range_type_for_5d()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::FIVE_DAY,
 
@@ -210,11 +210,11 @@ class CompareSymbolsServiceTest extends TestCase
 
     public function test_it_uses_correct_range_type_for_1y()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::ONE_YEAR,
 
@@ -243,11 +243,11 @@ class CompareSymbolsServiceTest extends TestCase
 
     public function test_it_uses_return_metric_for_chart_value()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -276,11 +276,11 @@ class CompareSymbolsServiceTest extends TestCase
 
     public function test_it_uses_aum_metric_for_chart_value()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -304,11 +304,11 @@ class CompareSymbolsServiceTest extends TestCase
 
     public function test_it_uses_nav_metric_for_chart_value()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -337,11 +337,11 @@ class CompareSymbolsServiceTest extends TestCase
 
     public function test_it_defaults_to_price_metric()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => now(),
 
@@ -363,11 +363,11 @@ class CompareSymbolsServiceTest extends TestCase
 
     public function test_it_generates_price_chart_rows()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => now(),
 
@@ -396,11 +396,11 @@ class CompareSymbolsServiceTest extends TestCase
 
     public function test_it_generates_income_chart_rows()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => now(),
 
@@ -429,11 +429,11 @@ class CompareSymbolsServiceTest extends TestCase
 
     public function test_it_generates_nav_chart_rows()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfNavHistory::factory()->create([
+        SecurityNavHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'nav_date' => now(),
 
@@ -462,11 +462,11 @@ class CompareSymbolsServiceTest extends TestCase
 
     public function test_it_generates_aum_chart_rows()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfAumHistory::factory()->create([
+        SecurityAumHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'aum_date' => now(),
 
@@ -493,13 +493,13 @@ class CompareSymbolsServiceTest extends TestCase
         );
     }
 
-    private function createEtf(string $symbol): Etf
+    private function createSecurity(string $symbol): Security
     {
-        return Etf::factory()->create([
+        return Security::factory()->create([
 
             'symbol' => $symbol,
 
-            'fund_name' => "{$symbol} Test ETF",
+            'name' => "{$symbol} Test Security",
 
         ]);
     }

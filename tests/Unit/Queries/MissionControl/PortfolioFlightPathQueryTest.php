@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Queries\MissionControl;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfPriceHistory;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityPriceHistory;
 use App\Models\Status;
 use App\Models\User;
 use App\Queries\MissionControl\PortfolioFlightPathQuery;
@@ -22,9 +22,9 @@ class PortfolioFlightPathQueryTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow('2026-05-18');
@@ -36,9 +36,9 @@ class PortfolioFlightPathQueryTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -69,52 +69,51 @@ class PortfolioFlightPathQueryTest extends TestCase
             'portfolio_name' => 'Income Rocket',
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test ETF',
             'status_id' => Status::ACTIVE,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 20,
             'transaction_date' => '2026-03-15',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-03-31',
             'close_price' => '25.0000',
             'volume' => 100000,
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-04-30',
             'close_price' => '30.0000',
             'volume' => 100000,
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-15',
             'close_price' => '35.0000',
             'volume' => 100000,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.5000',
             'ex_dividend_date' => '2026-04-10',
             'payment_date' => '2026-04-11',
             'data_source_id' => 1,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.6000',
             'ex_dividend_date' => '2026-05-10',
             'payment_date' => '2026-05-11',
@@ -148,15 +147,14 @@ class PortfolioFlightPathQueryTest extends TestCase
             'portfolio_name' => 'Sell Test Portfolio',
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'AMDY',
-            'fund_name' => 'AMDY Test ETF',
             'status_id' => Status::ACTIVE,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 20,
@@ -165,29 +163,29 @@ class PortfolioFlightPathQueryTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 2,
             'shares' => 4,
             'price_per_share' => 25,
             'transaction_date' => '2026-04-15',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-03-31',
             'close_price' => '20.0000',
             'volume' => 100000,
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-04-30',
             'close_price' => '30.0000',
             'volume' => 100000,
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-15',
             'close_price' => '40.0000',
             'volume' => 100000,
@@ -210,15 +208,15 @@ class PortfolioFlightPathQueryTest extends TestCase
             'portfolio_name' => 'Dividend Sell Test Portfolio',
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'CHPY',
-            'fund_name' => 'CHPY Test ETF',
+            'fund_name' => 'CHPY Test Security',
             'status_id' => Status::ACTIVE,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 20,
@@ -227,36 +225,36 @@ class PortfolioFlightPathQueryTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 2,
             'shares' => 4,
             'price_per_share' => 25,
             'transaction_date' => '2026-04-05',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-03-31',
             'close_price' => '20.0000',
             'volume' => 100000,
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-04-30',
             'close_price' => '30.0000',
             'volume' => 100000,
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-15',
             'close_price' => '40.0000',
             'volume' => 100000,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.5000',
             'ex_dividend_date' => '2026-04-10',
             'payment_date' => '2026-04-11',
@@ -278,30 +276,30 @@ class PortfolioFlightPathQueryTest extends TestCase
             'portfolio_name' => 'Price Fallback Portfolio',
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'GOOY',
-            'fund_name' => 'GOOY Test ETF',
+            'fund_name' => 'GOOY Test Security',
             'status_id' => Status::ACTIVE,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 20,
             'transaction_date' => '2026-03-01',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-03-20',
             'close_price' => '22.0000',
             'volume' => 100000,
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-04-20',
             'close_price' => '24.0000',
             'volume' => 100000,

@@ -3,8 +3,8 @@
 namespace App\Services\AI\Extractions;
 
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
 use App\Models\EtfAumHistory;
+use App\Models\Security;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -20,16 +20,16 @@ class ProcessAiEtfAumExtractionService
 
                 function () use ($extraction) {
 
-                    $etf =
+                    $security =
 
-                        Etf::find(
-                            $extraction->etf_id
+                        Security::find(
+                            $extraction->security_id
                         );
 
-                    if (! $etf) {
+                    if (! $security) {
 
                         throw new \RuntimeException(
-                            'ETF not found for AI AUM extraction.'
+                            'Security not found for AI AUM extraction.'
                         );
                     }
 
@@ -45,7 +45,7 @@ class ProcessAiEtfAumExtractionService
                     }
 
                     $this->validateSymbol(
-                        $etf,
+                        $security,
                         $data
                     );
 
@@ -91,7 +91,7 @@ class ProcessAiEtfAumExtractionService
     }
 
     private function validateSymbol(
-        Etf $etf,
+        Security $security,
         array $data
     ): void {
 
@@ -105,12 +105,12 @@ class ProcessAiEtfAumExtractionService
         if (
 
             strtoupper($data['symbol']) !==
-            strtoupper($etf->symbol)
+            strtoupper($security->symbol)
 
         ) {
 
             throw new \RuntimeException(
-                'Extracted symbol does not match ETF symbol.'
+                'Extracted symbol does not match Security symbol.'
             );
         }
     }
@@ -155,7 +155,7 @@ class ProcessAiEtfAumExtractionService
 
             [
 
-                'etf_id' => $extraction->etf_id,
+                'security_id' => $extraction->security_id,
 
                 'aum_date' => $aumDate,
 

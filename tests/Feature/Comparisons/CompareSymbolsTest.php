@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Comparisons;
 
-use App\Models\Etf;
-use App\Models\EtfAumHistory;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfMetric;
-use App\Models\EtfNavHistory;
-use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
+use App\Models\Security;
+use App\Models\SecurityAumHistory;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityMetric;
+use App\Models\SecurityNavHistory;
+use App\Models\SecurityPriceHistory;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
@@ -20,23 +20,23 @@ class CompareSymbolsTest extends TestCase
     {
         parent::setUp();
 
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_nav_histories')->truncate();
-        DB::table('etf_aum_histories')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_nav_histories')->truncate();
-        DB::table('etf_aum_histories')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -48,17 +48,17 @@ class CompareSymbolsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
 
             'symbol' => 'CHPY',
 
-            'fund_name' => 'CHPY Test ETF',
+            'fund_name' => 'CHPY Test Security',
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => now(),
 
@@ -66,9 +66,9 @@ class CompareSymbolsTest extends TestCase
 
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -247,7 +247,7 @@ class CompareSymbolsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        Etf::factory()->create([
+        Security::factory()->create([
 
             'symbol' => 'CHPY',
 
@@ -287,15 +287,15 @@ class CompareSymbolsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
 
             'symbol' => 'CHPY',
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => now(),
 
@@ -326,15 +326,15 @@ class CompareSymbolsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
 
             'symbol' => 'CHPY',
 
         ]);
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => now(),
 
@@ -365,15 +365,15 @@ class CompareSymbolsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
 
             'symbol' => 'CHPY',
 
         ]);
 
-        EtfNavHistory::factory()->create([
+        SecurityNavHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'nav_date' => now(),
 
@@ -404,15 +404,15 @@ class CompareSymbolsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
 
             'symbol' => 'CHPY',
 
         ]);
 
-        EtfAumHistory::factory()->create([
+        SecurityAumHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'aum_date' => now(),
 
@@ -443,15 +443,15 @@ class CompareSymbolsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
 
             'symbol' => 'CHPY',
 
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::ONE_YEAR,
 

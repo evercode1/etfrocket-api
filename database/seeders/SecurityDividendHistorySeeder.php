@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\DataSource;
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
 use Illuminate\Database\Seeder;
 
 // NOTE:
@@ -12,13 +12,13 @@ use Illuminate\Database\Seeder;
 // testing, and UI prototyping. It should not be treated as accurate
 // market data.
 
-class EtfDividendHistorySeeder extends Seeder
+class SecurityDividendHistorySeeder extends Seeder
 {
     public function run(): void
     {
         $dataSourceId = DataSource::MANUAL_ENTRY;
 
-        EtfDividendHistory::truncate();
+        SecurityDividendHistory::truncate();
 
         $rows = [
             'CHPY' => [
@@ -77,16 +77,16 @@ class EtfDividendHistorySeeder extends Seeder
         ];
 
         foreach ($rows as $symbol => $dividends) {
-            $etf = Etf::where('symbol', $symbol)->first();
+            $security = Security::where('symbol', $symbol)->first();
 
-            if (! $etf) {
+            if (! $security) {
                 continue;
             }
 
             foreach ($dividends as $dividend) {
-                EtfDividendHistory::updateOrCreate(
+                SecurityDividendHistory::updateOrCreate(
                     [
-                        'etf_id' => $etf->id,
+                        'security_id' => $security->id,
                         'ex_dividend_date' => $dividend['ex_date'],
                     ],
                     [

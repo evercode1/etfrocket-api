@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\PortfolioStats;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\PortfolioStats\PortfolioDividendStatsService;
@@ -25,8 +25,8 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -34,8 +34,8 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -57,15 +57,15 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $weeklyEtf = $this->createEtf('NVII', 2);
-        $monthlyEtf = $this->createEtf('JEPI', 4);
+        $weeklySecurity = $this->createSecurity('NVII', 2);
+        $monthlySecurity = $this->createSecurity('JEPI', 4);
 
-        $this->createTransaction($portfolio->id, $weeklyEtf->id, 1, 10, 25);
-        $this->createTransaction($portfolio->id, $monthlyEtf->id, 1, 5, 50);
+        $this->createTransaction($portfolio->id, $weeklySecurity->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $monthlySecurity->id, 1, 5, 50);
 
-        $this->createDividend($weeklyEtf->id, '0.5000', '2026-05-15');
-        $this->createDividend($weeklyEtf->id, '0.4000', '2026-05-08');
-        $this->createDividend($monthlyEtf->id, '1.0000', '2026-05-01');
+        $this->createDividend($weeklySecurity->id, '0.5000', '2026-05-15');
+        $this->createDividend($weeklySecurity->id, '0.4000', '2026-05-08');
+        $this->createDividend($monthlySecurity->id, '1.0000', '2026-05-01');
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -74,8 +74,8 @@ class PortfolioDividendStatsServiceTest extends TestCase
             Carbon::parse('2026-05-01')
         );
 
-        // Weekly ETF: 10 shares * (.50 + .40) = 9.00
-        // Monthly ETF: 5 shares * 1.00 = 5.00
+        // Weekly Security: 10 shares * (.50 + .40) = 9.00
+        // Monthly Security: 5 shares * 1.00 = 5.00
         // Total = 14.00
         $this->assertSame(14.0, $income);
     }
@@ -84,13 +84,13 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII', 2);
+        $security = $this->createSecurity('NVII', 2);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
 
-        $this->createDividend($etf->id, '0.5000', '2026-05-15');
-        $this->createDividend($etf->id, '0.3000', '2026-04-15');
-        $this->createDividend($etf->id, '0.7000', '2026-06-15');
+        $this->createDividend($security->id, '0.5000', '2026-05-15');
+        $this->createDividend($security->id, '0.3000', '2026-04-15');
+        $this->createDividend($security->id, '0.7000', '2026-06-15');
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -106,12 +106,12 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII', 2);
+        $security = $this->createSecurity('NVII', 2);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
 
-        $this->createDividend($etf->id, '1.0000', '2026-05-15');
-        $this->createDividend($etf->id, '0.5000', '2026-04-15');
+        $this->createDividend($security->id, '1.0000', '2026-05-15');
+        $this->createDividend($security->id, '0.5000', '2026-04-15');
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -131,12 +131,12 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII', 2);
+        $security = $this->createSecurity('NVII', 2);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
 
-        $this->createDividend($etf->id, '1.0000', '2026-05-15');
-        $this->createDividend($etf->id, '0.5000', '2026-04-15');
+        $this->createDividend($security->id, '1.0000', '2026-05-15');
+        $this->createDividend($security->id, '0.5000', '2026-04-15');
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -150,9 +150,9 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NODEV', 2);
+        $security = $this->createSecurity('NODEV', 2);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -168,12 +168,12 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII', 2);
+        $security = $this->createSecurity('NVII', 2);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
 
-        $this->createDividend($etf->id, '1.0000', '2026-03-15');
-        $this->createDividend($etf->id, '1.5000', '2026-04-15');
+        $this->createDividend($security->id, '1.0000', '2026-03-15');
+        $this->createDividend($security->id, '1.5000', '2026-04-15');
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -188,12 +188,12 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII', 2);
+        $security = $this->createSecurity('NVII', 2);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
 
-        $this->createDividend($etf->id, '1.0000', '2026-03-15');
-        $this->createDividend($etf->id, '0.7500', '2026-04-15');
+        $this->createDividend($security->id, '1.0000', '2026-03-15');
+        $this->createDividend($security->id, '0.7500', '2026-04-15');
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -208,11 +208,11 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII', 2);
+        $security = $this->createSecurity('NVII', 2);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
 
-        $this->createDividend($etf->id, '1.0000', '2026-05-15');
+        $this->createDividend($security->id, '1.0000', '2026-05-15');
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -283,14 +283,14 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $firstEtf = $this->createEtf('NVII', 2);
-        $secondEtf = $this->createEtf('JEPI', 4);
+        $firstSecurity = $this->createSecurity('NVII', 2);
+        $secondSecurity = $this->createSecurity('JEPI', 4);
 
-        $this->createTransaction($portfolio->id, $firstEtf->id, 1, 10, 25);
-        $this->createTransaction($portfolio->id, $secondEtf->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $firstSecurity->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $secondSecurity->id, 1, 10, 25);
 
-        $this->createDividend($firstEtf->id, '0.5000', '2026-04-15');
-        $this->createDividend($secondEtf->id, '1.0000', '2026-05-15');
+        $this->createDividend($firstSecurity->id, '0.5000', '2026-04-15');
+        $this->createDividend($secondSecurity->id, '1.0000', '2026-05-15');
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -304,9 +304,9 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NODEV', 2);
+        $security = $this->createSecurity('NODEV', 2);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -320,12 +320,12 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('SELL', 2);
+        $security = $this->createSecurity('SELL', 2);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
-        $this->createTransaction($portfolio->id, $etf->id, 2, 4, 30);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 2, 4, 30);
 
-        $this->createDividend($etf->id, '1.0000', '2026-05-15');
+        $this->createDividend($security->id, '1.0000', '2026-05-15');
 
         $holdings = $this->getHoldings($portfolio->id);
 
@@ -347,11 +347,11 @@ class PortfolioDividendStatsServiceTest extends TestCase
         ]);
     }
 
-    private function createEtf(string $symbol, int $frequencyId): Etf
+    private function createSecurity(string $symbol, int $frequencyId): Security
     {
-        return Etf::factory()->create([
+        return Security::factory()->create([
             'symbol' => $symbol,
-            'fund_name' => "{$symbol} Test ETF",
+            'fund_name' => "{$symbol} Test Security",
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => $frequencyId,
         ]);
@@ -359,14 +359,14 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
     private function createTransaction(
         int $portfolioId,
-        int $etfId,
+        int $securityId,
         int $transactionTypeId,
         float $shares,
         float $pricePerShare
     ): PortfolioTransaction {
         return PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolioId,
-            'etf_id' => $etfId,
+            'security_id' => $securityId,
             'transaction_type_id' => $transactionTypeId,
             'shares' => $shares,
             'price_per_share' => $pricePerShare,
@@ -375,12 +375,12 @@ class PortfolioDividendStatsServiceTest extends TestCase
     }
 
     private function createDividend(
-        int $etfId,
+        int $securityId,
         string $amount,
         string $exDividendDate
-    ): EtfDividendHistory {
-        return EtfDividendHistory::factory()->create([
-            'etf_id' => $etfId,
+    ): SecurityDividendHistory {
+        return SecurityDividendHistory::factory()->create([
+            'security_id' => $securityId,
             'dividend_amount' => $amount,
             'ex_dividend_date' => $exDividendDate,
             'payment_date' => Carbon::parse($exDividendDate)->addDay()->toDateString(),
@@ -399,12 +399,12 @@ class PortfolioDividendStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII', 2);
+        $security = $this->createSecurity('NVII', 2);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.0000',
             'ex_dividend_date' => '2026-05-15',
             'payment_date' => '2026-05-16',

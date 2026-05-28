@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('etf_aum_histories', function (Blueprint $table) {
+        Schema::create('security_aum_histories', function (Blueprint $table) {
 
             $table->id();
             $table->unsignedInteger('security_id')->index();
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('etf_aum_histories');
+        Schema::dropIfExists('security_aum_histories');
     }
 };
