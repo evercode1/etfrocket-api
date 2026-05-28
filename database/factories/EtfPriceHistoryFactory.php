@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\EtfPriceHistory;
 use App\Models\DataSource;
+use App\Models\EtfPriceHistory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +20,7 @@ class EtfPriceHistoryFactory extends Factory
     {
         return [
 
-            'etf_id' => rand(1,7),
+            'etf_id' => rand(1, 7),
 
             'price_date' => $this->faker->unique()->date(),
 

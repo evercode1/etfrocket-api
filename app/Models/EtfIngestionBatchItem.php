@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\EtfIngestionBatchItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class EtfIngestionBatchItem extends Model
 {
-    /** @use HasFactory<\Database\Factories\EtfIngestionBatchItemFactory> */
+    /** @use HasFactory<EtfIngestionBatchItemFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -30,10 +31,9 @@ class EtfIngestionBatchItem extends Model
 
         'started_at',
 
-        'completed_at'
+        'completed_at',
 
     ];
-
 
     protected function casts(): array
     {
@@ -41,7 +41,7 @@ class EtfIngestionBatchItem extends Model
         return [
 
             'created_at' => 'date:Y-m-d',
-            'updated_at' => 'date:Y-m-d'
+            'updated_at' => 'date:Y-m-d',
 
         ];
     }

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\EtfPriceHistoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class EtfPriceHistory extends Model
 {
-    /** @use HasFactory<\Database\Factories\EtfPriceHistoryFactory> */
+    /** @use HasFactory<EtfPriceHistoryFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -17,7 +18,7 @@ class EtfPriceHistory extends Model
         'close_price',
         'volume',
         'data_source_id',
-        'retrieved_at'
+        'retrieved_at',
 
     ];
 
@@ -29,7 +30,7 @@ class EtfPriceHistory extends Model
             'created_at' => 'date:Y-m-d',
             'updated_at' => 'date:Y-m-d',
             'price_date' => 'date:Y-m-d',
-            'retrieved_at' => 'date:Y-m-d'
+            'retrieved_at' => 'date:Y-m-d',
 
         ];
     }

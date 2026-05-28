@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\User\Portfolios\PortfoliosController;
 use App\Http\Controllers\User\Portfolios\PortfolioTransactionsController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +14,6 @@ use App\Http\Controllers\User\Portfolios\PortfolioTransactionsController;
 */
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-
 
     // Portfolios
 
@@ -35,9 +33,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::delete('/delete-portfolio/{id}', [PortfoliosController::class, 'deletePortfolio']);
 
-
     // portfolio Transactions
-
 
     Route::get('/list-portfolio-transactions/{portfolio_id}', [PortfolioTransactionsController::class, 'listPortfolioTransactions']);
 

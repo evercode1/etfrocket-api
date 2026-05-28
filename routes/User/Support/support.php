@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\User\Support\UserSupportController;
 use App\Http\Controllers\User\Support\UserHelpArticleController;
+use App\Http\Controllers\User\Support\UserSupportController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +14,6 @@ use App\Http\Controllers\User\Support\UserHelpArticleController;
 */
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-
 
     // Support
 

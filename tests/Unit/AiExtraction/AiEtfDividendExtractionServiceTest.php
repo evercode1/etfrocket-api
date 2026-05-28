@@ -12,8 +12,7 @@ use Tests\TestCase;
 
 class AiEtfDividendExtractionServiceTest extends TestCase
 {
-    private AiEtfDividendExtractionService
-        $service;
+    private AiEtfDividendExtractionService $service;
 
     protected function setUp(): void
     {
@@ -52,9 +51,7 @@ class AiEtfDividendExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([
+            'https://api.openai.com/v1/responses' => Http::response([
 
                 'output' => [
 
@@ -93,9 +90,9 @@ class AiEtfDividendExtractionServiceTest extends TestCase
 
         $extraction =
             $this->service
-            ->extract(
-                $etf
-            );
+                ->extract(
+                    $etf
+                );
 
         $this->assertInstanceOf(
             AiDataExtraction::class,
@@ -116,9 +113,7 @@ class AiEtfDividendExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([], 500),
+            'https://api.openai.com/v1/responses' => Http::response([], 500),
 
         ]);
 

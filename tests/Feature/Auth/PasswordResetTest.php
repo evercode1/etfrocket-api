@@ -73,8 +73,7 @@ class PasswordResetTest extends TestCase
 
             ->assertJson([
 
-                'message' =>
-                'Your Password has been updated',
+                'message' => 'Your Password has been updated',
 
             ]);
 
@@ -209,8 +208,7 @@ class PasswordResetTest extends TestCase
 
                 'password' => 'new-password',
 
-                'password_confirmation' =>
-                'different-password',
+                'password_confirmation' => 'different-password',
 
             ]
         );

@@ -56,7 +56,7 @@ class EtfComparisonServiceTest extends TestCase
 
     public function test_it_resolves_default_metric_and_range(): void
     {
-        $service = new EtfComparisonService();
+        $service = new EtfComparisonService;
 
         $this->assertSame('price', $service->resolveMetric(null));
         $this->assertSame('1y', $service->resolveRange(null));

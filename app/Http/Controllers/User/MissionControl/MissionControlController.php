@@ -4,10 +4,10 @@ namespace App\Http\Controllers\User\MissionControl;
 
 use App\Http\Controllers\Controller;
 use App\Models\Portfolio;
-use Illuminate\Http\Request;
 use App\Queries\MissionControl\MissionControlQuery;
 use App\Queries\MissionControl\PortfolioIncomeProjectionQuery;
 use App\Utilities\Auth;
+use Illuminate\Http\Request;
 
 class MissionControlController extends Controller
 {
@@ -15,7 +15,7 @@ class MissionControlController extends Controller
     {
         try {
 
-            $mission_control = (new MissionControlQuery())->getData($request->input('portfolio_id'));
+            $mission_control = (new MissionControlQuery)->getData($request->input('portfolio_id'));
         } catch (\Exception $e) {
 
             return response()->json([
@@ -29,7 +29,7 @@ class MissionControlController extends Controller
         return response()->json([
 
             'success' => true,
-            'data' => $mission_control
+            'data' => $mission_control,
 
         ], 200);
     }
@@ -58,7 +58,7 @@ class MissionControlController extends Controller
         return response()->json([
 
             'success' => true,
-            'data' => $selects
+            'data' => $selects,
 
         ], 200);
     }
@@ -66,7 +66,7 @@ class MissionControlController extends Controller
     public function portfolioIncomeProjection(int $portfolio_id)
     {
         try {
-            $data = (new PortfolioIncomeProjectionQuery())->getData($portfolio_id);
+            $data = (new PortfolioIncomeProjectionQuery)->getData($portfolio_id);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

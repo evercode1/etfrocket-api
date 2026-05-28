@@ -9,7 +9,7 @@ class RunAiEtfNavExtractions extends Command
 {
     protected $signature =
 
-    'etfs:run-ai-nav-extraction
+        'etfs:run-ai-nav-extraction
 
         {--symbol= : Run extraction for a single ETF symbol}
 
@@ -19,7 +19,7 @@ class RunAiEtfNavExtractions extends Command
 
     protected $description =
 
-    'Run AI ETF NAV extraction and process extracted ETF NAV data.';
+        'Run AI ETF NAV extraction and process extracted ETF NAV data.';
 
     public function handle(): void
     {
@@ -27,21 +27,15 @@ class RunAiEtfNavExtractions extends Command
 
         $payload = [
 
-            'symbol' =>
-
-            $this->option(
+            'symbol' => $this->option(
                 'symbol'
             ),
 
-            'limit' =>
-
-            $this->option(
+            'limit' => $this->option(
                 'limit'
             ),
 
-            'force' =>
-
-            $this->option(
+            'force' => $this->option(
                 'force'
             ),
 

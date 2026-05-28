@@ -82,26 +82,24 @@ class FinalizeAiSignalBatchJobTest extends TestCase
     {
         $batch =
             AiSignalBatch::factory()
-            ->create([
+                ->create([
 
-                'total_signals' => 1,
+                    'total_signals' => 1,
 
-                'processed_count' => 1,
+                    'processed_count' => 1,
 
-                'success_count' => 1,
+                    'success_count' => 1,
 
-                'failure_count' => 0,
+                    'failure_count' => 0,
 
-            ]);
+                ]);
 
         AiSignalBatchItem::factory()
             ->create([
 
-                'ai_signal_batch_id' =>
-                $batch->id,
+                'ai_signal_batch_id' => $batch->id,
 
-                'status_id' =>
-                Status::COMPLETED,
+                'status_id' => Status::COMPLETED,
 
                 'is_processed' => true,
 
@@ -112,8 +110,7 @@ class FinalizeAiSignalBatchJobTest extends TestCase
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_SNAPSHOT,
+                'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
             ]);
 
@@ -150,33 +147,30 @@ class FinalizeAiSignalBatchJobTest extends TestCase
     {
         $batch =
             AiSignalBatch::factory()
-            ->create([
+                ->create([
 
-                'total_signals' => 1,
+                    'total_signals' => 1,
 
-                'processed_count' => 1,
+                    'processed_count' => 1,
 
-                'success_count' => 0,
+                    'success_count' => 0,
 
-                'failure_count' => 1,
+                    'failure_count' => 1,
 
-            ]);
+                ]);
 
         AiSignalBatchItem::factory()
             ->create([
 
-                'ai_signal_batch_id' =>
-                $batch->id,
+                'ai_signal_batch_id' => $batch->id,
 
-                'status_id' =>
-                Status::FAILED,
+                'status_id' => Status::FAILED,
 
                 'is_processed' => true,
 
                 'is_success' => false,
 
-                'error_message' =>
-                'Test failure',
+                'error_message' => 'Test failure',
 
             ]);
 

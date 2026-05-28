@@ -2,14 +2,13 @@
 
 namespace App\Services\Auth;
 
-use App\Models\User;
 use App\Models\PasswordResetToken;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class ResetPasswordService
 {
-
     public function passwordReset($request)
     {
 
@@ -17,7 +16,7 @@ class ResetPasswordService
 
             'password' => 'required|string|confirmed',
             'email' => 'required|email',
-            'token' => 'required|string'
+            'token' => 'required|string',
 
         ]);
 
@@ -31,8 +30,8 @@ class ResetPasswordService
 
             return response()->json([
 
-                "status" => "error",
-                "message" => 'invalid credentials',
+                'status' => 'error',
+                'message' => 'invalid credentials',
 
             ], 401);
         }

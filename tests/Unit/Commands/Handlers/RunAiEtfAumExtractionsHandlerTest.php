@@ -3,10 +3,8 @@
 namespace Tests\Unit\Commands\Handlers;
 
 use App\Jobs\RunAiEtfAumExtractionJob;
-use App\Models\AiDataExtraction;
 use App\Models\Etf;
 use App\Models\EtfAumHistory;
-use App\Models\EtfIngestionBatch;
 use App\Models\ImportType;
 use App\Models\Status;
 use App\Services\Crons\Handlers\RunAiEtfAumExtractionsHandler;
@@ -19,8 +17,7 @@ use Tests\TestCase;
 
 class RunAiEtfAumExtractionsHandlerTest extends TestCase
 {
-    private RunAiEtfAumExtractionsHandler
-        $handler;
+    private RunAiEtfAumExtractionsHandler $handler;
 
     protected function setUp(): void
     {
@@ -84,7 +81,7 @@ class RunAiEtfAumExtractionsHandlerTest extends TestCase
 
         $results =
             $this->handler
-            ->handleRunAiEtfAumExtractions();
+                ->handleRunAiEtfAumExtractions();
 
         $this->assertEquals(
             1,
@@ -112,11 +109,9 @@ class RunAiEtfAumExtractionsHandlerTest extends TestCase
 
             [
 
-                'import_type_id' =>
-                ImportType::AI_DATA_EXTRACTION,
+                'import_type_id' => ImportType::AI_DATA_EXTRACTION,
 
-                'status_id' =>
-                Status::PENDING,
+                'status_id' => Status::PENDING,
 
                 'total_etfs' => 2,
 
@@ -132,34 +127,28 @@ class RunAiEtfAumExtractionsHandlerTest extends TestCase
             Etf::where(
                 'status_id',
                 Status::ACTIVE
-            )->get()
-
-            as $etf
+            )->get() as $etf
 
         ) {
 
             EtfAumHistory::create([
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'assets_under_management' =>
-                100000000,
+                'assets_under_management' => 100000000,
 
-                'aum_date' =>
-                now()->toDateString(),
+                'aum_date' => now()->toDateString(),
 
                 'data_source_id' => 1,
 
-                'retrieved_at' =>
-                now(),
+                'retrieved_at' => now(),
 
             ]);
         }
 
         $results =
             $this->handler
-            ->handleRunAiEtfAumExtractions();
+                ->handleRunAiEtfAumExtractions();
 
         $this->assertEquals(
             1,

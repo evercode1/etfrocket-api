@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -15,8 +14,8 @@ class CronFailureNotification extends Mailable
     use Queueable, SerializesModels;
 
     public $cron_name;
-    public $cron_failure_details;
 
+    public $cron_failure_details;
 
     /**
      * Create a new message instance.
@@ -27,6 +26,7 @@ class CronFailureNotification extends Mailable
         $this->cron_failure_details = $cron_failure_details;
         $this->cron_name = $cron_name;
     }
+
     /**
      * Get the message envelope.
      */
@@ -49,7 +49,7 @@ class CronFailureNotification extends Mailable
             with: [
 
                 'cron_name' => $this->cron_name,
-                'cron_failure_details' => $this->cron_failure_details
+                'cron_failure_details' => $this->cron_failure_details,
 
             ],
         );

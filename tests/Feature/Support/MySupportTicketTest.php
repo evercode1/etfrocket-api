@@ -60,7 +60,7 @@ class MySupportTicketTest extends TestCase
             'response_text' => 'Thanks, we are looking into this.',
         ]);
 
-        $response = $this->getJson('/api/my-support-ticket/' . $ticket->id);
+        $response = $this->getJson('/api/my-support-ticket/'.$ticket->id);
 
         $response->assertOk()
             ->assertJson([

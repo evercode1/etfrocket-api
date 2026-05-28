@@ -379,8 +379,7 @@ class BackTestingTest extends TestCase
 
             'symbol' => $symbol,
 
-            'fund_name' =>
-            "{$symbol} Test ETF",
+            'fund_name' => "{$symbol} Test ETF",
 
         ]);
     }

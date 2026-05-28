@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Dev\ExternalSeeders;
 
+use App\Http\Controllers\Controller;
 use App\Models\PerformanceRangeType;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 
 class PerformanceRangeTypesSeederController extends Controller
 {

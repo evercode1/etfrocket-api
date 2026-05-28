@@ -12,13 +12,9 @@ class AiSignalBatchFactory extends Factory
     {
         return [
 
-            'batch_uuid' =>
+            'batch_uuid' => Str::uuid()->toString(),
 
-            Str::uuid()->toString(),
-
-            'status_id' =>
-
-            Status::PENDING,
+            'status_id' => Status::PENDING,
 
             'total_signals' => 3,
 
@@ -30,8 +26,7 @@ class AiSignalBatchFactory extends Factory
 
             'passed_data_integrity_check' => false,
 
-            'processing_notes' =>
-            'AI signal batch queued.',
+            'processing_notes' => 'AI signal batch queued.',
 
             'import_fail_details' => null,
 

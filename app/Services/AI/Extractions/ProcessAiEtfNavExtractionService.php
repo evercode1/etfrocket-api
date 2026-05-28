@@ -64,9 +64,7 @@ class ProcessAiEtfNavExtractionService
 
                         'failure_reason' => null,
 
-                        'validation_notes' =>
-
-                        'AI ETF NAV extraction processed successfully.',
+                        'validation_notes' => 'AI ETF NAV extraction processed successfully.',
 
                     ]);
 
@@ -82,12 +80,9 @@ class ProcessAiEtfNavExtractionService
 
                 'failed_at' => now(),
 
-                'failure_reason' =>
-                $e->getMessage(),
+                'failure_reason' => $e->getMessage(),
 
-                'validation_notes' =>
-
-                'AI ETF NAV extraction failed processing.',
+                'validation_notes' => 'AI ETF NAV extraction failed processing.',
 
             ]);
 
@@ -160,21 +155,17 @@ class ProcessAiEtfNavExtractionService
 
             [
 
-                'etf_id' =>
-                $extraction->etf_id,
+                'etf_id' => $extraction->etf_id,
 
-                'nav_date' =>
-                $navDate,
+                'nav_date' => $navDate,
 
             ],
 
             [
 
-                'nav_per_share' =>
-                $navPerShare,
+                'nav_per_share' => $navPerShare,
 
-                'data_source_id' =>
-                $extraction->data_source_id,
+                'data_source_id' => $extraction->data_source_id,
 
                 'retrieved_at' => now(),
 
@@ -191,7 +182,7 @@ class ProcessAiEtfNavExtractionService
         if (! is_numeric($value)) {
 
             throw new \RuntimeException(
-                $field . ' must be numeric.'
+                $field.' must be numeric.'
             );
         }
 
@@ -201,7 +192,7 @@ class ProcessAiEtfNavExtractionService
         if ($value <= 0) {
 
             throw new \RuntimeException(
-                $field . ' must be greater than zero.'
+                $field.' must be greater than zero.'
             );
         }
 
@@ -219,7 +210,7 @@ class ProcessAiEtfNavExtractionService
         if (! is_string($value)) {
 
             throw new \RuntimeException(
-                $field . ' must be a valid date string.'
+                $field.' must be a valid date string.'
             );
         }
 
@@ -233,7 +224,7 @@ class ProcessAiEtfNavExtractionService
         } catch (\Throwable $e) {
 
             throw new \RuntimeException(
-                $field . ' must be a valid date.'
+                $field.' must be a valid date.'
             );
         }
 
@@ -250,7 +241,7 @@ class ProcessAiEtfNavExtractionService
         ) {
 
             throw new \RuntimeException(
-                $field . ' is stale.'
+                $field.' is stale.'
             );
         }
 

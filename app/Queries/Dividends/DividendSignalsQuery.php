@@ -87,9 +87,9 @@ class DividendSignalsQuery
 
         return [
             'title' => 'Distribution Growth',
-            'message' => implode(', ', array_slice($affectedEtfs, 0, 3)) . ' showed recent distribution growth.',
+            'message' => implode(', ', array_slice($affectedEtfs, 0, 3)).' showed recent distribution growth.',
             'affected_etfs' => $affectedEtfs,
-            'observation' => 'The strongest recent distribution increase was ' . round($topGrowth, 2) . '% compared to the prior payout.',
+            'observation' => 'The strongest recent distribution increase was '.round($topGrowth, 2).'% compared to the prior payout.',
             'possible_causes' => [
                 'Higher options premium',
                 'Increased implied volatility',
@@ -211,7 +211,7 @@ class DividendSignalsQuery
                 'title' => 'Income Stability',
                 'message' => 'Portfolio income variance remains within healthy expected ranges.',
                 'affected_etfs' => ['Portfolio'],
-                'observation' => 'Recent monthly income spread is ' . round($spreadPercentage, 2) . '% across the evaluated window.',
+                'observation' => 'Recent monthly income spread is '.round($spreadPercentage, 2).'% across the evaluated window.',
                 'possible_causes' => [
                     'Diversified ETF income sources',
                     'Consistent weekly payer cadence',
@@ -224,7 +224,7 @@ class DividendSignalsQuery
             'title' => 'Income Stability',
             'message' => 'Portfolio income has shown noticeable variation across recent dividend cycles.',
             'affected_etfs' => ['Portfolio'],
-            'observation' => 'Recent monthly income spread is ' . round($spreadPercentage, 2) . '% across the evaluated window.',
+            'observation' => 'Recent monthly income spread is '.round($spreadPercentage, 2).'% across the evaluated window.',
             'possible_causes' => [
                 'Large distribution changes',
                 'Irregular payout timing',

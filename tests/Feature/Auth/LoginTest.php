@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Mail\VerifyEmail;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\VerifyEmail;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
@@ -24,7 +24,6 @@ class LoginTest extends TestCase
     {
         DB::table('users')->truncate();
         DB::table('user_verifications')->truncate();
-
 
         parent::tearDown();
     }
@@ -65,8 +64,6 @@ class LoginTest extends TestCase
 
         ]);
 
-
-
         $payload = [
 
             'email' => $user->email,
@@ -92,7 +89,6 @@ class LoginTest extends TestCase
 
         ]);
 
-
         $payload = [
             'email' => $user->email,
             'password' => 'needverify',
@@ -103,7 +99,7 @@ class LoginTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'message' => 'Please verify your account.'
+            'message' => 'Please verify your account.',
         ]);
 
         Mail::assertSent(VerifyEmail::class);

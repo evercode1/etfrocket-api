@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Support;
 
-use App\Models\SupportTopic;
 use App\Models\User;
 use Database\Seeders\SupportTopicSeeder;
 use Illuminate\Support\Facades\DB;

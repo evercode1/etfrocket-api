@@ -8,7 +8,6 @@ use Carbon\Carbon;
 
 class MakeAdminUsersSeederController extends Controller
 {
-
     public function run()
     {
 
@@ -16,7 +15,6 @@ class MakeAdminUsersSeederController extends Controller
 
             return ['message' => 'ALLOW_SEEDS seeds set to false. Check your ENV file.'];
         }
-
 
         User::truncate();
 
@@ -30,7 +28,6 @@ class MakeAdminUsersSeederController extends Controller
             'is_admin' => 1,
             'email_verified_at' => Carbon::now()->subDays(6),
 
-
         ]);
 
         // Demo
@@ -43,10 +40,7 @@ class MakeAdminUsersSeederController extends Controller
             'is_admin' => 1,
             'email_verified_at' => Carbon::now()->subDays(6),
 
-
         ]);
-
-
 
         return ['message' => 'Admin Users Seeded'];
     }

@@ -70,8 +70,7 @@ class CompareSymbolsTest extends TestCase
 
             'etf_id' => $etf->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'total_return_percentage' => 24.80,
 
@@ -454,8 +453,7 @@ class CompareSymbolsTest extends TestCase
 
             'etf_id' => $etf->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::ONE_YEAR,
+            'performance_range_type_id' => PerformanceRangeType::ONE_YEAR,
 
             'total_return_percentage' => 44.44,
 

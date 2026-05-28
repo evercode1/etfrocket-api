@@ -1,12 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Admin\ExternalData\ExternalDataController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| 
+|
 |
 | Admin Etf Data ROUTES
 |--------------------------------------------------------------------------
@@ -15,7 +14,7 @@ use App\Http\Controllers\Admin\ExternalData\ExternalDataController;
 |
 */
 
-Route::group(['middleware' => ['allowExternalData']], function() {
+Route::group(['middleware' => ['allowExternalData']], function () {
 
     Route::post('/etf-data', [ExternalDataController::class, 'updateEtfData']);
 

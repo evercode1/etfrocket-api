@@ -8,8 +8,7 @@ return [
 
             'label' => 'Price Growth',
 
-            'metric_column' =>
-            'price_change_percentage',
+            'metric_column' => 'price_change_percentage',
 
             'sort_direction' => 'desc',
 
@@ -25,8 +24,7 @@ return [
 
             'label' => 'Forward Yield',
 
-            'metric_column' =>
-            'dividends_paid',
+            'metric_column' => 'dividends_paid',
 
             'sort_direction' => 'desc',
 
@@ -42,8 +40,7 @@ return [
 
             'label' => 'NAV Stability',
 
-            'metric_column' =>
-            'nav_erosion_percentage',
+            'metric_column' => 'nav_erosion_percentage',
 
             'sort_direction' => 'desc',
 
@@ -59,8 +56,7 @@ return [
 
             'label' => 'AUM Growth',
 
-            'metric_column' =>
-            'aum_change_percentage',
+            'metric_column' => 'aum_change_percentage',
 
             'sort_direction' => 'desc',
 
@@ -76,8 +72,7 @@ return [
 
             'label' => 'Total Return',
 
-            'metric_column' =>
-            'total_return_percentage',
+            'metric_column' => 'total_return_percentage',
 
             'sort_direction' => 'desc',
 

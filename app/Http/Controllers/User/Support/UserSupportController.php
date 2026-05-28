@@ -3,22 +3,21 @@
 namespace App\Http\Controllers\User\Support;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Rules\TicketResponseBelongsToUser;
-use App\Services\Support\ListMySupportTicketsService;
-use App\Services\Support\NewTicketFormConfigService;
-use App\Services\Support\NewResponseFormConfigService;
-use App\Services\Support\StoreSupportTicketService;
+use App\Models\TicketResponse;
 use App\Queries\Support\ShowResponseQuery;
 use App\Queries\Support\ShowSupportTicketQuery;
-use App\Services\Support\RespondToSupportService;
+use App\Rules\TicketResponseBelongsToUser;
+use App\Services\Support\ListMySupportTicketsService;
 use App\Services\Support\MarkAsReadService;
-use App\Models\TicketResponse;
+use App\Services\Support\NewResponseFormConfigService;
+use App\Services\Support\NewTicketFormConfigService;
+use App\Services\Support\RespondToSupportService;
+use App\Services\Support\StoreSupportTicketService;
 use App\Utilities\Auth;
+use Illuminate\Http\Request;
 
 class UserSupportController extends Controller
 {
-
     public function index(Request $request)
     {
 
@@ -68,7 +67,7 @@ class UserSupportController extends Controller
 
         $request->validate([
 
-            'ticket_response_id' => ['integer', 'required', new TicketResponseBelongsToUser($user_id)]
+            'ticket_response_id' => ['integer', 'required', new TicketResponseBelongsToUser($user_id)],
 
         ]);
 
@@ -82,7 +81,7 @@ class UserSupportController extends Controller
 
         $request->validate([
 
-            'ticket_response_id' => ['integer', 'required', new TicketResponseBelongsToUser($user_id)]
+            'ticket_response_id' => ['integer', 'required', new TicketResponseBelongsToUser($user_id)],
 
         ]);
 

@@ -12,8 +12,7 @@ use Tests\TestCase;
 
 class AiEtfPriceExtractionServiceTest extends TestCase
 {
-    private AiEtfPriceExtractionService
-        $service;
+    private AiEtfPriceExtractionService $service;
 
     protected function setUp(): void
     {
@@ -56,9 +55,7 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([
+            'https://api.openai.com/v1/responses' => Http::response([
 
                 'output' => [
 
@@ -95,9 +92,9 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
         $extraction =
             $this->service
-            ->extract(
-                $etf
-            );
+                ->extract(
+                    $etf
+                );
 
         $this->assertInstanceOf(
             AiDataExtraction::class,
@@ -133,9 +130,7 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([
+            'https://api.openai.com/v1/responses' => Http::response([
 
                 'output' => [
 
@@ -171,9 +166,9 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
         $extraction =
             $this->service
-            ->extract(
-                $etf
-            );
+                ->extract(
+                    $etf
+                );
 
         $this->assertEquals(
             $date,
@@ -192,9 +187,7 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([
+            'https://api.openai.com/v1/responses' => Http::response([
 
                 'output' => [
 
@@ -231,9 +224,9 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
         $extraction =
             $this->service
-            ->extract(
-                $etf
-            );
+                ->extract(
+                    $etf
+                );
 
         $this->assertEquals(
             987654,
@@ -252,9 +245,7 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([
+            'https://api.openai.com/v1/responses' => Http::response([
 
                 'output' => [
 
@@ -310,14 +301,11 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([
+            'https://api.openai.com/v1/responses' => Http::response([
 
                 'error' => [
 
-                    'message' =>
-                    'Bad request',
+                    'message' => 'Bad request',
 
                 ],
 
@@ -349,9 +337,7 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([
+            'https://api.openai.com/v1/responses' => Http::response([
 
                 'output' => [
 
@@ -361,8 +347,7 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-                                'INVALID_JSON',
+                                'text' => 'INVALID_JSON',
 
                             ],
 

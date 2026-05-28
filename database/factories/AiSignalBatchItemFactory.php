@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\AiSignalBatch;
 use App\Models\ImportType;
 use App\Models\SignalType;
 use App\Models\Status;
@@ -14,21 +13,13 @@ class AiSignalBatchItemFactory extends Factory
     {
         return [
 
-            'ai_signal_batch_id' =>
+            'ai_signal_batch_id' => 1,
 
-            1,
+            'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
-            'signal_type_id' =>
+            'import_type_id' => ImportType::MARKET_SNAPSHOT,
 
-            SignalType::MARKET_SNAPSHOT,
-
-            'import_type_id' =>
-
-            ImportType::MARKET_SNAPSHOT,
-
-            'status_id' =>
-
-            Status::PENDING,
+            'status_id' => Status::PENDING,
 
             'attempts' => 0,
 

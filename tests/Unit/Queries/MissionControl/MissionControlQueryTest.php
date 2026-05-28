@@ -50,7 +50,7 @@ class MissionControlQueryTest extends TestCase
             'is_default' => 0,
         ]);
 
-        $data = (new MissionControlQuery())->getData($selectedPortfolio->id);
+        $data = (new MissionControlQuery)->getData($selectedPortfolio->id);
 
         $this->assertArrayHasKey('portfolios', $data);
         $this->assertArrayHasKey('selected_portfolio', $data);
@@ -108,7 +108,7 @@ class MissionControlQueryTest extends TestCase
             'is_default' => 1,
         ]);
 
-        $data = (new MissionControlQuery())->getData();
+        $data = (new MissionControlQuery)->getData();
 
         $this->assertSame(
             $defaultPortfolio->id,
@@ -143,7 +143,7 @@ class MissionControlQueryTest extends TestCase
             'is_default' => 0,
         ]);
 
-        $data = (new MissionControlQuery())->getData();
+        $data = (new MissionControlQuery)->getData();
 
         $this->assertSame(
             $firstPortfolio->id,
@@ -180,7 +180,7 @@ class MissionControlQueryTest extends TestCase
             'is_default' => 1,
         ]);
 
-        $data = (new MissionControlQuery())->getData($otherUserPortfolio->id);
+        $data = (new MissionControlQuery)->getData($otherUserPortfolio->id);
 
         $this->assertSame(
             $defaultPortfolio->id,
@@ -201,7 +201,7 @@ class MissionControlQueryTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $data = (new MissionControlQuery())->getData();
+        $data = (new MissionControlQuery)->getData();
 
         $this->assertCount(0, $data['portfolios']);
 

@@ -70,7 +70,7 @@ class AdminSupportTicketTest extends TestCase
             'is_read' => 1,
         ]);
 
-        $response = $this->getJson('/api/support-ticket/' . $ticket->id);
+        $response = $this->getJson('/api/support-ticket/'.$ticket->id);
 
         $response->assertOk()
             ->assertJson([

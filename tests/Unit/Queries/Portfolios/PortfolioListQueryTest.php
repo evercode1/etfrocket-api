@@ -54,7 +54,7 @@ class PortfolioListQueryTest extends TestCase
             'is_default' => 1,
         ]);
 
-        $portfolios = (new PortfolioListQuery())->getData($user->id);
+        $portfolios = (new PortfolioListQuery)->getData($user->id);
 
         $this->assertCount(2, $portfolios);
 
@@ -89,7 +89,7 @@ class PortfolioListQueryTest extends TestCase
             'is_default' => 1,
         ]);
 
-        $portfolios = (new PortfolioListQuery())->getData($user->id);
+        $portfolios = (new PortfolioListQuery)->getData($user->id);
 
         $this->assertSame(
             ['Main Portfolio', 'Alpha Portfolio', 'Zulu Portfolio'],
@@ -101,7 +101,7 @@ class PortfolioListQueryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $portfolios = (new PortfolioListQuery())->getData($user->id);
+        $portfolios = (new PortfolioListQuery)->getData($user->id);
 
         $this->assertTrue($portfolios->isEmpty());
     }

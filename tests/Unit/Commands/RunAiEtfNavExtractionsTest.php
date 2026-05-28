@@ -102,8 +102,7 @@ class RunAiEtfNavExtractionsTest extends TestCase
 
             [
 
-                '--symbol' =>
-                'CHPY',
+                '--symbol' => 'CHPY',
 
             ]
 
@@ -152,27 +151,22 @@ class RunAiEtfNavExtractionsTest extends TestCase
     {
         EtfNavHistory::create([
 
-            'etf_id' =>
-            Etf::first()->id,
+            'etf_id' => Etf::first()->id,
 
-            'nav_per_share' =>
-            25.44,
+            'nav_per_share' => 25.44,
 
-            'nav_date' =>
-            now()->toDateString(),
+            'nav_date' => now()->toDateString(),
 
             'data_source_id' => 1,
 
-            'retrieved_at' =>
-            now(),
+            'retrieved_at' => now(),
 
         ]);
 
         AiDataExtraction::factory()
             ->create([
 
-                'created_at' =>
-                now(),
+                'created_at' => now(),
 
             ]);
 
@@ -203,27 +197,21 @@ class RunAiEtfNavExtractionsTest extends TestCase
             Etf::where(
                 'status_id',
                 Status::ACTIVE
-            )->get()
-
-            as $etf
+            )->get() as $etf
 
         ) {
 
             EtfNavHistory::create([
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'nav_per_share' =>
-                25.44,
+                'nav_per_share' => 25.44,
 
-                'nav_date' =>
-                now()->toDateString(),
+                'nav_date' => now()->toDateString(),
 
                 'data_source_id' => 1,
 
-                'retrieved_at' =>
-                now(),
+                'retrieved_at' => now(),
 
             ]);
         }

@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Jobs\FinalizeEtfPriceExtractionBatchJob;
 use App\Models\Etf;
 use App\Models\EtfIngestionBatch;
 use App\Models\EtfIngestionBatchItem;
@@ -32,11 +31,9 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
     public function handle(
 
-        AiEtfPriceExtractionService
-        $aiEtfPriceExtractionService,
+        AiEtfPriceExtractionService $aiEtfPriceExtractionService,
 
-        ProcessAiEtfPriceExtractionService
-        $processAiEtfPriceExtractionService
+        ProcessAiEtfPriceExtractionService $processAiEtfPriceExtractionService
 
     ): void {
 
@@ -58,16 +55,14 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
                 $this->batchId
 
             )
+                ->where(
 
-            ->where(
+                    'etf_id',
 
-                'etf_id',
+                    $this->etfId
 
-                $this->etfId
-
-            )
-
-            ->firstOrFail();
+                )
+                ->firstOrFail();
 
         try {
 
@@ -79,24 +74,19 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
             $batchItem->update([
 
-                'status_id' =>
-                Status::PROCESSING,
+                'status_id' => Status::PROCESSING,
 
-                'attempts' =>
-                $batchItem->attempts + 1,
+                'attempts' => $batchItem->attempts + 1,
 
-                'started_at' =>
-                now(),
+                'started_at' => now(),
 
             ]);
 
             Log::info('BATCH ITEM MARKED PROCESSING', [
 
-                'batch_id' =>
-                $this->batchId,
+                'batch_id' => $this->batchId,
 
-                'etf_id' =>
-                $this->etfId,
+                'etf_id' => $this->etfId,
 
             ]);
 
@@ -112,7 +102,6 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
                     $this->etfId
                 );
 
-
             /*
             |--------------------------------------------------------------------------
             | AI Extraction
@@ -122,10 +111,9 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
             $extraction =
 
                 $aiEtfPriceExtractionService
-                ->extract(
-                    $etf
-                );
-
+                    ->extract(
+                        $etf
+                    );
 
             /*
             |--------------------------------------------------------------------------
@@ -137,7 +125,6 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
                 ->process(
                     $extraction
                 );
-
 
             /*
             |--------------------------------------------------------------------------
@@ -172,14 +159,11 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
                     $batchItem->update([
 
-                        'status_id' =>
-                        Status::COMPLETED,
+                        'status_id' => Status::COMPLETED,
 
-                        'runtime_ms' =>
-                        $runtimeMs,
+                        'runtime_ms' => $runtimeMs,
 
-                        'completed_at' =>
-                        now(),
+                        'completed_at' => now(),
 
                     ]);
 
@@ -214,7 +198,6 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
             );
 
-
             /*
             |--------------------------------------------------------------------------
             | Finalization Check
@@ -229,7 +212,6 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
             | Entered Catch
             |--------------------------------------------------------------------------
             */
-
 
             /*
             |--------------------------------------------------------------------------
@@ -282,18 +264,13 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
                     $batchItem->update([
 
-                        'status_id' =>
-                        $statusId,
+                        'status_id' => $statusId,
 
-                        'runtime_ms' =>
-                        $runtimeMs,
+                        'runtime_ms' => $runtimeMs,
 
-                        'error_message' =>
-                        $e->getMessage(),
+                        'error_message' => $e->getMessage(),
 
-                        'completed_at' =>
-
-                        $statusId === Status::FAILED
+                        'completed_at' => $statusId === Status::FAILED
 
                             ? now()
 
@@ -403,22 +380,18 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
                     $batch->id
 
                 )
+                    ->whereNull(
 
-                ->whereNull(
+                        'completed_at'
 
-                    'completed_at'
+                    )
+                    ->update([
 
-                )
+                        'completed_at' => now(),
 
-                ->update([
-
-                    'completed_at' =>
-                    now(),
-
-                ]);
+                    ]);
 
             if ($updated) {
-
 
                 FinalizeEtfPriceExtractionBatchJob::dispatch(
 

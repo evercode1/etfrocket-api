@@ -5,7 +5,6 @@ namespace Tests\Unit\AiExtraction;
 use App\Models\AiDataExtraction;
 use App\Models\DataSource;
 use App\Models\Etf;
-use App\Models\EtfDividendHistory;
 use App\Services\AI\Extractions\ProcessAiEtfDividendExtractionService;
 use Database\Seeders\EtfSeeder;
 use Illuminate\Support\Facades\DB;
@@ -13,8 +12,7 @@ use Tests\TestCase;
 
 class ProcessAiEtfDividendExtractionServiceTest extends TestCase
 {
-    private ProcessAiEtfDividendExtractionService
-        $service;
+    private ProcessAiEtfDividendExtractionService $service;
 
     protected function setUp(): void
     {
@@ -54,37 +52,31 @@ class ProcessAiEtfDividendExtractionServiceTest extends TestCase
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'data_source_id' =>
-                DataSource::MANUAL_ENTRY,
+                    'data_source_id' => DataSource::MANUAL_ENTRY,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'symbol' =>
-                    $etf->symbol,
+                        'symbol' => $etf->symbol,
 
-                    'dividend_amount' =>
-                    0.25,
+                        'dividend_amount' => 0.25,
 
-                    'ex_dividend_date' =>
-                    now()->toDateString(),
+                        'ex_dividend_date' => now()->toDateString(),
 
-                    'payment_date' =>
-                    now()->addDays(7)->toDateString(),
+                        'payment_date' => now()->addDays(7)->toDateString(),
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         $result =
             $this->service
-            ->process(
-                $extraction
-            );
+                ->process(
+                    $extraction
+                );
 
         $this->assertTrue(
             $result->is_validated
@@ -94,8 +86,7 @@ class ProcessAiEtfDividendExtractionServiceTest extends TestCase
             'etf_dividend_histories',
             [
 
-                'dividend_amount' =>
-                0.25,
+                'dividend_amount' => 0.25,
 
             ]
         );
@@ -108,19 +99,17 @@ class ProcessAiEtfDividendExtractionServiceTest extends TestCase
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'symbol' =>
-                    'WRONG',
+                        'symbol' => 'WRONG',
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         $this->expectException(
             \RuntimeException::class

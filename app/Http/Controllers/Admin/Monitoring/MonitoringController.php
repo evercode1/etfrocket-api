@@ -35,8 +35,7 @@ class MonitoringController extends Controller
 
                 [
 
-                    'error' =>
-                    $e->getMessage(),
+                    'error' => $e->getMessage(),
 
                 ]
 
@@ -46,8 +45,7 @@ class MonitoringController extends Controller
 
                 'success' => false,
 
-                'message' =>
-                'Failed to fetch cron reports.',
+                'message' => 'Failed to fetch cron reports.',
 
             ], 500);
         }
@@ -75,8 +73,7 @@ class MonitoringController extends Controller
 
                 'success' => false,
 
-                'message' =>
-                'Failed to load import logs.',
+                'message' => 'Failed to load import logs.',
 
             ], 500);
         }
@@ -105,8 +102,7 @@ class MonitoringController extends Controller
 
                 'success' => false,
 
-                'message' =>
-                'Import log not found.',
+                'message' => 'Import log not found.',
 
             ], 404);
         }

@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DataSeeds\EtfDataSeedController;
 use App\Http\Controllers\Dev\ExternalSeeders\MakeAdminUsersSeederController;
 use App\Http\Controllers\Dev\ExternalSeeders\MakeSeedsController;
-use App\Http\Controllers\Admin\DataSeeds\EtfDataSeedController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------

@@ -42,65 +42,35 @@ class ImportLogsService
 
         return ImportLog::create([
 
-            'import_type_id' =>
+            'import_type_id' => $import_type_id,
 
-            $import_type_id,
+            'status_id' => $status_id,
 
-            'status_id' =>
+            'data_source_id' => $data_source_id,
 
-            $status_id,
+            'run_time' => $run_time,
 
-            'data_source_id' =>
+            'rows_processed' => $rows_processed,
 
-            $data_source_id,
+            'records_created' => $records_created,
 
-            'run_time' =>
+            'records_updated' => $records_updated,
 
-            $run_time,
+            'duplicate_rows' => $duplicate_rows,
 
-            'rows_processed' =>
+            'failure_count' => $failure_count,
 
-            $rows_processed,
+            'passed_data_integrity_check' => $passed_data_integrity_check,
 
-            'records_created' =>
+            'generated_markdown' => $generated_markdown,
 
-            $records_created,
+            'processing_notes' => $processing_notes,
 
-            'records_updated' =>
+            'import_fail_details' => $import_fail_details,
 
-            $records_updated,
+            'started_at' => $started_at ?? now(),
 
-            'duplicate_rows' =>
-
-            $duplicate_rows,
-
-            'failure_count' =>
-
-            $failure_count,
-
-            'passed_data_integrity_check' =>
-
-            $passed_data_integrity_check,
-
-            'generated_markdown' =>
-
-            $generated_markdown,
-
-            'processing_notes' =>
-
-            $processing_notes,
-
-            'import_fail_details' =>
-
-            $import_fail_details,
-
-            'started_at' =>
-
-            $started_at ?? now(),
-
-            'completed_at' =>
-
-            $completed_at ?? now(),
+            'completed_at' => $completed_at ?? now(),
 
         ]);
     }

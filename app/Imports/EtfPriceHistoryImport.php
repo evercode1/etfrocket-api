@@ -20,8 +20,8 @@ class EtfPriceHistoryImport
         }
 
         $lines = collect($lines)
-            ->map(fn($line) => trim(str_replace("\u{00A0}", ' ', $line)))
-            ->filter(fn($line) => $line !== '')
+            ->map(fn ($line) => trim(str_replace("\u{00A0}", ' ', $line)))
+            ->filter(fn ($line) => $line !== '')
             ->values()
             ->toArray();
 

@@ -40,7 +40,7 @@ class ManageUpdateUserTest extends TestCase
 
         Sanctum::actingAs($admin, ['*']);
 
-        $response = $this->postJson('/api/manage-user/' . $user->id, [
+        $response = $this->postJson('/api/manage-user/'.$user->id, [
             'name' => 'Updated Name',
             'email' => 'updated@example.com',
             'is_admin' => 1,
@@ -84,7 +84,7 @@ class ManageUpdateUserTest extends TestCase
 
         Sanctum::actingAs($admin, ['*']);
 
-        $response = $this->postJson('/api/manage-user/' . $user->id, [
+        $response = $this->postJson('/api/manage-user/'.$user->id, [
             'name' => 'New Name',
             'email' => 'same@example.com',
             'is_admin' => 0,
@@ -118,7 +118,7 @@ class ManageUpdateUserTest extends TestCase
 
         Sanctum::actingAs($admin, ['*']);
 
-        $response = $this->postJson('/api/manage-user/' . $user->id, [
+        $response = $this->postJson('/api/manage-user/'.$user->id, [
             'name' => 'Updated Name',
             'email' => 'taken@example.com',
             'is_admin' => 0,
@@ -142,7 +142,7 @@ class ManageUpdateUserTest extends TestCase
 
         Sanctum::actingAs($admin, ['*']);
 
-        $response = $this->postJson('/api/manage-user/' . $user->id, [
+        $response = $this->postJson('/api/manage-user/'.$user->id, [
             'email' => 'updated@example.com',
             'is_admin' => 0,
         ]);
@@ -161,7 +161,7 @@ class ManageUpdateUserTest extends TestCase
 
         Sanctum::actingAs($admin, ['*']);
 
-        $response = $this->postJson('/api/manage-user/' . $user->id, [
+        $response = $this->postJson('/api/manage-user/'.$user->id, [
             'name' => 'Updated Name',
             'is_admin' => 0,
         ]);
@@ -180,7 +180,7 @@ class ManageUpdateUserTest extends TestCase
 
         Sanctum::actingAs($admin, ['*']);
 
-        $response = $this->postJson('/api/manage-user/' . $user->id, [
+        $response = $this->postJson('/api/manage-user/'.$user->id, [
             'name' => 'Updated Name',
             'email' => 'updated@example.com',
         ]);

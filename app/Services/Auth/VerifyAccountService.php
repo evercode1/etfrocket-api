@@ -7,7 +7,6 @@ use App\Models\UserVerification;
 
 class VerifyAccountService
 {
-
     public function verifyAccount(string $token)
     {
         /*
@@ -54,7 +53,6 @@ class VerifyAccountService
             return ['message' => 'User not found'];
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | confirm user exists and finish verification
@@ -63,16 +61,15 @@ class VerifyAccountService
 
         if (User::where('id', $user_id)->exists()) {
 
-
             // if user email_verified_at is null, confirm user and return message
-            if ( is_null($user->email_verified_at) ) {
+            if (is_null($user->email_verified_at)) {
 
                 $message = $this->confirmUser($user, $datetime);
 
             } else {
 
                 UserVerification::where('user_id', $user_id)->delete();
-                $message = "Your e-mail is already verified. You may now login.";
+                $message = 'Your e-mail is already verified. You may now login.';
 
             }
 
@@ -81,7 +78,6 @@ class VerifyAccountService
         }
 
     }
-
 
     public function confirmUser(User $user, string $datetime)
     {
@@ -95,7 +91,6 @@ class VerifyAccountService
 
         UserVerification::where('user_id', $user->id)->delete();
 
-        return "Your e-mail is verified. You may now login.";
+        return 'Your e-mail is verified. You may now login.';
     }
-    
 }

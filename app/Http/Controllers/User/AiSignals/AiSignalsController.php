@@ -22,7 +22,7 @@ class AiSignalsController extends Controller
 
             $isOpen =
                 $isMarketOpenService
-                ->isOpen();
+                    ->isOpen();
 
             return response()->json([
 
@@ -30,12 +30,9 @@ class AiSignalsController extends Controller
 
                 'market' => [
 
-                    'is_open' =>
-                    $isOpen,
+                    'is_open' => $isOpen,
 
-                    'status' =>
-
-                    $isOpen
+                    'status' => $isOpen
                         ? 'OPEN'
                         : 'CLOSED',
 
@@ -50,8 +47,7 @@ class AiSignalsController extends Controller
                 'Failed to fetch AI signals',
                 [
 
-                    'error' =>
-                    $e->getMessage(),
+                    'error' => $e->getMessage(),
 
                 ]
             );
@@ -60,8 +56,7 @@ class AiSignalsController extends Controller
 
                 'success' => false,
 
-                'message' =>
-                'Failed to fetch AI signals.',
+                'message' => 'Failed to fetch AI signals.',
 
             ], 500);
         }

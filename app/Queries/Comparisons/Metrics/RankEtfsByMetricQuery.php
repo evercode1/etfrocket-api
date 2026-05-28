@@ -90,22 +90,17 @@ class RankEtfsByMetricQuery
 
                 'metric' => $metric,
 
-                'metric_label' =>
-                $metricConfig['label'],
+                'metric_label' => $metricConfig['label'],
 
-                'metric_value' =>
-                $row->metric_value,
+                'metric_value' => $row->metric_value,
 
-                'nav_health' =>
-                $this->resolveNavHealth(
+                'nav_health' => $this->resolveNavHealth(
                     $row->nav_erosion_percentage
                 ),
 
-                'aum_change_percentage' =>
-                $row->aum_change_percentage,
+                'aum_change_percentage' => $row->aum_change_percentage,
 
-                'total_return_percentage' =>
-                $row->total_return_percentage,
+                'total_return_percentage' => $row->total_return_percentage,
 
             ];
         })
@@ -119,23 +114,17 @@ class RankEtfsByMetricQuery
 
         return match ($range) {
 
-            '5d' =>
-            PerformanceRangeType::FIVE_DAY,
+            '5d' => PerformanceRangeType::FIVE_DAY,
 
-            '30d' =>
-            PerformanceRangeType::THIRTY_DAY,
+            '30d' => PerformanceRangeType::THIRTY_DAY,
 
-            '90d' =>
-            PerformanceRangeType::NINETY_DAY,
+            '90d' => PerformanceRangeType::NINETY_DAY,
 
-            '1y' =>
-            PerformanceRangeType::ONE_YEAR,
+            '1y' => PerformanceRangeType::ONE_YEAR,
 
-            'max' =>
-            PerformanceRangeType::MAX,
+            'max' => PerformanceRangeType::MAX,
 
-            default =>
-            PerformanceRangeType::NINETY_DAY,
+            default => PerformanceRangeType::NINETY_DAY,
         };
     }
 

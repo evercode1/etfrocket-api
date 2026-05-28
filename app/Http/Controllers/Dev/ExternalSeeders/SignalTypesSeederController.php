@@ -18,7 +18,7 @@ class SignalTypesSeederController extends Controller
 
             'market conditions',
 
-            'market events'
+            'market events',
 
         ];
 
@@ -26,8 +26,7 @@ class SignalTypesSeederController extends Controller
 
             SignalType::create([
 
-                'signal_type_name' =>
-                $value,
+                'signal_type_name' => $value,
 
             ]);
         }

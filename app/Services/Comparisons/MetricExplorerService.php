@@ -44,19 +44,19 @@ class MetricExplorerService
 
         $rows =
             $this->rankEtfsByMetricQuery
-            ->getData(
+                ->getData(
 
-                metric: $metric,
+                    metric: $metric,
 
-                range: $range,
+                    range: $range,
 
-                metricConfig: $metricConfig,
+                    metricConfig: $metricConfig,
 
-                sortDirection: $sortDirection,
+                    sortDirection: $sortDirection,
 
-                limit: $limit,
+                    limit: $limit,
 
-            );
+                );
 
         return [
 
@@ -66,11 +66,9 @@ class MetricExplorerService
 
                 'range' => $range,
 
-                'sort_direction' =>
-                $sortDirection,
+                'sort_direction' => $sortDirection,
 
-                'results_count' =>
-                count($rows),
+                'results_count' => count($rows),
 
             ],
 
@@ -84,11 +82,9 @@ class MetricExplorerService
 
             'options' => [
 
-                'metrics' =>
-                $this->getMetricOptions(),
+                'metrics' => $this->getMetricOptions(),
 
-                'ranges' =>
-                $this->getRangeOptions(),
+                'ranges' => $this->getRangeOptions(),
 
             ],
 
@@ -103,7 +99,7 @@ class MetricExplorerService
             config('etf_metrics.metrics');
 
         if (
-            !array_key_exists(
+            ! array_key_exists(
                 $metric,
                 $metrics
             )
@@ -141,7 +137,7 @@ class MetricExplorerService
             $range ?: '90d';
 
         if (
-            !array_key_exists(
+            ! array_key_exists(
                 $range,
                 $ranges
             )
@@ -164,7 +160,7 @@ class MetricExplorerService
             );
 
         if (
-            !in_array(
+            ! in_array(
                 $sortDirection,
                 ['asc', 'desc']
             )
@@ -209,8 +205,7 @@ class MetricExplorerService
 
                     'value' => $key,
 
-                    'label' =>
-                    $config['label'],
+                    'label' => $config['label'],
 
                 ];
             })
@@ -235,8 +230,7 @@ class MetricExplorerService
 
                     'value' => $key,
 
-                    'label' =>
-                    strtoupper($key),
+                    'label' => strtoupper($key),
 
                 ];
             })

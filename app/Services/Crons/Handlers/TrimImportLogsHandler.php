@@ -2,12 +2,11 @@
 
 namespace App\Services\Crons\Handlers;
 
-use Carbon\Carbon;
 use App\Models\ImportLog;
+use Carbon\Carbon;
 
 class TrimImportLogsHandler
 {
-
     // we ignore payload, but we need it for dynamic method calling in CronService
 
     public function handleTrimImportLogs(
@@ -34,14 +33,14 @@ class TrimImportLogsHandler
 
             )->delete();
 
-            return ['success' => 1, 'cron_fail_details' => NULL];
+            return ['success' => 1, 'cron_fail_details' => null];
         } catch (\Exception $e) {
 
             // Log the exception message to the CronFailLog table
 
             // the specific details
 
-            $cron_fail_details = $this->errorMessage() . $e->getMessage();
+            $cron_fail_details = $this->errorMessage().$e->getMessage();
 
             return ['success' => 0, 'cron_fail_details' => $cron_fail_details];
         }

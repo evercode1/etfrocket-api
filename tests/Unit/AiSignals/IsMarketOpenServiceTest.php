@@ -8,15 +8,14 @@ use Tests\TestCase;
 
 class IsMarketOpenServiceTest extends TestCase
 {
-    private IsMarketOpenService
-        $service;
+    private IsMarketOpenService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->service =
-            new IsMarketOpenService();
+            new IsMarketOpenService;
     }
 
     protected function tearDown(): void

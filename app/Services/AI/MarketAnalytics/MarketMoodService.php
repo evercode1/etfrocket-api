@@ -3,13 +3,10 @@
 namespace App\Services\AI\MarketAnalytics;
 
 use Illuminate\Support\Facades\Http;
-
 use Illuminate\Support\Facades\Log;
 
 class MarketMoodService
-
 {
-
     private array $allowedMoods = [
 
         'Euphoric',
@@ -31,7 +28,6 @@ class MarketMoodService
     ];
 
     public function determine(): array
-
     {
 
         try {
@@ -40,9 +36,7 @@ class MarketMoodService
 
                 Http::withHeaders([
 
-                    'Authorization' =>
-
-                    'Bearer ' .
+                    'Authorization' => 'Bearer '.
 
                         config(
 
@@ -50,39 +44,31 @@ class MarketMoodService
 
                         ),
 
-                    'Content-Type' =>
-
-                    'application/json',
+                    'Content-Type' => 'application/json',
 
                 ])
+                    ->timeout(30)
+                    ->post(
 
-                ->timeout(30)
+                        'https://api.openai.com/v1/responses',
 
-                ->post(
+                        [
 
-                    'https://api.openai.com/v1/responses',
+                            'model' => config(
 
-                    [
+                                'services.openai.model',
 
-                        'model' =>
+                                'gpt-4.1-mini'
 
-                        config(
+                            ),
 
-                            'services.openai.model',
+                            'input' => [
 
-                            'gpt-4.1-mini'
+                                [
 
-                        ),
+                                    'role' => 'system',
 
-                        'input' => [
-
-                            [
-
-                                'role' => 'system',
-
-                                'content' =>
-
-                                'You are a financial market sentiment classifier.
+                                    'content' => 'You are a financial market sentiment classifier.
 
 Return ONLY ONE of the following exact values:
 
@@ -110,23 +96,21 @@ Do not include markdown.
 
 Do not include additional text.',
 
+                                ],
+
+                                [
+
+                                    'role' => 'user',
+
+                                    'content' => 'Analyze the current Nasdaq market environment, momentum, volatility, and macro sentiment and classify the current market mood.',
+
+                                ],
+
                             ],
 
-                            [
+                        ]
 
-                                'role' => 'user',
-
-                                'content' =>
-
-                                'Analyze the current Nasdaq market environment, momentum, volatility, and macro sentiment and classify the current market mood.',
-
-                            ],
-
-                        ],
-
-                    ]
-
-                );
+                    );
 
             if (! $response->successful()) {
 
@@ -176,13 +160,9 @@ Do not include additional text.',
 
             return [
 
-                'market_mood' =>
+                'market_mood' => $marketMood,
 
-                $marketMood,
-
-                'confidence_score' =>
-
-                $this->getConfidenceScore(
+                'confidence_score' => $this->getConfidenceScore(
 
                     $marketMood
 
@@ -197,9 +177,7 @@ Do not include additional text.',
 
                 [
 
-                    'message' =>
-
-                    $e->getMessage(),
+                    'message' => $e->getMessage(),
 
                 ]
 
@@ -236,18 +214,13 @@ Do not include additional text.',
     }
 
     private function fallback(): array
-
     {
 
         return [
 
-            'market_mood' =>
+            'market_mood' => 'Undetermined',
 
-            'Undetermined',
-
-            'confidence_score' =>
-
-            50,
+            'confidence_score' => 50,
 
         ];
     }

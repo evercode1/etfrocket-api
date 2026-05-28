@@ -65,7 +65,7 @@ class AdminCloseTicketTest extends TestCase
         $response->assertOk()
             ->assertJson([
                 'status' => 'success',
-                'message' => 'You have closed ticket# ' . $ticket->id,
+                'message' => 'You have closed ticket# '.$ticket->id,
             ]);
 
         $ticket->refresh();

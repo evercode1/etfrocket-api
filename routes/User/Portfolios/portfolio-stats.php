@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\User\Portfolios\PortfolioSignalsController;
-
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +13,6 @@ use App\Http\Controllers\User\Portfolios\PortfolioSignalsController;
 */
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-
 
     Route::get('/portfolio-distribution-growth-signal/{portfolio_id}', [PortfolioSignalsController::class, 'showDistributionGrowthSignal']);
     Route::get('/portfolio-aum-growth-signal/{portfolio_id}', [PortfolioSignalsController::class, 'showAumGrowthSignal']);

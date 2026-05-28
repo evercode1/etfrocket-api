@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\EtfDividendHistory;
 use App\Models\DataSource;
+use App\Models\EtfDividendHistory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

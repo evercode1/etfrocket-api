@@ -209,7 +209,7 @@ class HelpArticlesTest extends TestCase
 
     public function test_search_must_not_exceed_max_length(): void
     {
-        $response = $this->getJson('/api/help-articles?search=' . str_repeat('a', 256));
+        $response = $this->getJson('/api/help-articles?search='.str_repeat('a', 256));
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['search']);
@@ -217,7 +217,7 @@ class HelpArticlesTest extends TestCase
 
     public function test_category_must_not_exceed_max_length(): void
     {
-        $response = $this->getJson('/api/help-articles?category=' . str_repeat('a', 121));
+        $response = $this->getJson('/api/help-articles?category='.str_repeat('a', 121));
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['category']);

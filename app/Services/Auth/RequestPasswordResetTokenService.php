@@ -2,16 +2,15 @@
 
 namespace App\Services\Auth;
 
-use App\Models\User;
-use App\Models\PasswordResetToken;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
 use App\Mail\ForgotPasswordEmail;
+use App\Models\PasswordResetToken;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class RequestPasswordResetTokenService
 {
-
     public function requestResetToken(Request $request)
     {
 
@@ -23,7 +22,7 @@ class RequestPasswordResetTokenService
 
                 'status' => 'error',
 
-                'message' => 'your email was not found in our system'
+                'message' => 'your email was not found in our system',
 
             ], 401);
         }
@@ -45,7 +44,7 @@ class RequestPasswordResetTokenService
 
             'email' => $email,
             'token' => $token,
-            'created_at' => now()
+            'created_at' => now(),
 
         ]);
 
@@ -53,7 +52,7 @@ class RequestPasswordResetTokenService
 
         return response()->json([
 
-            'message' => 'email has been sent'
+            'message' => 'email has been sent',
         ], 201);
     }
 }

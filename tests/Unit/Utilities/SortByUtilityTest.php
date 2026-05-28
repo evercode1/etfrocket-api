@@ -10,7 +10,7 @@ class SortByUtilityTest extends TestCase
 {
     public function test_it_returns_first_column_and_ascending_order_by_default()
     {
-        $request = new Request();
+        $request = new Request;
 
         $columns = [
             'symbol',

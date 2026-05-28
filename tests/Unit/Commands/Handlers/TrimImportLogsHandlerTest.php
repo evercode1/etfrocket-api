@@ -9,12 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class TrimImportLogsHandlerTest extends TestCase
-
 {
-
-    private TrimImportLogsHandler
-
-        $handler;
+    private TrimImportLogsHandler $handler;
 
     protected function setUp(): void
     {
@@ -46,7 +42,6 @@ class TrimImportLogsHandlerTest extends TestCase
 
         DB::table('import_logs')->truncate();
 
-
         Carbon::setTestNow();
 
         parent::tearDown();
@@ -59,9 +54,7 @@ class TrimImportLogsHandlerTest extends TestCase
 
             ->create([
 
-                'created_at' =>
-
-                now()->subDays(8),
+                'created_at' => now()->subDays(8),
 
             ]);
 
@@ -69,9 +62,7 @@ class TrimImportLogsHandlerTest extends TestCase
 
             ->create([
 
-                'created_at' =>
-
-                now()->subDays(10),
+                'created_at' => now()->subDays(10),
 
             ]);
 
@@ -79,17 +70,14 @@ class TrimImportLogsHandlerTest extends TestCase
 
             ->create([
 
-                'created_at' =>
-
-                now()->subDays(3),
+                'created_at' => now()->subDays(3),
 
             ]);
 
         $results =
 
             $this->handler
-
-            ->handleTrimImportLogs();
+                ->handleTrimImportLogs();
 
         $this->assertEquals(
 
@@ -117,17 +105,14 @@ class TrimImportLogsHandlerTest extends TestCase
 
             ->create([
 
-                'created_at' =>
-
-                now()->subDays(2),
+                'created_at' => now()->subDays(2),
 
             ]);
 
         $results =
 
             $this->handler
-
-            ->handleTrimImportLogs();
+                ->handleTrimImportLogs();
 
         $this->assertEquals(
 
@@ -152,8 +137,7 @@ class TrimImportLogsHandlerTest extends TestCase
         $results =
 
             $this->handler
-
-            ->handleTrimImportLogs();
+                ->handleTrimImportLogs();
 
         $this->assertEquals(
 
@@ -185,9 +169,7 @@ class TrimImportLogsHandlerTest extends TestCase
 
             ->create([
 
-                'created_at' =>
-
-                now()->subWeek(),
+                'created_at' => now()->subWeek(),
 
             ]);
 
@@ -195,17 +177,14 @@ class TrimImportLogsHandlerTest extends TestCase
 
             ->create([
 
-                'created_at' =>
-
-                now()->subWeek()->subSecond(),
+                'created_at' => now()->subWeek()->subSecond(),
 
             ]);
 
         $results =
 
             $this->handler
-
-            ->handleTrimImportLogs();
+                ->handleTrimImportLogs();
 
         $this->assertEquals(
 

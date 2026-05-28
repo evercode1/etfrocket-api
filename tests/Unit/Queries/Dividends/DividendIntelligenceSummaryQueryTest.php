@@ -9,9 +9,9 @@ use App\Models\PortfolioTransaction;
 use App\Models\Status;
 use App\Models\User;
 use App\Queries\Dividends\DividendIntelligenceSummaryQuery;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
-use Carbon\Carbon;
 
 class DividendIntelligenceSummaryQueryTest extends TestCase
 {

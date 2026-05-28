@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Utilities\IncludeRoutes;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/health/check', function () {
 
@@ -52,7 +52,6 @@ IncludeRoutes::file('routes/Admin/Support/admin-support.php');
 
 IncludeRoutes::file('routes/Admin/EtfData/etf-data.php');
 
-
 /*
 |--------------------------------------------------------------------------
 | Seed ROUTES
@@ -64,7 +63,6 @@ IncludeRoutes::file('routes/Admin/EtfData/etf-data.php');
 
 IncludeRoutes::file('routes/Admin/Seeds/seeds.php');
 
-
 /*
 |--------------------------------------------------------------------------
 | Auth ROUTES
@@ -75,7 +73,6 @@ IncludeRoutes::file('routes/Admin/Seeds/seeds.php');
 */
 
 IncludeRoutes::file('routes/Auth/auth.php');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -163,7 +160,6 @@ IncludeRoutes::file('routes/User/Holdings/holdings.php');
 
 IncludeRoutes::file('routes/User/MissionControl/mission-control.php');
 
-
 /*
 |--------------------------------------------------------------------------
 | Portfolio ROUTES
@@ -196,7 +192,6 @@ IncludeRoutes::file('routes/User/Portfolios/portfolio-stats.php');
 */
 
 IncludeRoutes::file('routes/User/Settings/settings.php');
-
 
 /*
 |--------------------------------------------------------------------------

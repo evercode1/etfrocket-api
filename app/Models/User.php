@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use Laravel\Cashier\Billable;
+use Laravel\Sanctum\HasApiTokens;
 
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -26,7 +26,7 @@ class User extends Authenticatable
         'is_influencer',
         'is_subscriber',
         'is_active',
-        'email_verified_at'
+        'email_verified_at',
 
     ];
 

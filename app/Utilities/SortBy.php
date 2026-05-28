@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 class SortBy
 {
-
     public static function setSortBy(Request $request, array $columns)
     {
 
@@ -19,7 +18,7 @@ class SortBy
             $sortBy = $columns[$sortBy - 1];
 
             return [$sortBy, $sortOrder];
-           
+
         }
 
         $sortBy = $columns[0];
@@ -29,5 +28,4 @@ class SortBy
         return [$sortBy, $sortOrder];
 
     }
-
 }

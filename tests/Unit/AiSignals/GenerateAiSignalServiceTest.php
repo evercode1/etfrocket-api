@@ -14,8 +14,7 @@ use Tests\TestCase;
 
 class GenerateAiSignalServiceTest extends TestCase
 {
-    private GenerateAiSignalService
-        $service;
+    private GenerateAiSignalService $service;
 
     protected function setUp(): void
     {
@@ -37,7 +36,7 @@ class GenerateAiSignalServiceTest extends TestCase
 
                 new GenerateAiSignalContentService(
 
-                    new IsMarketOpenService()
+                    new IsMarketOpenService
 
                 )
 
@@ -73,8 +72,7 @@ class GenerateAiSignalServiceTest extends TestCase
 
                                 [
 
-                                    'text' =>
-                                    'Bullish',
+                                    'text' => 'Bullish',
 
                                 ],
 
@@ -110,8 +108,7 @@ class GenerateAiSignalServiceTest extends TestCase
 
                                 [
 
-                                    'text' =>
-                                    '# Market Snapshot',
+                                    'text' => '# Market Snapshot',
 
                                 ],
 
@@ -141,8 +138,7 @@ class GenerateAiSignalServiceTest extends TestCase
 
                                 [
 
-                                    'text' =>
-                                    '# Market Conditions',
+                                    'text' => '# Market Conditions',
 
                                 ],
 
@@ -172,8 +168,7 @@ class GenerateAiSignalServiceTest extends TestCase
 
                                 [
 
-                                    'text' =>
-                                    '# Upcoming Market Events',
+                                    'text' => '# Upcoming Market Events',
 
                                 ],
 
@@ -196,8 +191,7 @@ class GenerateAiSignalServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-                                '# AI Signal',
+                                'text' => '# AI Signal',
 
                             ],
 

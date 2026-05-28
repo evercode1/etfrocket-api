@@ -29,7 +29,7 @@ class HelpArticleFactory extends Factory
 
             'content' => collect(fake()->paragraphs(rand(4, 10)))
 
-                ->map(fn($paragraph) => "<p>{$paragraph}</p>")
+                ->map(fn ($paragraph) => "<p>{$paragraph}</p>")
 
                 ->implode("\n\n"),
 
@@ -40,7 +40,7 @@ class HelpArticleFactory extends Factory
 
     public function published(): static
     {
-        return $this->state(fn() => [
+        return $this->state(fn () => [
 
             'is_published' => 1,
 
@@ -49,7 +49,7 @@ class HelpArticleFactory extends Factory
 
     public function unpublished(): static
     {
-        return $this->state(fn() => [
+        return $this->state(fn () => [
 
             'is_published' => 0,
 

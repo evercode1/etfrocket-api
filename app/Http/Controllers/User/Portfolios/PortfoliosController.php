@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\User\Portfolios;
 
 use App\Http\Controllers\Controller;
+use App\Models\Portfolio;
+use App\Models\PortfolioTransaction;
+use App\Queries\Portfolios\PortfolioCardSummariesQuery;
 use App\Services\Portfolios\CreatePortfolioService;
 use App\Services\Portfolios\ListPortfoliosService;
 use App\Services\Portfolios\UpdatePortfolioService;
 use App\Services\Portfolios\ViewPortfolioService;
-use App\Queries\Portfolios\PortfolioCardSummariesQuery;
-use App\Models\Portfolio;
-use App\Models\PortfolioTransaction;
-use Illuminate\Support\Facades\DB;
 use App\Utilities\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PortfoliosController extends Controller

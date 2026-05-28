@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Interval extends Model
 {
-
     use HasFactory;
 
     protected $fillable = ['interval_name'];
@@ -18,7 +17,7 @@ class Interval extends Model
         return [
 
             'created_at' => 'date:Y-m-d',
-            'updated_at' => 'date:Y-m-d'
+            'updated_at' => 'date:Y-m-d',
 
         ];
     }

@@ -10,8 +10,7 @@ use Tests\TestCase;
 
 class TrimCronLogsHandlerTest extends TestCase
 {
-    private TrimCronLogsHandler
-        $handler;
+    private TrimCronLogsHandler $handler;
 
     protected function setUp(): void
     {
@@ -21,7 +20,7 @@ class TrimCronLogsHandlerTest extends TestCase
             ->truncate();
 
         $this->handler =
-            new TrimCronLogsHandler();
+            new TrimCronLogsHandler;
     }
 
     protected function tearDown(): void
@@ -37,8 +36,7 @@ class TrimCronLogsHandlerTest extends TestCase
         CronLog::factory()
             ->create([
 
-                'created_at' =>
-                Carbon::now()
+                'created_at' => Carbon::now()
                     ->subDays(10),
 
             ]);
@@ -46,15 +44,14 @@ class TrimCronLogsHandlerTest extends TestCase
         CronLog::factory()
             ->create([
 
-                'created_at' =>
-                Carbon::now()
+                'created_at' => Carbon::now()
                     ->subDays(2),
 
             ]);
 
         $results =
             $this->handler
-            ->handleTrimCronLogs();
+                ->handleTrimCronLogs();
 
         $this->assertEquals(
             1,
@@ -73,15 +70,14 @@ class TrimCronLogsHandlerTest extends TestCase
             ->count(3)
             ->create([
 
-                'created_at' =>
-                Carbon::now()
+                'created_at' => Carbon::now()
                     ->subDays(2),
 
             ]);
 
         $results =
             $this->handler
-            ->handleTrimCronLogs();
+                ->handleTrimCronLogs();
 
         $this->assertEquals(
             1,
@@ -100,15 +96,14 @@ class TrimCronLogsHandlerTest extends TestCase
             ->count(5)
             ->create([
 
-                'created_at' =>
-                Carbon::now()
+                'created_at' => Carbon::now()
                     ->subDays(14),
 
             ]);
 
         $results =
             $this->handler
-            ->handleTrimCronLogs();
+                ->handleTrimCronLogs();
 
         $this->assertEquals(
             1,
@@ -125,7 +120,7 @@ class TrimCronLogsHandlerTest extends TestCase
     {
         $results =
             $this->handler
-            ->handleTrimCronLogs();
+                ->handleTrimCronLogs();
 
         $this->assertEquals(
             1,
@@ -143,15 +138,14 @@ class TrimCronLogsHandlerTest extends TestCase
             ->count(2)
             ->create([
 
-                'created_at' =>
-                Carbon::now()
+                'created_at' => Carbon::now()
                     ->subDays(3),
 
             ]);
 
         $results =
             $this->handler
-            ->handleTrimCronLogs();
+                ->handleTrimCronLogs();
 
         $this->assertEquals(
             1,
@@ -173,8 +167,7 @@ class TrimCronLogsHandlerTest extends TestCase
         CronLog::factory()
             ->create([
 
-                'created_at' =>
-                Carbon::now()
+                'created_at' => Carbon::now()
                     ->subDays(8),
 
             ]);
@@ -182,8 +175,7 @@ class TrimCronLogsHandlerTest extends TestCase
         CronLog::factory()
             ->create([
 
-                'created_at' =>
-                Carbon::now()
+                'created_at' => Carbon::now()
                     ->subDays(6),
 
             ]);

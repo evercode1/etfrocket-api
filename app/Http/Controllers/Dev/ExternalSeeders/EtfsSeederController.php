@@ -12,11 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 class EtfsSeederController extends Controller
 {
-
     public function run(): void
     {
         DB::table('etfs')->truncate();
-
 
         $etfs = [
 
@@ -3649,8 +3647,6 @@ class EtfsSeederController extends Controller
                 'notes' => '30% leveraged TSPY strategy ETF',
             ],
         ];
-
-
 
         $now = now();
 

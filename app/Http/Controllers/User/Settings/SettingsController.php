@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\User\Settings;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Services\Settings\EditEmailFormConfigService;
 use App\Services\Settings\EditUserNameFormConfigService;
 use App\Services\Settings\UpdateEmailService;
 use App\Services\Settings\UpdatePasswordService;
 use App\Services\Settings\UpdateUserNameService;
 use App\Utilities\Auth;
+use Illuminate\Http\Request;
 
 class SettingsController extends Controller
 {
@@ -18,13 +18,12 @@ class SettingsController extends Controller
 
         $user = Auth::user();
 
-
         // return json response with user settings data
 
         return response()->json([
 
             'email' => $user->email,
-            'name' => $user->name
+            'name' => $user->name,
 
         ], 200);
     }
@@ -58,7 +57,7 @@ class SettingsController extends Controller
 
         if ($request->input('password') != $request->input('password_confirmation')) {
 
-            // return json response with error message  
+            // return json response with error message
 
             return
 
@@ -66,7 +65,7 @@ class SettingsController extends Controller
                     [
 
                         'status' => 'error',
-                        'message' => 'password and password confirmation do not match.'
+                        'message' => 'password and password confirmation do not match.',
                     ],
                     422
                 );
@@ -75,7 +74,7 @@ class SettingsController extends Controller
         $request->validate([
 
             'password' => 'string|required',
-            'password_confirmation' => 'string|required'
+            'password_confirmation' => 'string|required',
 
         ]);
 

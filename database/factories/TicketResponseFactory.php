@@ -19,11 +19,11 @@ class TicketResponseFactory extends Factory
     {
         return [
             'support_topic_id' => rand(1, 10),
-            'support_ticket_id' => rand(1, 50),            
+            'support_ticket_id' => rand(1, 50),
             'response_text' => $this->faker->sentence(),
             'user_id' => rand(1, 100),
             'is_read' => false,
-            'is_from_customer' => false
+            'is_from_customer' => false,
         ];
     }
 }

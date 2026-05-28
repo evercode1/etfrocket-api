@@ -9,7 +9,7 @@ class RunAiEtfAumExtractions extends Command
 {
     protected $signature =
 
-    'etfs:run-ai-aum-extraction
+        'etfs:run-ai-aum-extraction
 
         {--symbol= : Run extraction for a single ETF symbol}
 
@@ -19,7 +19,7 @@ class RunAiEtfAumExtractions extends Command
 
     protected $description =
 
-    'Run AI ETF AUM extraction and process extracted ETF AUM data.';
+        'Run AI ETF AUM extraction and process extracted ETF AUM data.';
 
     public function handle(): void
     {
@@ -27,21 +27,15 @@ class RunAiEtfAumExtractions extends Command
 
         $payload = [
 
-            'symbol' =>
-
-            $this->option(
+            'symbol' => $this->option(
                 'symbol'
             ),
 
-            'limit' =>
-
-            $this->option(
+            'limit' => $this->option(
                 'limit'
             ),
 
-            'force' =>
-
-            $this->option(
+            'force' => $this->option(
                 'force'
             ),
 

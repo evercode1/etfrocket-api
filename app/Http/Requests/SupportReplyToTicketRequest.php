@@ -13,7 +13,7 @@ class SupportReplyToTicketRequest extends FormRequest
      */
     public function authorize()
     {
-        return TRUE;
+        return true;
     }
 
     /**
@@ -24,14 +24,13 @@ class SupportReplyToTicketRequest extends FormRequest
     public function rules()
     {
         return [
-            
+
             'support_topic_id' => 'integer|required',
             'support_ticket_id' => 'integer|required',
             'user_id' => 'integer|required',
-            'response_text' => 'string|required'
+            'response_text' => 'string|required',
 
         ];
 
     }
-
 }

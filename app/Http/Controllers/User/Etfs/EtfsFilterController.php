@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\User\Etfs;
 
 use App\Http\Controllers\Controller;
+use App\Models\Etf;
 use App\Services\EtfFilters\EtfFilterService;
 use Illuminate\Http\Request;
-use App\Models\Etf;
 
 class EtfsFilterController extends Controller
 {

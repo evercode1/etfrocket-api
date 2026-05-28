@@ -5,7 +5,6 @@ namespace Tests\Unit\AiExtraction;
 use App\Models\AiDataExtraction;
 use App\Models\DataSource;
 use App\Models\Etf;
-use App\Models\EtfAumHistory;
 use App\Services\AI\Extractions\ProcessAiEtfAumExtractionService;
 use Database\Seeders\EtfSeeder;
 use Illuminate\Support\Facades\DB;
@@ -13,8 +12,7 @@ use Tests\TestCase;
 
 class ProcessAiEtfAumExtractionServiceTest extends TestCase
 {
-    private ProcessAiEtfAumExtractionService
-        $service;
+    private ProcessAiEtfAumExtractionService $service;
 
     protected function setUp(): void
     {
@@ -54,34 +52,29 @@ class ProcessAiEtfAumExtractionServiceTest extends TestCase
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'data_source_id' =>
-                DataSource::MANUAL_ENTRY,
+                    'data_source_id' => DataSource::MANUAL_ENTRY,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'symbol' =>
-                    $etf->symbol,
+                        'symbol' => $etf->symbol,
 
-                    'assets_under_management' =>
-                    1000000000,
+                        'assets_under_management' => 1000000000,
 
-                    'aum_date' =>
-                    now()->toDateString(),
+                        'aum_date' => now()->toDateString(),
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         $result =
             $this->service
-            ->process(
-                $extraction
-            );
+                ->process(
+                    $extraction
+                );
 
         $this->assertTrue(
             $result->is_validated
@@ -91,8 +84,7 @@ class ProcessAiEtfAumExtractionServiceTest extends TestCase
             'etf_aum_histories',
             [
 
-                'assets_under_management' =>
-                1000000000,
+                'assets_under_management' => 1000000000,
 
             ]
         );
@@ -105,27 +97,23 @@ class ProcessAiEtfAumExtractionServiceTest extends TestCase
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'symbol' =>
-                    $etf->symbol,
+                        'symbol' => $etf->symbol,
 
-                    'assets_under_management' =>
-                    1000000000,
+                        'assets_under_management' => 1000000000,
 
-                    'aum_date' =>
-                    now()
-                        ->subDays(30)
-                        ->toDateString(),
+                        'aum_date' => now()
+                            ->subDays(30)
+                            ->toDateString(),
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         $this->expectException(
             \RuntimeException::class

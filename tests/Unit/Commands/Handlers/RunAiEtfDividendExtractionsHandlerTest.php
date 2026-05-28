@@ -3,11 +3,8 @@
 namespace Tests\Unit\Commands\Handlers;
 
 use App\Jobs\RunAiEtfDividendExtractionJob;
-use App\Models\AiDataExtraction;
 use App\Models\Etf;
 use App\Models\EtfDividendHistory;
-use App\Models\EtfIngestionBatch;
-use App\Models\EtfIngestionBatchItem;
 use App\Models\ImportType;
 use App\Models\Status;
 use App\Services\Crons\Handlers\RunAiEtfDividendExtractionsHandler;
@@ -20,8 +17,7 @@ use Tests\TestCase;
 
 class RunAiEtfDividendExtractionsHandlerTest extends TestCase
 {
-    private RunAiEtfDividendExtractionsHandler
-        $handler;
+    private RunAiEtfDividendExtractionsHandler $handler;
 
     protected function setUp(): void
     {
@@ -85,7 +81,7 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
 
         $results =
             $this->handler
-            ->handleRunAiEtfDividendExtractions();
+                ->handleRunAiEtfDividendExtractions();
 
         $this->assertEquals(
             1,
@@ -113,11 +109,9 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
 
             [
 
-                'import_type_id' =>
-                ImportType::AI_DATA_EXTRACTION,
+                'import_type_id' => ImportType::AI_DATA_EXTRACTION,
 
-                'status_id' =>
-                Status::PENDING,
+                'status_id' => Status::PENDING,
 
                 'total_etfs' => 2,
 
@@ -133,39 +127,32 @@ class RunAiEtfDividendExtractionsHandlerTest extends TestCase
             Etf::where(
                 'status_id',
                 Status::ACTIVE
-            )->get()
-
-            as $etf
+            )->get() as $etf
 
         ) {
 
             EtfDividendHistory::create([
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'dividend_amount' =>
-                0.25,
+                'dividend_amount' => 0.25,
 
-                'ex_dividend_date' =>
-                now()->toDateString(),
+                'ex_dividend_date' => now()->toDateString(),
 
-                'payment_date' =>
-                now()
+                'payment_date' => now()
                     ->addDays(5)
                     ->toDateString(),
 
                 'data_source_id' => 1,
 
-                'retrieved_at' =>
-                now(),
+                'retrieved_at' => now(),
 
             ]);
         }
 
         $results =
             $this->handler
-            ->handleRunAiEtfDividendExtractions();
+                ->handleRunAiEtfDividendExtractions();
 
         $this->assertEquals(
             1,

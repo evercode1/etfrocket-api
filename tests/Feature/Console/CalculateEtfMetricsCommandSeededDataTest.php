@@ -3,8 +3,8 @@
 namespace Tests\Feature\Console;
 
 use App\Models\Etf;
-use App\Models\EtfMetric;
 use App\Models\EtfAumHistory;
+use App\Models\EtfMetric;
 use App\Models\EtfNavHistory;
 use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
@@ -14,10 +14,10 @@ use Database\Seeders\EtfDividendHistorySeeder;
 use Database\Seeders\EtfNavHistorySeeder;
 use Database\Seeders\EtfPriceHistorySeeder;
 use Database\Seeders\EtfSeeder;
-use Database\Seeders\PerformanceRangeTypeSeeder;
-use Database\Seeders\StatusSeeder;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
+use Database\Seeders\PerformanceRangeTypeSeeder;
+use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\PortfolioTransactionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PortfolioTransaction extends Model
 {
-    /** @use HasFactory<\Database\Factories\PortfolioTransactionFactory> */
+    /** @use HasFactory<PortfolioTransactionFactory> */
     use HasFactory;
 
     protected $fillable = [

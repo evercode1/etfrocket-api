@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\User\Etfs;
 
 use App\Http\Controllers\Controller;
+use App\Models\PortfolioTransaction;
 use App\Queries\Etfs\FilteredEtfsQuery;
 use App\Services\EtfFilters\EtfFilterService;
-use App\Models\PortfolioTransaction;
+use App\Utilities\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Utilities\Auth;
 
 class EtfsListController extends Controller
 {
@@ -18,7 +18,7 @@ class EtfsListController extends Controller
 
             $filters = $filterService->resolve($request->all());
 
-            $etfs = (new FilteredEtfsQuery())->getData(
+            $etfs = (new FilteredEtfsQuery)->getData(
                 $filters,
                 Auth::id()
             );

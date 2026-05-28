@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\AiSignalBatchItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AiSignalBatchItem extends Model
 {
-    /** @use HasFactory<\Database\Factories\AiSignalBatchItemFactory> */
+    /** @use HasFactory<AiSignalBatchItemFactory> */
     use HasFactory;
 
     protected $fillable = [

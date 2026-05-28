@@ -2,17 +2,18 @@
 
 namespace App\Rules;
 
+use App\Models\Status;
+use App\Models\SupportTicket;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
-use App\Models\SupportTicket;
-use App\Models\Status;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class TicketIsOpen implements ValidationRule
 {
     /**
      * Run the validation rule.
      *
-     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -26,7 +27,7 @@ class TicketIsOpen implements ValidationRule
             ->doesntExist()
         ) {
 
-            $fail("The ticket is not open.");
+            $fail('The ticket is not open.');
         }
     }
 }

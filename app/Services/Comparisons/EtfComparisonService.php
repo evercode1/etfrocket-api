@@ -17,6 +17,7 @@ class EtfComparisonService
     public function getMetrics(): array
     {
         $metrics = config('etf_comparison.metrics');
+
         return $metrics ?: [];
     }
 
@@ -34,6 +35,7 @@ class EtfComparisonService
     public function getRanges(): array
     {
         $ranges = config('etf_comparison.ranges');
+
         return $ranges ?: [];
     }
 
@@ -51,6 +53,7 @@ class EtfComparisonService
     public function getDefaults(): array
     {
         $defaults = config('etf_comparison.defaults');
+
         return $defaults ?: [];
     }
 
@@ -98,8 +101,8 @@ class EtfComparisonService
         }
 
         $etfIds = collect($etfIds)
-            ->map(fn($id) => (int) $id)
-            ->filter(fn($id) => $id > 0)
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
             ->unique()
             ->values()
             ->toArray();

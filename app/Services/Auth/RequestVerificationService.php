@@ -2,15 +2,13 @@
 
 namespace App\Services\Auth;
 
+use App\Mail\VerifyEmail;
 use App\Models\User;
 use App\Models\UserVerification;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\VerifyEmail;
 
 class RequestVerificationService
 {
-
     public function requestVerification($request)
     {
 
@@ -30,12 +28,12 @@ class RequestVerificationService
         |--------------------------------------------------------------------------
         */
 
-        if(!isset($user)){
+        if (! isset($user)) {
 
             return ['message' => 'your email was not found in our system', 401];
         }
 
-        if (! is_null($user->email_verified_at )){
+        if (! is_null($user->email_verified_at)) {
 
             return ['message' => 'You are already verified', 201];
         }
@@ -46,7 +44,7 @@ class RequestVerificationService
 
         $user_id = $user->id;
 
-        if ( UserVerification::where('user_id', $user_id)->exists() ){
+        if (UserVerification::where('user_id', $user_id)->exists()) {
 
             $oldToken = UserVerification::where('user_id', $user_id)->first();
 
@@ -61,8 +59,8 @@ class RequestVerificationService
         */
 
         UserVerification::create([
-                    'user_id' => $user->id, 
-                    'token' => $token
+            'user_id' => $user->id,
+            'token' => $token,
         ]);
 
         $email = $user->email;
@@ -81,8 +79,7 @@ class RequestVerificationService
         |--------------------------------------------------------------------------
         */
 
-        return ['message' => 'email has been sent', 201];    
+        return ['message' => 'email has been sent', 201];
 
     }
-
 }

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\ImportType;
+use Illuminate\Database\Seeder;
 
 class ImportTypeSeeder extends Seeder
 {
@@ -44,9 +44,7 @@ class ImportTypeSeeder extends Seeder
 
             ImportType::create([
 
-                'import_type_name' =>
-
-                $value,
+                'import_type_name' => $value,
 
             ]);
         }

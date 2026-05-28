@@ -4,14 +4,14 @@ namespace App\Services\AI\AiSignals;
 
 use App\Models\AiMarketSignal;
 use App\Models\SignalType;
+use App\Services\AI\MarketAnalytics\MarketMoodService;
 use Exception;
 
 class GenerateAiSignalService
 {
     public function __construct(
 
-        private GenerateAiSignalContentService
-        $generateAiSignalContentService
+        private GenerateAiSignalContentService $generateAiSignalContentService
 
     ) {}
 
@@ -26,46 +26,36 @@ class GenerateAiSignalService
 
         $generatedMarkdown =
             $this->generateAiSignalContentService
-            ->generate(
-                $signal_type_id
-            );
+                ->generate(
+                    $signal_type_id
+                );
 
         $moodData = $this->getMarketMood();
 
         $signal =
             AiMarketSignal::create([
 
-                'signal_type_id' =>
-                $signal_type_id,
+                'signal_type_id' => $signal_type_id,
 
-                'title' =>
-                $this->getTitle(
+                'title' => $this->getTitle(
                     $signal_type_id
                 ),
 
-                'subtitle' =>
-                $this->getSubtitle(
+                'subtitle' => $this->getSubtitle(
                     $signal_type_id
                 ),
 
-                'market_mood' =>
+                'market_mood' => $moodData['market_mood'],
 
-                $moodData['market_mood'],
+                'confidence_score' => $moodData['confidence_score'],
 
-                'confidence_score' =>
-
-                $moodData['confidence_score'],
-
-                'markdown_content' =>
-                $generatedMarkdown,
+                'markdown_content' => $generatedMarkdown,
 
                 'payload_json' => [
 
-                    'template_used' =>
-                    basename($template),
+                    'template_used' => basename($template),
 
-                    'market_status' =>
-                    app(
+                    'market_status' => app(
                         IsMarketOpenService::class
                     )->isOpen()
                         ? 'OPEN'
@@ -73,16 +63,13 @@ class GenerateAiSignalService
 
                 ],
 
-                'generated_at' =>
-                now(),
+                'generated_at' => now(),
 
-                'expires_at' =>
-                now()->addDay(),
+                'expires_at' => now()->addDay(),
 
                 'is_active' => true,
 
-                'ai_model' =>
-                config(
+                'ai_model' => config(
                     'services.openai.model',
                     'gpt-4.1-mini'
                 ),
@@ -98,27 +85,19 @@ class GenerateAiSignalService
 
         return match ($signal_type_id) {
 
-            SignalType::MARKET_SNAPSHOT =>
-
-            app_path(
+            SignalType::MARKET_SNAPSHOT => app_path(
                 'Services/AI/AiSignals/Templates/market_snapshot.md'
             ),
 
-            SignalType::MARKET_CONDITIONS =>
-
-            app_path(
+            SignalType::MARKET_CONDITIONS => app_path(
                 'Services/AI/AiSignals/Templates/market_conditions.md'
             ),
 
-            SignalType::MARKET_EVENTS =>
-
-            app_path(
+            SignalType::MARKET_EVENTS => app_path(
                 'Services/AI/AiSignals/Templates/market_events.md'
             ),
 
-            default =>
-
-            throw new Exception(
+            default => throw new Exception(
                 'Invalid signal type.'
             ),
         };
@@ -130,21 +109,13 @@ class GenerateAiSignalService
 
         return match ($signal_type_id) {
 
-            SignalType::MARKET_SNAPSHOT =>
+            SignalType::MARKET_SNAPSHOT => 'AI Market Snapshot',
 
-            'AI Market Snapshot',
+            SignalType::MARKET_CONDITIONS => 'AI Market Conditions',
 
-            SignalType::MARKET_CONDITIONS =>
+            SignalType::MARKET_EVENTS => 'AI Market Events',
 
-            'AI Market Conditions',
-
-            SignalType::MARKET_EVENTS =>
-
-            'AI Market Events',
-
-            default =>
-
-            'AI Signal',
+            default => 'AI Signal',
         };
     }
 
@@ -154,21 +125,13 @@ class GenerateAiSignalService
 
         return match ($signal_type_id) {
 
-            SignalType::MARKET_SNAPSHOT =>
+            SignalType::MARKET_SNAPSHOT => 'Daily AI-generated overview of market sentiment and macro positioning.',
 
-            'Daily AI-generated overview of market sentiment and macro positioning.',
+            SignalType::MARKET_CONDITIONS => 'AI interpretation of volatility, momentum, and market behavior.',
 
-            SignalType::MARKET_CONDITIONS =>
+            SignalType::MARKET_EVENTS => 'Upcoming catalysts and macro events impacting financial markets.',
 
-            'AI interpretation of volatility, momentum, and market behavior.',
-
-            SignalType::MARKET_EVENTS =>
-
-            'Upcoming catalysts and macro events impacting financial markets.',
-
-            default =>
-
-            'AI-generated signal.',
+            default => 'AI-generated signal.',
         };
     }
 
@@ -177,7 +140,7 @@ class GenerateAiSignalService
 
         return app(
 
-            \App\Services\AI\MarketAnalytics\MarketMoodService::class
+            MarketMoodService::class
 
         )->determine();
     }

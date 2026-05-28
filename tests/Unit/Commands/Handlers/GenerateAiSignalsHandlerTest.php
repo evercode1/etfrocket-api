@@ -21,8 +21,7 @@ use Tests\TestCase;
 
 class GenerateAiSignalsHandlerTest extends TestCase
 {
-    private GenerateAiSignalsHandler
-        $handler;
+    private GenerateAiSignalsHandler $handler;
 
     private $marketOpenService;
 
@@ -107,7 +106,7 @@ class GenerateAiSignalsHandlerTest extends TestCase
 
         $results =
             $this->handler
-            ->handleGenerateAiSignals();
+                ->handleGenerateAiSignals();
 
         $this->assertEquals(
             1,
@@ -146,8 +145,7 @@ class GenerateAiSignalsHandlerTest extends TestCase
 
             [
 
-                'status_id' =>
-                Status::PENDING,
+                'status_id' => Status::PENDING,
 
                 'total_signals' => 3,
 
@@ -190,17 +188,13 @@ class GenerateAiSignalsHandlerTest extends TestCase
 
             [
 
-                'ai_signal_batch_id' =>
-                $batch->id,
+                'ai_signal_batch_id' => $batch->id,
 
-                'signal_type_id' =>
-                SignalType::MARKET_SNAPSHOT,
+                'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
-                'import_type_id' =>
-                ImportType::MARKET_SNAPSHOT,
+                'import_type_id' => ImportType::MARKET_SNAPSHOT,
 
-                'status_id' =>
-                Status::PENDING,
+                'status_id' => Status::PENDING,
 
                 'is_processed' => 0,
 
@@ -220,7 +214,7 @@ class GenerateAiSignalsHandlerTest extends TestCase
 
         $results =
             $this->handler
-            ->handleGenerateAiSignals();
+                ->handleGenerateAiSignals();
 
         $this->assertEquals(
             1,
@@ -244,42 +238,33 @@ class GenerateAiSignalsHandlerTest extends TestCase
 
         AiMarketSignal::create([
 
-            'signal_type_id' =>
-            SignalType::MARKET_SNAPSHOT,
+            'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
-            'title' =>
-            'Test Signal',
+            'title' => 'Test Signal',
 
-            'subtitle' =>
-            'Test Subtitle',
+            'subtitle' => 'Test Subtitle',
 
-            'market_mood' =>
-            'Bullish',
+            'market_mood' => 'Bullish',
 
-            'confidence_score' =>
-            88,
+            'confidence_score' => 88,
 
-            'markdown_content' =>
-            '# Test',
+            'markdown_content' => '# Test',
 
             'payload_json' => [],
 
-            'generated_at' =>
-            now(),
+            'generated_at' => now(),
 
-            'expires_at' =>
-            now()->addDay(),
+            'expires_at' => now()->addDay(),
 
             'is_active' => true,
 
-            'ai_model' =>
-            'gpt-4.1-mini',
+            'ai_model' => 'gpt-4.1-mini',
 
         ]);
 
         $results =
             $this->handler
-            ->handleGenerateAiSignals();
+                ->handleGenerateAiSignals();
 
         $this->assertEquals(
             1,
@@ -297,49 +282,39 @@ class GenerateAiSignalsHandlerTest extends TestCase
     public function test_force_flag_bypasses_freshness_check()
     {
 
-
         AiMarketSignal::create([
 
-            'signal_type_id' =>
-            SignalType::MARKET_SNAPSHOT,
+            'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
-            'title' =>
-            'Test Signal',
+            'title' => 'Test Signal',
 
-            'subtitle' =>
-            'Test Subtitle',
+            'subtitle' => 'Test Subtitle',
 
-            'market_mood' =>
-            'Bullish',
+            'market_mood' => 'Bullish',
 
-            'confidence_score' =>
-            88,
+            'confidence_score' => 88,
 
-            'markdown_content' =>
-            '# Test',
+            'markdown_content' => '# Test',
 
             'payload_json' => [],
 
-            'generated_at' =>
-            now(),
+            'generated_at' => now(),
 
-            'expires_at' =>
-            now()->addDay(),
+            'expires_at' => now()->addDay(),
 
             'is_active' => true,
 
-            'ai_model' =>
-            'gpt-4.1-mini',
+            'ai_model' => 'gpt-4.1-mini',
 
         ]);
 
         $results =
             $this->handler
-            ->handleGenerateAiSignals([
+                ->handleGenerateAiSignals([
 
-                'force' => true,
+                    'force' => true,
 
-            ]);
+                ]);
 
         $this->assertEquals(
             1,

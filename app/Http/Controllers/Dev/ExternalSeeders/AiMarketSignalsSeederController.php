@@ -16,19 +16,15 @@ class AiMarketSignalsSeederController extends Controller
 
             'signal_type_id' => 1,
 
-            'title' =>
-            'AI Market Snapshot',
+            'title' => 'AI Market Snapshot',
 
-            'subtitle' =>
-            'Daily AI-generated overview of market sentiment and macro positioning.',
+            'subtitle' => 'Daily AI-generated overview of market sentiment and macro positioning.',
 
-            'market_mood' =>
-            'Risk-On',
+            'market_mood' => 'Risk-On',
 
-            'confidence_score' =>
-            84,
+            'confidence_score' => 84,
 
-            'markdown_content' => <<<MARKDOWN
+            'markdown_content' => <<<'MARKDOWN'
 # Market Snapshot
 
 Markets pushed higher today as treasury yields stabilized and volatility continued to compress.
@@ -52,27 +48,21 @@ MARKDOWN,
 
             'payload_json' => [
 
-                'market_status' =>
-                'OPEN',
+                'market_status' => 'OPEN',
 
-                'volatility' =>
-                'declining',
+                'volatility' => 'declining',
 
-                'breadth' =>
-                'improving',
+                'breadth' => 'improving',
 
             ],
 
-            'generated_at' =>
-            Carbon::now(),
+            'generated_at' => Carbon::now(),
 
-            'expires_at' =>
-            Carbon::now()->addDay(),
+            'expires_at' => Carbon::now()->addDay(),
 
             'is_active' => true,
 
-            'ai_model' =>
-            'gpt-4.1-mini',
+            'ai_model' => 'gpt-4.1-mini',
 
         ]);
 
@@ -80,19 +70,15 @@ MARKDOWN,
 
             'signal_type_id' => 2,
 
-            'title' =>
-            'AI Market Conditions',
+            'title' => 'AI Market Conditions',
 
-            'subtitle' =>
-            'AI interpretation of volatility, momentum, and market behavior.',
+            'subtitle' => 'AI interpretation of volatility, momentum, and market behavior.',
 
-            'market_mood' =>
-            'Neutral',
+            'market_mood' => 'Neutral',
 
-            'confidence_score' =>
-            76,
+            'confidence_score' => 76,
 
-            'markdown_content' => <<<MARKDOWN
+            'markdown_content' => <<<'MARKDOWN'
 # Market Conditions
 
 Markets remain in a transitional phase between defensive positioning and renewed growth participation.
@@ -117,27 +103,21 @@ MARKDOWN,
 
             'payload_json' => [
 
-                'market_status' =>
-                'OPEN',
+                'market_status' => 'OPEN',
 
-                'vix_trend' =>
-                'declining',
+                'vix_trend' => 'declining',
 
-                'bond_market' =>
-                'stable',
+                'bond_market' => 'stable',
 
             ],
 
-            'generated_at' =>
-            Carbon::now(),
+            'generated_at' => Carbon::now(),
 
-            'expires_at' =>
-            Carbon::now()->addDay(),
+            'expires_at' => Carbon::now()->addDay(),
 
             'is_active' => true,
 
-            'ai_model' =>
-            'gpt-4.1-mini',
+            'ai_model' => 'gpt-4.1-mini',
 
         ]);
 
@@ -145,19 +125,15 @@ MARKDOWN,
 
             'signal_type_id' => 3,
 
-            'title' =>
-            'AI Market Events',
+            'title' => 'AI Market Events',
 
-            'subtitle' =>
-            'Upcoming catalysts and macro events impacting financial markets.',
+            'subtitle' => 'Upcoming catalysts and macro events impacting financial markets.',
 
-            'market_mood' =>
-            'Event Driven',
+            'market_mood' => 'Event Driven',
 
-            'confidence_score' =>
-            91,
+            'confidence_score' => 91,
 
-            'markdown_content' => <<<MARKDOWN
+            'markdown_content' => <<<'MARKDOWN'
 # Upcoming Market Events
 
 Several major macro catalysts are approaching this week.
@@ -182,30 +158,23 @@ MARKDOWN,
 
             'payload_json' => [
 
-                'market_status' =>
-                'OPEN',
+                'market_status' => 'OPEN',
 
-                'fed_event' =>
-                true,
+                'fed_event' => true,
 
-                'earnings_week' =>
-                true,
+                'earnings_week' => true,
 
-                'employment_data' =>
-                true,
+                'employment_data' => true,
 
             ],
 
-            'generated_at' =>
-            Carbon::now(),
+            'generated_at' => Carbon::now(),
 
-            'expires_at' =>
-            Carbon::now()->addDay(),
+            'expires_at' => Carbon::now()->addDay(),
 
             'is_active' => true,
 
-            'ai_model' =>
-            'gpt-4.1-mini',
+            'ai_model' => 'gpt-4.1-mini',
 
         ]);
     }

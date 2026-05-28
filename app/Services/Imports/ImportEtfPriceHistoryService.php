@@ -6,8 +6,8 @@ use App\Imports\EtfPriceHistoryImport;
 use App\Models\Etf;
 use App\Models\EtfDividendHistory;
 use App\Models\EtfPriceHistory;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ImportEtfPriceHistoryService
 {
@@ -15,7 +15,7 @@ class ImportEtfPriceHistoryService
     {
         $etf = Etf::findOrFail($etfId);
 
-        $parsed = (new EtfPriceHistoryImport())->parse($filePath);
+        $parsed = (new EtfPriceHistoryImport)->parse($filePath);
 
         $priceRows = collect($parsed['prices'])
             ->sortBy('price_date')

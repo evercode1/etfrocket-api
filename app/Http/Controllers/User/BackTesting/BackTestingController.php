@@ -110,8 +110,7 @@ class BackTestingController extends Controller
 
                 'success' => false,
 
-                'message' =>
-                'Oops, something went wrong. Please try again later.',
+                'message' => 'Oops, something went wrong. Please try again later.',
 
             ], 500);
         }

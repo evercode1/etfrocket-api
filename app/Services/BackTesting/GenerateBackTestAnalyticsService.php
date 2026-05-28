@@ -109,8 +109,7 @@ class GenerateBackTestAnalyticsService
                 2
             ),
 
-            'total_return_percentage' =>
-            round(
+            'total_return_percentage' => round(
                 $totalReturnPercentage,
                 2
             ),

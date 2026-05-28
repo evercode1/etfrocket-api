@@ -4,7 +4,6 @@ namespace App\Services\Support;
 
 class NewResponseFormConfigService
 {
-
     public static function getNewResponseFormConfig()
     {
 
@@ -16,9 +15,9 @@ class NewResponseFormConfigService
                 'label' => 'Your Response',
                 'required' => 1,
                 'max_length' => 2000,
-                'instructions' => ''
-                
-            ]
+                'instructions' => '',
+
+            ],
 
         ];
 
@@ -26,10 +25,9 @@ class NewResponseFormConfigService
 
             'status' => 'success',
             'form_config' => $form_config,
-            'post_endpoint' => 'respond-to-support-response'
-            
+            'post_endpoint' => 'respond-to-support-response',
+
         ], 200);
 
     }
-
 }

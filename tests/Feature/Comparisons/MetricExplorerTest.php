@@ -48,8 +48,7 @@ class MetricExplorerTest extends TestCase
 
             'etf_id' => $etf->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'price_change_percentage' => 22.50,
 
@@ -218,8 +217,7 @@ class MetricExplorerTest extends TestCase
 
             'etf_id' => $etf->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'aum_change_percentage' => 55.55,
 
@@ -266,8 +264,7 @@ class MetricExplorerTest extends TestCase
 
             'etf_id' => $etf->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::ONE_YEAR,
+            'performance_range_type_id' => PerformanceRangeType::ONE_YEAR,
 
             'price_change_percentage' => 88.88,
 
@@ -320,8 +317,7 @@ class MetricExplorerTest extends TestCase
 
             'etf_id' => $high->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'price_change_percentage' => 50,
 
@@ -331,8 +327,7 @@ class MetricExplorerTest extends TestCase
 
             'etf_id' => $low->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'price_change_percentage' => 5,
 
@@ -373,11 +368,9 @@ class MetricExplorerTest extends TestCase
 
                 'etf_id' => $etf->id,
 
-                'performance_range_type_id' =>
-                PerformanceRangeType::NINETY_DAY,
+                'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
-                'price_change_percentage' =>
-                $index,
+                'price_change_percentage' => $index,
 
             ]);
         }

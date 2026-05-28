@@ -10,14 +10,11 @@ class BackTestingService
 {
     public function __construct(
 
-        private GetBackTestPriceHistoryQuery
-        $priceHistoryQuery,
+        private GetBackTestPriceHistoryQuery $priceHistoryQuery,
 
-        private GetBackTestDividendHistoryQuery
-        $dividendHistoryQuery,
+        private GetBackTestDividendHistoryQuery $dividendHistoryQuery,
 
-        private GenerateBackTestAnalyticsService
-        $analyticsService,
+        private GenerateBackTestAnalyticsService $analyticsService,
 
     ) {}
 
@@ -32,27 +29,27 @@ class BackTestingService
 
         $prices =
             $this->priceHistoryQuery
-            ->getData(
+                ->getData(
 
-                etfId: $etfId,
+                    etfId: $etfId,
 
-                startDate: $startDate,
+                    startDate: $startDate,
 
-                endDate: $endDate,
+                    endDate: $endDate,
 
-            );
+                );
 
         $dividends =
             $this->dividendHistoryQuery
-            ->getData(
+                ->getData(
 
-                etfId: $etfId,
+                    etfId: $etfId,
 
-                startDate: $startDate,
+                    startDate: $startDate,
 
-                endDate: $endDate,
+                    endDate: $endDate,
 
-            );
+                );
 
         if (empty($prices)) {
 
@@ -94,8 +91,7 @@ class BackTestingService
 
         $dividendMap =
             collect($dividends)
-
-            ->keyBy('date');
+                ->keyBy('date');
 
         $firstPrice =
             $prices[0]['price'];
@@ -142,10 +138,8 @@ class BackTestingService
             $dividend =
 
                 collect($dividends)
-
-                ->where('date', $row['date'])
-
-                ->sum('dividend');
+                    ->where('date', $row['date'])
+                    ->sum('dividend');
 
             if ($dividend > 0) {
 
@@ -179,29 +173,24 @@ class BackTestingService
 
             $chartRows[] = [
 
-                'date' =>
-                $row['date'],
+                'date' => $row['date'],
 
-                'portfolio_value' =>
-                round(
+                'portfolio_value' => round(
                     $portfolioValue,
                     2
                 ),
 
-                'shares' =>
-                round(
+                'shares' => round(
                     $shares,
                     4
                 ),
 
-                'price' =>
-                round(
+                'price' => round(
                     $price,
                     2
                 ),
 
-                'income' =>
-                round(
+                'income' => round(
                     $cashDividends,
                     2
                 ),
@@ -214,13 +203,13 @@ class BackTestingService
 
         $analytics =
             $this->analyticsService
-            ->getData(
+                ->getData(
 
-                chartRows: $chartRows,
+                    chartRows: $chartRows,
 
-                initialInvestment: $initialInvestment,
+                    initialInvestment: $initialInvestment,
 
-            );
+                );
 
         return [
 
@@ -228,26 +217,22 @@ class BackTestingService
 
             'summary' => [
 
-                'final_value' =>
-                round(
+                'final_value' => round(
                     $finalValue,
                     2
                 ),
 
-                'total_contributions' =>
-                round(
+                'total_contributions' => round(
                     $totalContributions,
                     2
                 ),
 
-                'total_dividends' =>
-                round(
+                'total_dividends' => round(
                     $cashDividends,
                     2
                 ),
 
-                'ending_shares' =>
-                round(
+                'ending_shares' => round(
                     $shares,
                     4
                 ),

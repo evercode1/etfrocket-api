@@ -48,7 +48,7 @@ class PortfolioDividendStatsService
 
                 return $this->getMonthlyDividendIncome($holdings, $month);
             })
-            ->filter(fn(float $income) => $income > 0)
+            ->filter(fn (float $income) => $income > 0)
             ->values();
 
         if ($monthlyIncomeRows->isEmpty()) {

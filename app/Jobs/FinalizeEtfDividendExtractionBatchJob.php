@@ -56,9 +56,9 @@ class FinalizeEtfDividendExtractionBatchJob implements ShouldQueue
             $batch->started_at
 
             ? $batch->started_at
-            ->diffInSeconds(
-                $completedAt
-            )
+                ->diffInSeconds(
+                    $completedAt
+                )
 
             : 0;
 
@@ -106,17 +106,13 @@ class FinalizeEtfDividendExtractionBatchJob implements ShouldQueue
 
         $batch->update([
 
-            'status_id' =>
-            $statusId,
+            'status_id' => $statusId,
 
-            'passed_data_integrity_check' =>
-            $passedIntegrityCheck,
+            'passed_data_integrity_check' => $passedIntegrityCheck,
 
-            'processing_notes' =>
-            $processingNotes,
+            'processing_notes' => $processingNotes,
 
-            'completed_at' =>
-            $completedAt,
+            'completed_at' => $completedAt,
 
         ]);
     }

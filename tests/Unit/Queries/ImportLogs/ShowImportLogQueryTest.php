@@ -10,13 +10,13 @@ use App\Queries\ImportLogs\ShowImportLogQuery;
 use Database\Seeders\DataSourceSeeder;
 use Database\Seeders\ImportTypeSeeder;
 use Database\Seeders\StatusSeeder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class ShowImportLogQueryTest extends TestCase
 {
-    private ShowImportLogQuery
-        $query;
+    private ShowImportLogQuery $query;
 
     protected function setUp(): void
     {
@@ -47,7 +47,7 @@ class ShowImportLogQueryTest extends TestCase
         );
 
         $this->query =
-            new ShowImportLogQuery();
+            new ShowImportLogQuery;
     }
 
     protected function tearDown(): void
@@ -71,13 +71,13 @@ class ShowImportLogQueryTest extends TestCase
     {
         $importLog =
             ImportLog::factory()
-            ->create();
+                ->create();
 
         $result =
             $this->query
-            ->getData(
-                $importLog->id
-            );
+                ->getData(
+                    $importLog->id
+                );
 
         $this->assertEquals(
 
@@ -92,27 +92,21 @@ class ShowImportLogQueryTest extends TestCase
     {
         $importLog =
             ImportLog::factory()
-            ->create([
+                ->create([
 
-                'import_type_id' =>
+                    'import_type_id' => ImportType::ETF_PRICE_IMPORT,
 
-                ImportType::ETF_PRICE_IMPORT,
+                    'status_id' => Status::COMPLETED,
 
-                'status_id' =>
+                    'data_source_id' => DataSource::TIINGO_API,
 
-                Status::COMPLETED,
-
-                'data_source_id' =>
-
-                DataSource::TIINGO_API,
-
-            ]);
+                ]);
 
         $result =
             $this->query
-            ->getData(
-                $importLog->id
-            );
+                ->getData(
+                    $importLog->id
+                );
 
         $this->assertNotNull(
             $result->import_type_name
@@ -131,19 +125,17 @@ class ShowImportLogQueryTest extends TestCase
     {
         $importLog =
             ImportLog::factory()
-            ->create([
+                ->create([
 
-                'generated_markdown' =>
+                    'generated_markdown' => '# Generated AI Content',
 
-                '# Generated AI Content',
-
-            ]);
+                ]);
 
         $result =
             $this->query
-            ->getData(
-                $importLog->id
-            );
+                ->getData(
+                    $importLog->id
+                );
 
         $this->assertEquals(
 
@@ -158,19 +150,17 @@ class ShowImportLogQueryTest extends TestCase
     {
         $importLog =
             ImportLog::factory()
-            ->create([
+                ->create([
 
-                'processing_notes' =>
+                    'processing_notes' => 'Import completed successfully.',
 
-                'Import completed successfully.',
-
-            ]);
+                ]);
 
         $result =
             $this->query
-            ->getData(
-                $importLog->id
-            );
+                ->getData(
+                    $importLog->id
+                );
 
         $this->assertEquals(
 
@@ -185,19 +175,17 @@ class ShowImportLogQueryTest extends TestCase
     {
         $importLog =
             ImportLog::factory()
-            ->create([
+                ->create([
 
-                'import_fail_details' =>
+                    'import_fail_details' => 'Provider timeout occurred.',
 
-                'Provider timeout occurred.',
-
-            ]);
+                ]);
 
         $result =
             $this->query
-            ->getData(
-                $importLog->id
-            );
+                ->getData(
+                    $importLog->id
+                );
 
         $this->assertEquals(
 
@@ -212,17 +200,17 @@ class ShowImportLogQueryTest extends TestCase
     {
         $importLog =
             ImportLog::factory()
-            ->create([
+                ->create([
 
-                'passed_data_integrity_check' => 1,
+                    'passed_data_integrity_check' => 1,
 
-            ]);
+                ]);
 
         $result =
             $this->query
-            ->getData(
-                $importLog->id
-            );
+                ->getData(
+                    $importLog->id
+                );
 
         $this->assertEquals(
 
@@ -236,7 +224,7 @@ class ShowImportLogQueryTest extends TestCase
     public function test_it_throws_exception_when_import_log_not_found()
     {
         $this->expectException(
-            \Illuminate\Database\Eloquent\ModelNotFoundException::class
+            ModelNotFoundException::class
         );
 
         $this->query

@@ -3,13 +3,12 @@
 namespace App\Services\Settings;
 
 use App\Models\User;
-use Illuminate\Validation\Rule;
 use App\Utilities\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class UpdateUserNameService
 {
-
     public static function updateUserName(Request $request)
     {
 
@@ -20,11 +19,10 @@ class UpdateUserNameService
             'name' => [
                 'required',
                 'string',
-                Rule::unique('users')->ignore($id)
-            ]
+                Rule::unique('users')->ignore($id),
+            ],
 
         ]);
-
 
         $user = User::where('id', $id)->first();
 
@@ -35,7 +33,7 @@ class UpdateUserNameService
         return response()->json(
             [
                 'status' => 'success',
-                'message' => 'your settings have been updated.'
+                'message' => 'your settings have been updated.',
             ],
             200
         );

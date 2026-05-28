@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class EtfStrategyTypesSeederController extends Controller
 {
-
     public function run(): void
     {
         DB::table('etf_strategy_types')->truncate();
@@ -41,7 +40,7 @@ class EtfStrategyTypesSeederController extends Controller
             'Crypto Income',
             'Precious Metals',
             'Defense',
-            'Risk Managed'
+            'Risk Managed',
 
         ];
 

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\EtfFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Etf extends Model
 {
-    /** @use HasFactory<\Database\Factories\EtfFactory> */
+    /** @use HasFactory<EtfFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -22,7 +23,7 @@ class Etf extends Model
         'inception_date',
         'source',
         'website_url',
-        'notes'
+        'notes',
 
     ];
 
@@ -32,7 +33,7 @@ class Etf extends Model
         return [
 
             'created_at' => 'date:Y-m-d',
-            'updated_at' => 'date:Y-m-d'
+            'updated_at' => 'date:Y-m-d',
 
         ];
     }

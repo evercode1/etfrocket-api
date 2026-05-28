@@ -31,7 +31,7 @@ class GetAiSignalsTest extends TestCase
 
         $user =
             User::factory()
-            ->create();
+                ->create();
 
         Sanctum::actingAs(
 
@@ -61,24 +61,21 @@ class GetAiSignalsTest extends TestCase
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_SNAPSHOT,
+                'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
             ]);
 
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_CONDITIONS,
+                'signal_type_id' => SignalType::MARKET_CONDITIONS,
 
             ]);
 
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_EVENTS,
+                'signal_type_id' => SignalType::MARKET_EVENTS,
 
             ]);
 
@@ -127,34 +124,22 @@ class GetAiSignalsTest extends TestCase
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
+                'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
-                SignalType::MARKET_SNAPSHOT,
+                'title' => 'Old Snapshot',
 
-                'title' =>
-
-                'Old Snapshot',
-
-                'generated_at' =>
-
-                now()->subDay(),
+                'generated_at' => now()->subDay(),
 
             ]);
 
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
+                'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
-                SignalType::MARKET_SNAPSHOT,
+                'title' => 'New Snapshot',
 
-                'title' =>
-
-                'New Snapshot',
-
-                'generated_at' =>
-
-                now(),
+                'generated_at' => now(),
 
             ]);
 

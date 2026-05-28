@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Auth;
 
-use Tests\TestCase;
 use App\Models\User;
-use Carbon\Carbon;
 use App\Models\UserVerification;
 use App\Services\Auth\RegistrationTransactionService;
+use Carbon\Carbon;
+use Tests\TestCase;
 
 class SendRealMailTest extends TestCase
 {
@@ -15,7 +15,7 @@ class SendRealMailTest extends TestCase
         parent::setUp();
 
         Carbon::setTestNow(Carbon::parse('2026-04-03 12:00:00'));
-  
+
         UserVerification::truncate();
         User::truncate();
 
@@ -23,7 +23,7 @@ class SendRealMailTest extends TestCase
 
     protected function tearDown(): void
     {
-       
+
         UserVerification::truncate();
         User::truncate();
         Carbon::setTestNow();
@@ -48,7 +48,7 @@ class SendRealMailTest extends TestCase
 
         // Assert the user was created
         $this->assertDatabaseHas('users', ['email' => 'yo@yo.com']);
-        
+
         // At this point, check your Mailtrap.io inbox!
     }
 }

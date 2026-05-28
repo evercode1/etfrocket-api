@@ -64,9 +64,7 @@ class ProcessAiEtfAumExtractionService
 
                         'failure_reason' => null,
 
-                        'validation_notes' =>
-
-                        'AI ETF AUM extraction processed successfully.',
+                        'validation_notes' => 'AI ETF AUM extraction processed successfully.',
 
                     ]);
 
@@ -82,12 +80,9 @@ class ProcessAiEtfAumExtractionService
 
                 'failed_at' => now(),
 
-                'failure_reason' =>
-                $e->getMessage(),
+                'failure_reason' => $e->getMessage(),
 
-                'validation_notes' =>
-
-                'AI ETF AUM extraction failed processing.',
+                'validation_notes' => 'AI ETF AUM extraction failed processing.',
 
             ]);
 
@@ -160,21 +155,17 @@ class ProcessAiEtfAumExtractionService
 
             [
 
-                'etf_id' =>
-                $extraction->etf_id,
+                'etf_id' => $extraction->etf_id,
 
-                'aum_date' =>
-                $aumDate,
+                'aum_date' => $aumDate,
 
             ],
 
             [
 
-                'assets_under_management' =>
-                $assetsUnderManagement,
+                'assets_under_management' => $assetsUnderManagement,
 
-                'data_source_id' =>
-                $extraction->data_source_id,
+                'data_source_id' => $extraction->data_source_id,
 
                 'retrieved_at' => now(),
 
@@ -191,7 +182,7 @@ class ProcessAiEtfAumExtractionService
         if (! is_numeric($value)) {
 
             throw new \RuntimeException(
-                $field . ' must be numeric.'
+                $field.' must be numeric.'
             );
         }
 
@@ -201,7 +192,7 @@ class ProcessAiEtfAumExtractionService
         if ($value <= 0) {
 
             throw new \RuntimeException(
-                $field . ' must be greater than zero.'
+                $field.' must be greater than zero.'
             );
         }
 
@@ -216,7 +207,7 @@ class ProcessAiEtfAumExtractionService
         if (! is_string($value)) {
 
             throw new \RuntimeException(
-                $field . ' must be a valid date string.'
+                $field.' must be a valid date string.'
             );
         }
 
@@ -230,7 +221,7 @@ class ProcessAiEtfAumExtractionService
         } catch (\Throwable $e) {
 
             throw new \RuntimeException(
-                $field . ' must be a valid date.'
+                $field.' must be a valid date.'
             );
         }
 
@@ -247,7 +238,7 @@ class ProcessAiEtfAumExtractionService
         ) {
 
             throw new \RuntimeException(
-                $field . ' is stale.'
+                $field.' is stale.'
             );
         }
 

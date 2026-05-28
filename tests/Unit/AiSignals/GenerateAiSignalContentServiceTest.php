@@ -5,15 +5,14 @@ namespace Tests\Unit\AiSignals;
 use App\Models\SignalType;
 use App\Services\AI\AiSignals\GenerateAiSignalContentService;
 use App\Services\AI\AiSignals\IsMarketOpenService;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\DB;
 use Database\Seeders\SignalTypeSeeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class GenerateAiSignalContentServiceTest extends TestCase
 {
-    private GenerateAiSignalContentService
-        $service;
+    private GenerateAiSignalContentService $service;
 
     protected function setUp(): void
     {
@@ -29,7 +28,7 @@ class GenerateAiSignalContentServiceTest extends TestCase
         $this->service =
             new GenerateAiSignalContentService(
 
-                new IsMarketOpenService()
+                new IsMarketOpenService
 
             );
     }
@@ -46,9 +45,7 @@ class GenerateAiSignalContentServiceTest extends TestCase
     {
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([
+            'https://api.openai.com/*' => Http::response([
 
                 'output' => [
 
@@ -58,10 +55,9 @@ class GenerateAiSignalContentServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-                                '# Market Snapshot' .
-                                    PHP_EOL .
-                                    PHP_EOL .
+                                'text' => '# Market Snapshot'.
+                                    PHP_EOL.
+                                    PHP_EOL.
                                     'Bullish momentum continues.',
 
                             ],
@@ -96,9 +92,7 @@ class GenerateAiSignalContentServiceTest extends TestCase
     {
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([
+            'https://api.openai.com/*' => Http::response([
 
                 'output' => [
 
@@ -108,8 +102,7 @@ class GenerateAiSignalContentServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-                                '# Market Conditions',
+                                'text' => '# Market Conditions',
 
                             ],
 
@@ -143,9 +136,7 @@ class GenerateAiSignalContentServiceTest extends TestCase
     {
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([
+            'https://api.openai.com/*' => Http::response([
 
                 'output' => [
 
@@ -155,8 +146,7 @@ class GenerateAiSignalContentServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-                                '# Upcoming Market Events',
+                                'text' => '# Upcoming Market Events',
 
                             ],
 
@@ -190,9 +180,7 @@ class GenerateAiSignalContentServiceTest extends TestCase
     {
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([
+            'https://api.openai.com/*' => Http::response([
 
                 'output' => [
 
@@ -202,9 +190,7 @@ class GenerateAiSignalContentServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-
-                                '# Test',
+                                'text' => '# Test',
 
                             ],
 
@@ -237,9 +223,7 @@ class GenerateAiSignalContentServiceTest extends TestCase
     {
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([
+            'https://api.openai.com/*' => Http::response([
 
                 'output' => [
 
@@ -249,9 +233,7 @@ class GenerateAiSignalContentServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-
-                                '# Test',
+                                'text' => '# Test',
 
                             ],
 
@@ -289,14 +271,11 @@ class GenerateAiSignalContentServiceTest extends TestCase
     {
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([
+            'https://api.openai.com/*' => Http::response([
 
                 'error' => [
 
-                    'message' =>
-                    'Server error',
+                    'message' => 'Server error',
 
                 ],
 
@@ -319,9 +298,7 @@ class GenerateAiSignalContentServiceTest extends TestCase
     {
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([
+            'https://api.openai.com/*' => Http::response([
 
                 'output' => [
 

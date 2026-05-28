@@ -59,28 +59,25 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     {
         $batch =
             EtfIngestionBatch::factory()
-            ->create([
+                ->create([
 
-                'import_type_id' =>
-                ImportType::AI_DATA_EXTRACTION,
+                    'import_type_id' => ImportType::AI_DATA_EXTRACTION,
 
-                'status_id' =>
-                Status::PENDING,
+                    'status_id' => Status::PENDING,
 
-                'total_etfs' => 10,
+                    'total_etfs' => 10,
 
-                'processed_count' => 10,
+                    'processed_count' => 10,
 
-                'success_count' => 10,
+                    'success_count' => 10,
 
-                'failure_count' => 0,
+                    'failure_count' => 0,
 
-                'duplicate_count' => 0,
+                    'duplicate_count' => 0,
 
-                'started_at' =>
-                now()->subMinutes(5),
+                    'started_at' => now()->subMinutes(5),
 
-            ]);
+                ]);
 
         $job =
             new FinalizeEtfPriceExtractionBatchJob(
@@ -116,11 +113,9 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
 
             [
 
-                'import_type_id' =>
-                ImportType::AI_DATA_EXTRACTION,
+                'import_type_id' => ImportType::AI_DATA_EXTRACTION,
 
-                'status_id' =>
-                Status::COMPLETED,
+                'status_id' => Status::COMPLETED,
 
                 'rows_processed' => 10,
 
@@ -139,28 +134,25 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     {
         $batch =
             EtfIngestionBatch::factory()
-            ->create([
+                ->create([
 
-                'import_type_id' =>
-                ImportType::AI_DATA_EXTRACTION,
+                    'import_type_id' => ImportType::AI_DATA_EXTRACTION,
 
-                'status_id' =>
-                Status::PENDING,
+                    'status_id' => Status::PENDING,
 
-                'total_etfs' => 10,
+                    'total_etfs' => 10,
 
-                'processed_count' => 10,
+                    'processed_count' => 10,
 
-                'success_count' => 8,
+                    'success_count' => 8,
 
-                'failure_count' => 2,
+                    'failure_count' => 2,
 
-                'duplicate_count' => 0,
+                    'duplicate_count' => 0,
 
-                'started_at' =>
-                now()->subMinutes(5),
+                    'started_at' => now()->subMinutes(5),
 
-            ]);
+                ]);
 
         $job =
             new FinalizeEtfPriceExtractionBatchJob(
@@ -193,8 +185,7 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
 
             [
 
-                'status_id' =>
-                Status::FAILED,
+                'status_id' => Status::FAILED,
 
                 'rows_processed' => 10,
 
@@ -213,15 +204,15 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     {
         $batch =
             EtfIngestionBatch::factory()
-            ->create([
+                ->create([
 
-                'processed_count' => 5,
+                    'processed_count' => 5,
 
-                'total_etfs' => 5,
+                    'total_etfs' => 5,
 
-                'success_count' => 5,
+                    'success_count' => 5,
 
-            ]);
+                ]);
 
         $job =
             new FinalizeEtfPriceExtractionBatchJob(
@@ -241,17 +232,17 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     {
         $batch =
             EtfIngestionBatch::factory()
-            ->create([
+                ->create([
 
-                'processed_count' => 3,
+                    'processed_count' => 3,
 
-                'total_etfs' => 3,
+                    'total_etfs' => 3,
 
-                'success_count' => 3,
+                    'success_count' => 3,
 
-                'failure_count' => 0,
+                    'failure_count' => 0,
 
-            ]);
+                ]);
 
         $job =
             new FinalizeEtfPriceExtractionBatchJob(
@@ -270,17 +261,17 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     {
         $batch =
             EtfIngestionBatch::factory()
-            ->create([
+                ->create([
 
-                'processed_count' => 4,
+                    'processed_count' => 4,
 
-                'total_etfs' => 4,
+                    'total_etfs' => 4,
 
-                'success_count' => 2,
+                    'success_count' => 2,
 
-                'failure_count' => 2,
+                    'failure_count' => 2,
 
-            ]);
+                ]);
 
         $job =
             new FinalizeEtfPriceExtractionBatchJob(
@@ -304,17 +295,17 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     {
         $batch =
             EtfIngestionBatch::factory()
-            ->create([
+                ->create([
 
-                'processed_count' => 4,
+                    'processed_count' => 4,
 
-                'total_etfs' => 4,
+                    'total_etfs' => 4,
 
-                'success_count' => 4,
+                    'success_count' => 4,
 
-                'failure_count' => 0,
+                    'failure_count' => 0,
 
-            ]);
+                ]);
 
         $job =
             new FinalizeEtfPriceExtractionBatchJob(

@@ -60,7 +60,7 @@ class GetBackTestDividendHistoryQueryTest extends TestCase
 
         ]);
 
-        $rows = (new GetBackTestDividendHistoryQuery())
+        $rows = (new GetBackTestDividendHistoryQuery)
 
             ->getData(
 
@@ -122,7 +122,7 @@ class GetBackTestDividendHistoryQueryTest extends TestCase
 
         ]);
 
-        $rows = (new GetBackTestDividendHistoryQuery())
+        $rows = (new GetBackTestDividendHistoryQuery)
 
             ->getData(
 
@@ -176,7 +176,7 @@ class GetBackTestDividendHistoryQueryTest extends TestCase
 
         ]);
 
-        $rows = (new GetBackTestDividendHistoryQuery())
+        $rows = (new GetBackTestDividendHistoryQuery)
 
             ->getData(
 
@@ -203,7 +203,7 @@ class GetBackTestDividendHistoryQueryTest extends TestCase
     {
         $etf = $this->createEtf('CHPY');
 
-        $rows = (new GetBackTestDividendHistoryQuery())
+        $rows = (new GetBackTestDividendHistoryQuery)
 
             ->getData(
 
@@ -235,7 +235,7 @@ class GetBackTestDividendHistoryQueryTest extends TestCase
 
         ]);
 
-        $rows = (new GetBackTestDividendHistoryQuery())
+        $rows = (new GetBackTestDividendHistoryQuery)
 
             ->getData(
 
@@ -265,8 +265,7 @@ class GetBackTestDividendHistoryQueryTest extends TestCase
 
             'symbol' => $symbol,
 
-            'fund_name' =>
-            "{$symbol} Test ETF",
+            'fund_name' => "{$symbol} Test ETF",
 
         ]);
     }

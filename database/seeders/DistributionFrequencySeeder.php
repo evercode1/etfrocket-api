@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\DistributionFrequency;
-use App\Models\Status;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 

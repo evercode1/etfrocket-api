@@ -46,7 +46,7 @@ class EtfMetricStatsServiceTest extends TestCase
             'average_dividend' => '1.0000',
         ]);
 
-        $metrics = (new EtfMetricStatsService())->getMetricsForEtfs(
+        $metrics = (new EtfMetricStatsService)->getMetricsForEtfs(
             collect([$firstEtf->id, $secondEtf->id]),
             [
                 PerformanceRangeType::THIRTY_DAY,
@@ -65,7 +65,7 @@ class EtfMetricStatsServiceTest extends TestCase
 
     public function test_get_metrics_for_etfs_returns_empty_collection_for_empty_etf_ids(): void
     {
-        $metrics = (new EtfMetricStatsService())->getMetricsForEtfs(
+        $metrics = (new EtfMetricStatsService)->getMetricsForEtfs(
             [],
             [PerformanceRangeType::THIRTY_DAY]
         );
@@ -80,7 +80,7 @@ class EtfMetricStatsServiceTest extends TestCase
 
         $this->createMetric($etf->id, PerformanceRangeType::THIRTY_DAY);
 
-        $metrics = (new EtfMetricStatsService())->getMetricsForEtfs(
+        $metrics = (new EtfMetricStatsService)->getMetricsForEtfs(
             [$etf->id],
             []
         );
@@ -97,7 +97,7 @@ class EtfMetricStatsServiceTest extends TestCase
             'average_dividend' => '0.5000',
         ]);
 
-        $metric = (new EtfMetricStatsService())->getMetricForEtf(
+        $metric = (new EtfMetricStatsService)->getMetricForEtf(
             $etf->id,
             PerformanceRangeType::THIRTY_DAY
         );
@@ -112,7 +112,7 @@ class EtfMetricStatsServiceTest extends TestCase
     {
         $etf = $this->createEtf('NVII');
 
-        $metric = (new EtfMetricStatsService())->getMetricForEtf(
+        $metric = (new EtfMetricStatsService)->getMetricForEtf(
             $etf->id,
             PerformanceRangeType::THIRTY_DAY
         );
@@ -160,7 +160,7 @@ class EtfMetricStatsServiceTest extends TestCase
             ],
         ]);
 
-        $results = (new EtfMetricStatsService())
+        $results = (new EtfMetricStatsService)
             ->getDistributionGrowthFromMetrics($holdings);
 
         $this->assertCount(2, $results);
@@ -215,7 +215,7 @@ class EtfMetricStatsServiceTest extends TestCase
             ],
         ]);
 
-        $results = (new EtfMetricStatsService())
+        $results = (new EtfMetricStatsService)
             ->getDistributionGrowthFromMetrics($holdings);
 
         $this->assertSame('BIGG', $results[0]['symbol']);
@@ -255,7 +255,7 @@ class EtfMetricStatsServiceTest extends TestCase
             ],
         ]);
 
-        $results = (new EtfMetricStatsService())
+        $results = (new EtfMetricStatsService)
             ->getDistributionGrowthFromMetrics($holdings);
 
         $this->assertCount(1, $results);
@@ -282,7 +282,7 @@ class EtfMetricStatsServiceTest extends TestCase
             ],
         ]);
 
-        $results = (new EtfMetricStatsService())
+        $results = (new EtfMetricStatsService)
             ->getDistributionGrowthFromMetrics($holdings);
 
         $this->assertTrue($results->isEmpty());
@@ -322,7 +322,7 @@ class EtfMetricStatsServiceTest extends TestCase
             ],
         ]);
 
-        $results = (new EtfMetricStatsService())
+        $results = (new EtfMetricStatsService)
             ->getPositiveDistributionGrowthFromMetrics($holdings);
 
         $this->assertCount(1, $results);
@@ -364,7 +364,7 @@ class EtfMetricStatsServiceTest extends TestCase
             ],
         ]);
 
-        $results = (new EtfMetricStatsService())
+        $results = (new EtfMetricStatsService)
             ->getNegativeDistributionGrowthFromMetrics($holdings);
 
         $this->assertCount(1, $results);
@@ -374,7 +374,7 @@ class EtfMetricStatsServiceTest extends TestCase
 
     public function test_it_returns_no_holdings_nav_summary_when_holdings_are_empty(): void
     {
-        $summary = (new EtfMetricStatsService())->getNavMetricSummary(
+        $summary = (new EtfMetricStatsService)->getNavMetricSummary(
             collect()
         );
 
@@ -387,7 +387,7 @@ class EtfMetricStatsServiceTest extends TestCase
     {
         $etf = $this->createEtf('NVII');
 
-        $summary = (new EtfMetricStatsService())->getNavMetricSummary(
+        $summary = (new EtfMetricStatsService)->getNavMetricSummary(
             collect([
                 [
                     'etf_id' => $etf->id,
@@ -410,7 +410,7 @@ class EtfMetricStatsServiceTest extends TestCase
             'nav_erosion_percentage' => '-2.0000',
         ]);
 
-        $summary = (new EtfMetricStatsService())->getNavMetricSummary(
+        $summary = (new EtfMetricStatsService)->getNavMetricSummary(
             collect([
                 [
                     'etf_id' => $etf->id,
@@ -438,7 +438,7 @@ class EtfMetricStatsServiceTest extends TestCase
             'nav_erosion_percentage' => '-5.0000',
         ]);
 
-        $summary = (new EtfMetricStatsService())->getNavMetricSummary(
+        $summary = (new EtfMetricStatsService)->getNavMetricSummary(
             collect([
                 [
                     'etf_id' => $firstEtf->id,
@@ -471,7 +471,7 @@ class EtfMetricStatsServiceTest extends TestCase
             'nav_erosion_percentage' => '-12.0000',
         ]);
 
-        $summary = (new EtfMetricStatsService())->getNavMetricSummary(
+        $summary = (new EtfMetricStatsService)->getNavMetricSummary(
             collect([
                 [
                     'etf_id' => $firstEtf->id,

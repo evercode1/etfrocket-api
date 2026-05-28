@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\User\Dividends\DividendIntelligenceController;
-use App\Http\Controllers\User\Dividends\DividendHistoryController;
 use App\Http\Controllers\User\Dividends\DividendCalendarController;
-
+use App\Http\Controllers\User\Dividends\DividendHistoryController;
+use App\Http\Controllers\User\Dividends\DividendIntelligenceController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------

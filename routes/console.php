@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Schedule;
 
-
 // data extraction for price and dividend
 
 Schedule::command('etfs:run-ai-extraction')

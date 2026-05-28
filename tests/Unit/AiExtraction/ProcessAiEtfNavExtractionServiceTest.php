@@ -5,7 +5,6 @@ namespace Tests\Unit\AiExtraction;
 use App\Models\AiDataExtraction;
 use App\Models\DataSource;
 use App\Models\Etf;
-use App\Models\EtfNavHistory;
 use App\Services\AI\Extractions\ProcessAiEtfNavExtractionService;
 use Database\Seeders\EtfSeeder;
 use Illuminate\Support\Facades\DB;
@@ -13,8 +12,7 @@ use Tests\TestCase;
 
 class ProcessAiEtfNavExtractionServiceTest extends TestCase
 {
-    private ProcessAiEtfNavExtractionService
-        $service;
+    private ProcessAiEtfNavExtractionService $service;
 
     protected function setUp(): void
     {
@@ -54,34 +52,29 @@ class ProcessAiEtfNavExtractionServiceTest extends TestCase
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'data_source_id' =>
-                DataSource::MANUAL_ENTRY,
+                    'data_source_id' => DataSource::MANUAL_ENTRY,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'symbol' =>
-                    $etf->symbol,
+                        'symbol' => $etf->symbol,
 
-                    'nav_per_share' =>
-                    25.55,
+                        'nav_per_share' => 25.55,
 
-                    'nav_date' =>
-                    now()->toDateString(),
+                        'nav_date' => now()->toDateString(),
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         $result =
             $this->service
-            ->process(
-                $extraction
-            );
+                ->process(
+                    $extraction
+                );
 
         $this->assertTrue(
             $result->is_validated
@@ -91,8 +84,7 @@ class ProcessAiEtfNavExtractionServiceTest extends TestCase
             'etf_nav_histories',
             [
 
-                'nav_per_share' =>
-                25.55,
+                'nav_per_share' => 25.55,
 
             ]
         );
@@ -105,22 +97,19 @@ class ProcessAiEtfNavExtractionServiceTest extends TestCase
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'nav_per_share' =>
-                    25.55,
+                        'nav_per_share' => 25.55,
 
-                    'nav_date' =>
-                    now()->toDateString(),
+                        'nav_date' => now()->toDateString(),
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         $this->expectException(
             \RuntimeException::class

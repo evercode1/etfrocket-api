@@ -3,7 +3,6 @@
 namespace Tests\Unit\Commands;
 
 use App\Jobs\RunAiEtfAumExtractionJob;
-use App\Models\AiDataExtraction;
 use App\Models\Etf;
 use App\Models\EtfAumHistory;
 use App\Models\Status;
@@ -102,8 +101,7 @@ class RunAiEtfAumExtractionsTest extends TestCase
 
             [
 
-                '--symbol' =>
-                'CHPY',
+                '--symbol' => 'CHPY',
 
             ]
 
@@ -155,27 +153,21 @@ class RunAiEtfAumExtractionsTest extends TestCase
             Etf::where(
                 'status_id',
                 Status::ACTIVE
-            )->get()
-
-            as $etf
+            )->get() as $etf
 
         ) {
 
             EtfAumHistory::create([
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'assets_under_management' =>
-                100000000,
+                'assets_under_management' => 100000000,
 
-                'aum_date' =>
-                now()->toDateString(),
+                'aum_date' => now()->toDateString(),
 
                 'data_source_id' => 1,
 
-                'retrieved_at' =>
-                now(),
+                'retrieved_at' => now(),
 
             ]);
         }
@@ -194,27 +186,21 @@ class RunAiEtfAumExtractionsTest extends TestCase
             Etf::where(
                 'status_id',
                 Status::ACTIVE
-            )->get()
-
-            as $etf
+            )->get() as $etf
 
         ) {
 
             EtfAumHistory::create([
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'assets_under_management' =>
-                100000000,
+                'assets_under_management' => 100000000,
 
-                'aum_date' =>
-                now()->toDateString(),
+                'aum_date' => now()->toDateString(),
 
                 'data_source_id' => 1,
 
-                'retrieved_at' =>
-                now(),
+                'retrieved_at' => now(),
 
             ]);
         }

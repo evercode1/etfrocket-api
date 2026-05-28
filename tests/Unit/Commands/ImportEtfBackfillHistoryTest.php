@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Commands;
 
-use App\Console\Commands\ImportEtfBackfillHistory;
 use App\Models\Etf;
 use App\Models\EtfPriceHistory;
 use Database\Seeders\EtfSeeder;
@@ -55,8 +54,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
         config([
 
-            'imports.path' =>
-            $this->testImportPath,
+            'imports.path' => $this->testImportPath,
 
         ]);
     }
@@ -76,7 +74,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
             file_exists(
 
-                $this->testImportPath .
+                $this->testImportPath.
                     '/etf_price_histories.csv'
 
             )
@@ -85,7 +83,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
             unlink(
 
-                $this->testImportPath .
+                $this->testImportPath.
                     '/etf_price_histories.csv'
 
             );
@@ -101,15 +99,15 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
         $csv =
 
-            "etf_id,price_date,close_price,volume,data_source_id,retrieved_at\n" .
+            "etf_id,price_date,close_price,volume,data_source_id,retrieved_at\n".
 
-            "{$etf->id},2026-05-26,25.44,100000,1,2026-05-26 12:00:00\n" .
+            "{$etf->id},2026-05-26,25.44,100000,1,2026-05-26 12:00:00\n".
 
             "{$etf->id},2026-05-27,26.11,150000,1,2026-05-27 12:00:00\n";
 
         file_put_contents(
 
-            $this->testImportPath .
+            $this->testImportPath.
                 '/etf_price_histories.csv',
 
             $csv
@@ -122,8 +120,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
             [
 
-                'table' =>
-                'etf_price_histories',
+                'table' => 'etf_price_histories',
 
             ]
 
@@ -140,14 +137,11 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
             [
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'price_date' =>
-                '2026-05-26',
+                'price_date' => '2026-05-26',
 
-                'close_price' =>
-                25.44,
+                'close_price' => 25.44,
 
             ]
 
@@ -159,14 +153,11 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
             [
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'price_date' =>
-                '2026-05-27',
+                'price_date' => '2026-05-27',
 
-                'close_price' =>
-                26.11,
+                'close_price' => 26.11,
 
             ]
 
@@ -180,34 +171,29 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
         EtfPriceHistory::create([
 
-            'etf_id' =>
-            $etf->id,
+            'etf_id' => $etf->id,
 
-            'price_date' =>
-            '2025-01-01',
+            'price_date' => '2025-01-01',
 
-            'close_price' =>
-            10.00,
+            'close_price' => 10.00,
 
-            'volume' =>
-            1000,
+            'volume' => 1000,
 
             'data_source_id' => 1,
 
-            'retrieved_at' =>
-            now(),
+            'retrieved_at' => now(),
 
         ]);
 
         $csv =
 
-            "etf_id,price_date,close_price,volume,data_source_id,retrieved_at\n" .
+            "etf_id,price_date,close_price,volume,data_source_id,retrieved_at\n".
 
             "{$etf->id},2026-05-26,25.44,100000,1,2026-05-26 12:00:00\n";
 
         file_put_contents(
 
-            $this->testImportPath .
+            $this->testImportPath.
                 '/etf_price_histories.csv',
 
             $csv
@@ -220,8 +206,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
             [
 
-                'table' =>
-                'etf_price_histories',
+                'table' => 'etf_price_histories',
 
             ]
 
@@ -238,8 +223,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
             [
 
-                'price_date' =>
-                '2025-01-01',
+                'price_date' => '2025-01-01',
 
             ]
 
@@ -254,8 +238,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
             [
 
-                'table' =>
-                'invalid_table',
+                'table' => 'invalid_table',
 
             ]
 
@@ -286,7 +269,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
         file_put_contents(
 
-            $this->testImportPath .
+            $this->testImportPath.
                 '/etf_price_histories.csv',
 
             $csv
@@ -299,8 +282,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
             [
 
-                'table' =>
-                'etf_price_histories',
+                'table' => 'etf_price_histories',
 
                 '--chunk' => 2,
 

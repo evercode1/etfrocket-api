@@ -10,8 +10,7 @@ class GenerateAiSignalContentService
 {
     public function __construct(
 
-        private IsMarketOpenService
-        $isMarketOpenService
+        private IsMarketOpenService $isMarketOpenService
 
     ) {}
 
@@ -26,7 +25,7 @@ class GenerateAiSignalContentService
 
         $marketStatus =
             $this->isMarketOpenService
-            ->isOpen()
+                ->isOpen()
             ? 'OPEN'
             : 'CLOSED';
 
@@ -38,61 +37,55 @@ class GenerateAiSignalContentService
                 )
 
             )
+                ->timeout(60)
+                ->post(
+                    'https://api.openai.com/v1/responses',
+                    [
 
-            ->timeout(60)
+                        'model' => config(
+                            'services.openai.model',
+                            'gpt-4.1-mini'
+                        ),
 
-            ->post(
-                'https://api.openai.com/v1/responses',
-                [
+                        'input' => [
 
-                    'model' => config(
-                        'services.openai.model',
-                        'gpt-4.1-mini'
-                    ),
+                            [
 
-                    'input' => [
+                                'role' => 'system',
 
-                        [
+                                'content' => 'You are a financial market intelligence engine. Return markdown only.',
 
-                            'role' => 'system',
+                            ],
 
-                            'content' =>
-                            'You are a financial market intelligence engine. Return markdown only.',
+                            [
 
-                        ],
+                                'role' => 'user',
 
-                        [
+                                'content' => "Current Market Status: {$marketStatus}".
 
-                            'role' => 'user',
+                                    PHP_EOL.
 
-                            'content' =>
+                                    PHP_EOL.
 
-                            "Current Market Status: {$marketStatus}" .
+                                    $template,
 
-                                PHP_EOL .
-
-                                PHP_EOL .
-
-                                $template,
+                            ],
 
                         ],
 
-                    ],
-
-                ]
-            );
+                    ]
+                );
 
         if (
-            !$response->successful()
+            ! $response->successful()
         ) {
 
             throw new Exception(
+                'AI signal generation failed: '.
 
-                'AI signal generation failed: ' .
+                    $response->status().
 
-                    $response->status() .
-
-                    ' - ' .
+                    ' - '.
 
                     $response->body()
 
@@ -123,33 +116,25 @@ class GenerateAiSignalContentService
         $path =
             match ($signal_type_id) {
 
-                SignalType::MARKET_SNAPSHOT =>
-
-                app_path(
+                SignalType::MARKET_SNAPSHOT => app_path(
                     'Services/AI/AiSignals/Templates/market_snapshot.md'
                 ),
 
-                SignalType::MARKET_CONDITIONS =>
-
-                app_path(
+                SignalType::MARKET_CONDITIONS => app_path(
                     'Services/AI/AiSignals/Templates/market_conditions.md'
                 ),
 
-                SignalType::MARKET_EVENTS =>
-
-                app_path(
+                SignalType::MARKET_EVENTS => app_path(
                     'Services/AI/AiSignals/Templates/market_events.md'
                 ),
 
-                default =>
-
-                throw new Exception(
+                default => throw new Exception(
                     'Invalid signal type.'
                 ),
             };
 
         if (
-            !file_exists($path)
+            ! file_exists($path)
         ) {
 
             throw new Exception(

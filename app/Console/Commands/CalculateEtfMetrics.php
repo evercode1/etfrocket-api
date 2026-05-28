@@ -8,11 +8,11 @@ use Illuminate\Console\Command;
 class CalculateEtfMetrics extends Command
 {
     protected $signature =
-    'etfs:calculate-metrics
+        'etfs:calculate-metrics
         {--symbol= : Calculate metrics for a single ETF symbol}';
 
     protected $description =
-    'Calculate ETF performance metrics for all active ETFs and performance range types.';
+        'Calculate ETF performance metrics for all active ETFs and performance range types.';
 
     public function handle(): void
     {
@@ -20,9 +20,7 @@ class CalculateEtfMetrics extends Command
 
         $payload = [
 
-            'symbol' =>
-
-            $this->option(
+            'symbol' => $this->option(
                 'symbol'
             ),
 

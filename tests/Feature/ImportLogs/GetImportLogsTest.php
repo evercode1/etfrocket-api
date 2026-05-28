@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\ImportLogs;
 
-use App\Models\User;
 use App\Models\DataSource;
 use App\Models\ImportLog;
 use App\Models\ImportType;
 use App\Models\Status;
+use App\Models\User;
 use Database\Seeders\DataSourceSeeder;
 use Database\Seeders\ImportTypeSeeder;
 use Database\Seeders\StatusSeeder;
@@ -49,11 +49,11 @@ class GetImportLogsTest extends TestCase
 
         $admin =
             User::factory()
-            ->create([
+                ->create([
 
-                'is_admin' => 1,
+                    'is_admin' => 1,
 
-            ]);
+                ]);
 
         Sanctum::actingAs(
 
@@ -90,17 +90,11 @@ class GetImportLogsTest extends TestCase
             ->count(3)
             ->create([
 
-                'import_type_id' =>
+                'import_type_id' => ImportType::ETF_PRICE_IMPORT,
 
-                ImportType::ETF_PRICE_IMPORT,
+                'status_id' => Status::COMPLETED,
 
-                'status_id' =>
-
-                Status::COMPLETED,
-
-                'data_source_id' =>
-
-                DataSource::TIINGO_API,
+                'data_source_id' => DataSource::TIINGO_API,
 
             ]);
 
@@ -133,17 +127,11 @@ class GetImportLogsTest extends TestCase
         ImportLog::factory()
             ->create([
 
-                'import_type_id' =>
+                'import_type_id' => ImportType::MARKET_SNAPSHOT,
 
-                ImportType::MARKET_SNAPSHOT,
+                'status_id' => Status::COMPLETED,
 
-                'status_id' =>
-
-                Status::COMPLETED,
-
-                'data_source_id' =>
-
-                DataSource::AI_SCRAPER,
+                'data_source_id' => DataSource::AI_SCRAPER,
 
             ]);
 
@@ -204,18 +192,14 @@ class GetImportLogsTest extends TestCase
         ImportLog::factory()
             ->create([
 
-                'started_at' =>
-
-                now()->subHour(),
+                'started_at' => now()->subHour(),
 
             ]);
 
         ImportLog::factory()
             ->create([
 
-                'started_at' =>
-
-                now(),
+                'started_at' => now(),
 
             ]);
 

@@ -5,9 +5,9 @@ namespace Tests\Unit\Commands;
 use App\Models\DataSource;
 use App\Models\DistributionFrequency;
 use App\Models\Etf;
+use App\Models\EtfIssuer;
 use App\Models\EtfMetric;
 use App\Models\EtfPriceHistory;
-use App\Models\EtfIssuer;
 use App\Models\EtfStrategyType;
 use App\Models\Status;
 use Carbon\Carbon;
@@ -15,13 +15,13 @@ use Database\Seeders\DataSourceSeeder;
 use Database\Seeders\DistributionFrequencySeeder;
 use Database\Seeders\EtfIssuerSeeder;
 use Database\Seeders\EtfStrategyTypeSeeder;
+use Database\Seeders\IntervalSeeder;
 use Database\Seeders\MetricDirectionSeeder;
+use Database\Seeders\NotificationStatusSeeder;
 use Database\Seeders\PerformanceRangeTypeSeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
-use Database\Seeders\IntervalSeeder;
-use Database\Seeders\NotificationStatusSeeder;
 
 class CalculateEtfMetricsCommandTest extends TestCase
 {
@@ -143,7 +143,7 @@ class CalculateEtfMetricsCommandTest extends TestCase
     {
         return Etf::create([
             'symbol' => $symbol,
-            'fund_name' => $symbol . ' Test ETF',
+            'fund_name' => $symbol.' Test ETF',
             'etf_issuer_id' => EtfIssuer::YIELDMAX,
             'etf_strategy_type_id' => EtfStrategyType::OPTION_INCOME,
             'distribution_frequency_id' => DistributionFrequency::WEEKLY,

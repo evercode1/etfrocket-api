@@ -121,7 +121,6 @@ class PortfolioSnapshotQueryTest extends TestCase
 
         $this->assertSame(4.125, $snapshot['monthly_income']);
 
-
         $this->assertSame('Stable', $snapshot['nav_health']);
 
         $this->assertSame(1, $snapshot['holdings_count']);

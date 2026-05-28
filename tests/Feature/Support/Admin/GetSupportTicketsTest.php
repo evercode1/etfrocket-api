@@ -72,7 +72,7 @@ class GetSupportTicketsTest extends TestCase
             ->assertJsonPath('tickets.data.0.status_name', 'Open')
             ->assertJsonPath('tickets.data.0.name', 'Ticket User')
             ->assertJsonPath('tickets.data.0.ticket_text', substr('This is a long support ticket message for testing.', 0, 24))
-            ->assertJsonPath('tickets.data.0.details_endpoint', 'support-ticket/' . $ticket->id);
+            ->assertJsonPath('tickets.data.0.details_endpoint', 'support-ticket/'.$ticket->id);
     }
 
     public function test_admin_can_filter_closed_support_tickets()

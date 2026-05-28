@@ -12,8 +12,7 @@ use Tests\TestCase;
 
 class AiEtfAumExtractionServiceTest extends TestCase
 {
-    private AiEtfAumExtractionService
-        $service;
+    private AiEtfAumExtractionService $service;
 
     protected function setUp(): void
     {
@@ -49,9 +48,7 @@ class AiEtfAumExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([
+            'https://api.openai.com/v1/responses' => Http::response([
 
                 'output' => [
 
@@ -63,14 +60,11 @@ class AiEtfAumExtractionServiceTest extends TestCase
 
                                 'text' => json_encode([
 
-                                    'symbol' =>
-                                    $etf->symbol,
+                                    'symbol' => $etf->symbol,
 
-                                    'assets_under_management' =>
-                                    1250000000,
+                                    'assets_under_management' => 1250000000,
 
-                                    'aum_date' =>
-                                    now()->toDateString(),
+                                    'aum_date' => now()->toDateString(),
 
                                 ]),
 
@@ -88,9 +82,9 @@ class AiEtfAumExtractionServiceTest extends TestCase
 
         $extraction =
             $this->service
-            ->extract(
-                $etf
-            );
+                ->extract(
+                    $etf
+                );
 
         $this->assertInstanceOf(
             AiDataExtraction::class,
@@ -111,9 +105,7 @@ class AiEtfAumExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([
+            'https://api.openai.com/v1/responses' => Http::response([
 
                 'output' => [
 
@@ -123,8 +115,7 @@ class AiEtfAumExtractionServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-                                'INVALID_JSON',
+                                'text' => 'INVALID_JSON',
 
                             ],
 

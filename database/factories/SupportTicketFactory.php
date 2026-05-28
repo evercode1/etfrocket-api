@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\SupportTicket;
-use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\SupportTopic;
 use App\Models\Status;
+use App\Models\SupportTicket;
+use App\Models\SupportTopic;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends Factory<SupportTicket>

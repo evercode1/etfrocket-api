@@ -5,10 +5,8 @@ namespace App\Console\Commands;
 use App\Services\Crons\CronService;
 use Illuminate\Console\Command;
 
-
 class TrimCronLogs extends Command
 {
-
     /**
      * The name and signature of the console command.
      *

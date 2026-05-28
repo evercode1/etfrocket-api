@@ -100,7 +100,6 @@ class PortfolioCardSummariesQueryTest extends TestCase
         $this->assertTrue($results[0]['is_default']);
         $this->assertSame(300.0, $results[0]['portfolio_value']);
 
-
         $this->assertSame(6.0, $results[0]['monthly_income']);
 
         $this->assertSame('Stable', $results[0]['nav_health']);

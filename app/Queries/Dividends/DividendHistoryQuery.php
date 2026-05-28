@@ -56,7 +56,7 @@ class DividendHistoryQuery
             $query->where(
                 'etfs.symbol',
                 'like',
-                '%' . $request->input('symbol') . '%'
+                '%'.$request->input('symbol').'%'
             );
         }
 

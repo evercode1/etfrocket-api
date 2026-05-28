@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Dev\ExternalSeeders;
 
+use App\Http\Controllers\Controller;
 use App\Models\DataSource;
 use App\Models\Status;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 
 class DataSourcesSeederController extends Controller
 {

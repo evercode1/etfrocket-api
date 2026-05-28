@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\Dev\ExternalSeeders;
 
-
-use App\Models\ImportType;
 use App\Http\Controllers\Controller;
+use App\Models\ImportType;
 
 class ImportTypesSeederController extends Controller
 {
@@ -45,9 +44,7 @@ class ImportTypesSeederController extends Controller
 
             ImportType::create([
 
-                'import_type_name' =>
-
-                $value,
+                'import_type_name' => $value,
 
             ]);
         }

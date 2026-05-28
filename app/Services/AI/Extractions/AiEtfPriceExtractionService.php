@@ -26,74 +26,60 @@ class AiEtfPriceExtractionService
                     'services.openai.api_key'
                 )
             )
+                ->timeout(60)
+                ->post(
 
-            ->timeout(60)
+                    'https://api.openai.com/v1/responses',
 
-            ->post(
+                    [
 
-                'https://api.openai.com/v1/responses',
+                        'model' => config(
 
-                [
+                            'services.openai.model',
 
-                    'model' =>
+                            'gpt-4.1-mini'
 
-                    config(
+                        ),
 
-                        'services.openai.model',
+                        'input' => [
 
-                        'gpt-4.1-mini'
+                            [
 
-                    ),
+                                'role' => 'system',
 
-                    'input' => [
+                                'content' => 'You extract ETF price data and return only valid JSON matching the required schema.',
 
-                        [
+                            ],
 
-                            'role' => 'system',
+                            [
 
-                            'content' =>
+                                'role' => 'user',
 
-                            'You extract ETF price data and return only valid JSON matching the required schema.',
+                                'content' => $prompt,
 
-                        ],
-
-                        [
-
-                            'role' => 'user',
-
-                            'content' =>
-
-                            $prompt,
+                            ],
 
                         ],
 
-                    ],
+                        'text' => [
 
-                    'text' => [
+                            'format' => [
 
-                        'format' => [
+                                'type' => 'json_schema',
 
-                            'type' =>
+                                'name' => 'etf_price_extraction',
 
-                            'json_schema',
+                                'schema' => $this->schema(),
 
-                            'name' =>
+                                'strict' => true,
 
-                            'etf_price_extraction',
-
-                            'schema' =>
-
-                            $this->schema(),
-
-                            'strict' => true,
+                            ],
 
                         ],
 
-                    ],
+                    ]
 
-                ]
-
-            );
+                );
 
         if (! $response->successful()) {
 
@@ -103,17 +89,11 @@ class AiEtfPriceExtractionService
 
                 [
 
-                    'etf_id' =>
+                    'etf_id' => $etf->id,
 
-                    $etf->id,
+                    'symbol' => $etf->symbol,
 
-                    'symbol' =>
-
-                    $etf->symbol,
-
-                    'response' =>
-
-                    $response->json(),
+                    'response' => $response->json(),
 
                 ]
 
@@ -146,30 +126,18 @@ class AiEtfPriceExtractionService
 
         return AiDataExtraction::create([
 
-            'etf_id' =>
+            'etf_id' => $etf->id,
 
-            $etf->id,
-
-            'data_source_id' =>
-
-            $etf->data_source_id
+            'data_source_id' => $etf->data_source_id
                 ?? null,
 
-            'source_url' =>
+            'source_url' => $etf->website_url,
 
-            $etf->website_url,
+            'raw_payload' => $response->body(),
 
-            'raw_payload' =>
+            'prompt' => $prompt,
 
-            $response->body(),
-
-            'prompt' =>
-
-            $prompt,
-
-            'extracted_data' =>
-
-            $extractedData,
+            'extracted_data' => $extractedData,
 
             'is_validated' => false,
 

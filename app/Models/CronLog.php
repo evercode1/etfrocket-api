@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\CronLogFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CronLog extends Model
 {
-    /** @use HasFactory<\Database\Factories\CronLogFactory> */
+    /** @use HasFactory<CronLogFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -20,7 +21,7 @@ class CronLog extends Model
         'run_time',
         'start_time',
         'end_time',
-        'notification_status_id'
+        'notification_status_id',
 
     ];
 
@@ -30,7 +31,7 @@ class CronLog extends Model
         return [
 
             'created_at' => 'date:Y-m-d',
-            'updated_at' => 'date:Y-m-d'
+            'updated_at' => 'date:Y-m-d',
 
         ];
     }

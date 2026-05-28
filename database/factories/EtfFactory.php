@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\DistributionFrequency;
 use App\Models\Etf;
 use App\Models\EtfIssuer;
 use App\Models\EtfStrategyType;
-use App\Models\DistributionFrequency;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -25,7 +25,7 @@ class EtfFactory extends Factory
 
             'symbol' => strtoupper($this->faker->unique()->lexify('????')),
 
-            'fund_name' => $this->faker->company() . ' ETF',
+            'fund_name' => $this->faker->company().' ETF',
 
             'etf_issuer_id' => EtfIssuer::first()?->id ?? 1,
 

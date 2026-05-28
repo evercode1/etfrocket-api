@@ -48,7 +48,7 @@ class RequestVerificationTokenTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        $response = $this->getJson('/api/request-verification-token?email=' . $user->email);
+        $response = $this->getJson('/api/request-verification-token?email='.$user->email);
 
         $response->assertOk()
             ->assertJson([
@@ -69,7 +69,7 @@ class RequestVerificationTokenTest extends TestCase
             'email_verified_at' => null,
         ]);
 
-        $response = $this->getJson('/api/request-verification-token?email=' . $user->email);
+        $response = $this->getJson('/api/request-verification-token?email='.$user->email);
 
         $response->assertOk()
             ->assertJson([
@@ -102,7 +102,7 @@ class RequestVerificationTokenTest extends TestCase
             'token' => '111111',
         ]);
 
-        $response = $this->getJson('/api/request-verification-token?email=' . $user->email);
+        $response = $this->getJson('/api/request-verification-token?email='.$user->email);
 
         $response->assertOk()
             ->assertJson([

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Etf;
+use App\Models\EtfPriceHistory;
 use App\Services\Imports\ImportEtfPriceHistoryService;
 use Illuminate\Console\Command;
 
@@ -41,13 +42,11 @@ class BackfillPriceHistory extends Command
             return self::FAILURE;
         }
 
-        $countBefore = \App\Models\EtfPriceHistory::where('etf_id', $etf->id)->count();
+        $countBefore = EtfPriceHistory::where('etf_id', $etf->id)->count();
 
         $this->info("Rows before import: {$countBefore}");
 
-
-
-        $filePath = app_path("Imports/PriceData/" . strtolower($symbol) . ".txt");
+        $filePath = app_path('Imports/PriceData/'.strtolower($symbol).'.txt');
 
         if (! file_exists($filePath)) {
 
@@ -58,7 +57,7 @@ class BackfillPriceHistory extends Command
 
         try {
 
-            $results = (new ImportEtfPriceHistoryService())->import(
+            $results = (new ImportEtfPriceHistoryService)->import(
                 $etf->id,
                 $filePath
             );

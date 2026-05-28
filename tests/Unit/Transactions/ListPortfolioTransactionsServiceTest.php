@@ -55,10 +55,10 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'transaction_date' => '2026-05-12',
         ]);
 
-        $service = new ListPortfolioTransactionsService();
+        $service = new ListPortfolioTransactionsService;
 
         $results = $service->getData(
-            new Request(),
+            new Request,
             $user->id,
             $portfolio->id
         );
@@ -108,7 +108,7 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'limit' => 10,
         ]);
 
-        $service = new ListPortfolioTransactionsService();
+        $service = new ListPortfolioTransactionsService;
 
         $results = $service->getData(
             $request,
@@ -158,7 +158,7 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'limit' => 10,
         ]);
 
-        $service = new ListPortfolioTransactionsService();
+        $service = new ListPortfolioTransactionsService;
 
         $results = $service->getData(
             $request,
@@ -206,7 +206,7 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'sortOrder' => 'desc',
         ]);
 
-        $service = new ListPortfolioTransactionsService();
+        $service = new ListPortfolioTransactionsService;
 
         $results = $service->getData(
             $request,
@@ -247,7 +247,7 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'per_page' => 25,
         ]);
 
-        $service = new ListPortfolioTransactionsService();
+        $service = new ListPortfolioTransactionsService;
 
         $results = $service->getData(
             $request,
@@ -298,7 +298,7 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'sortOrder' => 'asc',
         ]);
 
-        $service = new ListPortfolioTransactionsService();
+        $service = new ListPortfolioTransactionsService;
 
         $results = $service->getData(
             $request,
@@ -347,7 +347,7 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'sortOrder' => 'desc',
         ]);
 
-        $service = new ListPortfolioTransactionsService();
+        $service = new ListPortfolioTransactionsService;
 
         $results = $service->getData(
             $request,
@@ -381,10 +381,10 @@ class ListPortfolioTransactionsServiceTest extends TestCase
 
         $this->expectException(ModelNotFoundException::class);
 
-        $service = new ListPortfolioTransactionsService();
+        $service = new ListPortfolioTransactionsService;
 
         $service->getData(
-            new Request(),
+            new Request,
             $user->id,
             $otherPortfolio->id
         );
@@ -412,7 +412,7 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'limit' => 10,
         ]);
 
-        $service = new ListPortfolioTransactionsService();
+        $service = new ListPortfolioTransactionsService;
 
         $results = $service->getData(
             $request,

@@ -39,7 +39,7 @@ class SymbolNavHistoryChartQuery
 
                 ?->symbol;
 
-            if (!$symbol) {
+            if (! $symbol) {
                 continue;
             }
 
@@ -49,7 +49,7 @@ class SymbolNavHistoryChartQuery
 
                 ->toDateString();
 
-            if (!isset($groupedByDate[$date])) {
+            if (! isset($groupedByDate[$date])) {
 
                 $groupedByDate[$date] = [
 

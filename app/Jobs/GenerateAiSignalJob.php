@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Jobs\FinalizeAiSignalBatchJob;
 use App\Models\AiSignalBatch;
 use App\Models\AiSignalBatchItem;
 use App\Models\Status;
@@ -34,8 +33,7 @@ class GenerateAiSignalJob implements ShouldQueue
 
     public function handle(
 
-        GenerateAiSignalService
-        $generateAiSignalService
+        GenerateAiSignalService $generateAiSignalService
 
     ): void {
 
@@ -47,14 +45,11 @@ class GenerateAiSignalJob implements ShouldQueue
 
         Log::info('AI SIGNAL JOB START', [
 
-            'batch_id' =>
-            $this->batchId,
+            'batch_id' => $this->batchId,
 
-            'signal_type_id' =>
-            $this->signalTypeId,
+            'signal_type_id' => $this->signalTypeId,
 
-            'attempt' =>
-            $this->attempts(),
+            'attempt' => $this->attempts(),
 
         ]);
 
@@ -70,16 +65,14 @@ class GenerateAiSignalJob implements ShouldQueue
                 $this->batchId
 
             )
+                ->where(
 
-            ->where(
+                    'signal_type_id',
 
-                'signal_type_id',
+                    $this->signalTypeId
 
-                $this->signalTypeId
-
-            )
-
-            ->firstOrFail();
+                )
+                ->firstOrFail();
 
         try {
 
@@ -91,24 +84,19 @@ class GenerateAiSignalJob implements ShouldQueue
 
             $batchItem->update([
 
-                'status_id' =>
-                Status::PROCESSING,
+                'status_id' => Status::PROCESSING,
 
-                'attempts' =>
-                $batchItem->attempts + 1,
+                'attempts' => $batchItem->attempts + 1,
 
-                'started_at' =>
-                now(),
+                'started_at' => now(),
 
             ]);
 
             Log::info('AI SIGNAL BATCH ITEM PROCESSING', [
 
-                'batch_id' =>
-                $this->batchId,
+                'batch_id' => $this->batchId,
 
-                'signal_type_id' =>
-                $this->signalTypeId,
+                'signal_type_id' => $this->signalTypeId,
 
             ]);
 
@@ -121,22 +109,19 @@ class GenerateAiSignalJob implements ShouldQueue
             $signal =
 
                 $generateAiSignalService
-                ->generate(
+                    ->generate(
 
-                    $this->signalTypeId
+                        $this->signalTypeId
 
-                );
+                    );
 
             Log::info('AI SIGNAL GENERATED', [
 
-                'batch_id' =>
-                $this->batchId,
+                'batch_id' => $this->batchId,
 
-                'signal_type_id' =>
-                $this->signalTypeId,
+                'signal_type_id' => $this->signalTypeId,
 
-                'signal_id' =>
-                $signal->id ?? null,
+                'signal_id' => $signal->id ?? null,
 
             ]);
 
@@ -173,18 +158,15 @@ class GenerateAiSignalJob implements ShouldQueue
 
                     $batchItem->update([
 
-                        'status_id' =>
-                        Status::COMPLETED,
+                        'status_id' => Status::COMPLETED,
 
-                        'runtime_ms' =>
-                        $runtimeMs,
+                        'runtime_ms' => $runtimeMs,
 
                         'is_processed' => true,
 
                         'is_success' => true,
 
-                        'completed_at' =>
-                        now(),
+                        'completed_at' => now(),
 
                     ]);
 
@@ -217,11 +199,9 @@ class GenerateAiSignalJob implements ShouldQueue
 
             Log::info('AI SIGNAL BATCH COUNTS UPDATED', [
 
-                'batch_id' =>
-                $this->batchId,
+                'batch_id' => $this->batchId,
 
-                'signal_type_id' =>
-                $this->signalTypeId,
+                'signal_type_id' => $this->signalTypeId,
 
             ]);
 
@@ -242,17 +222,13 @@ class GenerateAiSignalJob implements ShouldQueue
 
             Log::error('AI SIGNAL JOB FAILED', [
 
-                'batch_id' =>
-                $this->batchId,
+                'batch_id' => $this->batchId,
 
-                'signal_type_id' =>
-                $this->signalTypeId,
+                'signal_type_id' => $this->signalTypeId,
 
-                'attempt' =>
-                $this->attempts(),
+                'attempt' => $this->attempts(),
 
-                'message' =>
-                $e->getMessage(),
+                'message' => $e->getMessage(),
 
             ]);
 
@@ -307,24 +283,17 @@ class GenerateAiSignalJob implements ShouldQueue
 
                     $batchItem->update([
 
-                        'status_id' =>
-                        $statusId,
+                        'status_id' => $statusId,
 
-                        'runtime_ms' =>
-                        $runtimeMs,
+                        'runtime_ms' => $runtimeMs,
 
-                        'is_processed' =>
-
-                        $statusId === Status::FAILED,
+                        'is_processed' => $statusId === Status::FAILED,
 
                         'is_success' => false,
 
-                        'error_message' =>
-                        $e->getMessage(),
+                        'error_message' => $e->getMessage(),
 
-                        'completed_at' =>
-
-                        $statusId === Status::FAILED
+                        'completed_at' => $statusId === Status::FAILED
 
                             ? now()
 
@@ -375,11 +344,9 @@ class GenerateAiSignalJob implements ShouldQueue
 
             Log::error('AI SIGNAL FAILURE STATE SAVED', [
 
-                'batch_id' =>
-                $this->batchId,
+                'batch_id' => $this->batchId,
 
-                'signal_type_id' =>
-                $this->signalTypeId,
+                'signal_type_id' => $this->signalTypeId,
 
             ]);
 
@@ -407,8 +374,7 @@ class GenerateAiSignalJob implements ShouldQueue
     {
         Log::info('CHECKING AI SIGNAL BATCH COMPLETION', [
 
-            'batch_id' =>
-            $this->batchId,
+            'batch_id' => $this->batchId,
 
         ]);
 
@@ -433,14 +399,11 @@ class GenerateAiSignalJob implements ShouldQueue
 
             Log::info('AI SIGNAL BATCH COMPLETE', [
 
-                'batch_id' =>
-                $this->batchId,
+                'batch_id' => $this->batchId,
 
-                'processed_count' =>
-                $batch->processed_count,
+                'processed_count' => $batch->processed_count,
 
-                'total_signals' =>
-                $batch->total_signals,
+                'total_signals' => $batch->total_signals,
 
             ]);
 
@@ -459,26 +422,22 @@ class GenerateAiSignalJob implements ShouldQueue
                     $batch->id
 
                 )
+                    ->whereNull(
 
-                ->whereNull(
+                        'completed_at'
 
-                    'completed_at'
+                    )
+                    ->update([
 
-                )
+                        'completed_at' => now(),
 
-                ->update([
-
-                    'completed_at' =>
-                    now(),
-
-                ]);
+                    ]);
 
             if ($updated) {
 
                 Log::info('AI SIGNAL FINALIZER DISPATCHED', [
 
-                    'batch_id' =>
-                    $this->batchId,
+                    'batch_id' => $this->batchId,
 
                 ]);
 

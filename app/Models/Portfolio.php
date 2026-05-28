@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use Database\Factories\PortfolioFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Portfolio extends Model
 {
-    /** @use HasFactory<\Database\Factories\PortfolioFactory> */
+    /** @use HasFactory<PortfolioFactory> */
     use HasFactory;
 
-     protected $fillable = [
+    protected $fillable = [
 
         'user_id',
         'status_id',

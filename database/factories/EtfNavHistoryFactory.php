@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\EtfNavHistory;
 use App\Models\DataSource;
+use App\Models\EtfNavHistory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
