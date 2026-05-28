@@ -3,12 +3,12 @@
 namespace App\Services\AI\Extractions;
 
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Models\EtfPriceHistory;
+use App\Models\Security;
+use App\Models\SecurityPriceHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ProcessAiEtfPriceExtractionService
+class ProcessAiSecurityPriceExtractionService
 {
     public function process(
         AiDataExtraction $extraction
@@ -20,16 +20,16 @@ class ProcessAiEtfPriceExtractionService
 
                 function () use ($extraction) {
 
-                    $etf =
+                    $security =
 
-                        Etf::find(
-                            $extraction->etf_id
+                        Security::find(
+                            $extraction->security_id
                         );
 
-                    if (! $etf) {
+                    if (! $security) {
 
                         throw new \RuntimeException(
-                            'ETF not found for AI price extraction.'
+                            'Security not found for AI price extraction.'
                         );
                     }
 
@@ -40,12 +40,12 @@ class ProcessAiEtfPriceExtractionService
                     if (! is_array($data)) {
 
                         throw new \RuntimeException(
-                            'Extracted ETF price data is missing or invalid.'
+                            'Extracted security price data is missing or invalid.'
                         );
                     }
 
                     $this->validateSymbol(
-                        $etf,
+                        $security,
                         $data
                     );
 
@@ -91,7 +91,7 @@ class ProcessAiEtfPriceExtractionService
     }
 
     private function validateSymbol(
-        Etf $etf,
+        Security $security,
         array $data
     ): void {
 
@@ -109,13 +109,13 @@ class ProcessAiEtfPriceExtractionService
             ) !==
 
             strtoupper(
-                $etf->symbol
+                $security->symbol
             )
 
         ) {
 
             throw new \RuntimeException(
-                'Extracted symbol does not match ETF symbol.'
+                'Extracted symbol does not match security symbol.'
             );
         }
     }
@@ -177,11 +177,11 @@ class ProcessAiEtfPriceExtractionService
                 );
         }
 
-        EtfPriceHistory::updateOrCreate(
+        SecurityPriceHistory::updateOrCreate(
 
             [
 
-                'etf_id' => $extraction->etf_id,
+                'security_id' => $extraction->security_id,
 
                 'price_date' => $priceDate,
 

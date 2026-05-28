@@ -3,20 +3,20 @@
 namespace App\Services\AI\Extractions;
 
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
+use App\Models\Security;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class AiEtfDividendExtractionService
+class AiSecurityPriceExtractionService
 {
     public function extract(
-        Etf $etf
+        Security $security
     ): AiDataExtraction {
 
         $prompt =
             $this->buildPrompt(
-                $etf
+                $security
             );
 
         $response =
@@ -47,7 +47,7 @@ class AiEtfDividendExtractionService
 
                                 'role' => 'system',
 
-                                'content' => 'You extract ETF dividend data and return only valid JSON matching the required schema.',
+                                'content' => 'You extract ETF price data and return only valid JSON matching the required schema.',
 
                             ],
 
@@ -67,7 +67,7 @@ class AiEtfDividendExtractionService
 
                                 'type' => 'json_schema',
 
-                                'name' => 'etf_dividend_extraction',
+                                'name' => 'etf_price_extraction',
 
                                 'schema' => $this->schema(),
 
@@ -85,13 +85,13 @@ class AiEtfDividendExtractionService
 
             Log::error(
 
-                'OpenAI ETF dividend extraction failed.',
+                'OpenAI security price extraction failed.',
 
                 [
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
-                    'symbol' => $etf->symbol,
+                    'symbol' => $security->symbol,
 
                     'response' => $response->json(),
 
@@ -100,7 +100,7 @@ class AiEtfDividendExtractionService
             );
 
             throw new \RuntimeException(
-                'AI ETF dividend extraction failed.'
+                'AI security price extraction failed.'
             );
         }
 
@@ -120,18 +120,18 @@ class AiEtfDividendExtractionService
         if (! is_array($extractedData)) {
 
             throw new \RuntimeException(
-                'AI ETF dividend extraction returned invalid JSON.'
+                'AI security price extraction returned invalid JSON.'
             );
         }
 
         return AiDataExtraction::create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
-            'data_source_id' => $etf->data_source_id
+            'data_source_id' => $security->data_source_id
                 ?? null,
 
-            'source_url' => $etf->website_url,
+            'source_url' => $security->website_url,
 
             'raw_payload' => $response->body(),
 
@@ -149,7 +149,7 @@ class AiEtfDividendExtractionService
     }
 
     private function buildPrompt(
-        Etf $etf
+        Security $security
     ): string {
 
         $currentDate =
@@ -160,37 +160,39 @@ class AiEtfDividendExtractionService
 
         return "
 
-You are extracting ETF dividend data for Etf Rocket.
+You are extracting ETF closing price data for Etf Rocket.
 
 Today's date: {$currentDate}
 
-ETF Symbol:
-{$etf->symbol}
+Security Symbol:
+{$security->symbol}
 
-ETF Name:
-{$etf->fund_name}
+Security Name:
+{$security->fund_name}
 
 Official Website:
-{$etf->website_url}
+{$security->website_url}
+
+Find the MOST RECENT completed trading session closing data for this security.
 
 Extract ONLY:
 
-- dividend_amount
-- ex_dividend_date
-- payment_date
+- close_price
+- price_date
+- volume
 
 Rules:
 
-- Use the MOST RECENT announced or paid dividend.
-- Do not use dividend yield.
+- Use ONLY the latest completed trading session.
+- Never use intraday pricing.
+- Never use premarket pricing.
+- Never use after-hours pricing.
+- If markets are currently open, use the PREVIOUS completed session.
+- If data cannot be verified, return null.
 - Do not guess.
 - Dates must be YYYY-MM-DD.
 - Numbers must be raw numeric values.
 - Return ONLY valid JSON matching the schema.
-- Use the MOST RECENT confirmed dividend with a published dividend_amount.
-- Only return dividends where dividend_amount is officially available.
-- Do not return placeholder announcements or future ex-dividend dates without confirmed payout amounts.
-- If no confirmed dividend_amount exists, do not include the dividend in results.
 
 ";
     }
@@ -207,11 +209,11 @@ Rules:
 
                 'symbol',
 
-                'dividend_amount',
+                'close_price',
 
-                'ex_dividend_date',
+                'price_date',
 
-                'payment_date',
+                'volume',
 
             ],
 
@@ -223,7 +225,7 @@ Rules:
 
                 ],
 
-                'dividend_amount' => [
+                'close_price' => [
 
                     'type' => [
 
@@ -235,7 +237,7 @@ Rules:
 
                 ],
 
-                'ex_dividend_date' => [
+                'price_date' => [
 
                     'type' => [
 
@@ -247,11 +249,11 @@ Rules:
 
                 ],
 
-                'payment_date' => [
+                'volume' => [
 
                     'type' => [
 
-                        'string',
+                        'integer',
 
                         'null',
 
