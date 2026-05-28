@@ -2,20 +2,20 @@
 
 namespace Tests\Unit\Commands;
 
-use App\Jobs\RunAiEtfDividendExtractionJob;
+use App\Jobs\RunAiSecurityDividendExtractionJob;
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
 use App\Models\Status;
-use Database\Seeders\EtfSeeder;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
+use Database\Seeders\SecuritySeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
-class RunAiEtfDividendExtractionsTest extends TestCase
+class RunAiSecurityDividendExtractionsTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -27,9 +27,9 @@ class RunAiEtfDividendExtractionsTest extends TestCase
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etf_dividend_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
         DB::table('intervals')->truncate();
 
@@ -45,7 +45,7 @@ class RunAiEtfDividendExtractionsTest extends TestCase
 
             NotificationStatusSeeder::class,
 
-            EtfSeeder::class,
+            SecuritySeeder::class,
 
         ]);
 
@@ -60,9 +60,9 @@ class RunAiEtfDividendExtractionsTest extends TestCase
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etf_dividend_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
         DB::table('intervals')->truncate();
 
@@ -73,32 +73,32 @@ class RunAiEtfDividendExtractionsTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_dispatches_jobs_for_all_etfs()
+    public function test_it_dispatches_jobs_for_all_securities()
     {
-        $etfCount =
-            Etf::count();
+        $securityCount =
+            Security::count();
 
         $this->artisan(
-            'etfs:run-ai-dividend-extraction'
+            'securities:run-ai-dividend-extraction'
         )->assertExitCode(0);
 
         Queue::assertPushed(
-            RunAiEtfDividendExtractionJob::class,
-            $etfCount
+            RunAiSecurityDividendExtractionJob::class,
+            $securityCount
         );
     }
 
     public function test_it_dispatches_job_for_single_symbol()
     {
-        $etf =
-            Etf::where(
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
 
         $this->artisan(
 
-            'etfs:run-ai-dividend-extraction',
+            'securities:run-ai-dividend-extraction',
 
             [
 
@@ -110,19 +110,19 @@ class RunAiEtfDividendExtractionsTest extends TestCase
 
         Queue::assertPushed(
 
-            RunAiEtfDividendExtractionJob::class,
+            RunAiSecurityDividendExtractionJob::class,
 
-            function ($job) use ($etf) {
+            function ($job) use ($security) {
 
                 return
-                    $job->etfId ===
-                    $etf->id;
+                    $job->securityId ===
+                    $security->id;
             }
 
         );
 
         Queue::assertPushed(
-            RunAiEtfDividendExtractionJob::class,
+            RunAiSecurityDividendExtractionJob::class,
             1
         );
     }
@@ -131,7 +131,7 @@ class RunAiEtfDividendExtractionsTest extends TestCase
     {
         $this->artisan(
 
-            'etfs:run-ai-dividend-extraction',
+            'securities:run-ai-dividend-extraction',
 
             [
 
@@ -142,16 +142,16 @@ class RunAiEtfDividendExtractionsTest extends TestCase
         )->assertExitCode(0);
 
         Queue::assertPushed(
-            RunAiEtfDividendExtractionJob::class,
+            RunAiSecurityDividendExtractionJob::class,
             5
         );
     }
 
     public function test_force_flag_bypasses_freshness_check()
     {
-        EtfDividendHistory::create([
+        SecurityDividendHistory::create([
 
-            'etf_id' => Etf::first()->id,
+            'security_id' => Security::first()->id,
 
             'dividend_amount' => 0.25,
 
@@ -174,7 +174,7 @@ class RunAiEtfDividendExtractionsTest extends TestCase
 
         $this->artisan(
 
-            'etfs:run-ai-dividend-extraction',
+            'securities:run-ai-dividend-extraction',
 
             [
 
@@ -187,25 +187,25 @@ class RunAiEtfDividendExtractionsTest extends TestCase
         )->assertExitCode(0);
 
         Queue::assertPushed(
-            RunAiEtfDividendExtractionJob::class,
+            RunAiSecurityDividendExtractionJob::class,
             2
         );
     }
 
-    public function test_it_skips_dispatch_when_all_active_etfs_have_fresh_dividend_data()
+    public function test_it_skips_dispatch_when_all_active_securities_have_fresh_dividend_data()
     {
         foreach (
 
-            Etf::where(
+            Security::where(
                 'status_id',
                 Status::ACTIVE
-            )->get() as $etf
+            )->get() as $security
 
         ) {
 
-            EtfDividendHistory::create([
+            SecurityDividendHistory::create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'dividend_amount' => 0.25,
 
@@ -223,19 +223,19 @@ class RunAiEtfDividendExtractionsTest extends TestCase
         }
 
         $this->artisan(
-            'etfs:run-ai-dividend-extraction'
+            'securities:run-ai-dividend-extraction'
         )->assertExitCode(0);
 
         Queue::assertNothingPushed();
     }
 
-    public function test_it_returns_success_when_no_etfs_exist()
+    public function test_it_returns_success_when_no_securities_exist()
     {
-        DB::table('etfs')
+        DB::table('securities')
             ->truncate();
 
         $this->artisan(
-            'etfs:run-ai-dividend-extraction'
+            'securities:run-ai-dividend-extraction'
         )->assertExitCode(0);
 
         Queue::assertNothingPushed();

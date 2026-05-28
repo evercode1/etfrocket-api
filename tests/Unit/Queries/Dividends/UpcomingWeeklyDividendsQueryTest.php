@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Queries\Dividends;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
 use App\Models\Status;
 use App\Models\User;
 use App\Queries\Dividends\UpcomingWeeklyDividendsQuery;
@@ -23,8 +23,8 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -32,8 +32,8 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -64,24 +64,24 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test ETF',
+            'fund_name' => 'NVII Test Security',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 25,
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.2500',
             'ex_dividend_date' => '2026-05-25',
             'payment_date' => '2026-05-27',
@@ -92,9 +92,9 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
 
         $this->assertCount(1, $results);
 
-        $this->assertSame($etf->id, $results[0]['etf_id']);
+        $this->assertSame($security->id, $results[0]['security_id']);
         $this->assertSame('NVII', $results[0]['symbol']);
-        $this->assertSame('NVII Test ETF', $results[0]['fund_name']);
+        $this->assertSame('NVII Test Security', $results[0]['fund_name']);
         $this->assertSame(10.0, $results[0]['shares']);
         $this->assertSame(1.25, $results[0]['distribution_amount']);
         $this->assertSame(12.5, $results[0]['estimated_payment_amount']);
@@ -112,24 +112,24 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'QQQI',
-            'fund_name' => 'QQQI Test ETF',
+            'fund_name' => 'QQQI Test Security',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 5,
             'price_per_share' => 40,
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.7500',
             'ex_dividend_date' => '2026-05-13',
             'payment_date' => '2026-05-15',
@@ -158,7 +158,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $monthlyEtf = Etf::factory()->create([
+        $monthlySecurity = Security::factory()->create([
             'symbol' => 'JEPI',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 4,
@@ -166,15 +166,15 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $monthlyEtf->id,
+            'security_id' => $monthlySecurity->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 25,
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $monthlyEtf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $monthlySecurity->id,
             'dividend_amount' => '1.0000',
             'ex_dividend_date' => '2026-05-01',
             'payment_date' => '2026-05-05',
@@ -195,7 +195,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'SOLD',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
@@ -203,7 +203,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 25,
@@ -212,15 +212,15 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 2,
             'shares' => 10,
             'price_per_share' => 30,
             'transaction_date' => '2026-02-01',
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.0000',
             'ex_dividend_date' => '2026-05-01',
             'payment_date' => '2026-05-05',
@@ -241,16 +241,16 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NEWF',
-            'fund_name' => 'New Fund ETF',
+            'fund_name' => 'New Fund Security',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 3,
             'price_per_share' => 20,

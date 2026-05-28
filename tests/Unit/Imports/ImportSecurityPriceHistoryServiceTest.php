@@ -2,37 +2,37 @@
 
 namespace Tests\Unit\Imports;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfPriceHistory;
-use App\Services\Imports\ImportEtfPriceHistoryService;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityPriceHistory;
+use App\Services\Imports\ImportSecurityPriceHistoryService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class ImportEtfPriceHistoryServiceTest extends TestCase
+class ImportSecurityPriceHistoryServiceTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
 
         parent::tearDown();
     }
 
-    public function test_it_imports_price_and_dividend_history_for_an_etf(): void
+    public function test_it_imports_price_and_dividend_history_for_a_security(): void
     {
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'CHPY',
         ]);
 
@@ -65,34 +65,34 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             '381,300',
         ]);
 
-        $result = (new ImportEtfPriceHistoryService)->import(
-            $etf->id,
+        $result = (new ImportSecurityPriceHistoryService)->import(
+            $security->id,
             $filePath
         );
 
-        $this->assertSame($etf->id, $result['etf_id']);
+        $this->assertSame($security->id, $result['security_id']);
         $this->assertSame('CHPY', $result['symbol']);
         $this->assertSame(2, $result['rows_imported']);
         $this->assertSame(1, $result['dividend_rows_imported']);
         $this->assertSame('2026-05-14', $result['start_date']);
         $this->assertSame('2026-05-15', $result['end_date']);
 
-        $this->assertDatabaseHas('etf_price_histories', [
-            'etf_id' => $etf->id,
+        $this->assertDatabaseHas('security_price_histories', [
+            'security_id' => $security->id,
             'price_date' => '2026-05-15',
             'close_price' => '28.5800',
             'volume' => 190900,
         ]);
 
-        $this->assertDatabaseHas('etf_price_histories', [
-            'etf_id' => $etf->id,
+        $this->assertDatabaseHas('security_price_histories', [
+            'security_id' => $security->id,
             'price_date' => '2026-05-14',
             'close_price' => '30.2000',
             'volume' => 381300,
         ]);
 
-        $this->assertDatabaseHas('etf_dividend_histories', [
-            'etf_id' => $etf->id,
+        $this->assertDatabaseHas('security_dividend_histories', [
+            'security_id' => $security->id,
             'dividend_amount' => '0.2390',
             'ex_dividend_date' => '2026-05-12',
             'payment_date' => '2026-05-13',
@@ -102,39 +102,39 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
         unlink($filePath);
     }
 
-    public function test_it_replaces_existing_history_for_only_the_selected_etf(): void
+    public function test_it_replaces_existing_history_for_only_the_selected_security(): void
     {
-        $selectedEtf = Etf::factory()->create([
+        $selectedSecurity = Security::factory()->create([
             'symbol' => 'CHPY',
         ]);
 
-        $otherEtf = Etf::factory()->create([
+        $otherSecurity = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $selectedEtf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $selectedSecurity->id,
             'price_date' => '2024-01-01',
             'close_price' => 10,
             'volume' => 100,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $selectedEtf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $selectedSecurity->id,
             'dividend_amount' => '0.1000',
             'ex_dividend_date' => '2024-01-01',
             'data_source_id' => 1,
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $otherEtf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $otherSecurity->id,
             'price_date' => '2024-01-01',
             'close_price' => 20,
             'volume' => 200,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $otherEtf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $otherSecurity->id,
             'dividend_amount' => '0.2000',
             'ex_dividend_date' => '2024-01-01',
             'data_source_id' => 1,
@@ -161,46 +161,46 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             '190,900',
         ]);
 
-        $result = (new ImportEtfPriceHistoryService)->import(
-            $selectedEtf->id,
+        $result = (new ImportSecurityPriceHistoryService)->import(
+            $selectedSecurity->id,
             $filePath
         );
 
         $this->assertSame(1, $result['rows_deleted']);
         $this->assertSame(1, $result['dividend_rows_deleted']);
 
-        $this->assertDatabaseMissing('etf_price_histories', [
-            'etf_id' => $selectedEtf->id,
+        $this->assertDatabaseMissing('security_price_histories', [
+            'security_id' => $selectedSecurity->id,
             'price_date' => '2024-01-01',
         ]);
 
-        $this->assertDatabaseMissing('etf_dividend_histories', [
-            'etf_id' => $selectedEtf->id,
+        $this->assertDatabaseMissing('security_dividend_histories', [
+            'security_id' => $selectedSecurity->id,
             'ex_dividend_date' => '2024-01-01',
         ]);
 
-        $this->assertDatabaseHas('etf_price_histories', [
-            'etf_id' => $selectedEtf->id,
+        $this->assertDatabaseHas('security_price_histories', [
+            'security_id' => $selectedSecurity->id,
             'price_date' => '2026-05-15',
             'close_price' => '28.5800',
             'volume' => 190900,
         ]);
 
-        $this->assertDatabaseHas('etf_dividend_histories', [
-            'etf_id' => $selectedEtf->id,
+        $this->assertDatabaseHas('security_dividend_histories', [
+            'security_id' => $selectedSecurity->id,
             'dividend_amount' => '0.2390',
             'ex_dividend_date' => '2026-05-12',
         ]);
 
-        $this->assertDatabaseHas('etf_price_histories', [
-            'etf_id' => $otherEtf->id,
+        $this->assertDatabaseHas('security_price_histories', [
+            'security_id' => $otherSecurity->id,
             'price_date' => '2024-01-01',
             'close_price' => '20.0000',
             'volume' => 200,
         ]);
 
-        $this->assertDatabaseHas('etf_dividend_histories', [
-            'etf_id' => $otherEtf->id,
+        $this->assertDatabaseHas('security_dividend_histories', [
+            'security_id' => $otherSecurity->id,
             'dividend_amount' => '0.2000',
             'ex_dividend_date' => '2024-01-01',
         ]);
@@ -210,7 +210,7 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
 
     public function test_it_imports_rows_in_chronological_order(): void
     {
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'CHPY',
         ]);
 
@@ -240,15 +240,15 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             '381,300',
         ]);
 
-        $result = (new ImportEtfPriceHistoryService)->import(
-            $etf->id,
+        $result = (new ImportSecurityPriceHistoryService)->import(
+            $security->id,
             $filePath
         );
 
         $this->assertSame('2026-05-14', $result['start_date']);
         $this->assertSame('2026-05-15', $result['end_date']);
 
-        $records = EtfPriceHistory::where('etf_id', $etf->id)
+        $records = SecurityPriceHistory::where('security_id', $security->id)
             ->orderBy('id')
             ->get();
 
@@ -260,7 +260,7 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
 
     public function test_it_sorts_dividend_rows_in_chronological_order(): void
     {
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'CHPY',
         ]);
 
@@ -288,12 +288,12 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             '190,900',
         ]);
 
-        (new ImportEtfPriceHistoryService)->import(
-            $etf->id,
+        (new ImportSecurityPriceHistoryService)->import(
+            $security->id,
             $filePath
         );
 
-        $records = EtfDividendHistory::where('etf_id', $etf->id)
+        $records = SecurityDividendHistory::where('security_id', $security->id)
             ->orderBy('id')
             ->get();
 
@@ -303,7 +303,7 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
         unlink($filePath);
     }
 
-    public function test_it_throws_exception_when_etf_does_not_exist(): void
+    public function test_it_throws_exception_when_security_does_not_exist(): void
     {
         $filePath = $this->makeTextFile([
             'Date',
@@ -326,7 +326,7 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
         $this->expectException(ModelNotFoundException::class);
 
         try {
-            (new ImportEtfPriceHistoryService)->import(999999, $filePath);
+            (new ImportSecurityPriceHistoryService)->import(999999, $filePath);
         } finally {
             unlink($filePath);
         }
@@ -334,33 +334,33 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
 
     public function test_it_deletes_previous_price_and_dividend_history_records_before_importing_new_records(): void
     {
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'CHPY',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2024-01-01',
             'close_price' => 10,
             'volume' => 100,
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2024-01-02',
             'close_price' => 11,
             'volume' => 200,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.1000',
             'ex_dividend_date' => '2024-01-01',
             'data_source_id' => 1,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.2000',
             'ex_dividend_date' => '2024-01-02',
             'data_source_id' => 1,
@@ -368,12 +368,12 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
 
         $this->assertSame(
             2,
-            EtfPriceHistory::where('etf_id', $etf->id)->count()
+            SecurityPriceHistory::where('security_id', $security->id)->count()
         );
 
         $this->assertSame(
             2,
-            EtfDividendHistory::where('etf_id', $etf->id)->count()
+            SecurityDividendHistory::where('security_id', $security->id)->count()
         );
 
         $filePath = $this->makeTextFile([
@@ -397,50 +397,50 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             '190,900',
         ]);
 
-        (new ImportEtfPriceHistoryService)->import(
-            $etf->id,
+        (new ImportSecurityPriceHistoryService)->import(
+            $security->id,
             $filePath
         );
 
         $this->assertSame(
             1,
-            EtfPriceHistory::where('etf_id', $etf->id)->count()
+            SecurityPriceHistory::where('security_id', $security->id)->count()
         );
 
         $this->assertSame(
             1,
-            EtfDividendHistory::where('etf_id', $etf->id)->count()
+            SecurityDividendHistory::where('security_id', $security->id)->count()
         );
 
-        $this->assertDatabaseMissing('etf_price_histories', [
-            'etf_id' => $etf->id,
+        $this->assertDatabaseMissing('security_price_histories', [
+            'security_id' => $security->id,
             'price_date' => '2024-01-01',
         ]);
 
-        $this->assertDatabaseMissing('etf_price_histories', [
-            'etf_id' => $etf->id,
+        $this->assertDatabaseMissing('security_price_histories', [
+            'security_id' => $security->id,
             'price_date' => '2024-01-02',
         ]);
 
-        $this->assertDatabaseMissing('etf_dividend_histories', [
-            'etf_id' => $etf->id,
+        $this->assertDatabaseMissing('security_dividend_histories', [
+            'security_id' => $security->id,
             'ex_dividend_date' => '2024-01-01',
         ]);
 
-        $this->assertDatabaseMissing('etf_dividend_histories', [
-            'etf_id' => $etf->id,
+        $this->assertDatabaseMissing('security_dividend_histories', [
+            'security_id' => $security->id,
             'ex_dividend_date' => '2024-01-02',
         ]);
 
-        $this->assertDatabaseHas('etf_price_histories', [
-            'etf_id' => $etf->id,
+        $this->assertDatabaseHas('security_price_histories', [
+            'security_id' => $security->id,
             'price_date' => '2026-05-15',
             'close_price' => '28.5800',
             'volume' => 190900,
         ]);
 
-        $this->assertDatabaseHas('etf_dividend_histories', [
-            'etf_id' => $etf->id,
+        $this->assertDatabaseHas('security_dividend_histories', [
+            'security_id' => $security->id,
             'dividend_amount' => '0.2390',
             'ex_dividend_date' => '2026-05-12',
         ]);
@@ -450,7 +450,7 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
 
     private function makeTextFile(array $lines): string
     {
-        $filePath = tempnam(sys_get_temp_dir(), 'etf-price-history-service-import-');
+        $filePath = tempnam(sys_get_temp_dir(), 'security-price-history-service-import-');
 
         file_put_contents(
             $filePath,

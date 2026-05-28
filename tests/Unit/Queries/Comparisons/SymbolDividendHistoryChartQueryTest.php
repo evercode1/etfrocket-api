@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Queries\Comparisons;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
 use App\Queries\Comparisons\SymbolDividendHistoryChartQuery;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -14,25 +14,25 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
     {
         parent::setUp();
 
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
 
         parent::tearDown();
     }
 
     public function test_it_returns_chart_rows_for_single_symbol()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => '2026-05-01',
 
@@ -40,9 +40,9 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
         ]);
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => '2026-05-15',
 
@@ -52,7 +52,7 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
         $data = (new SymbolDividendHistoryChartQuery)->getData(
 
-            etfIds: [$etf->id],
+            securityIds: [$security->id],
 
             startDate: '2026-05-01'
 
@@ -86,13 +86,13 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
     public function test_it_returns_chart_rows_for_multiple_symbols()
     {
-        $chpy = $this->createEtf('CHPY');
+        $chpy = $this->createSecurity('CHPY');
 
-        $amdy = $this->createEtf('AMDY');
+        $amdy = $this->createSecurity('AMDY');
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $chpy->id,
+            'security_id' => $chpy->id,
 
             'ex_dividend_date' => '2026-05-01',
 
@@ -100,9 +100,9 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
         ]);
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $amdy->id,
+            'security_id' => $amdy->id,
 
             'ex_dividend_date' => '2026-05-01',
 
@@ -112,7 +112,7 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
         $data = (new SymbolDividendHistoryChartQuery)->getData(
 
-            etfIds: [
+            securityIds: [
 
                 $chpy->id,
 
@@ -147,11 +147,11 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
     public function test_it_filters_out_records_before_start_date()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => '2026-04-01',
 
@@ -159,9 +159,9 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
         ]);
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => '2026-05-01',
 
@@ -171,7 +171,7 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
         $data = (new SymbolDividendHistoryChartQuery)->getData(
 
-            etfIds: [$etf->id],
+            securityIds: [$security->id],
 
             startDate: '2026-05-01'
 
@@ -195,11 +195,11 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
     public function test_it_returns_empty_array_when_no_matching_records_exist()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
         $data = (new SymbolDividendHistoryChartQuery)->getData(
 
-            etfIds: [$etf->id],
+            securityIds: [$security->id],
 
             startDate: '2026-05-01'
 
@@ -213,11 +213,11 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
     public function test_it_orders_chart_rows_by_date()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => '2026-05-15',
 
@@ -225,9 +225,9 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
         ]);
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => '2026-05-01',
 
@@ -235,9 +235,9 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
         ]);
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => '2026-05-10',
 
@@ -247,7 +247,7 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
 
         $data = (new SymbolDividendHistoryChartQuery)->getData(
 
-            etfIds: [$etf->id],
+            securityIds: [$security->id],
 
             startDate: '2026-05-01'
 
@@ -269,13 +269,11 @@ class SymbolDividendHistoryChartQueryTest extends TestCase
         );
     }
 
-    private function createEtf(string $symbol): Etf
+    private function createSecurity(string $symbol): Security
     {
-        return Etf::factory()->create([
+        return Security::factory()->create([
 
             'symbol' => $symbol,
-
-            'fund_name' => "{$symbol} Test ETF",
 
         ]);
     }

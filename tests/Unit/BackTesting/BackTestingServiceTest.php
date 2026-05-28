@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\BackTesting;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfPriceHistory;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityPriceHistory;
 use App\Queries\BackTesting\GetBackTestDividendHistoryQuery;
 use App\Queries\BackTesting\GetBackTestPriceHistoryQuery;
 use App\Services\BackTesting\BackTestingService;
@@ -20,9 +20,9 @@ class BackTestingServiceTest extends TestCase
     {
         parent::setUp();
 
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
 
         $this->service =
             new BackTestingService(
@@ -38,20 +38,20 @@ class BackTestingServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
 
         parent::tearDown();
     }
 
     public function test_it_generates_chart_rows()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -59,9 +59,9 @@ class BackTestingServiceTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-02-01',
 
@@ -71,7 +71,7 @@ class BackTestingServiceTest extends TestCase
 
         $data = $this->service->getData(
 
-            etfId: $etf->id,
+            securityId: $security->id,
 
             startDate: '2024-01-01',
 
@@ -99,11 +99,11 @@ class BackTestingServiceTest extends TestCase
 
     public function test_it_calculates_final_value()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -111,9 +111,9 @@ class BackTestingServiceTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-02-01',
 
@@ -123,7 +123,7 @@ class BackTestingServiceTest extends TestCase
 
         $data = $this->service->getData(
 
-            etfId: $etf->id,
+            securityId: $security->id,
 
             startDate: '2024-01-01',
 
@@ -141,11 +141,11 @@ class BackTestingServiceTest extends TestCase
 
     public function test_it_applies_monthly_contributions()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -153,9 +153,9 @@ class BackTestingServiceTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-02-01',
 
@@ -165,7 +165,7 @@ class BackTestingServiceTest extends TestCase
 
         $data = $this->service->getData(
 
-            etfId: $etf->id,
+            securityId: $security->id,
 
             startDate: '2024-01-01',
 
@@ -190,11 +190,11 @@ class BackTestingServiceTest extends TestCase
 
     public function test_it_reinvests_dividends_when_drip_enabled()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -202,9 +202,9 @@ class BackTestingServiceTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-02-01',
 
@@ -212,9 +212,9 @@ class BackTestingServiceTest extends TestCase
 
         ]);
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => '2024-02-01',
 
@@ -224,7 +224,7 @@ class BackTestingServiceTest extends TestCase
 
         $data = $this->service->getData(
 
-            etfId: $etf->id,
+            securityId: $security->id,
 
             startDate: '2024-01-01',
 
@@ -252,11 +252,11 @@ class BackTestingServiceTest extends TestCase
 
     public function test_it_supports_partial_drip()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -264,9 +264,9 @@ class BackTestingServiceTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-02-01',
 
@@ -274,9 +274,9 @@ class BackTestingServiceTest extends TestCase
 
         ]);
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => '2024-02-01',
 
@@ -286,7 +286,7 @@ class BackTestingServiceTest extends TestCase
 
         $data = $this->service->getData(
 
-            etfId: $etf->id,
+            securityId: $security->id,
 
             startDate: '2024-01-01',
 
@@ -311,11 +311,11 @@ class BackTestingServiceTest extends TestCase
 
     public function test_it_returns_empty_payload_when_no_prices_exist()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
         $data = $this->service->getData(
 
-            etfId: $etf->id,
+            securityId: $security->id,
 
             startDate: '2024-01-01',
 
@@ -348,11 +348,11 @@ class BackTestingServiceTest extends TestCase
 
     public function test_it_tracks_total_dividends()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -360,9 +360,9 @@ class BackTestingServiceTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-02-01',
 
@@ -370,9 +370,9 @@ class BackTestingServiceTest extends TestCase
 
         ]);
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => '2024-02-01',
 
@@ -382,7 +382,7 @@ class BackTestingServiceTest extends TestCase
 
         $data = $this->service->getData(
 
-            etfId: $etf->id,
+            securityId: $security->id,
 
             startDate: '2024-01-01',
 
@@ -402,11 +402,11 @@ class BackTestingServiceTest extends TestCase
 
     public function test_it_returns_analytics_payload()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -414,9 +414,9 @@ class BackTestingServiceTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2025-01-01',
 
@@ -426,7 +426,7 @@ class BackTestingServiceTest extends TestCase
 
         $data = $this->service->getData(
 
-            etfId: $etf->id,
+            securityId: $security->id,
 
             startDate: '2024-01-01',
 
@@ -462,15 +462,13 @@ class BackTestingServiceTest extends TestCase
         );
     }
 
-    private function createEtf(
+    private function createSecurity(
         string $symbol
-    ): Etf {
+    ): Security {
 
-        return Etf::factory()->create([
+        return Security::factory()->create([
 
             'symbol' => $symbol,
-
-            'fund_name' => "{$symbol} Test ETF",
 
         ]);
     }

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\BackTesting;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfPriceHistory;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityPriceHistory;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
@@ -16,17 +16,17 @@ class BackTestingTest extends TestCase
     {
         parent::setUp();
 
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -38,11 +38,11 @@ class BackTestingTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -50,9 +50,9 @@ class BackTestingTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2025-01-01',
 
@@ -60,9 +60,9 @@ class BackTestingTest extends TestCase
 
         ]);
 
-        EtfDividendHistory::factory()->create([
+        SecurityDividendHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'ex_dividend_date' => '2025-01-01',
 
@@ -76,7 +76,7 @@ class BackTestingTest extends TestCase
 
             [
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'start_date' => '2024-01-01',
 
@@ -149,7 +149,7 @@ class BackTestingTest extends TestCase
 
             [
 
-                'etf_id' => 1,
+                'security_id' => 1,
 
                 'start_date' => '2024-01-01',
 
@@ -182,7 +182,7 @@ class BackTestingTest extends TestCase
 
         $response->assertJsonValidationErrors([
 
-            'etf_id',
+            'security_id',
 
             'start_date',
 
@@ -205,7 +205,7 @@ class BackTestingTest extends TestCase
 
             [
 
-                'etf_id' => 1,
+                'security_id' => 1,
 
                 'start_date' => '2025-01-01',
 
@@ -238,7 +238,7 @@ class BackTestingTest extends TestCase
 
             [
 
-                'etf_id' => 1,
+                'security_id' => 1,
 
                 'start_date' => '2024-01-01',
 
@@ -267,7 +267,7 @@ class BackTestingTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
         $response = $this->postJson(
 
@@ -275,7 +275,7 @@ class BackTestingTest extends TestCase
 
             [
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'start_date' => '2024-01-01',
 
@@ -312,11 +312,11 @@ class BackTestingTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -324,9 +324,9 @@ class BackTestingTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2025-01-01',
 
@@ -340,7 +340,7 @@ class BackTestingTest extends TestCase
 
             [
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'start_date' => '2024-01-01',
 
@@ -371,15 +371,13 @@ class BackTestingTest extends TestCase
         );
     }
 
-    private function createEtf(
+    private function createSecurity(
         string $symbol
-    ): Etf {
+    ): Security {
 
-        return Etf::factory()->create([
+        return Security::factory()->create([
 
             'symbol' => $symbol,
-
-            'fund_name' => "{$symbol} Test ETF",
 
         ]);
     }

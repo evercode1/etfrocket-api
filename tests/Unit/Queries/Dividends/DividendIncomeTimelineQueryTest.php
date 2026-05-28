@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Queries\Dividends;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
 use App\Models\Status;
 use App\Models\User;
 use App\Queries\Dividends\DividendIncomeTimelineQuery;
@@ -23,8 +23,8 @@ class DividendIncomeTimelineQueryTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -32,8 +32,8 @@ class DividendIncomeTimelineQueryTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -64,23 +64,21 @@ class DividendIncomeTimelineQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $weeklyEtf = Etf::factory()->create([
+        $weeklySecurity = Security::factory()->create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test ETF',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
-        $monthlyEtf = Etf::factory()->create([
+        $monthlySecurity = Security::factory()->create([
             'symbol' => 'JEPI',
-            'fund_name' => 'JEPI Test ETF',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 4,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $weeklyEtf->id,
+            'security_id' => $weeklySecurity->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 25,
@@ -89,39 +87,39 @@ class DividendIncomeTimelineQueryTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $monthlyEtf->id,
+            'security_id' => $monthlySecurity->id,
             'transaction_type_id' => 1,
             'shares' => 5,
             'price_per_share' => 50,
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $weeklyEtf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $weeklySecurity->id,
             'dividend_amount' => '0.5000',
             'ex_dividend_date' => '2026-05-15',
             'payment_date' => '2026-05-16',
             'data_source_id' => 1,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $weeklyEtf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $weeklySecurity->id,
             'dividend_amount' => '0.4000',
             'ex_dividend_date' => '2026-05-08',
             'payment_date' => '2026-05-09',
             'data_source_id' => 1,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $weeklyEtf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $weeklySecurity->id,
             'dividend_amount' => '0.3000',
             'ex_dividend_date' => '2026-04-15',
             'payment_date' => '2026-04-16',
             'data_source_id' => 1,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $monthlyEtf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $monthlySecurity->id,
             'dividend_amount' => '1.0000',
             'ex_dividend_date' => '2026-05-01',
             'payment_date' => '2026-05-02',
@@ -157,7 +155,7 @@ class DividendIncomeTimelineQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'SOLD',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
@@ -165,7 +163,7 @@ class DividendIncomeTimelineQueryTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 25,
@@ -174,15 +172,15 @@ class DividendIncomeTimelineQueryTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 2,
             'shares' => 10,
             'price_per_share' => 30,
             'transaction_date' => '2026-02-01',
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '1.0000',
             'ex_dividend_date' => '2026-05-01',
             'payment_date' => '2026-05-02',
@@ -203,7 +201,7 @@ class DividendIncomeTimelineQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NODEV',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
@@ -211,7 +209,7 @@ class DividendIncomeTimelineQueryTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 25,

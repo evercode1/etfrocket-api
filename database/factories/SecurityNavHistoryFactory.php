@@ -3,13 +3,13 @@
 namespace Database\Factories;
 
 use App\Models\DataSource;
-use App\Models\EtfAumHistory;
+use App\Models\SecurityNavHistory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<EtfAumHistory>
+ * @extends Factory<SecurityNavHistory>
  */
-class EtfAumHistoryFactory extends Factory
+class SecurityNavHistoryFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,18 +18,15 @@ class EtfAumHistoryFactory extends Factory
      */
     public function definition(): array
     {
-        $aumDate = $this->faker->unique()->date();
+        $navDate = $this->faker->unique()->date();
 
         return [
 
             'security_id' => rand(1, 4),
 
-            'aum_date' => $aumDate,
+            'nav_date' => $navDate,
 
-            'assets_under_management' => $this->faker->numberBetween(
-                1000000,
-                50000000000
-            ),
+            'nav_per_share' => $this->faker->randomFloat(4, 5, 500),
 
             'data_source_id' => DataSource::MANUAL_ENTRY,
 

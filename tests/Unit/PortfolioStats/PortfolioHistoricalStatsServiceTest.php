@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\PortfolioStats;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfPriceHistory;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityPriceHistory;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\PortfolioStats\PortfolioHistoricalStatsService;
@@ -21,9 +21,9 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -31,9 +31,9 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -43,11 +43,11 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25, '2026-01-01');
-        $this->createTransaction($portfolio->id, $etf->id, 1, 5, 30, '2026-02-01');
-        $this->createTransaction($portfolio->id, $etf->id, 2, 3, 35, '2026-03-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 5, 30, '2026-02-01');
+        $this->createTransaction($portfolio->id, $security->id, 2, 3, 35, '2026-03-01');
 
         $holdings = (new PortfolioHistoricalStatsService)->getHoldingsAsOfDate(
             $portfolio->id,
@@ -55,7 +55,7 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
         );
 
         $this->assertCount(1, $holdings);
-        $this->assertSame($etf->id, $holdings->first()['etf_id']);
+        $this->assertSame($security->id, $holdings->first()['security_id']);
         $this->assertSame(15.0, $holdings->first()['shares']);
     }
 
@@ -63,10 +63,10 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('AMDY');
+        $security = $this->createSecurity('AMDY');
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25, '2026-01-01');
-        $this->createTransaction($portfolio->id, $etf->id, 2, 4, 30, '2026-02-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $security->id, 2, 4, 30, '2026-02-01');
 
         $holdings = (new PortfolioHistoricalStatsService)->getHoldingsAsOfDate(
             $portfolio->id,
@@ -81,10 +81,10 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('SOLD');
+        $security = $this->createSecurity('SOLD');
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25, '2026-01-01');
-        $this->createTransaction($portfolio->id, $etf->id, 2, 10, 30, '2026-02-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $security->id, 2, 10, 30, '2026-02-01');
 
         $holdings = (new PortfolioHistoricalStatsService)->getHoldingsAsOfDate(
             $portfolio->id,
@@ -98,10 +98,10 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('TIME');
+        $security = $this->createSecurity('TIME');
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25, '2026-01-01');
-        $this->createTransaction($portfolio->id, $etf->id, 1, 90, 30, '2026-03-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 90, 30, '2026-03-01');
 
         $holdings = (new PortfolioHistoricalStatsService)->getHoldingsAsOfDate(
             $portfolio->id,
@@ -118,10 +118,10 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
 
         $otherPortfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25, '2026-01-01');
-        $this->createTransaction($otherPortfolio->id, $etf->id, 1, 99, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($otherPortfolio->id, $security->id, 1, 99, 25, '2026-01-01');
 
         $holdings = (new PortfolioHistoricalStatsService)->getHoldingsAsOfDate(
             $portfolio->id,
@@ -136,15 +136,15 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25, '2026-01-01');
-        $this->createTransaction($portfolio->id, $etf->id, 1, 5, 30, '2026-02-01');
-        $this->createTransaction($portfolio->id, $etf->id, 2, 4, 35, '2026-03-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 5, 30, '2026-02-01');
+        $this->createTransaction($portfolio->id, $security->id, 2, 4, 35, '2026-03-01');
 
         $shares = (new PortfolioHistoricalStatsService)->getSharesOwnedAsOfDate(
             $portfolio->id,
-            $etf->id,
+            $security->id,
             '2026-02-15'
         );
 
@@ -155,14 +155,14 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $firstEtf = $this->createEtf('NVII');
-        $secondEtf = $this->createEtf('JEPI');
+        $firstSecurity = $this->createSecurity('NVII');
+        $secondSecurity = $this->createSecurity('JEPI');
 
-        $this->createTransaction($portfolio->id, $firstEtf->id, 1, 10, 25, '2026-01-01');
-        $this->createTransaction($portfolio->id, $secondEtf->id, 1, 5, 50, '2026-01-01');
+        $this->createTransaction($portfolio->id, $firstSecurity->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $secondSecurity->id, 1, 5, 50, '2026-01-01');
 
-        $this->createPrice($firstEtf->id, '2026-01-15', 30);
-        $this->createPrice($secondEtf->id, '2026-01-15', 40);
+        $this->createPrice($firstSecurity->id, '2026-01-15', 30);
+        $this->createPrice($secondSecurity->id, '2026-01-15', 40);
 
         $value = (new PortfolioHistoricalStatsService)->getPortfolioValueAsOfDate(
             $portfolio->id,
@@ -178,13 +178,13 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('PRICE');
+        $security = $this->createSecurity('PRICE');
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25, '2026-01-01');
 
-        $this->createPrice($etf->id, '2026-01-01', 20);
-        $this->createPrice($etf->id, '2026-01-15', 30);
-        $this->createPrice($etf->id, '2026-02-01', 99);
+        $this->createPrice($security->id, '2026-01-01', 20);
+        $this->createPrice($security->id, '2026-01-15', 30);
+        $this->createPrice($security->id, '2026-02-01', 99);
 
         $value = (new PortfolioHistoricalStatsService)->getPortfolioValueAsOfDate(
             $portfolio->id,
@@ -198,13 +198,13 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $pricedEtf = $this->createEtf('YESP');
-        $unpricedEtf = $this->createEtf('NOPR');
+        $pricedSecurity = $this->createSecurity('YESP');
+        $unpricedSecurity = $this->createSecurity('NOPR');
 
-        $this->createTransaction($portfolio->id, $pricedEtf->id, 1, 10, 25, '2026-01-01');
-        $this->createTransaction($portfolio->id, $unpricedEtf->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $pricedSecurity->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $unpricedSecurity->id, 1, 10, 25, '2026-01-01');
 
-        $this->createPrice($pricedEtf->id, '2026-01-15', 30);
+        $this->createPrice($pricedSecurity->id, '2026-01-15', 30);
 
         $value = (new PortfolioHistoricalStatsService)->getPortfolioValueAsOfDate(
             $portfolio->id,
@@ -218,13 +218,13 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('DIV');
+        $security = $this->createSecurity('DIV');
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25, '2026-01-01');
-        $this->createTransaction($portfolio->id, $etf->id, 1, 5, 30, '2026-01-20');
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 5, 30, '2026-01-20');
 
-        $this->createDividend($etf->id, '0.5000', '2026-01-15');
-        $this->createDividend($etf->id, '1.0000', '2026-01-25');
+        $this->createDividend($security->id, '0.5000', '2026-01-15');
+        $this->createDividend($security->id, '1.0000', '2026-01-25');
 
         $income = (new PortfolioHistoricalStatsService)->getDividendIncomeBetweenDates(
             $portfolio->id,
@@ -241,11 +241,11 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('LATE');
+        $security = $this->createSecurity('LATE');
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25, '2026-02-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25, '2026-02-01');
 
-        $this->createDividend($etf->id, '1.0000', '2026-01-15');
+        $this->createDividend($security->id, '1.0000', '2026-01-15');
 
         $income = (new PortfolioHistoricalStatsService)->getDividendIncomeBetweenDates(
             $portfolio->id,
@@ -260,12 +260,12 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('SELLD');
+        $security = $this->createSecurity('SELLD');
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25, '2026-01-01');
-        $this->createTransaction($portfolio->id, $etf->id, 2, 10, 30, '2026-01-10');
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $security->id, 2, 10, 30, '2026-01-10');
 
-        $this->createDividend($etf->id, '1.0000', '2026-01-15');
+        $this->createDividend($security->id, '1.0000', '2026-01-15');
 
         $income = (new PortfolioHistoricalStatsService)->getDividendIncomeBetweenDates(
             $portfolio->id,
@@ -280,12 +280,12 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('RANGE');
+        $security = $this->createSecurity('RANGE');
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25, '2026-01-01');
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25, '2026-01-01');
 
-        $this->createDividend($etf->id, '1.0000', '2026-01-15');
-        $this->createDividend($etf->id, '1.0000', '2026-02-15');
+        $this->createDividend($security->id, '1.0000', '2026-01-15');
+        $this->createDividend($security->id, '1.0000', '2026-02-15');
 
         $income = (new PortfolioHistoricalStatsService)->getDividendIncomeBetweenDates(
             $portfolio->id,
@@ -306,9 +306,9 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
         ]);
     }
 
-    private function createEtf(string $symbol): Etf
+    private function createSecurity(string $symbol): Security
     {
-        return Etf::factory()->create([
+        return Security::factory()->create([
             'symbol' => $symbol,
             'fund_name' => "{$symbol} Test ETF",
             'status_id' => Status::ACTIVE,
@@ -318,7 +318,7 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
 
     private function createTransaction(
         int $portfolioId,
-        int $etfId,
+        int $securityId,
         int $transactionTypeId,
         float $shares,
         float $pricePerShare,
@@ -326,7 +326,7 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     ): PortfolioTransaction {
         return PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolioId,
-            'etf_id' => $etfId,
+            'security_id' => $securityId,
             'transaction_type_id' => $transactionTypeId,
             'shares' => $shares,
             'price_per_share' => $pricePerShare,
@@ -335,12 +335,12 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     }
 
     private function createPrice(
-        int $etfId,
+        int $securityId,
         string $priceDate,
         float $closePrice
-    ): EtfPriceHistory {
-        return EtfPriceHistory::factory()->create([
-            'etf_id' => $etfId,
+    ): SecurityPriceHistory {
+        return SecurityPriceHistory::factory()->create([
+            'security_id' => $securityId,
             'price_date' => $priceDate,
             'close_price' => $closePrice,
             'volume' => 100000,
@@ -348,12 +348,12 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     }
 
     private function createDividend(
-        int $etfId,
+        int $securityId,
         string $amount,
         string $exDividendDate
-    ): EtfDividendHistory {
-        return EtfDividendHistory::factory()->create([
-            'etf_id' => $etfId,
+    ): SecurityDividendHistory {
+        return SecurityDividendHistory::factory()->create([
+            'security_id' => $securityId,
             'dividend_amount' => $amount,
             'ex_dividend_date' => $exDividendDate,
             'payment_date' => $exDividendDate,

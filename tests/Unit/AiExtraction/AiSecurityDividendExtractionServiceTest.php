@@ -3,16 +3,16 @@
 namespace Tests\Unit\AiExtraction;
 
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Services\AI\Extractions\AiEtfDividendExtractionService;
-use Database\Seeders\EtfSeeder;
+use App\Models\Security;
+use App\Services\AI\Extractions\AiSecurityDividendExtractionService;
+use Database\Seeders\SecuritySeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
-class AiEtfDividendExtractionServiceTest extends TestCase
+class AiSecurityDividendExtractionServiceTest extends TestCase
 {
-    private AiEtfDividendExtractionService $service;
+    private AiSecurityDividendExtractionService $service;
 
     protected function setUp(): void
     {
@@ -20,15 +20,15 @@ class AiEtfDividendExtractionServiceTest extends TestCase
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
         $this->seed(
-            EtfSeeder::class
+            SecuritySeeder::class
         );
 
         $this->service =
             app(
-                AiEtfDividendExtractionService::class
+                AiSecurityDividendExtractionService::class
             );
     }
 
@@ -36,15 +36,15 @@ class AiEtfDividendExtractionServiceTest extends TestCase
     {
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
         parent::tearDown();
     }
 
-    public function test_it_extracts_etf_dividend_data()
+    public function test_it_extracts_security_dividend_data()
     {
-        $etf =
-            Etf::where(
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
@@ -91,7 +91,7 @@ class AiEtfDividendExtractionServiceTest extends TestCase
         $extraction =
             $this->service
                 ->extract(
-                    $etf
+                    $security
                 );
 
         $this->assertInstanceOf(
@@ -108,8 +108,8 @@ class AiEtfDividendExtractionServiceTest extends TestCase
 
     public function test_it_throws_exception_on_failed_response()
     {
-        $etf =
-            Etf::firstOrFail();
+        $security =
+            Security::firstOrFail();
 
         Http::fake([
 
@@ -123,7 +123,7 @@ class AiEtfDividendExtractionServiceTest extends TestCase
 
         $this->service
             ->extract(
-                $etf
+                $security
             );
     }
 }

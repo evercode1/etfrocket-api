@@ -1,44 +1,44 @@
 <?php
 
-namespace App\Services\EtfMetrics;
+namespace App\Services\SecurityMetrics;
 
-use App\Models\Etf;
-use App\Models\EtfAumHistory;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfMetric;
-use App\Models\EtfNavHistory;
-use App\Models\EtfPriceHistory;
 use App\Models\MetricDirection;
 use App\Models\PerformanceRangeType;
+use App\Models\Security;
+use App\Models\SecurityAumHistory;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityMetric;
+use App\Models\SecurityNavHistory;
+use App\Models\SecurityPriceHistory;
 use Illuminate\Support\Facades\Log;
 
-class CalculateEtfMetricService
+class CalculateSecurityMetricService
 {
-    public function calculate(Etf $etf, int $performance_range_type_id): ?EtfMetric
+    public function calculate(Security $security, int $performance_range_type_id): ?SecurityMetric
     {
         $endDate = now()->toDateString();
 
         $startDate = $this->getStartDate(
             $performance_range_type_id,
-            $etf->id
+            $security->id
         );
 
-        $startPrice = $this->getStartPrice($etf->id, $startDate);
-        $endPrice = $this->getEndPrice($etf->id, $endDate);
+        $startPrice = $this->getStartPrice($security->id, $startDate);
+        $endPrice = $this->getEndPrice($security->id, $endDate);
 
-        $startNav = $this->getStartNav($etf->id, $startDate);
-        $endNav = $this->getEndNav($etf->id, $endDate);
+        $startNav = $this->getStartNav($security->id, $startDate);
+        $endNav = $this->getEndNav($security->id, $endDate);
 
-        $startAum = $this->getStartAum($etf->id, $startDate);
-        $endAum = $this->getEndAum($etf->id, $endDate);
+        $startAum = $this->getStartAum($security->id, $startDate);
+        $endAum = $this->getEndAum($security->id, $endDate);
 
         if (
             is_null($startPrice) ||
             is_null($endPrice)
         ) {
-            Log::warning('Skipping ETF metric calculation due to missing price data.', [
-                'etf_id' => $etf->id,
-                'symbol' => $etf->symbol,
+            Log::warning('Skipping security metric calculation due to missing price data.', [
+                'security_id' => $security->id,
+                'symbol' => $security->symbol,
                 'performance_range_type_id' => $performance_range_type_id,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
@@ -52,8 +52,8 @@ class CalculateEtfMetricService
         $priceChange = $this->calculateRawChange($startPrice, $endPrice);
         $priceChangePercentage = $this->calculatePercentageChange($startPrice, $endPrice);
 
-        $dividendsPaid = $this->getDividendsPaid($etf->id, $startDate, $endDate);
-        $dividendCount = $this->getDividendCount($etf->id, $startDate, $endDate);
+        $dividendsPaid = $this->getDividendsPaid($security->id, $startDate, $endDate);
+        $dividendCount = $this->getDividendCount($security->id, $startDate, $endDate);
 
         $averageDividend = $dividendCount > 0
             ? round($dividendsPaid / $dividendCount, 4)
@@ -79,9 +79,9 @@ class CalculateEtfMetricService
 
         $aumDirectionId = $this->getAumDirectionId($aumChangePercentage);
 
-        return EtfMetric::updateOrCreate(
+        return SecurityMetric::updateOrCreate(
             [
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
                 'performance_range_type_id' => $performance_range_type_id,
             ],
             [
@@ -129,16 +129,16 @@ class CalculateEtfMetricService
         };
     }
 
-    private function getMaxStartDate(int $etf_id): ?string
+    private function getMaxStartDate(int $security_id): ?string
     {
-        return EtfPriceHistory::where('etf_id', $etf_id)
+        return SecurityPriceHistory::where('security_id', $security_id)
             ->orderBy('price_date', 'asc')
             ->value('price_date');
     }
 
-    private function getStartPrice(int $etf_id, ?string $startDate): ?float
+    private function getStartPrice(int $security_id, ?string $startDate): ?float
     {
-        $query = EtfPriceHistory::where('etf_id', $etf_id);
+        $query = SecurityPriceHistory::where('security_id', $security_id);
 
         if ($startDate) {
             $query->where('price_date', '>=', $startDate);
@@ -147,17 +147,17 @@ class CalculateEtfMetricService
         return $query->orderBy('price_date', 'asc')->value('close_price');
     }
 
-    private function getEndPrice(int $etf_id, string $endDate): ?float
+    private function getEndPrice(int $security_id, string $endDate): ?float
     {
-        return EtfPriceHistory::where('etf_id', $etf_id)
+        return SecurityPriceHistory::where('security_id', $security_id)
             ->where('price_date', '<=', $endDate)
             ->orderBy('price_date', 'desc')
             ->value('close_price');
     }
 
-    private function getDividendsPaid(int $etf_id, ?string $startDate, string $endDate): float
+    private function getDividendsPaid(int $security_id, ?string $startDate, string $endDate): float
     {
-        $query = EtfDividendHistory::where('etf_id', $etf_id)
+        $query = SecurityDividendHistory::where('security_id', $security_id)
             ->where('ex_dividend_date', '<=', $endDate);
 
         if ($startDate) {
@@ -167,9 +167,9 @@ class CalculateEtfMetricService
         return round((float) $query->sum('dividend_amount'), 4);
     }
 
-    private function getDividendCount(int $etf_id, ?string $startDate, string $endDate): int
+    private function getDividendCount(int $security_id, ?string $startDate, string $endDate): int
     {
-        $query = EtfDividendHistory::where('etf_id', $etf_id)
+        $query = SecurityDividendHistory::where('security_id', $security_id)
             ->where('ex_dividend_date', '<=', $endDate);
 
         if ($startDate) {
@@ -179,9 +179,9 @@ class CalculateEtfMetricService
         return $query->count();
     }
 
-    private function getStartNav(int $etf_id, ?string $startDate): ?float
+    private function getStartNav(int $security_id, ?string $startDate): ?float
     {
-        $query = EtfNavHistory::where('etf_id', $etf_id);
+        $query = SecurityNavHistory::where('security_id', $security_id);
 
         if ($startDate) {
             $query->where('nav_date', '>=', $startDate);
@@ -190,17 +190,17 @@ class CalculateEtfMetricService
         return $query->orderBy('nav_date', 'asc')->value('nav_per_share');
     }
 
-    private function getEndNav(int $etf_id, string $endDate): ?float
+    private function getEndNav(int $security_id, string $endDate): ?float
     {
-        return EtfNavHistory::where('etf_id', $etf_id)
+        return SecurityNavHistory::where('security_id', $security_id)
             ->where('nav_date', '<=', $endDate)
             ->orderBy('nav_date', 'desc')
             ->value('nav_per_share');
     }
 
-    private function getStartAum(int $etf_id, ?string $startDate): ?int
+    private function getStartAum(int $security_id, ?string $startDate): ?int
     {
-        $query = EtfAumHistory::where('etf_id', $etf_id);
+        $query = SecurityAumHistory::where('security_id', $security_id);
 
         if ($startDate) {
             $query->where('aum_date', '>=', $startDate);
@@ -209,9 +209,9 @@ class CalculateEtfMetricService
         return $query->orderBy('aum_date', 'asc')->value('assets_under_management');
     }
 
-    private function getEndAum(int $etf_id, string $endDate): ?int
+    private function getEndAum(int $security_id, string $endDate): ?int
     {
-        return EtfAumHistory::where('etf_id', $etf_id)
+        return SecurityAumHistory::where('security_id', $security_id)
             ->where('aum_date', '<=', $endDate)
             ->orderBy('aum_date', 'desc')
             ->value('assets_under_management');

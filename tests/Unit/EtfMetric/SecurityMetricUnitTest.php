@@ -1,21 +1,21 @@
 <?php
 
-namespace Tests\Unit\EtfMetric;
+namespace Tests\Unit\SecurityMetric;
 
 use App\Models\DataSource;
 use App\Models\DistributionFrequency;
-use App\Models\Etf;
-use App\Models\EtfAumHistory;
-use App\Models\EtfDividendHistory;
 use App\Models\EtfIssuer;
-use App\Models\EtfMetric;
-use App\Models\EtfNavHistory;
-use App\Models\EtfPriceHistory;
 use App\Models\EtfStrategyType;
 use App\Models\MetricDirection;
 use App\Models\PerformanceRangeType;
+use App\Models\Security;
+use App\Models\SecurityAumHistory;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityMetric;
+use App\Models\SecurityNavHistory;
+use App\Models\SecurityPriceHistory;
 use App\Models\Status;
-use App\Services\EtfMetrics\CalculateEtfMetricService;
+use App\Services\CalculateSecurityMetricService;
 use Carbon\Carbon;
 use Database\Seeders\DataSourceSeeder;
 use Database\Seeders\DistributionFrequencySeeder;
@@ -27,7 +27,7 @@ use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class EtfMetricUnitTest extends TestCase
+class SecurityMetricUnitTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -35,12 +35,12 @@ class EtfMetricUnitTest extends TestCase
 
         Carbon::setTestNow(Carbon::parse('2026-05-12 12:00:00'));
 
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_nav_histories')->truncate();
-        DB::table('etf_aum_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
 
         DB::table('data_sources')->truncate();
         DB::table('performance_range_types')->truncate();
@@ -61,12 +61,12 @@ class EtfMetricUnitTest extends TestCase
 
     protected function tearDown(): void
     {
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_nav_histories')->truncate();
-        DB::table('etf_aum_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
 
         DB::table('data_sources')->truncate();
         DB::table('performance_range_types')->truncate();
@@ -85,8 +85,8 @@ class EtfMetricUnitTest extends TestCase
     {
         $etf = $this->createEtf();
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $etf->id,
             'price_date' => '2026-04-12',
             'close_price' => 10.0000,
             'volume' => 100000,
@@ -94,8 +94,8 @@ class EtfMetricUnitTest extends TestCase
             'retrieved_at' => now(),
         ]);
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $etf->id,
             'price_date' => '2026-05-12',
             'close_price' => 12.0000,
             'volume' => 200000,
@@ -103,8 +103,8 @@ class EtfMetricUnitTest extends TestCase
             'retrieved_at' => now(),
         ]);
 
-        EtfDividendHistory::create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::create([
+            'security_id' => $etf->id,
             'dividend_amount' => 0.5000,
             'ex_dividend_date' => '2026-04-20',
             'payment_date' => '2026-04-22',
@@ -112,8 +112,8 @@ class EtfMetricUnitTest extends TestCase
             'retrieved_at' => now(),
         ]);
 
-        EtfDividendHistory::create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::create([
+            'security_id' => $etf->id,
             'dividend_amount' => 0.2500,
             'ex_dividend_date' => '2026-05-05',
             'payment_date' => '2026-05-07',
@@ -121,44 +121,44 @@ class EtfMetricUnitTest extends TestCase
             'retrieved_at' => now(),
         ]);
 
-        EtfNavHistory::create([
-            'etf_id' => $etf->id,
+        SecurityNavHistory::create([
+            'security_id' => $etf->id,
             'nav_date' => '2026-04-12',
             'nav_per_share' => 10.0000,
             'data_source_id' => DataSource::MANUAL_ENTRY,
             'retrieved_at' => now(),
         ]);
 
-        EtfNavHistory::create([
-            'etf_id' => $etf->id,
+        SecurityNavHistory::create([
+            'security_id' => $etf->id,
             'nav_date' => '2026-05-12',
             'nav_per_share' => 10.5000,
             'data_source_id' => DataSource::MANUAL_ENTRY,
             'retrieved_at' => now(),
         ]);
 
-        EtfAumHistory::create([
-            'etf_id' => $etf->id,
+        SecurityAumHistory::create([
+            'security_id' => $etf->id,
             'aum_date' => '2026-04-12',
             'assets_under_management' => 100000000,
             'data_source_id' => DataSource::MANUAL_ENTRY,
             'retrieved_at' => now(),
         ]);
 
-        EtfAumHistory::create([
-            'etf_id' => $etf->id,
+        SecurityAumHistory::create([
+            'security_id' => $etf->id,
             'aum_date' => '2026-05-12',
             'assets_under_management' => 125000000,
             'data_source_id' => DataSource::MANUAL_ENTRY,
             'retrieved_at' => now(),
         ]);
 
-        $metric = (new CalculateEtfMetricService)->calculate(
+        $metric = (new CalculateSecurityMetricService)->calculate(
             $etf,
             PerformanceRangeType::THIRTY_DAY
         );
 
-        $this->assertEquals($etf->id, $metric->etf_id);
+        $this->assertEquals($etf->id, $metric->security_id);
         $this->assertEquals(PerformanceRangeType::THIRTY_DAY, $metric->performance_range_type_id);
 
         $this->assertEquals('2026-04-12', $metric->start_date->toDateString());
@@ -194,49 +194,49 @@ class EtfMetricUnitTest extends TestCase
     {
         $etf = $this->createEtf();
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $etf->id,
             'price_date' => '2026-04-12',
             'close_price' => 20.0000,
         ]);
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $etf->id,
             'price_date' => '2026-05-12',
             'close_price' => 18.0000,
         ]);
 
-        EtfDividendHistory::create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::create([
+            'security_id' => $etf->id,
             'dividend_amount' => 0.5000,
             'ex_dividend_date' => '2026-05-01',
         ]);
 
-        EtfNavHistory::create([
-            'etf_id' => $etf->id,
+        SecurityNavHistory::create([
+            'security_id' => $etf->id,
             'nav_date' => '2026-04-12',
             'nav_per_share' => 20.0000,
         ]);
 
-        EtfNavHistory::create([
-            'etf_id' => $etf->id,
+        SecurityNavHistory::create([
+            'security_id' => $etf->id,
             'nav_date' => '2026-05-12',
             'nav_per_share' => 18.0000,
         ]);
 
-        EtfAumHistory::create([
-            'etf_id' => $etf->id,
+        SecurityAumHistory::create([
+            'security_id' => $etf->id,
             'aum_date' => '2026-04-12',
             'assets_under_management' => 100000000,
         ]);
 
-        EtfAumHistory::create([
-            'etf_id' => $etf->id,
+        SecurityAumHistory::create([
+            'security_id' => $etf->id,
             'aum_date' => '2026-05-12',
             'assets_under_management' => 90000000,
         ]);
 
-        $metric = (new CalculateEtfMetricService)->calculate(
+        $metric = (new CalculateSecurityMetricService)->calculate(
             $etf,
             PerformanceRangeType::THIRTY_DAY
         );
@@ -255,22 +255,22 @@ class EtfMetricUnitTest extends TestCase
 
     public function test_it_handles_missing_nav_and_aum_data()
     {
-        $etf = $this->createEtf();
+        $security = $this->createSecurity();
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => '2026-04-12',
             'close_price' => 10.0000,
         ]);
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-12',
             'close_price' => 11.0000,
         ]);
 
-        $metric = (new CalculateEtfMetricService)->calculate(
-            $etf,
+        $metric = (new CalculateSecurityMetricService)->calculate(
+            $security,
             PerformanceRangeType::THIRTY_DAY
         );
 
@@ -291,32 +291,32 @@ class EtfMetricUnitTest extends TestCase
 
     public function test_it_updates_existing_metric_instead_of_creating_duplicate()
     {
-        $etf = $this->createEtf();
+        $security = $this->createSecurity();
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => '2026-04-12',
             'close_price' => 10.0000,
         ]);
 
-        $endPrice = EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        $endPrice = SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-12',
             'close_price' => 12.0000,
         ]);
 
-        $service = new CalculateEtfMetricService;
+        $service = new CalculateSecurityMetricService;
 
-        $service->calculate($etf, PerformanceRangeType::THIRTY_DAY);
+        $service->calculate($security, PerformanceRangeType::THIRTY_DAY);
 
-        $this->assertEquals(1, EtfMetric::count());
+        $this->assertEquals(1, SecurityMetric::count());
 
         $endPrice->close_price = 14.0000;
         $endPrice->save();
 
-        $metric = $service->calculate($etf, PerformanceRangeType::THIRTY_DAY);
+        $metric = $service->calculate($security, PerformanceRangeType::THIRTY_DAY);
 
-        $this->assertEquals(1, EtfMetric::count());
+        $this->assertEquals(1, SecurityMetric::count());
         $this->assertEquals(14.0000, (float) $metric->end_price);
         $this->assertEquals(4.0000, (float) $metric->price_change);
         $this->assertEquals(40.0000, (float) $metric->price_change_percentage);
@@ -324,7 +324,7 @@ class EtfMetricUnitTest extends TestCase
 
     public function test_it_uses_correct_start_dates_for_each_performance_range_type()
     {
-        $etf = $this->createEtf();
+        $security = $this->createSecurity();
 
         /*
     |--------------------------------------------------------------------------
@@ -332,49 +332,49 @@ class EtfMetricUnitTest extends TestCase
     |--------------------------------------------------------------------------
     */
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => '2025-01-01',
             'close_price' => 10.0000,
         ]);
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => '2025-05-12',
             'close_price' => 11.0000,
         ]);
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => '2026-01-01',
             'close_price' => 12.0000,
         ]);
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => '2026-02-11',
             'close_price' => 13.0000,
         ]);
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => '2026-04-12',
             'close_price' => 14.0000,
         ]);
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-07',
             'close_price' => 15.0000,
         ]);
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-12',
             'close_price' => 16.0000,
         ]);
 
-        $service = new CalculateEtfMetricService;
+        $service = new CalculateSecurityMetricService;
 
         $expectedRanges = [
 
@@ -400,7 +400,7 @@ class EtfMetricUnitTest extends TestCase
 
         foreach ($expectedRanges as $rangeTypeId => $expectedStartDate) {
 
-            $metric = $service->calculate($etf, $rangeTypeId);
+            $metric = $service->calculate($security, $rangeTypeId);
 
             $this->assertEquals(
                 $expectedStartDate,
@@ -416,62 +416,62 @@ class EtfMetricUnitTest extends TestCase
 
     public function test_it_returns_null_when_start_price_is_missing()
     {
-        $etf = $this->createEtf();
+        $security = $this->createSecurity();
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => now()->subDays(40)->toDateString(),
             'close_price' => 11.0000,
         ]);
 
-        $metric = (new CalculateEtfMetricService)->calculate(
-            $etf,
+        $metric = (new CalculateSecurityMetricService)->calculate(
+            $security,
             PerformanceRangeType::THIRTY_DAY
         );
 
         $this->assertNull($metric);
 
-        $this->assertEquals(0, EtfMetric::count());
+        $this->assertEquals(0, SecurityMetric::count());
     }
 
     public function test_it_returns_null_when_end_price_is_missing()
     {
-        $etf = $this->createEtf();
+        $security = $this->createSecurity();
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => now()->addDays(1)->toDateString(),
             'close_price' => 10.0000,
         ]);
 
-        $metric = (new CalculateEtfMetricService)->calculate(
-            $etf,
+        $metric = (new CalculateSecurityMetricService)->calculate(
+            $security,
             PerformanceRangeType::THIRTY_DAY
         );
 
         $this->assertNull($metric);
 
-        $this->assertEquals(0, EtfMetric::count());
+        $this->assertEquals(0, SecurityMetric::count());
     }
 
     public function test_it_still_creates_metric_when_nav_and_aum_are_missing()
     {
-        $etf = $this->createEtf();
+        $security = $this->createSecurity();
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => now()->subDays(30)->toDateString(),
             'close_price' => 10.0000,
         ]);
 
-        EtfPriceHistory::create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::create([
+            'security_id' => $security->id,
             'price_date' => now()->toDateString(),
             'close_price' => 11.0000,
         ]);
 
-        $metric = (new CalculateEtfMetricService)->calculate(
-            $etf,
+        $metric = (new CalculateSecurityMetricService)->calculate(
+            $security,
             PerformanceRangeType::THIRTY_DAY
         );
 
@@ -483,11 +483,10 @@ class EtfMetricUnitTest extends TestCase
         $this->assertNull($metric->end_aum);
     }
 
-    private function createEtf(): Etf
+    private function createSecurity(): Security
     {
-        return Etf::create([
+        return Security::create([
             'symbol' => 'TETF',
-            'fund_name' => 'Test ETF',
             'etf_issuer_id' => EtfIssuer::YIELDMAX,
             'etf_strategy_type_id' => EtfStrategyType::OPTION_INCOME,
             'distribution_frequency_id' => DistributionFrequency::WEEKLY,

@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Portfolios;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfMetric;
-use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityMetric;
+use App\Models\SecurityPriceHistory;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\Portfolios\ViewPortfolioService;
@@ -24,10 +24,10 @@ class ViewPortfolioServiceTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -35,10 +35,10 @@ class ViewPortfolioServiceTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -55,39 +55,39 @@ class ViewPortfolioServiceTest extends TestCase
             'is_default' => 1,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test ETF',
+            'fund_name' => 'NVII Test Security',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 20,
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-15',
             'close_price' => '30.0000',
             'volume' => 100000,
         ]);
 
-        EtfDividendHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
             'dividend_amount' => '0.6000',
             'ex_dividend_date' => '2026-05-01',
             'payment_date' => '2026-05-02',
             'data_source_id' => 1,
         ]);
 
-        EtfMetric::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityMetric::factory()->create([
+            'security_id' => $security->id,
             'performance_range_type_id' => PerformanceRangeType::MAX,
             'total_return_percentage' => '12.5000',
             'nav_erosion_percentage' => '1.0000',
@@ -109,9 +109,8 @@ class ViewPortfolioServiceTest extends TestCase
 
         $this->assertCount(1, $data['holdings']);
 
-        $this->assertSame($etf->id, $data['holdings'][0]['etf_id']);
+        $this->assertSame($security->id, $data['holdings'][0]['security_id']);
         $this->assertSame('NVII', $data['holdings'][0]['symbol']);
-        $this->assertSame('NVII Test ETF', $data['holdings'][0]['fund_name']);
         $this->assertSame(10.0, $data['holdings'][0]['shares']);
         $this->assertSame(200.0, $data['holdings'][0]['cost_basis']);
         $this->assertSame(30.0, $data['holdings'][0]['latest_price']);
@@ -131,23 +130,23 @@ class ViewPortfolioServiceTest extends TestCase
             'is_default' => 0,
         ]);
 
-        $firstEtf = Etf::factory()->create([
+        $firstSecurity = Security::factory()->create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test ETF',
+            'fund_name' => 'NVII Test Security',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
-        $secondEtf = Etf::factory()->create([
+        $secondSecurity = Security::factory()->create([
             'symbol' => 'AMDY',
-            'fund_name' => 'AMDY Test ETF',
+            'fund_name' => 'AMDY Test Security',
             'status_id' => Status::ACTIVE,
             'distribution_frequency_id' => 2,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $firstEtf->id,
+            'security_id' => $firstSecurity->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 20,
@@ -156,22 +155,22 @@ class ViewPortfolioServiceTest extends TestCase
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $secondEtf->id,
+            'security_id' => $secondSecurity->id,
             'transaction_type_id' => 1,
             'shares' => 20,
             'price_per_share' => 10,
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $firstEtf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $firstSecurity->id,
             'price_date' => '2026-05-15',
             'close_price' => '30.0000',
             'volume' => 100000,
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $secondEtf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $secondSecurity->id,
             'price_date' => '2026-05-15',
             'close_price' => '10.0000',
             'volume' => 100000,
