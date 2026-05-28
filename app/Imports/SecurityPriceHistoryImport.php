@@ -5,7 +5,7 @@ namespace App\Imports;
 use Carbon\Carbon;
 use RuntimeException;
 
-class EtfPriceHistoryImport
+class SecurityPriceHistoryImport
 {
     public function parse(string $filePath): array
     {

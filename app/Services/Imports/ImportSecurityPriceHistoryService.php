@@ -2,20 +2,20 @@
 
 namespace App\Services\Imports;
 
-use App\Imports\EtfPriceHistoryImport;
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
-use App\Models\EtfPriceHistory;
+use App\Imports\SecurityPriceHistoryImport;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
+use App\Models\SecurityPriceHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ImportEtfPriceHistoryService
+class ImportSecurityPriceHistoryService
 {
-    public function import(int $etfId, string $filePath): array
+    public function import(int $securityId, string $filePath): array
     {
-        $etf = Etf::findOrFail($etfId);
+        $security = Security::findOrFail($securityId);
 
-        $parsed = (new EtfPriceHistoryImport)->parse($filePath);
+        $parsed = (new SecurityPriceHistoryImport)->parse($filePath);
 
         $priceRows = collect($parsed['prices'])
             ->sortBy('price_date')
@@ -27,16 +27,16 @@ class ImportEtfPriceHistoryService
             ->values()
             ->toArray();
 
-        return DB::transaction(function () use ($etf, $priceRows, $dividendRows) {
-            $deletedPriceRows = EtfPriceHistory::where('etf_id', $etf->id)
+        return DB::transaction(function () use ($security, $priceRows, $dividendRows) {
+            $deletedPriceRows = SecurityPriceHistory::where('security_id', $security->id)
                 ->delete();
 
-            $deletedDividendRows = EtfDividendHistory::where('etf_id', $etf->id)
+            $deletedDividendRows = SecurityDividendHistory::where('security_id', $security->id)
                 ->delete();
 
             foreach ($priceRows as $row) {
-                EtfPriceHistory::create([
-                    'etf_id' => $etf->id,
+                SecurityPriceHistory::create([
+                    'security_id' => $security->id,
                     'price_date' => $row['price_date'],
                     'close_price' => $row['close_price'],
                     'volume' => $row['volume'],
@@ -48,8 +48,8 @@ class ImportEtfPriceHistoryService
             foreach ($dividendRows as $row) {
                 $exDividendDate = Carbon::parse($row['ex_dividend_date']);
 
-                EtfDividendHistory::create([
-                    'etf_id' => $etf->id,
+                SecurityDividendHistory::create([
+                    'security_id' => $security->id,
                     'dividend_amount' => $row['dividend_amount'],
                     'ex_dividend_date' => $exDividendDate->format('Y-m-d'),
                     'payment_date' => $exDividendDate->copy()->addDay()->format('Y-m-d'),
@@ -59,8 +59,8 @@ class ImportEtfPriceHistoryService
             }
 
             return [
-                'etf_id' => $etf->id,
-                'symbol' => $etf->symbol,
+                'security_id' => $security->id,
+                'symbol' => $security->symbol,
 
                 'rows_imported' => count($priceRows),
                 'rows_deleted' => $deletedPriceRows,
