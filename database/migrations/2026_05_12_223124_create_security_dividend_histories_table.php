@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('etf_dividend_histories', function (Blueprint $table) {
+        Schema::create('security_dividend_histories', function (Blueprint $table) {
 
             $table->id();
-            $table->unsignedInteger('etf_id')->index();
+            $table->unsignedInteger('security_id')->index();
             $table->decimal('dividend_amount', 12, 4);
             $table->date('ex_dividend_date')->index();
             $table->date('payment_date')->nullable()->index();
@@ -26,11 +26,11 @@ return new class extends Migration
 
             $table->unique(
                 [
-                    'etf_id',
+                    'security_id',
                     'ex_dividend_date',
                     'dividend_amount',
                 ],
-                'etf_dividend_unique'
+                'security_dividend_unique'
             );
         });
     }
@@ -40,6 +40,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('etf_dividend_histories');
+        Schema::dropIfExists('security_dividend_histories');
     }
 };

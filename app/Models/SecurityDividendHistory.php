@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use Database\Factories\EtfDividendHistoryFactory;
+use Database\Factories\SecurityDividendHistoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EtfDividendHistory extends Model
+class SecurityDividendHistory extends Model
 {
-    /** @use HasFactory<EtfDividendHistoryFactory> */
+    /** @use HasFactory<SecurityDividendHistoryFactory> */
     use HasFactory;
 
     protected $fillable = [
 
-        'etf_id',
+        'security_id',
         'dividend_amount',
         'ex_dividend_date',
         'payment_date',

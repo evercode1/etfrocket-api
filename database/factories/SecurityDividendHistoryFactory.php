@@ -3,13 +3,13 @@
 namespace Database\Factories;
 
 use App\Models\DataSource;
-use App\Models\EtfDividendHistory;
+use App\Models\SecurityDividendHistory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<EtfDividendHistory>
+ * @extends Factory<SecurityDividendHistory>
  */
-class EtfDividendHistoryFactory extends Factory
+class SecurityDividendHistoryFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -22,7 +22,7 @@ class EtfDividendHistoryFactory extends Factory
 
         return [
 
-            'etf_id' => rand(1, 7),
+            'security_id' => rand(1, 7),
 
             'dividend_amount' => $this->faker->randomFloat(4, 0.01, 5.00),
 
