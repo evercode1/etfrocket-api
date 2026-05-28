@@ -73,7 +73,7 @@ class DividendSignalsQuery
             return [
                 'title' => 'Distribution Growth',
                 'message' => 'No recent distribution growth was detected across current holdings.',
-                'affected_etfs' => [],
+                'affected_securities' => [],
                 'observation' => 'Recent distributions are flat or lower compared to the prior payout.',
                 'possible_causes' => [
                     'Options premium may be lower',
@@ -88,7 +88,7 @@ class DividendSignalsQuery
         return [
             'title' => 'Distribution Growth',
             'message' => implode(', ', array_slice($affectedEtfs, 0, 3)).' showed recent distribution growth.',
-            'affected_etfs' => $affectedEtfs,
+            'affected_securities' => $affectedEtfs,
             'observation' => 'The strongest recent distribution increase was '.round($topGrowth, 2).'% compared to the prior payout.',
             'possible_causes' => [
                 'Higher options premium',
@@ -108,7 +108,7 @@ class DividendSignalsQuery
             return [
                 'title' => 'Weekly Cadence Watch',
                 'message' => 'No weekly dividend holdings were detected in this portfolio.',
-                'affected_etfs' => [],
+                'affected_securities' => [],
                 'observation' => 'Weekly dividend cadence tracking is only available for weekly distribution ETFs.',
                 'possible_causes' => [
                     'Portfolio may contain monthly or variable payers',
@@ -120,7 +120,7 @@ class DividendSignalsQuery
 
         $today = Carbon::today();
 
-        $expectedEtfs = [];
+        $expectedSecurities = [];
 
         foreach ($weeklyHoldings as $holding) {
             $futureDeclaredDividend = SecurityDividendHistory::where('security_id', $holding['security_id'])
@@ -136,15 +136,15 @@ class DividendSignalsQuery
                 ->first();
 
             if ($latestDividend) {
-                $expectedEtfs[] = $holding['symbol'];
+                $expectedSecurities[] = $holding['symbol'];
             }
         }
 
-        if (empty($expectedEtfs)) {
+        if (empty($expectedSecurities)) {
             return [
                 'title' => 'Weekly Cadence Watch',
                 'message' => 'Weekly dividend holdings have declared upcoming dividend events or lack enough history for cadence estimates.',
-                'affected_etfs' => $weeklyHoldings->pluck('symbol')->values()->toArray(),
+                'affected_securities' => $weeklyHoldings->pluck('symbol')->values()->toArray(),
                 'observation' => 'No undeclared weekly events were detected from cadence logic.',
                 'possible_causes' => [
                     'Upcoming dividends may already be declared',
@@ -157,7 +157,7 @@ class DividendSignalsQuery
         return [
             'title' => 'Weekly Cadence Watch',
             'message' => 'Some weekly payer events are expected but not yet declared. Amounts remain TBD until confirmed.',
-            'affected_etfs' => $expectedEtfs,
+            'affected_securities' => $expectedSecurities,
             'observation' => 'Upcoming weekly dividend events are expected based on payout cadence, but official declarations have not been posted yet.',
             'possible_causes' => [
                 'Weekly declaration not yet released',

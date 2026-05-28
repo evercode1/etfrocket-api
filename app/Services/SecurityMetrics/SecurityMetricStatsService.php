@@ -140,7 +140,7 @@ class SecurityMetricStatsService
             return [
                 'nav_health' => 'No Holdings',
                 'worst_nav_erosion_percentage' => null,
-                'affected_etfs' => [],
+                'affected_securities' => [],
             ];
         }
 

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Portfolios;
 
-use App\Models\Etf;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
 use App\Models\User;
 use Database\Seeders\TransactionTypeSeeder;
 use Illuminate\Http\UploadedFile;
@@ -20,7 +20,8 @@ class UserBulkUploadTransactionsTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('transaction_types')->truncate();
 
         $this->seed(TransactionTypeSeeder::class);
@@ -30,7 +31,8 @@ class UserBulkUploadTransactionsTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('transaction_types')->truncate();
 
         parent::tearDown();
@@ -46,11 +48,11 @@ class UserBulkUploadTransactionsTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $schd = Etf::factory()->create([
+        $schd = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
-        $vym = Etf::factory()->create([
+        $vym = Security::factory()->create([
             'symbol' => 'VYM',
         ]);
 
@@ -79,7 +81,7 @@ class UserBulkUploadTransactionsTest extends TestCase
 
         $this->assertDatabaseHas('portfolio_transactions', [
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
             'transaction_type_id' => 1,
             'shares' => '10.0000',
             'price_per_share' => '75.2500',
@@ -88,7 +90,7 @@ class UserBulkUploadTransactionsTest extends TestCase
 
         $this->assertDatabaseHas('portfolio_transactions', [
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $vym->id,
+            'security_id' => $vym->id,
             'transaction_type_id' => 2,
             'shares' => '5.0000',
             'price_per_share' => '120.1000',
@@ -132,13 +134,13 @@ class UserBulkUploadTransactionsTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $schd = Etf::factory()->create([
+        $schd = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 75.25,
@@ -164,7 +166,7 @@ class UserBulkUploadTransactionsTest extends TestCase
         $this->assertSame(
             1,
             PortfolioTransaction::where('portfolio_id', $portfolio->id)
-                ->where('etf_id', $schd->id)
+                ->where('security_id', $schd->id)
                 ->count()
         );
     }
@@ -179,7 +181,7 @@ class UserBulkUploadTransactionsTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        Etf::factory()->create([
+        Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
@@ -202,7 +204,7 @@ class UserBulkUploadTransactionsTest extends TestCase
         $response->assertJsonPath('data.failed_rows', 3);
 
         $response->assertJsonPath('data.errors.0.row', 2);
-        $response->assertJsonPath('data.errors.0.message', 'ETF symbol [NOPE] was not found.');
+        $response->assertJsonPath('data.errors.0.message', 'Security symbol [NOPE] was not found.');
 
         $response->assertJsonPath('data.errors.1.row', 3);
         $response->assertJsonPath('data.errors.1.message', 'Transaction type [transfer] is not supported.');
@@ -228,7 +230,7 @@ class UserBulkUploadTransactionsTest extends TestCase
             'user_id' => $otherUser->id,
         ]);
 
-        Etf::factory()->create([
+        Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
@@ -301,7 +303,7 @@ class UserBulkUploadTransactionsTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $schd = Etf::factory()->create([
+        $schd = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
@@ -322,7 +324,7 @@ class UserBulkUploadTransactionsTest extends TestCase
 
         $this->assertDatabaseHas('portfolio_transactions', [
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
             'transaction_type_id' => 1,
             'shares' => '10.0000',
             'price_per_share' => '75.2500',
@@ -340,7 +342,7 @@ class UserBulkUploadTransactionsTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $schd = Etf::factory()->create([
+        $schd = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
@@ -362,7 +364,7 @@ class UserBulkUploadTransactionsTest extends TestCase
 
         $this->assertDatabaseHas('portfolio_transactions', [
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
             'transaction_type_id' => 1,
             'shares' => '10.0000',
             'price_per_share' => '75.2500',
@@ -371,7 +373,7 @@ class UserBulkUploadTransactionsTest extends TestCase
 
         $this->assertDatabaseHas('portfolio_transactions', [
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
             'transaction_type_id' => 2,
             'shares' => '5.0000',
             'price_per_share' => '80.0000',
@@ -389,7 +391,7 @@ class UserBulkUploadTransactionsTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $schd = Etf::factory()->create([
+        $schd = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
@@ -410,7 +412,7 @@ class UserBulkUploadTransactionsTest extends TestCase
 
         $this->assertDatabaseHas('portfolio_transactions', [
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
             'transaction_type_id' => 1,
             'shares' => '1000.0000',
             'price_per_share' => '75.2500',

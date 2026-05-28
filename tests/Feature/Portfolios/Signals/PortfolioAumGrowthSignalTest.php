@@ -3,7 +3,6 @@
 namespace Tests\Feature\Portfolios\Signals;
 
 use App\Models\Etf;
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
@@ -64,8 +63,8 @@ class PortfolioAumGrowthSignalTest extends TestCase
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfMetric::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityMetric::factory()->create([
+            'security_id' => $etf->id,
             'performance_range_type_id' => PerformanceRangeType::THIRTY_DAY,
             'start_date' => '2026-04-01',
             'end_date' => '2026-05-01',
@@ -91,7 +90,7 @@ class PortfolioAumGrowthSignalTest extends TestCase
         $response->assertJsonPath('data.range_type_id', PerformanceRangeType::THIRTY_DAY);
         $response->assertJsonPath('data.positive_flow_count', 1);
         $response->assertJsonPath('data.negative_flow_count', 0);
-        $response->assertJsonPath('data.affected_etfs.0', 'NVII');
+        $response->assertJsonPath('data.affected_securities.0', 'NVII');
         $response->assertJsonPath('data.strongest_inflows.0.symbol', 'NVII');
         $response->assertJsonPath('data.strongest_inflows.0.start_aum', 100000000);
         $response->assertJsonPath('data.strongest_inflows.0.end_aum', 125000000);
@@ -133,7 +132,7 @@ class PortfolioAumGrowthSignalTest extends TestCase
 
         $this->assertSame([], $response->json('data.strongest_inflows'));
         $this->assertSame([], $response->json('data.strongest_outflows'));
-        $this->assertSame([], $response->json('data.affected_etfs'));
+        $this->assertSame([], $response->json('data.affected_securities'));
         $this->assertSame([], $response->json('data.all_rows'));
     }
 

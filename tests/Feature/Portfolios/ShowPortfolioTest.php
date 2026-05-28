@@ -17,10 +17,11 @@ class ShowPortfolioTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -28,10 +29,11 @@ class ShowPortfolioTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_dividend_histories')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_dividend_histories')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
