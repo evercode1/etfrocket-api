@@ -203,7 +203,7 @@ class ComparisonController extends Controller
         ], 200);
     }
 
-    public function compareEtfs(
+    public function compareSecurities(
         Request $request,
         SecurityComparisonService $comparisonService
     ) {

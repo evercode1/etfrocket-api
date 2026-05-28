@@ -19,6 +19,7 @@ class ListSecuritiesTest extends TestCase
         DB::table('security_metrics')->truncate();
         DB::table('securities')->truncate();
         DB::table('security_details')->truncate();
+        DB::table('users')->truncate();
     }
 
     protected function tearDown(): void
@@ -26,6 +27,7 @@ class ListSecuritiesTest extends TestCase
         DB::table('security_metrics')->truncate();
         DB::table('securities')->truncate();
         DB::table('security_details')->truncate();
+        DB::table('users')->truncate();
 
         Carbon::setTestNow();
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Security;
+namespace Tests\Feature\Securities;
 
 use App\Models\Security;
 use App\Models\User;
@@ -18,6 +18,7 @@ class CompareSecuritiesTest extends TestCase
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
         DB::table('security_details')->truncate();
+        DB::table('users')->truncate();
     }
 
     protected function tearDown(): void
@@ -25,6 +26,7 @@ class CompareSecuritiesTest extends TestCase
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
         DB::table('security_details')->truncate();
+        DB::table('users')->truncate();
         Carbon::setTestNow();
 
         parent::tearDown();
@@ -55,7 +57,7 @@ class CompareSecuritiesTest extends TestCase
         $this->createPriceHistory($vym->id, '2026-05-14', 120.10);
 
         $response = $this->getJson(
-            "/api/compare-etfs?metric=price&range=30d&etf_ids={$schd->id},{$vym->id}"
+            "/api/compare-securities?metric=price&range=30d&security_ids={$schd->id},{$vym->id}"
         );
 
         $response->assertStatus(200);
@@ -69,7 +71,7 @@ class CompareSecuritiesTest extends TestCase
 
         $response->assertJsonPath('data.series.0.security_id', $schd->id);
         $response->assertJsonPath('data.series.0.symbol', 'SCHD');
-        $response->assertJsonPath('data.series.0.fund_name', 'SCHD_name');
+        $response->assertJsonPath('data.series.0.security_name', 'SCHD_name');
 
         $response->assertJsonPath('data.series.0.points.0.date', '2026-05-13');
         $response->assertJsonPath('data.series.0.points.0.value', '78.1200');

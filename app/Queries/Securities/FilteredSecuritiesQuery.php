@@ -24,7 +24,7 @@ class FilteredSecuritiesQuery
                 'securities.id',
                 'securities.symbol',
                 'security_details.security_name',
-                'securities.website_url',
+                'security_details.website_url',
 
                 'security_metrics.performance_range_type_id',
 

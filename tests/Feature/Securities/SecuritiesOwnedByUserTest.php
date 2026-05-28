@@ -20,6 +20,7 @@ class SecuritiesOwnedByUserTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('securities')->truncate();
         DB::table('security_details')->truncate();
+        DB::table('users')->truncate();
     }
 
     protected function tearDown(): void
@@ -28,6 +29,7 @@ class SecuritiesOwnedByUserTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('securities')->truncate();
         DB::table('security_details')->truncate();
+        DB::table('users')->truncate();
 
         parent::tearDown();
     }
