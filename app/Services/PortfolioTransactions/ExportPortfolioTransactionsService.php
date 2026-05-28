@@ -20,14 +20,14 @@ class ExportPortfolioTransactionsService
         $query = DB::table('portfolio_transactions')
 
             ->select([
-                'etfs.symbol',
+                'securities.symbol',
                 'transaction_types.slug as transaction_type',
                 'portfolio_transactions.shares',
                 'portfolio_transactions.price_per_share',
                 'portfolio_transactions.transaction_date',
             ])
 
-            ->join('etfs', 'portfolio_transactions.etf_id', '=', 'etfs.id')
+            ->join('securities', 'portfolio_transactions.security_id', '=', 'securities.id')
 
             ->join('transaction_types', 'portfolio_transactions.transaction_type_id', '=', 'transaction_types.id')
 

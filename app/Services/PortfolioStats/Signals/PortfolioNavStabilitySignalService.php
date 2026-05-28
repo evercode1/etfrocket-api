@@ -2,8 +2,8 @@
 
 namespace App\Services\PortfolioStats\Signals;
 
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
+use App\Models\SecurityMetric;
 use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
 use Illuminate\Support\Collection;
 
@@ -65,7 +65,7 @@ class PortfolioNavStabilitySignalService
             'watch_list' => $watchRows->take(3)->values()->toArray(),
             'mixed_list' => $mixedRows->take(3)->values()->toArray(),
             'stable_list' => $stableRows->take(3)->values()->toArray(),
-            'affected_etfs' => $rows->pluck('symbol')->filter()->values()->toArray(),
+            'affected_securities' => $rows->pluck('symbol')->filter()->values()->toArray(),
             'all_rows' => $rows->values()->toArray(),
         ];
     }
@@ -84,17 +84,17 @@ class PortfolioNavStabilitySignalService
             return collect();
         }
 
-        $metricsByEtf = EtfMetric::query()
+        $metricsBySecurity = SecurityMetric::query()
             ->whereIn('etf_id', $etfIds)
             ->where('performance_range_type_id', self::RANGE_TYPE_ID)
             ->get()
             ->keyBy('etf_id');
 
         return $holdings
-            ->map(function (array $holding) use ($metricsByEtf) {
+            ->map(function (array $holding) use ($metricsBySecurity) {
                 $etfId = (int) $holding['etf_id'];
 
-                $metric = $metricsByEtf->get($etfId);
+                $metric = $metricsBySecurity->get($etfId);
 
                 if (! $metric || is_null($metric->nav_erosion_percentage)) {
                     return null;
@@ -134,7 +134,7 @@ class PortfolioNavStabilitySignalService
             'watch_list' => [],
             'mixed_list' => [],
             'stable_list' => [],
-            'affected_etfs' => [],
+            'affected_securities' => [],
             'all_rows' => [],
         ];
     }

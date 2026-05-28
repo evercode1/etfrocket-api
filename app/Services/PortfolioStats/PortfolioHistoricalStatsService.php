@@ -19,7 +19,7 @@ class PortfolioHistoricalStatsService
     ): Collection {
         return PortfolioTransaction::query()
             ->selectRaw('
-                etf_id,
+                security_id,
                 SUM(
                     CASE
                         WHEN transaction_type_id = ? THEN shares
@@ -30,12 +30,12 @@ class PortfolioHistoricalStatsService
             ', [self::BUY, self::SELL])
             ->where('portfolio_id', $portfolioId)
             ->where('transaction_date', '<=', $asOfDate)
-            ->groupBy('etf_id')
+            ->groupBy('security_id')
             ->having('shares', '>', 0)
             ->get()
             ->map(function ($holding) {
                 return [
-                    'etf_id' => (int) $holding->etf_id,
+                    'security_id' => (int) $holding->security_id,
                     'shares' => round((float) $holding->shares, 4),
                 ];
             });

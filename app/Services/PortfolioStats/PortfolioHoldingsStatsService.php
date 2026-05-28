@@ -16,10 +16,10 @@ class PortfolioHoldingsStatsService
     {
         return PortfolioTransaction::query()
             ->select([
-                'portfolio_transactions.etf_id',
-                'etfs.symbol',
-                'etfs.fund_name',
-                'etfs.distribution_frequency_id',
+                'portfolio_transactions.security_id',
+                'securities.symbol',
+                'security_details.security_name',
+                'securities.distribution_frequency_id',
                 'distribution_frequencies.distribution_frequency_name',
                 DB::raw('
                     SUM(
@@ -40,28 +40,29 @@ class PortfolioHoldingsStatsService
                     ) as cost_basis
                 '),
             ])
-            ->join('etfs', 'portfolio_transactions.etf_id', '=', 'etfs.id')
+            ->join('securities', 'portfolio_transactions.security_id', '=', 'securities.id')
+            ->join('security_details', 'securities.id', '=', 'security_details.security_id')
             ->leftJoin(
                 'distribution_frequencies',
-                'etfs.distribution_frequency_id',
+                'securities.distribution_frequency_id',
                 '=',
                 'distribution_frequencies.id'
             )
             ->where('portfolio_transactions.portfolio_id', $portfolioId)
             ->groupBy([
-                'portfolio_transactions.etf_id',
-                'etfs.symbol',
-                'etfs.fund_name',
-                'etfs.distribution_frequency_id',
+                'portfolio_transactions.security_id',
+                'securities.symbol',
+                'security_details.security_name',
+                'securities.distribution_frequency_id',
                 'distribution_frequencies.distribution_frequency_name',
             ])
             ->having('shares', '>', 0)
             ->get()
             ->map(function ($holding) {
                 return [
-                    'etf_id' => (int) $holding->etf_id,
+                    'security_id' => (int) $holding->security_id,
                     'symbol' => $holding->symbol,
-                    'fund_name' => $holding->fund_name,
+                    'security_name' => $holding->security_name,
                     'distribution_frequency_id' => (int) $holding->distribution_frequency_id,
                     'distribution_frequency_name' => $holding->distribution_frequency_name,
                     'shares' => round((float) $holding->shares, 4),
@@ -75,10 +76,10 @@ class PortfolioHoldingsStatsService
         return $this->getCurrentHoldings($portfolioId)->isNotEmpty();
     }
 
-    public function getCurrentEtfIds(int $portfolioId): array
+    public function getCurrentSecurityIds(int $portfolioId): array
     {
         return $this->getCurrentHoldings($portfolioId)
-            ->pluck('etf_id')
+            ->pluck('security_id')
             ->values()
             ->toArray();
     }

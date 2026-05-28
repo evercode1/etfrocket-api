@@ -2,9 +2,9 @@
 
 namespace App\Services\PortfolioTransactions;
 
-use App\Models\Etf;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
@@ -38,11 +38,11 @@ class ImportPortfolioTransactionsService
 
                 $normalized = $this->normalizeRow($row);
 
-                $etf = Etf::where('symbol', $normalized['symbol'])
+                $security = Security::where('symbol', $normalized['symbol'])
                     ->first();
 
-                if (! $etf) {
-                    throw new \InvalidArgumentException("ETF symbol [{$normalized['symbol']}] was not found.");
+                if (! $security) {
+                    throw new \InvalidArgumentException("Security symbol [{$normalized['symbol']}] was not found.");
                 }
 
                 $transactionTypeId = $this->resolveTransactionTypeId(
@@ -54,7 +54,7 @@ class ImportPortfolioTransactionsService
                 }
 
                 $isDuplicate = PortfolioTransaction::where('portfolio_id', $portfolioId)
-                    ->where('etf_id', $etf->id)
+                    ->where('security_id', $security->id)
                     ->where('transaction_type_id', $transactionTypeId)
                     ->where('shares', $normalized['shares'])
                     ->where('price_per_share', $normalized['price_per_share'])
@@ -69,7 +69,7 @@ class ImportPortfolioTransactionsService
 
                 PortfolioTransaction::create([
                     'portfolio_id' => $portfolioId,
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
                     'transaction_type_id' => $transactionTypeId,
                     'shares' => $normalized['shares'],
                     'price_per_share' => $normalized['price_per_share'],

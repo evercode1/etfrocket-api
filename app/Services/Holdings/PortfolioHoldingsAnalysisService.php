@@ -2,12 +2,12 @@
 
 namespace App\Services\Holdings;
 
-use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
-use App\Services\EtfMetrics\EtfMetricStatsService;
+use App\Models\SecurityPriceHistory;
 use App\Services\PortfolioStats\PortfolioDividendStatsService;
 use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
+use App\Services\SecurityMetrics\SecurityMetricStatsService;
 use Illuminate\Support\Collection;
 
 class PortfolioHoldingsAnalysisService
@@ -15,7 +15,7 @@ class PortfolioHoldingsAnalysisService
     public function __construct(
         private PortfolioHoldingsStatsService $holdingsStatsService,
         private PortfolioDividendStatsService $dividendStatsService,
-        private EtfMetricStatsService $metricStatsService
+        private SecurityMetricStatsService $metricStatsService
     ) {}
 
     public function getData(int $userId, int $portfolioId): array
@@ -44,15 +44,15 @@ class PortfolioHoldingsAnalysisService
             ];
         }
 
-        $etfIds = $holdings
-            ->pluck('etf_id')
+        $securityIds = $holdings
+            ->pluck('security_id')
             ->values()
             ->toArray();
 
-        $latestPrices = $this->getLatestPrices($etfIds);
+        $latestPrices = $this->getLatestPrices($securityIds);
 
-        $metricsByEtf = $this->metricStatsService->getMetricsForEtfs(
-            $etfIds,
+        $metricsBySecurity = $this->metricStatsService->getMetricsForSecurities(
+            $securityIds,
             [
                 PerformanceRangeType::THIRTY_DAY,
                 PerformanceRangeType::MAX,
@@ -62,7 +62,7 @@ class PortfolioHoldingsAnalysisService
         $rows = $this->buildHoldingRows(
             $holdings,
             $latestPrices,
-            $metricsByEtf
+            $metricsBySecurity
         );
 
         $summary = $this->buildSummary($rows);
@@ -97,15 +97,15 @@ class PortfolioHoldingsAnalysisService
     private function buildHoldingRows(
         Collection $holdings,
         Collection $latestPrices,
-        Collection $metricsByEtf
+        Collection $metricsBySecurity
     ): Collection {
         return $holdings
-            ->map(function (array $holding) use ($latestPrices, $metricsByEtf) {
-                $etfId = (int) $holding['etf_id'];
+            ->map(function (array $holding) use ($latestPrices, $metricsBySecurity) {
+                $securityId = (int) $holding['security_id'];
                 $shares = (float) ($holding['shares'] ?? 0);
                 $costBasis = (float) ($holding['cost_basis'] ?? 0);
 
-                $latestPrice = $latestPrices->get($etfId);
+                $latestPrice = $latestPrices->get($securityId);
 
                 $marketValue = is_null($latestPrice)
                     ? 0
@@ -128,7 +128,7 @@ class PortfolioHoldingsAnalysisService
                     ? (($monthlyIncome * 12) / $costBasis) * 100
                     : null;
 
-                $metrics = collect($metricsByEtf->get($etfId, collect()));
+                $metrics = collect($metricsBySecurity->get($securityId, collect()));
 
                 $thirtyDayMetric = $metrics->firstWhere(
                     'performance_range_type_id',
@@ -146,9 +146,9 @@ class PortfolioHoldingsAnalysisService
                 );
 
                 return [
-                    'etf_id' => $etfId,
+                    'security_id' => $securityId,
                     'symbol' => $holding['symbol'] ?? null,
-                    'fund_name' => $holding['fund_name'] ?? null,
+                    'security_name' => $holding['security_name'] ?? null,
                     'distribution_frequency_id' => $holding['distribution_frequency_id'] ?? null,
                     'distribution_frequency_name' => $holding['distribution_frequency_name'] ?? null,
 
@@ -260,23 +260,23 @@ class PortfolioHoldingsAnalysisService
         }
 
         return [
-            'etf_id' => $row['etf_id'],
+            'security_id' => $row['security_id'],
             'symbol' => $row['symbol'],
             'value' => $row[$valueField] ?? null,
         ];
     }
 
-    private function getLatestPrices(array $etfIds): Collection
+    private function getLatestPrices(array $securityIds): Collection
     {
-        if (empty($etfIds)) {
+        if (empty($securityIds)) {
             return collect();
         }
 
-        return EtfPriceHistory::query()
-            ->whereIn('etf_id', $etfIds)
+        return SecurityPriceHistory::query()
+            ->whereIn('security_id', $securityIds)
             ->orderByDesc('price_date')
             ->get()
-            ->groupBy('etf_id')
+            ->groupBy('security_id')
             ->map(fn (Collection $prices) => (float) $prices->first()->close_price);
     }
 

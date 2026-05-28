@@ -2,14 +2,14 @@
 
 namespace App\Services\PortfolioStats\Signals;
 
-use App\Services\EtfMetrics\EtfMetricStatsService;
 use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
+use App\Services\SecurityMetrics\SecurityMetricStatsService;
 
 class PortfolioDistributionGrowthSignalService
 {
     public function __construct(
         private PortfolioHoldingsStatsService $holdingsStatsService,
-        private EtfMetricStatsService $etfMetricStatsService
+        private SecurityMetricStatsService $securityMetricStatsService
     ) {}
 
     public function getSignalData(int $portfolioId): array
@@ -24,13 +24,13 @@ class PortfolioDistributionGrowthSignalService
                 'has_data' => false,
                 'growth_count' => 0,
                 'portfolio_income_impact' => 0.0,
-                'affected_etfs' => [],
+                'affected_securities' => [],
                 'top_contributors' => [],
                 'all_rows' => [],
             ];
         }
 
-        $growthRows = $this->etfMetricStatsService
+        $growthRows = $this->securityMetricStatsService
             ->getPositiveDistributionGrowthFromMetrics($holdings);
 
         if ($growthRows->isEmpty()) {
@@ -39,7 +39,7 @@ class PortfolioDistributionGrowthSignalService
                 'has_data' => false,
                 'growth_count' => 0,
                 'portfolio_income_impact' => 0.0,
-                'affected_etfs' => [],
+                'affected_securities' => [],
                 'top_contributors' => [],
                 'all_rows' => [],
             ];
@@ -56,7 +56,7 @@ class PortfolioDistributionGrowthSignalService
             ->values()
             ->toArray();
 
-        $affectedEtfs = $growthRows
+        $affectedSecurities = $growthRows
             ->pluck('symbol')
             ->filter()
             ->values()
@@ -67,7 +67,7 @@ class PortfolioDistributionGrowthSignalService
             'has_data' => true,
             'growth_count' => $growthRows->count(),
             'portfolio_income_impact' => $portfolioIncomeImpact,
-            'affected_etfs' => $affectedEtfs,
+            'affected_securities' => $affectedSecurities,
             'top_contributors' => $topContributors,
             'all_rows' => $growthRows->values()->toArray(),
         ];
@@ -85,13 +85,13 @@ class PortfolioDistributionGrowthSignalService
                 'has_data' => false,
                 'decline_count' => 0,
                 'portfolio_income_impact' => 0.0,
-                'affected_etfs' => [],
+                'affected_securities' => [],
                 'top_contributors' => [],
                 'all_rows' => [],
             ];
         }
 
-        $declineRows = $this->etfMetricStatsService
+        $declineRows = $this->securityMetricStatsService
             ->getNegativeDistributionGrowthFromMetrics($holdings);
 
         if ($declineRows->isEmpty()) {
@@ -100,7 +100,7 @@ class PortfolioDistributionGrowthSignalService
                 'has_data' => false,
                 'decline_count' => 0,
                 'portfolio_income_impact' => 0.0,
-                'affected_etfs' => [],
+                'affected_securities' => [],
                 'top_contributors' => [],
                 'all_rows' => [],
             ];
@@ -117,7 +117,7 @@ class PortfolioDistributionGrowthSignalService
             ->values()
             ->toArray();
 
-        $affectedEtfs = $declineRows
+        $affectedSecurities = $declineRows
             ->pluck('symbol')
             ->filter()
             ->values()
@@ -128,7 +128,7 @@ class PortfolioDistributionGrowthSignalService
             'has_data' => true,
             'decline_count' => $declineRows->count(),
             'portfolio_income_impact' => $portfolioIncomeImpact,
-            'affected_etfs' => $affectedEtfs,
+            'affected_securities' => $affectedSecurities,
             'top_contributors' => $topContributors,
             'all_rows' => $declineRows->values()->toArray(),
         ];
@@ -140,6 +140,6 @@ class PortfolioDistributionGrowthSignalService
             $portfolioId
         );
 
-        return $this->etfMetricStatsService->getNavMetricSummary($holdings);
+        return $this->securityMetricStatsService->getNavMetricSummary($holdings);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Services\PortfolioStats\Signals;
 
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
+use App\Models\SecurityMetric;
 use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
 use Illuminate\Support\Collection;
 
@@ -49,7 +49,7 @@ class PortfolioAumGrowthSignalService
             'negative_flow_count' => $negativeRows->count(),
             'strongest_inflows' => $positiveRows->take(3)->values()->toArray(),
             'strongest_outflows' => $negativeRows->take(3)->values()->toArray(),
-            'affected_etfs' => $rows
+            'affected_securities' => $rows
                 ->pluck('symbol')
                 ->filter()
                 ->values()
@@ -60,29 +60,29 @@ class PortfolioAumGrowthSignalService
 
     private function getAumRows(Collection $holdings): Collection
     {
-        $etfIds = $holdings
-            ->pluck('etf_id')
-            ->map(fn ($etfId) => (int) $etfId)
+        $securityIds = $holdings
+            ->pluck('security_id')
+            ->map(fn ($securityId) => (int) $securityId)
             ->filter()
             ->unique()
             ->values()
             ->toArray();
 
-        if (empty($etfIds)) {
+        if (empty($securityIds)) {
             return collect();
         }
 
-        $metricsByEtf = EtfMetric::query()
-            ->whereIn('etf_id', $etfIds)
+        $metricsBySecurity = SecurityMetric::query()
+            ->whereIn('security_id', $securityIds)
             ->where('performance_range_type_id', self::RANGE_TYPE_ID)
             ->get()
-            ->keyBy('etf_id');
+            ->keyBy('security_id');
 
         return $holdings
-            ->map(function (array $holding) use ($metricsByEtf) {
-                $etfId = (int) $holding['etf_id'];
+            ->map(function (array $holding) use ($metricsBySecurity) {
+                $securityId = (int) $holding['security_id'];
 
-                $metric = $metricsByEtf->get($etfId);
+                $metric = $metricsBySecurity->get($securityId);
 
                 if (! $metric) {
                     return null;
@@ -93,9 +93,9 @@ class PortfolioAumGrowthSignalService
                 }
 
                 return [
-                    'etf_id' => $etfId,
+                    'security_id' => $securityId,
                     'symbol' => $holding['symbol'] ?? null,
-                    'fund_name' => $holding['fund_name'] ?? null,
+                    'security_name' => $holding['security_name'] ?? null,
                     'shares' => round((float) ($holding['shares'] ?? 0), 4),
                     'start_aum' => is_null($metric->start_aum)
                         ? null
@@ -138,7 +138,7 @@ class PortfolioAumGrowthSignalService
             'negative_flow_count' => 0,
             'strongest_inflows' => [],
             'strongest_outflows' => [],
-            'affected_etfs' => [],
+            'affected_securities' => [],
             'all_rows' => [],
         ];
     }
