@@ -60,7 +60,7 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
         ]);
 
-        $rows = (new GetBackTestPriceHistoryQuery())
+        $rows = (new GetBackTestPriceHistoryQuery)
 
             ->getData(
 
@@ -122,7 +122,7 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
         ]);
 
-        $rows = (new GetBackTestPriceHistoryQuery())
+        $rows = (new GetBackTestPriceHistoryQuery)
 
             ->getData(
 
@@ -176,7 +176,7 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
         ]);
 
-        $rows = (new GetBackTestPriceHistoryQuery())
+        $rows = (new GetBackTestPriceHistoryQuery)
 
             ->getData(
 
@@ -203,7 +203,7 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
     {
         $etf = $this->createEtf('CHPY');
 
-        $rows = (new GetBackTestPriceHistoryQuery())
+        $rows = (new GetBackTestPriceHistoryQuery)
 
             ->getData(
 
@@ -235,7 +235,7 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
         ]);
 
-        $rows = (new GetBackTestPriceHistoryQuery())
+        $rows = (new GetBackTestPriceHistoryQuery)
 
             ->getData(
 
@@ -265,8 +265,7 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
             'symbol' => $symbol,
 
-            'fund_name' =>
-            "{$symbol} Test ETF",
+            'fund_name' => "{$symbol} Test ETF",
 
         ]);
     }

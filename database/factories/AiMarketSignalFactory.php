@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class AiMarketSignalFactory extends Factory
 {
     protected $model =
-    AiMarketSignal::class;
+        AiMarketSignal::class;
 
     public function definition()
     {
@@ -16,14 +16,11 @@ class AiMarketSignalFactory extends Factory
 
             'signal_type_id' => 1,
 
-            'title' =>
-            $this->faker->sentence(3),
+            'title' => $this->faker->sentence(3),
 
-            'subtitle' =>
-            $this->faker->sentence(),
+            'subtitle' => $this->faker->sentence(),
 
-            'market_mood' =>
-            $this->faker->randomElement([
+            'market_mood' => $this->faker->randomElement([
 
                 'Risk-On',
 
@@ -35,13 +32,12 @@ class AiMarketSignalFactory extends Factory
 
             ]),
 
-            'confidence_score' =>
-            $this->faker->numberBetween(
+            'confidence_score' => $this->faker->numberBetween(
                 60,
                 95
             ),
 
-            'markdown_content' => <<<MARKDOWN
+            'markdown_content' => <<<'MARKDOWN'
 # Market Snapshot
 
 Markets remained stable today as treasury yields softened and volatility declined.
@@ -69,16 +65,13 @@ MARKDOWN,
 
             ],
 
-            'generated_at' =>
-            now(),
+            'generated_at' => now(),
 
-            'expires_at' =>
-            now()->addDay(),
+            'expires_at' => now()->addDay(),
 
             'is_active' => true,
 
-            'ai_model' =>
-            'gpt-5.5',
+            'ai_model' => 'gpt-5.5',
 
         ];
     }

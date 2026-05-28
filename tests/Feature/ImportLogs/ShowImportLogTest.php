@@ -2,34 +2,21 @@
 
 namespace Tests\Feature\ImportLogs;
 
-use App\Models\User;
-
 use App\Models\DataSource;
-
 use App\Models\ImportLog;
-
 use App\Models\ImportType;
-
 use App\Models\Status;
-
+use App\Models\User;
 use Database\Seeders\DataSourceSeeder;
-
 use Database\Seeders\ImportTypeSeeder;
-
 use Database\Seeders\StatusSeeder;
-
 use Illuminate\Support\Facades\DB;
-
 use Laravel\Sanctum\Sanctum;
-
 use Tests\TestCase;
 
 class ShowImportLogTest extends TestCase
-
 {
-
     protected function setUp(): void
-
     {
 
         parent::setUp();
@@ -75,12 +62,11 @@ class ShowImportLogTest extends TestCase
         $admin =
 
             User::factory()
+                ->create([
 
-            ->create([
+                    'is_admin' => 1,
 
-                'is_admin' => 1,
-
-            ]);
+                ]);
 
         Sanctum::actingAs(
 
@@ -92,7 +78,6 @@ class ShowImportLogTest extends TestCase
     }
 
     protected function tearDown(): void
-
     {
 
         DB::table('import_logs')
@@ -119,34 +104,26 @@ class ShowImportLogTest extends TestCase
     }
 
     public function test_it_returns_single_import_log()
-
     {
 
         $importLog =
 
             ImportLog::factory()
+                ->create([
 
-            ->create([
+                    'import_type_id' => ImportType::ETF_PRICE_IMPORT,
 
-                'import_type_id' =>
+                    'status_id' => Status::COMPLETED,
 
-                ImportType::ETF_PRICE_IMPORT,
+                    'data_source_id' => DataSource::TIINGO_API,
 
-                'status_id' =>
-
-                Status::COMPLETED,
-
-                'data_source_id' =>
-
-                DataSource::TIINGO_API,
-
-            ]);
+                ]);
 
         $response =
 
             $this->getJson(
 
-                '/api/import-log/' . $importLog->id
+                '/api/import-log/'.$importLog->id
 
             );
 
@@ -158,9 +135,7 @@ class ShowImportLogTest extends TestCase
 
                 'log' => [
 
-                    'id' =>
-
-                    $importLog->id,
+                    'id' => $importLog->id,
 
                 ],
 
@@ -168,34 +143,26 @@ class ShowImportLogTest extends TestCase
     }
 
     public function test_it_returns_expected_import_log_fields()
-
     {
 
         $importLog =
 
             ImportLog::factory()
+                ->create([
 
-            ->create([
+                    'generated_markdown' => '# AI Market Snapshot',
 
-                'generated_markdown' =>
+                    'processing_notes' => 'Import completed successfully.',
 
-                '# AI Market Snapshot',
+                    'import_fail_details' => null,
 
-                'processing_notes' =>
-
-                'Import completed successfully.',
-
-                'import_fail_details' =>
-
-                null,
-
-            ]);
+                ]);
 
         $response =
 
             $this->getJson(
 
-                '/api/import-log/' . $importLog->id
+                '/api/import-log/'.$importLog->id
 
             );
 
@@ -245,26 +212,22 @@ class ShowImportLogTest extends TestCase
     }
 
     public function test_it_returns_generated_markdown()
-
     {
 
         $importLog =
 
             ImportLog::factory()
+                ->create([
 
-            ->create([
+                    'generated_markdown' => '# AI Market Snapshot',
 
-                'generated_markdown' =>
-
-                '# AI Market Snapshot',
-
-            ]);
+                ]);
 
         $response =
 
             $this->getJson(
 
-                '/api/import-log/' . $importLog->id
+                '/api/import-log/'.$importLog->id
 
             );
 
@@ -274,9 +237,7 @@ class ShowImportLogTest extends TestCase
 
                 'log' => [
 
-                    'generated_markdown' =>
-
-                    '# AI Market Snapshot',
+                    'generated_markdown' => '# AI Market Snapshot',
 
                 ],
 
@@ -284,26 +245,22 @@ class ShowImportLogTest extends TestCase
     }
 
     public function test_it_returns_processing_notes()
-
     {
 
         $importLog =
 
             ImportLog::factory()
+                ->create([
 
-            ->create([
+                    'processing_notes' => 'Import completed successfully.',
 
-                'processing_notes' =>
-
-                'Import completed successfully.',
-
-            ]);
+                ]);
 
         $response =
 
             $this->getJson(
 
-                '/api/import-log/' . $importLog->id
+                '/api/import-log/'.$importLog->id
 
             );
 
@@ -313,9 +270,7 @@ class ShowImportLogTest extends TestCase
 
                 'log' => [
 
-                    'processing_notes' =>
-
-                    'Import completed successfully.',
+                    'processing_notes' => 'Import completed successfully.',
 
                 ],
 
@@ -323,26 +278,22 @@ class ShowImportLogTest extends TestCase
     }
 
     public function test_it_returns_import_fail_details()
-
     {
 
         $importLog =
 
             ImportLog::factory()
+                ->create([
 
-            ->create([
+                    'import_fail_details' => 'Provider timeout occurred.',
 
-                'import_fail_details' =>
-
-                'Provider timeout occurred.',
-
-            ]);
+                ]);
 
         $response =
 
             $this->getJson(
 
-                '/api/import-log/' . $importLog->id
+                '/api/import-log/'.$importLog->id
 
             );
 
@@ -352,9 +303,7 @@ class ShowImportLogTest extends TestCase
 
                 'log' => [
 
-                    'import_fail_details' =>
-
-                    'Provider timeout occurred.',
+                    'import_fail_details' => 'Provider timeout occurred.',
 
                 ],
 
@@ -362,7 +311,6 @@ class ShowImportLogTest extends TestCase
     }
 
     public function test_it_returns_not_found_when_import_log_does_not_exist()
-
     {
 
         $response =
@@ -379,9 +327,7 @@ class ShowImportLogTest extends TestCase
 
                 'success' => false,
 
-                'message' =>
-
-                'Import log not found.',
+                'message' => 'Import log not found.',
 
             ]);
     }

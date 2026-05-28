@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Dev\ExternalSeeders;
 
-use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class MakeSeedsController extends Controller
 {
-
     public function index(Request $request)
     {
 
@@ -36,6 +35,9 @@ class MakeSeedsController extends Controller
             'NotificationStatuses',
             'PerformanceRangeTypes',
             'Portfolios',
+            'Securities',
+            'SecurityDetails',
+            'SecurityTypes',
             'SignalTypes',
             'Statuses',
             'SupportTopics',
@@ -58,7 +60,6 @@ class MakeSeedsController extends Controller
     public function getSeedFormConfig()
     {
 
-
         return response()->json([
 
             'status' => 'success',
@@ -69,16 +70,14 @@ class MakeSeedsController extends Controller
                 'label' => 'Table Name',
                 'required' => 1,
                 'max_length' => 50,
-                'instructions' => 'enter the table name in snake_case for the seeds you want to create'
+                'instructions' => 'enter the table name in snake_case for the seeds you want to create',
 
             ],
 
             'section_heading' => 'Make Single Table Seeds',
             'request_type' => 'get',
             'get_endpoint' => 'make-seed?seed={table_name}',
-            'button_text'  => 'Make Single Table Seeds'
-
-
+            'button_text' => 'Make Single Table Seeds',
 
         ], 200);
     }
@@ -104,9 +103,8 @@ class MakeSeedsController extends Controller
 
         $count = DB::table($seed)->count();
 
-        return ['Success' => $count . " {$seed} created."];
+        return ['Success' => $count." {$seed} created."];
     }
-
 
     public function dropSeed(Request $request)
     {
@@ -120,6 +118,6 @@ class MakeSeedsController extends Controller
 
         DB::table($table)->truncate();
 
-        return ['message' => 'The seed for ' . $table . ' have been destroyed.'];
+        return ['message' => 'The seed for '.$table.' have been destroyed.'];
     }
 }

@@ -3,32 +3,20 @@
 namespace App\Services\Crons\Handlers;
 
 use App\Models\Etf;
-
 use App\Models\EtfMetric;
-
 use App\Models\EtfPriceHistory;
-
 use App\Models\ImportType;
-
 use App\Models\PerformanceRangeType;
-
 use App\Models\Status;
-
 use App\Services\EtfMetrics\CalculateEtfMetricService;
-
 use App\Services\ImportLogs\ImportLogsService;
-
 use Throwable;
 
 class CalculateEtfMetricsHandler
-
 {
-
     public function __construct(
 
-        private CalculateEtfMetricService
-
-        $calculateEtfMetricService
+        private CalculateEtfMetricService $calculateEtfMetricService
 
     ) {}
 
@@ -158,43 +146,40 @@ class CalculateEtfMetricsHandler
                     Status::ACTIVE
 
                 )
+                    ->when(
 
-                ->when(
+                        $symbol,
 
-                    $symbol,
+                        function (
 
-                    function (
+                            $query
 
-                        $query
+                        ) use (
 
-                    ) use (
+                            $symbol
 
-                        $symbol
+                        ) {
 
-                    ) {
+                            $query->where(
 
-                        $query->where(
+                                'symbol',
 
-                            'symbol',
+                                strtoupper(
 
-                            strtoupper(
+                                    $symbol
 
-                                $symbol
+                                )
 
-                            )
+                            );
+                        }
 
-                        );
-                    }
+                    )
+                    ->orderBy(
 
-                )
+                        'symbol'
 
-                ->orderBy(
-
-                    'symbol'
-
-                )
-
-                ->get();
+                    )
+                    ->get();
 
             if (
 
@@ -287,14 +272,13 @@ class CalculateEtfMetricsHandler
                     $metric =
 
                         $this->calculateEtfMetricService
+                            ->calculate(
 
-                        ->calculate(
+                                $etf,
 
-                            $etf,
+                                $rangeType->id
 
-                            $rangeType->id
-
-                        );
+                            );
 
                     if ($metric) {
 
@@ -405,9 +389,7 @@ class CalculateEtfMetricsHandler
 
                 'success' => 0,
 
-                'cron_fail_details' =>
-
-                $this->errorMessage() .
+                'cron_fail_details' => $this->errorMessage().
 
                     $e->getMessage(),
 
@@ -416,11 +398,8 @@ class CalculateEtfMetricsHandler
     }
 
     public function errorMessage(): string
-
     {
 
-        return
-
-            'ETF metric calculation failed. ';
+        return 'ETF metric calculation failed. ';
     }
 }

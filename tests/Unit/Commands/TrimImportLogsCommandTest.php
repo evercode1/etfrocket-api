@@ -3,27 +3,17 @@
 namespace Tests\Unit\Commands;
 
 use App\Models\CronLog;
-
 use App\Models\ImportLog;
-
 use Database\Seeders\ImportTypeSeeder;
-
 use Database\Seeders\IntervalSeeder;
-
 use Database\Seeders\NotificationStatusSeeder;
-
 use Database\Seeders\StatusSeeder;
-
 use Illuminate\Support\Facades\DB;
-
 use Tests\TestCase;
 
 class TrimImportLogsCommandTest extends TestCase
-
 {
-
     protected function setUp(): void
-
     {
 
         parent::setUp();
@@ -66,7 +56,6 @@ class TrimImportLogsCommandTest extends TestCase
     }
 
     protected function tearDown(): void
-
     {
 
         DB::table('cron_logs')
@@ -97,16 +86,13 @@ class TrimImportLogsCommandTest extends TestCase
     }
 
     public function test_it_runs_trim_import_logs_command()
-
     {
 
         ImportLog::factory()
 
             ->create([
 
-                'created_at' =>
-
-                now()->subDays(8),
+                'created_at' => now()->subDays(8),
 
             ]);
 
@@ -126,7 +112,6 @@ class TrimImportLogsCommandTest extends TestCase
     }
 
     public function test_it_creates_cron_log_record()
-
     {
 
         $this->artisan(
@@ -149,13 +134,9 @@ class TrimImportLogsCommandTest extends TestCase
 
             [
 
-                'cron_name' =>
+                'cron_name' => 'app:trim-import-logs',
 
-                'app:trim-import-logs',
-
-                'cron_description' =>
-
-                'remove old import logs',
+                'cron_description' => 'remove old import logs',
 
             ]
 
@@ -163,7 +144,6 @@ class TrimImportLogsCommandTest extends TestCase
     }
 
     public function test_it_creates_successful_cron_log()
-
     {
 
         $this->artisan(
@@ -208,16 +188,13 @@ class TrimImportLogsCommandTest extends TestCase
     }
 
     public function test_it_does_not_delete_recent_import_logs()
-
     {
 
         ImportLog::factory()
 
             ->create([
 
-                'created_at' =>
-
-                now()->subDays(2),
+                'created_at' => now()->subDays(2),
 
             ]);
 
@@ -237,16 +214,13 @@ class TrimImportLogsCommandTest extends TestCase
     }
 
     public function test_it_deletes_only_logs_older_than_one_week()
-
     {
 
         ImportLog::factory()
 
             ->create([
 
-                'created_at' =>
-
-                now()->subDays(8),
+                'created_at' => now()->subDays(8),
 
             ]);
 
@@ -254,9 +228,7 @@ class TrimImportLogsCommandTest extends TestCase
 
             ->create([
 
-                'created_at' =>
-
-                now()->subDays(3),
+                'created_at' => now()->subDays(3),
 
             ]);
 

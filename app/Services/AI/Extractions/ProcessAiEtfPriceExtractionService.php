@@ -64,9 +64,7 @@ class ProcessAiEtfPriceExtractionService
 
                         'failure_reason' => null,
 
-                        'validation_notes' =>
-
-                        'AI ETF price extraction processed successfully.',
+                        'validation_notes' => 'AI ETF price extraction processed successfully.',
 
                     ]);
 
@@ -82,13 +80,9 @@ class ProcessAiEtfPriceExtractionService
 
                 'failed_at' => now(),
 
-                'failure_reason' =>
+                'failure_reason' => $e->getMessage(),
 
-                $e->getMessage(),
-
-                'validation_notes' =>
-
-                'AI ETF price extraction failed processing.',
+                'validation_notes' => 'AI ETF price extraction failed processing.',
 
             ]);
 
@@ -187,29 +181,19 @@ class ProcessAiEtfPriceExtractionService
 
             [
 
-                'etf_id' =>
+                'etf_id' => $extraction->etf_id,
 
-                $extraction->etf_id,
-
-                'price_date' =>
-
-                $priceDate,
+                'price_date' => $priceDate,
 
             ],
 
             [
 
-                'close_price' =>
+                'close_price' => $closePrice,
 
-                $closePrice,
+                'volume' => $volume,
 
-                'volume' =>
-
-                $volume,
-
-                'data_source_id' =>
-
-                $extraction->data_source_id,
+                'data_source_id' => $extraction->data_source_id,
 
                 'retrieved_at' => now(),
 
@@ -226,7 +210,7 @@ class ProcessAiEtfPriceExtractionService
         if (! is_numeric($value)) {
 
             throw new \RuntimeException(
-                $field . ' must be numeric.'
+                $field.' must be numeric.'
             );
         }
 
@@ -237,7 +221,7 @@ class ProcessAiEtfPriceExtractionService
         if ($value <= 0) {
 
             throw new \RuntimeException(
-                $field . ' must be greater than zero.'
+                $field.' must be greater than zero.'
             );
         }
 
@@ -255,7 +239,7 @@ class ProcessAiEtfPriceExtractionService
         if (! is_numeric($value)) {
 
             throw new \RuntimeException(
-                $field . ' must be numeric.'
+                $field.' must be numeric.'
             );
         }
 
@@ -266,7 +250,7 @@ class ProcessAiEtfPriceExtractionService
         if ($value <= 0) {
 
             throw new \RuntimeException(
-                $field . ' must be greater than zero.'
+                $field.' must be greater than zero.'
             );
         }
 
@@ -281,7 +265,7 @@ class ProcessAiEtfPriceExtractionService
         if (! is_string($value)) {
 
             throw new \RuntimeException(
-                $field . ' must be a valid date string.'
+                $field.' must be a valid date string.'
             );
         }
 
@@ -295,7 +279,7 @@ class ProcessAiEtfPriceExtractionService
         } catch (\Throwable $e) {
 
             throw new \RuntimeException(
-                $field . ' must be a valid date.'
+                $field.' must be a valid date.'
             );
         }
 
@@ -314,7 +298,7 @@ class ProcessAiEtfPriceExtractionService
         ) {
 
             throw new \RuntimeException(
-                $field . ' is stale.'
+                $field.' is stale.'
             );
         }
 

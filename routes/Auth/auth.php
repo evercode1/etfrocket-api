@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\User\Auth\PasswordResetController;
 use App\Http\Controllers\User\Auth\UserVerificationController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 // Account Verification
 

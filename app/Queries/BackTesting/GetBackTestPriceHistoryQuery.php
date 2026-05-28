@@ -43,12 +43,10 @@ class GetBackTestPriceHistoryQuery
 
                 return [
 
-                    'date' =>
-                    $row->price_date
+                    'date' => $row->price_date
                         ->toDateString(),
 
-                    'price' =>
-                    (float)
+                    'price' => (float)
                     $row->close_price,
 
                 ];

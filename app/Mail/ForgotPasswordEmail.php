@@ -3,8 +3,8 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -14,6 +14,7 @@ class ForgotPasswordEmail extends Mailable
     use Queueable, SerializesModels;
 
     public string $token;
+
     public string $email;
 
     /**
@@ -50,13 +51,13 @@ class ForgotPasswordEmail extends Mailable
 
                 'url' => env('FRONTEND_URL')
 
-                    . '/auth/reset-password/'
+                    .'/auth/reset-password/'
 
-                    . $this->token
+                    .$this->token
 
-                    . '?email='
+                    .'?email='
 
-                    . urlencode($this->email)
+                    .urlencode($this->email),
 
             ],
 
@@ -66,7 +67,7 @@ class ForgotPasswordEmail extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

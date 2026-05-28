@@ -5,7 +5,6 @@ namespace App\Services\Comparisons;
 use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
-use App\Services\Comparisons\EtfComparisonService;
 use App\Services\EtfMetrics\EtfMetricStatsService;
 use App\Services\PortfolioStats\PortfolioDividendStatsService;
 use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
@@ -132,8 +131,8 @@ class PortfolioCompareService
                 $price = array_key_exists('latest_price', $holding)
                     ? $holding['latest_price']
                     : EtfPriceHistory::where('etf_id', $etfId)
-                    ->orderByDesc('price_date')
-                    ->value('close_price');
+                        ->orderByDesc('price_date')
+                        ->value('close_price');
 
                 $price = is_null($price) ? null : (float) $price;
 
@@ -193,7 +192,7 @@ class PortfolioCompareService
 
                 ];
             })
-            ->sortByDesc(fn(array $row) => (float) ($row['market_value'] ?? 0))
+            ->sortByDesc(fn (array $row) => (float) ($row['market_value'] ?? 0))
             ->values();
     }
 
@@ -205,8 +204,8 @@ class PortfolioCompareService
             ->whereIn('etf_id', $resolved['etf_ids'])
             ->select([
                 'etf_id',
-                $resolved['date_column'] . ' as metric_date',
-                $resolved['value_column'] . ' as metric_value',
+                $resolved['date_column'].' as metric_date',
+                $resolved['value_column'].' as metric_value',
             ])
             ->orderBy($resolved['date_column']);
 
@@ -245,12 +244,12 @@ class PortfolioCompareService
     private function buildSummary(Collection $tableRows): array
     {
         $bestReturnRow = $tableRows
-            ->filter(fn(array $row) => ! is_null($row['total_return_percentage_90_day']))
+            ->filter(fn (array $row) => ! is_null($row['total_return_percentage_90_day']))
             ->sortByDesc('total_return_percentage_90_day')
             ->first();
 
         $strongestNavRow = $tableRows
-            ->filter(fn(array $row) => ! is_null($row['nav_change_percentage_max']))
+            ->filter(fn (array $row) => ! is_null($row['nav_change_percentage_max']))
             ->sortByDesc('nav_change_percentage_max')
             ->first();
 
@@ -271,7 +270,7 @@ class PortfolioCompareService
 
         return [
             'metrics' => collect($options['metrics'] ?? [])
-                ->map(fn(array $metric, string $key) => [
+                ->map(fn (array $metric, string $key) => [
                     'label' => $metric['label'] ?? $key,
                     'value' => $key,
                 ])
@@ -279,7 +278,7 @@ class PortfolioCompareService
                 ->toArray(),
 
             'ranges' => collect($options['ranges'] ?? [])
-                ->map(fn(int|string $days, string $key) => [
+                ->map(fn (int|string $days, string $key) => [
                     'label' => strtoupper($key),
                     'value' => $key,
                     'days' => $days,
@@ -382,7 +381,7 @@ class PortfolioCompareService
             ->orderByDesc('price_date')
             ->get()
             ->groupBy('etf_id')
-            ->map(fn($prices) => (float) $prices->first()->close_price);
+            ->map(fn ($prices) => (float) $prices->first()->close_price);
 
         return $holdings
             ->map(function (array $holding) use ($latestPrices) {

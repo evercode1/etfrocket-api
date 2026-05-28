@@ -14,7 +14,7 @@ class GenerateBackTestAnalyticsServiceTest extends TestCase
         parent::setUp();
 
         $this->service =
-            new GenerateBackTestAnalyticsService();
+            new GenerateBackTestAnalyticsService;
     }
 
     public function test_it_returns_empty_analytics_for_empty_chart_rows()

@@ -3,29 +3,18 @@
 namespace Tests\Unit\Commands;
 
 use App\Models\CronLog;
-
 use App\Models\SignalType;
-
 use Database\Seeders\IntervalSeeder;
-
 use Database\Seeders\NotificationStatusSeeder;
-
 use Database\Seeders\SignalTypeSeeder;
-
 use Database\Seeders\StatusSeeder;
-
 use Illuminate\Support\Facades\DB;
-
 use Illuminate\Support\Facades\Http;
-
 use Tests\TestCase;
 
 class GenerateAiSignalCommandTest extends TestCase
-
 {
-
     protected function setUp(): void
-
     {
 
         parent::setUp();
@@ -112,9 +101,7 @@ class GenerateAiSignalCommandTest extends TestCase
 
                                 [
 
-                                    'text' =>
-
-                                    'Bullish',
+                                    'text' => 'Bullish',
 
                                 ],
 
@@ -159,9 +146,7 @@ class GenerateAiSignalCommandTest extends TestCase
 
                                 [
 
-                                    'text' =>
-
-                                    '# Market Snapshot',
+                                    'text' => '# Market Snapshot',
 
                                 ],
 
@@ -196,9 +181,7 @@ class GenerateAiSignalCommandTest extends TestCase
 
                                 [
 
-                                    'text' =>
-
-                                    '# Market Conditions',
+                                    'text' => '# Market Conditions',
 
                                 ],
 
@@ -233,9 +216,7 @@ class GenerateAiSignalCommandTest extends TestCase
 
                                 [
 
-                                    'text' =>
-
-                                    '# Upcoming Market Events',
+                                    'text' => '# Upcoming Market Events',
 
                                 ],
 
@@ -258,9 +239,7 @@ class GenerateAiSignalCommandTest extends TestCase
 
                             [
 
-                                'text' =>
-
-                                '# AI Signal',
+                                'text' => '# AI Signal',
 
                             ],
 
@@ -275,7 +254,6 @@ class GenerateAiSignalCommandTest extends TestCase
     }
 
     protected function tearDown(): void
-
     {
 
         DB::table('ai_market_signals')
@@ -310,7 +288,6 @@ class GenerateAiSignalCommandTest extends TestCase
     }
 
     public function test_it_generates_all_ai_signals()
-
     {
 
         $this->artisan(
@@ -339,9 +316,7 @@ class GenerateAiSignalCommandTest extends TestCase
 
             [
 
-                'signal_type_id' =>
-
-                SignalType::MARKET_SNAPSHOT,
+                'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
             ]
 
@@ -353,9 +328,7 @@ class GenerateAiSignalCommandTest extends TestCase
 
             [
 
-                'signal_type_id' =>
-
-                SignalType::MARKET_CONDITIONS,
+                'signal_type_id' => SignalType::MARKET_CONDITIONS,
 
             ]
 
@@ -367,9 +340,7 @@ class GenerateAiSignalCommandTest extends TestCase
 
             [
 
-                'signal_type_id' =>
-
-                SignalType::MARKET_EVENTS,
+                'signal_type_id' => SignalType::MARKET_EVENTS,
 
             ]
 
@@ -377,7 +348,6 @@ class GenerateAiSignalCommandTest extends TestCase
     }
 
     public function test_it_creates_cron_log_record()
-
     {
 
         $this->artisan(
@@ -406,17 +376,11 @@ class GenerateAiSignalCommandTest extends TestCase
 
             [
 
-                'cron_name' =>
-
-                'ai:generate-signals
-
-        {--type=}
+                'cron_name' => 'ai:generate-signals
 
         {--force : Force signal generation even if no fresh data exists}',
 
-                'cron_description' =>
-
-                'Generate AI market signals',
+                'cron_description' => 'Generate AI market signals',
 
             ]
 
@@ -424,7 +388,6 @@ class GenerateAiSignalCommandTest extends TestCase
     }
 
     public function test_it_stores_markdown_content()
-
     {
 
         $this->artisan(
@@ -463,7 +426,6 @@ class GenerateAiSignalCommandTest extends TestCase
     }
 
     public function test_it_sets_generated_at()
-
     {
 
         $this->artisan(
@@ -494,7 +456,6 @@ class GenerateAiSignalCommandTest extends TestCase
     }
 
     public function test_it_sets_expires_at()
-
     {
 
         $this->artisan(
@@ -525,7 +486,6 @@ class GenerateAiSignalCommandTest extends TestCase
     }
 
     public function test_it_sets_signal_as_active()
-
     {
 
         $this->artisan(
@@ -554,7 +514,6 @@ class GenerateAiSignalCommandTest extends TestCase
     }
 
     public function test_it_creates_successful_cron_log()
-
     {
 
         $this->artisan(

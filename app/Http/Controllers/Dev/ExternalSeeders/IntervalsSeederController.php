@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Dev\ExternalSeeders;
 
-use App\Models\Interval;
 use App\Http\Controllers\Controller;
+use App\Models\Interval;
 
 class IntervalsSeederController extends Controller
 {

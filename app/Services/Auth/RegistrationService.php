@@ -2,16 +2,12 @@
 
 namespace App\Services\Auth;
 
-use App\Services\Auth\RegistrationTransactionService;
 use App\Services\FailureLogs\LogFailureService;
-
 
 class RegistrationService
 {
-
     public function handleRegistration($request)
     {
-
 
         try {
 
@@ -30,7 +26,7 @@ class RegistrationService
 
                 'status' => 'error',
 
-                'message' => 'Oops! Something went wrong. Please try again later or contact support if the issue persists.'
+                'message' => 'Oops! Something went wrong. Please try again later or contact support if the issue persists.',
 
             ], 500);
         }
@@ -39,7 +35,7 @@ class RegistrationService
 
             'status' => 'success',
             'user' => $user,
-            'message' => 'please confirm your email'
+            'message' => 'please confirm your email',
 
         ], 201);
     }

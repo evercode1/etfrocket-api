@@ -21,23 +21,17 @@ class CronReportQuery
 
         $summary = [
 
-            'successful_runs' =>
-
-            CronLog::where(
+            'successful_runs' => CronLog::where(
                 'status_id',
                 $successfulStatusId
             )->count(),
 
-            'failed_runs' =>
-
-            CronLog::where(
+            'failed_runs' => CronLog::where(
                 'status_id',
                 $failedStatusId
             )->count(),
 
-            'average_runtime' =>
-
-            round(
+            'average_runtime' => round(
 
                 CronLog::avg(
                     'run_time'
@@ -45,9 +39,7 @@ class CronReportQuery
 
             ),
 
-            'active_crons' =>
-
-            CronLog::distinct(
+            'active_crons' => CronLog::distinct(
                 'cron_name'
             )->count(),
 
@@ -78,58 +70,49 @@ class CronReportQuery
                 'notification_statuses.notification_status_name',
 
             ])
+                ->leftJoin(
 
-            ->leftJoin(
+                    'statuses',
 
-                'statuses',
+                    'cron_logs.status_id',
 
-                'cron_logs.status_id',
+                    '=',
 
-                '=',
+                    'statuses.id'
 
-                'statuses.id'
+                )
+                ->leftJoin(
 
-            )
+                    'intervals',
 
-            ->leftJoin(
+                    'cron_logs.interval_id',
 
-                'intervals',
+                    '=',
 
-                'cron_logs.interval_id',
+                    'intervals.id'
 
-                '=',
+                )
+                ->leftJoin(
 
-                'intervals.id'
+                    'notification_statuses',
 
-            )
+                    'cron_logs.notification_status_id',
 
-            ->leftJoin(
+                    '=',
 
-                'notification_statuses',
+                    'notification_statuses.id'
 
-                'cron_logs.notification_status_id',
-
-                '=',
-
-                'notification_statuses.id'
-
-            )
-
-            ->orderByDesc(
-                'cron_logs.start_time'
-            )
-
-            ->paginate(25);
+                )
+                ->orderByDesc(
+                    'cron_logs.start_time'
+                )
+                ->paginate(25);
 
         return [
 
-            'summary' =>
+            'summary' => $summary,
 
-            $summary,
-
-            'logs' =>
-
-            $logs,
+            'logs' => $logs,
 
         ];
     }

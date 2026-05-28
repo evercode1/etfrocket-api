@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\User\Settings\SettingsController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,7 +13,6 @@ use App\Http\Controllers\User\Settings\SettingsController;
 */
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-
 
     // User Settings
 

@@ -4,9 +4,9 @@ namespace Tests\Unit\Commands;
 
 use App\Jobs\RunAiEtfDividendExtractionJob;
 use App\Models\AiDataExtraction;
-use App\Models\Status;
 use App\Models\Etf;
 use App\Models\EtfDividendHistory;
+use App\Models\Status;
 use Database\Seeders\EtfSeeder;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
@@ -102,8 +102,7 @@ class RunAiEtfDividendExtractionsTest extends TestCase
 
             [
 
-                '--symbol' =>
-                'CHPY',
+                '--symbol' => 'CHPY',
 
             ]
 
@@ -152,30 +151,24 @@ class RunAiEtfDividendExtractionsTest extends TestCase
     {
         EtfDividendHistory::create([
 
-            'etf_id' =>
-            Etf::first()->id,
+            'etf_id' => Etf::first()->id,
 
-            'dividend_amount' =>
-            0.25,
+            'dividend_amount' => 0.25,
 
-            'ex_dividend_date' =>
-            now()->toDateString(),
+            'ex_dividend_date' => now()->toDateString(),
 
-            'payment_date' =>
-            now()->addDays(7)->toDateString(),
+            'payment_date' => now()->addDays(7)->toDateString(),
 
             'data_source_id' => 1,
 
-            'retrieved_at' =>
-            now(),
+            'retrieved_at' => now(),
 
         ]);
 
         AiDataExtraction::factory()
             ->create([
 
-                'created_at' =>
-                now(),
+                'created_at' => now(),
 
             ]);
 
@@ -206,32 +199,25 @@ class RunAiEtfDividendExtractionsTest extends TestCase
             Etf::where(
                 'status_id',
                 Status::ACTIVE
-            )->get()
-
-            as $etf
+            )->get() as $etf
 
         ) {
 
             EtfDividendHistory::create([
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'dividend_amount' =>
-                0.25,
+                'dividend_amount' => 0.25,
 
-                'ex_dividend_date' =>
-                now()->toDateString(),
+                'ex_dividend_date' => now()->toDateString(),
 
-                'payment_date' =>
-                now()
+                'payment_date' => now()
                     ->addDays(7)
                     ->toDateString(),
 
                 'data_source_id' => 1,
 
-                'retrieved_at' =>
-                now(),
+                'retrieved_at' => now(),
 
             ]);
         }

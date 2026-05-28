@@ -40,13 +40,13 @@ class ManageUserEditTest extends TestCase
 
         Sanctum::actingAs($admin, ['*']);
 
-        $response = $this->getJson('/api/manage-user/edit/' . $user->id);
+        $response = $this->getJson('/api/manage-user/edit/'.$user->id);
 
         $response->assertOk()
             ->assertJson([
                 'section_heading' => 'Edit User',
                 'request_type' => 'post',
-                'post_endpoint' => 'manage-user/' . $user->id,
+                'post_endpoint' => 'manage-user/'.$user->id,
                 'form_configs' => [
                     [
                         'name' => 'name',

@@ -277,7 +277,7 @@ class PortfolioHoldingsAnalysisService
             ->orderByDesc('price_date')
             ->get()
             ->groupBy('etf_id')
-            ->map(fn(Collection $prices) => (float) $prices->first()->close_price);
+            ->map(fn (Collection $prices) => (float) $prices->first()->close_price);
     }
 
     private function emptySummary(): array

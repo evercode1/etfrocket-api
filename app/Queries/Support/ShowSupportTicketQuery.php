@@ -7,19 +7,17 @@ use App\Utilities\Auth;
 
 class ShowSupportTicketQuery
 {
-
     public static function showSupportTicket(int $id)
     {
 
         $user_id = Auth::id();
-
 
         if (SupportTicket::where('id', $id)->where('user_id', $user_id)->doesntExist()) {
 
             return response()->json([
 
                 'status' => 'error',
-                'message' => 'invalid record'
+                'message' => 'invalid record',
 
             ], 404);
         }
@@ -31,7 +29,7 @@ class ShowSupportTicketQuery
             'support_tickets.created_at',
             'support_topics.id as support_topic_id',
             'support_topics.support_topic_name as topic',
-            'support_tickets.ticket_text as issue'
+            'support_tickets.ticket_text as issue',
 
         ];
 
@@ -53,8 +51,8 @@ class ShowSupportTicketQuery
         return response()->json([
 
             'status' => 'success',
-            'data' => $supportTicket
-        
+            'data' => $supportTicket,
+
         ], 200);
 
     }

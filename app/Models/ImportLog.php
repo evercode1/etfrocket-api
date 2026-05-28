@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\ImportLogFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ImportLog extends Model
 {
-    /** @use HasFactory<\Database\Factories\ImportLogFactory> */
+    /** @use HasFactory<ImportLogFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -26,7 +27,7 @@ class ImportLog extends Model
         'import_fail_details',
         'passed_data_integrity_check',
         'started_at',
-        'completed_at'
+        'completed_at',
 
     ];
 

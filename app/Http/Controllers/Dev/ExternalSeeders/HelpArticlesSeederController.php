@@ -9,7 +9,6 @@ use Illuminate\Support\Str;
 
 class HelpArticlesSeederController extends Controller
 {
-
     public function run(): void
     {
         if (! env('ALLOW_SEEDS')) {

@@ -28,7 +28,7 @@ return new class extends Migration
                 [
                     'etf_id',
                     'ex_dividend_date',
-                    'dividend_amount'
+                    'dividend_amount',
                 ],
                 'etf_dividend_unique'
             );

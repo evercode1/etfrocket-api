@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use App\Models\EtfMetric;
-use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\PerformanceRangeType;
 use App\Models\MetricDirection;
+use App\Models\PerformanceRangeType;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends Factory<EtfMetric>
@@ -19,7 +19,6 @@ class EtfMetricFactory extends Factory
      */
     public function definition(): array
     {
-
 
         $startDate = now()->subDays(30)->toDateString();
         $endDate = now()->toDateString();

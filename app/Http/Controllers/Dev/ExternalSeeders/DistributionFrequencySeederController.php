@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Dev\ExternalSeeders;
 
+use App\Http\Controllers\Controller;
 use App\Models\DistributionFrequency;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 
 class DistributionFrequencySeederController extends Controller
 {

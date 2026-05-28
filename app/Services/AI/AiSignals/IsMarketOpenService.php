@@ -11,7 +11,6 @@ class IsMarketOpenService
      *
      * Covers 2026 and 2027.
      */
-
     private array $holidays = [
 
         // 2026
@@ -80,7 +79,6 @@ class IsMarketOpenService
      * Monday - Friday
      * 9:30 AM - 4:00 PM ET
      */
-
     public function isOpen(): bool
     {
         $now =
@@ -137,19 +135,17 @@ class IsMarketOpenService
 
         $marketOpen =
             $date->copy()
-
-            ->setTime(
-                9,
-                30
-            );
+                ->setTime(
+                    9,
+                    30
+                );
 
         $marketClose =
             $date->copy()
-
-            ->setTime(
-                16,
-                0
-            );
+                ->setTime(
+                    16,
+                    0
+                );
 
         return $date->between(
 

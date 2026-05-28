@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\Support\SupportController;
-use App\Http\Controllers\Admin\Support\ManageUsersController;
-use App\Http\Controllers\Admin\Support\UserStatsController;
 use App\Http\Controllers\Admin\Support\ManageHelpArticlesController;
+use App\Http\Controllers\Admin\Support\ManageUsersController;
+use App\Http\Controllers\Admin\Support\SupportController;
+use App\Http\Controllers\Admin\Support\UserStatsController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,7 +29,6 @@ Route::group(['middleware' => ['auth:sanctum', 'isAdmin']], function () {
     // User Stats
 
     Route::get('/user-signup-stats', [UserStatsController::class, 'userSignupStats']);
-
 
     // Support
 

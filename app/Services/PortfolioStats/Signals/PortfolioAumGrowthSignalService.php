@@ -32,12 +32,12 @@ class PortfolioAumGrowthSignalService
         }
 
         $positiveRows = $rows
-            ->filter(fn(array $row) => (float) $row['aum_change_percentage'] > 0)
+            ->filter(fn (array $row) => (float) $row['aum_change_percentage'] > 0)
             ->sortByDesc('aum_change_percentage')
             ->values();
 
         $negativeRows = $rows
-            ->filter(fn(array $row) => (float) $row['aum_change_percentage'] < 0)
+            ->filter(fn (array $row) => (float) $row['aum_change_percentage'] < 0)
             ->sortBy('aum_change_percentage')
             ->values();
 
@@ -62,7 +62,7 @@ class PortfolioAumGrowthSignalService
     {
         $etfIds = $holdings
             ->pluck('etf_id')
-            ->map(fn($etfId) => (int) $etfId)
+            ->map(fn ($etfId) => (int) $etfId)
             ->filter()
             ->unique()
             ->values()

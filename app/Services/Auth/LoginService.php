@@ -2,17 +2,16 @@
 
 namespace App\Services\Auth;
 
-use App\Models\User;
-use App\Models\PersonalAccessToken;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyEmail;
+use App\Models\PersonalAccessToken;
+use App\Models\User;
 use App\Models\UserVerification;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class LoginService
 {
-
     public function handleLogin($fields)
     {
         // Check email and get user
@@ -28,7 +27,7 @@ class LoginService
             return response()->json([
 
                 'status' => 'error',
-                'message' => 'Bad credentials'
+                'message' => 'Bad credentials',
 
             ], 401);
         }
@@ -44,7 +43,7 @@ class LoginService
             return response()->json([
 
                 'status' => 'error',
-                'message' => 'Bad credentials'
+                'message' => 'Bad credentials',
 
             ], 401);
         }
@@ -68,7 +67,7 @@ class LoginService
 
             // 4. Return the specific message your test is looking for
             return response()->json([
-                'message' => 'Please verify your account.'
+                'message' => 'Please verify your account.',
             ], 200);
         }
 
@@ -98,7 +97,7 @@ class LoginService
                 'pm_last_four',
             ]),
 
-            'token' => $token
+            'token' => $token,
 
         ];
 

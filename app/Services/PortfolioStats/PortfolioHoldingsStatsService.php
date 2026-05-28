@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 class PortfolioHoldingsStatsService
 {
     private const BUY = 1;
+
     private const SELL = 2;
 
     public function getCurrentHoldings(int $portfolioId): Collection
@@ -23,8 +24,8 @@ class PortfolioHoldingsStatsService
                 DB::raw('
                     SUM(
                         CASE
-                            WHEN portfolio_transactions.transaction_type_id = ' . self::BUY . ' THEN portfolio_transactions.shares
-                            WHEN portfolio_transactions.transaction_type_id = ' . self::SELL . ' THEN -portfolio_transactions.shares
+                            WHEN portfolio_transactions.transaction_type_id = '.self::BUY.' THEN portfolio_transactions.shares
+                            WHEN portfolio_transactions.transaction_type_id = '.self::SELL.' THEN -portfolio_transactions.shares
                             ELSE 0
                         END
                     ) as shares
@@ -32,8 +33,8 @@ class PortfolioHoldingsStatsService
                 DB::raw('
                     SUM(
                         CASE
-                            WHEN portfolio_transactions.transaction_type_id = ' . self::BUY . ' THEN portfolio_transactions.shares * portfolio_transactions.price_per_share
-                            WHEN portfolio_transactions.transaction_type_id = ' . self::SELL . ' THEN -portfolio_transactions.shares * portfolio_transactions.price_per_share
+                            WHEN portfolio_transactions.transaction_type_id = '.self::BUY.' THEN portfolio_transactions.shares * portfolio_transactions.price_per_share
+                            WHEN portfolio_transactions.transaction_type_id = '.self::SELL.' THEN -portfolio_transactions.shares * portfolio_transactions.price_per_share
                             ELSE 0
                         END
                     ) as cost_basis

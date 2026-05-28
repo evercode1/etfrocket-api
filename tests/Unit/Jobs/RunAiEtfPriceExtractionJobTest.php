@@ -98,35 +98,31 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
         $batch =
             EtfIngestionBatch::factory()
-            ->create([
+                ->create([
 
-                'total_etfs' => 1,
+                    'total_etfs' => 1,
 
-            ]);
+                ]);
 
         $batchItem =
             EtfIngestionBatchItem::factory()
-            ->create([
+                ->create([
 
-                'etf_ingestion_batch_id' =>
-                $batch->id,
+                    'etf_ingestion_batch_id' => $batch->id,
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'status_id' =>
-                Status::PENDING,
+                    'status_id' => Status::PENDING,
 
-            ]);
+                ]);
 
         $extraction =
             AiDataExtraction::factory()
-            ->make([
+                ->make([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-            ]);
+                ]);
 
         $this->aiService
             ->shouldReceive('extract')
@@ -135,9 +131,7 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
                 Mockery::on(
 
-                    fn($passedEtf) =>
-
-                    $passedEtf->id ===
+                    fn ($passedEtf) => $passedEtf->id ===
                         $etf->id
 
                 )
@@ -212,28 +206,25 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
         $batch =
             EtfIngestionBatch::factory()
-            ->create([
+                ->create([
 
-                'total_etfs' => 1,
+                    'total_etfs' => 1,
 
-            ]);
+                ]);
 
         $batchItem =
             EtfIngestionBatchItem::factory()
-            ->create([
+                ->create([
 
-                'etf_ingestion_batch_id' =>
-                $batch->id,
+                    'etf_ingestion_batch_id' => $batch->id,
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'status_id' =>
-                Status::PENDING,
+                    'status_id' => Status::PENDING,
 
-                'attempts' => 2,
+                    'attempts' => 2,
 
-            ]);
+                ]);
 
         $this->aiService
             ->shouldReceive('extract')
@@ -246,16 +237,9 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
             );
 
-        $job = new class(
-
-            $batch->id,
-
-            $etf->id
-
-        ) extends RunAiEtfPriceExtractionJob {
-
+        $job = new class($batch->id, $etf->id) extends RunAiEtfPriceExtractionJob
+        {
             public function attempts(): int
-
             {
 
                 return 3;
@@ -317,24 +301,21 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
         $batch =
             EtfIngestionBatch::factory()
-            ->create();
+                ->create();
 
         $batchItem =
             EtfIngestionBatchItem::factory()
-            ->create([
+                ->create([
 
-                'etf_ingestion_batch_id' =>
-                $batch->id,
+                    'etf_ingestion_batch_id' => $batch->id,
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'attempts' => 1,
+                    'attempts' => 1,
 
-                'status_id' =>
-                Status::PENDING,
+                    'status_id' => Status::PENDING,
 
-            ]);
+                ]);
 
         $this->aiService
             ->shouldReceive('extract')
@@ -414,30 +395,27 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
         $batch =
             EtfIngestionBatch::factory()
-            ->create();
+                ->create();
 
         $batchItem =
             EtfIngestionBatchItem::factory()
-            ->create([
+                ->create([
 
-                'etf_ingestion_batch_id' =>
-                $batch->id,
+                    'etf_ingestion_batch_id' => $batch->id,
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'attempts' => 2,
+                    'attempts' => 2,
 
-            ]);
+                ]);
 
         $extraction =
             AiDataExtraction::factory()
-            ->make([
+                ->make([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-            ]);
+                ]);
 
         $this->aiService
             ->shouldReceive('extract')
@@ -482,28 +460,25 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
         $batch =
             EtfIngestionBatch::factory()
-            ->create();
+                ->create();
 
         $batchItem =
             EtfIngestionBatchItem::factory()
-            ->create([
+                ->create([
 
-                'etf_ingestion_batch_id' =>
-                $batch->id,
+                    'etf_ingestion_batch_id' => $batch->id,
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-            ]);
+                ]);
 
         $extraction =
             AiDataExtraction::factory()
-            ->make([
+                ->make([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-            ]);
+                ]);
 
         $this->aiService
             ->shouldReceive('extract')

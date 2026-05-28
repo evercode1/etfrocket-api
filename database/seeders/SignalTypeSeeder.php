@@ -30,8 +30,7 @@ class SignalTypeSeeder extends Seeder
 
             SignalType::create([
 
-                'signal_type_name' =>
-                $value,
+                'signal_type_name' => $value,
 
             ]);
         }

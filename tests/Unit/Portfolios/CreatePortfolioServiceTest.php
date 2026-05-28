@@ -42,7 +42,7 @@ class CreatePortfolioServiceTest extends TestCase
             'is_default' => false,
         ]);
 
-        $portfolio = (new CreatePortfolioService())->create($user_id, $request->all());
+        $portfolio = (new CreatePortfolioService)->create($user_id, $request->all());
 
         $this->assertInstanceOf(Portfolio::class, $portfolio);
 
@@ -68,7 +68,7 @@ class CreatePortfolioServiceTest extends TestCase
             'is_default' => false,
         ]);
 
-        $portfolio = (new CreatePortfolioService())->create($user_id, $request->all());
+        $portfolio = (new CreatePortfolioService)->create($user_id, $request->all());
 
         $this->assertDatabaseHas('portfolios', [
             'id' => $portfolio->id,
@@ -98,7 +98,7 @@ class CreatePortfolioServiceTest extends TestCase
             'is_default' => false,
         ]);
 
-        $portfolio = (new CreatePortfolioService())->create($user_id, $request->all());
+        $portfolio = (new CreatePortfolioService)->create($user_id, $request->all());
 
         $this->assertDatabaseHas('portfolios', [
             'id' => $existingDefault->id,
@@ -141,7 +141,7 @@ class CreatePortfolioServiceTest extends TestCase
             'is_default' => true,
         ]);
 
-        $portfolio = (new CreatePortfolioService())->create($user_id, $request->all());
+        $portfolio = (new CreatePortfolioService)->create($user_id, $request->all());
 
         $this->assertDatabaseHas('portfolios', [
             'id' => $existingDefault->id,
@@ -192,7 +192,7 @@ class CreatePortfolioServiceTest extends TestCase
             'is_default' => true,
         ]);
 
-        $portfolio = (new CreatePortfolioService())->create($user_id, $request->all());
+        $portfolio = (new CreatePortfolioService)->create($user_id, $request->all());
 
         $this->assertDatabaseHas('portfolios', [
             'id' => $userDefault->id,

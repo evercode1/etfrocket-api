@@ -6,7 +6,6 @@ use App\Models\SupportTicket;
 
 class ShowTicketQuery
 {
-
     public static function getTicket(int $id)
     {
 
@@ -20,7 +19,7 @@ class ShowTicketQuery
             'support_tickets.user_id',
             'support_tickets.status_id',
             'support_tickets.support_topic_id',
-            'support_tickets.created_at'
+            'support_tickets.created_at',
 
         ];
 
@@ -41,7 +40,7 @@ class ShowTicketQuery
         return response()->json([
 
             'status' => 'success',
-            'ticket' => $supportTicket
+            'ticket' => $supportTicket,
 
         ], 200);
     }

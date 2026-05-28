@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\EtfMetricFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class EtfMetric extends Model
 {
-    /** @use HasFactory<\Database\Factories\EtfMetricFactory> */
+    /** @use HasFactory<EtfMetricFactory> */
     use HasFactory;
 
     protected $fillable = [

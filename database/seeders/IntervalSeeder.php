@@ -88,8 +88,7 @@ class IntervalSeeder extends Seeder
 
             Interval::create([
 
-                'interval_name' =>
-                $value,
+                'interval_name' => $value,
 
             ]);
         }

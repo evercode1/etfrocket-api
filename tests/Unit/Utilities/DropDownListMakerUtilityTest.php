@@ -50,7 +50,7 @@ class DropDownListMakerUtilityTest extends TestCase
 
     public function test_it_sets_column_name_from_label_name()
     {
-        $maker = new DropDownListMaker();
+        $maker = new DropDownListMaker;
 
         $maker->getSelectsFromLabelName('Status Name');
 

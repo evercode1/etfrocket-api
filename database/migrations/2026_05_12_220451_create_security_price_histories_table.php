@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('etf_price_histories', function (Blueprint $table) {
+        Schema::create('security_price_histories', function (Blueprint $table) {
 
             $table->id();
-            $table->unsignedInteger('etf_id')->index();
+            $table->unsignedInteger('security_id')->index();
             $table->date('price_date')->index();
             $table->decimal('close_price', 12, 4);
             $table->bigInteger('volume')->nullable();
@@ -25,7 +25,7 @@ return new class extends Migration
 
             // indexes
 
-            $table->unique(['etf_id', 'price_date']);
+            $table->unique(['security_id', 'price_date']);
 
         });
     }
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('etf_price_histories');
+        Schema::dropIfExists('security_price_histories');
     }
 };

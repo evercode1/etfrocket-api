@@ -15,8 +15,7 @@ use Tests\TestCase;
 
 class ListImportLogsQueryTest extends TestCase
 {
-    private ListImportLogsQuery
-        $query;
+    private ListImportLogsQuery $query;
 
     protected function setUp(): void
     {
@@ -47,7 +46,7 @@ class ListImportLogsQueryTest extends TestCase
         );
 
         $this->query =
-            new ListImportLogsQuery();
+            new ListImportLogsQuery;
     }
 
     protected function tearDown(): void
@@ -75,7 +74,7 @@ class ListImportLogsQueryTest extends TestCase
 
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $this->assertEquals(
 
@@ -91,23 +90,17 @@ class ListImportLogsQueryTest extends TestCase
         ImportLog::factory()
             ->create([
 
-                'import_type_id' =>
+                'import_type_id' => ImportType::ETF_PRICE_IMPORT,
 
-                ImportType::ETF_PRICE_IMPORT,
+                'status_id' => Status::COMPLETED,
 
-                'status_id' =>
-
-                Status::COMPLETED,
-
-                'data_source_id' =>
-
-                DataSource::TIINGO_API,
+                'data_source_id' => DataSource::TIINGO_API,
 
             ]);
 
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $log =
             $results->first();
@@ -132,7 +125,7 @@ class ListImportLogsQueryTest extends TestCase
 
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $log =
             $results->first();
@@ -203,24 +196,20 @@ class ListImportLogsQueryTest extends TestCase
         ImportLog::factory()
             ->create([
 
-                'started_at' =>
-
-                now()->subHour(),
+                'started_at' => now()->subHour(),
 
             ]);
 
         ImportLog::factory()
             ->create([
 
-                'started_at' =>
-
-                now(),
+                'started_at' => now(),
 
             ]);
 
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $this->assertTrue(
 
@@ -235,7 +224,7 @@ class ListImportLogsQueryTest extends TestCase
     {
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $this->assertEquals(
 

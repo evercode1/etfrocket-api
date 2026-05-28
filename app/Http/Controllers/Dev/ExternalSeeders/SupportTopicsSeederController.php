@@ -6,7 +6,6 @@ use App\Models\SupportTopic;
 
 class SupportTopicsSeederController
 {
-
     public function run(): void
     {
         SupportTopic::truncate();
@@ -54,8 +53,4 @@ class SupportTopicsSeederController
             ]);
         }
     }
-
-
-
-
 }

@@ -4,7 +4,6 @@ namespace App\Queries\MissionControl;
 
 use App\Models\EtfDividendHistory;
 use App\Models\PortfolioTransaction;
-use Carbon\Carbon;
 
 class PortfolioIncomeProjectionQuery
 {

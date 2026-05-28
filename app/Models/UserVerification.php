@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserVerification extends Model
 {
-    
     use HasFactory;
 
     protected $primaryKey = 'user_id';
@@ -18,13 +17,12 @@ class UserVerification extends Model
     protected $fillable = [
 
         'user_id',
-        'token'
-        
+        'token',
+
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    
 }

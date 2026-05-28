@@ -64,9 +64,7 @@ class ProcessAiEtfDividendExtractionService
 
                         'failure_reason' => null,
 
-                        'validation_notes' =>
-
-                        'AI ETF dividend extraction processed successfully.',
+                        'validation_notes' => 'AI ETF dividend extraction processed successfully.',
 
                     ]);
 
@@ -82,12 +80,9 @@ class ProcessAiEtfDividendExtractionService
 
                 'failed_at' => now(),
 
-                'failure_reason' =>
-                $e->getMessage(),
+                'failure_reason' => $e->getMessage(),
 
-                'validation_notes' =>
-
-                'AI ETF dividend extraction failed processing.',
+                'validation_notes' => 'AI ETF dividend extraction failed processing.',
 
             ]);
 
@@ -179,24 +174,19 @@ class ProcessAiEtfDividendExtractionService
 
             [
 
-                'etf_id' =>
-                $extraction->etf_id,
+                'etf_id' => $extraction->etf_id,
 
-                'ex_dividend_date' =>
-                $exDividendDate,
+                'ex_dividend_date' => $exDividendDate,
 
-                'dividend_amount' =>
-                $dividendAmount,
+                'dividend_amount' => $dividendAmount,
 
             ],
 
             [
 
-                'payment_date' =>
-                $paymentDate,
+                'payment_date' => $paymentDate,
 
-                'data_source_id' =>
-                $extraction->data_source_id,
+                'data_source_id' => $extraction->data_source_id,
 
                 'retrieved_at' => now(),
 
@@ -213,7 +203,7 @@ class ProcessAiEtfDividendExtractionService
         if (! is_numeric($value)) {
 
             throw new \RuntimeException(
-                $field . ' must be numeric.'
+                $field.' must be numeric.'
             );
         }
 
@@ -223,7 +213,7 @@ class ProcessAiEtfDividendExtractionService
         if ($value <= 0) {
 
             throw new \RuntimeException(
-                $field . ' must be greater than zero.'
+                $field.' must be greater than zero.'
             );
         }
 
@@ -241,7 +231,7 @@ class ProcessAiEtfDividendExtractionService
         if (! is_string($value)) {
 
             throw new \RuntimeException(
-                $field . ' must be a valid date string.'
+                $field.' must be a valid date string.'
             );
         }
 
@@ -253,7 +243,7 @@ class ProcessAiEtfDividendExtractionService
         } catch (\Throwable $e) {
 
             throw new \RuntimeException(
-                $field . ' must be a valid date.'
+                $field.' must be a valid date.'
             );
         }
     }

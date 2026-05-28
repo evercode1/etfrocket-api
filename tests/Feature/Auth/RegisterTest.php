@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyEmail;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class RegisterTest extends TestCase
@@ -22,26 +22,24 @@ class RegisterTest extends TestCase
         Mail::fake(); // Prevent actual emails
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         // Clean up after tests
         DB::table('users')->truncate();
         DB::table('user_verifications')->truncate();
-        
 
         parent::tearDown();
     }
 
     public function test_successful_registration()
     {
-        
 
         $payload = [
             'name' => 'john_test',
             'email' => 'john@example.com',
             'password' => 'securePassword123',
             'password_confirmation' => 'securePassword123',
-            
+
         ];
 
         $response = $this->postJson('/api/register', $payload);
@@ -57,17 +55,12 @@ class RegisterTest extends TestCase
             'email' => $payload['email'],
         ]);
 
-    
-
         $this->assertDatabaseHas('user_verifications', [
             'user_id' => $user->id,
         ]);
 
-
         Mail::assertSent(VerifyEmail::class);
     }
-
-
 
     public function test_registration_fails_with_missing_required_fields()
     {

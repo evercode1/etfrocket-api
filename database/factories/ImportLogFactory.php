@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\DataSource;
 use App\Models\ImportLog;
-use App\Models\ImportType;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -14,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class ImportLogFactory extends Factory
 {
     protected $model =
-    ImportLog::class;
+        ImportLog::class;
 
     /**
      * Define the model's default state.
@@ -50,65 +49,35 @@ class ImportLogFactory extends Factory
 
         return [
 
-            'import_type_id' =>
+            'import_type_id' => rand(1, 4),
 
-            rand(1, 4),
+            'status_id' => Status::COMPLETED,
 
-            'status_id' =>
+            'data_source_id' => DataSource::MANUAL_ENTRY,
 
-            Status::COMPLETED,
+            'run_time' => rand(1, 30),
 
-            'data_source_id' =>
+            'rows_processed' => $rowsProcessed,
 
-            DataSource::MANUAL_ENTRY,
+            'records_created' => $recordsCreated,
 
-            'run_time' =>
+            'records_updated' => $recordsUpdated,
 
-            rand(1, 30),
+            'duplicate_rows' => $duplicateRows,
 
-            'rows_processed' =>
+            'failure_count' => $failureCount,
 
-            $rowsProcessed,
+            'passed_data_integrity_check' => rand(0, 1),
 
-            'records_created' =>
+            'generated_markdown' => "# Import Summary\n\nImport completed successfully.",
 
-            $recordsCreated,
+            'processing_notes' => 'Import pipeline completed without interruption.',
 
-            'records_updated' =>
+            'import_fail_details' => null,
 
-            $recordsUpdated,
+            'started_at' => $startedAt,
 
-            'duplicate_rows' =>
-
-            $duplicateRows,
-
-            'failure_count' =>
-
-            $failureCount,
-
-            'passed_data_integrity_check' =>
-
-            rand(0, 1),
-
-            'generated_markdown' =>
-
-            "# Import Summary\n\nImport completed successfully.",
-
-            'processing_notes' =>
-
-            "Import pipeline completed without interruption.",
-
-            'import_fail_details' =>
-
-            null,
-
-            'started_at' =>
-
-            $startedAt,
-
-            'completed_at' =>
-
-            $completedAt,
+            'completed_at' => $completedAt,
 
         ];
     }

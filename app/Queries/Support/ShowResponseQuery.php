@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 
 class ShowResponseQuery
 {
-
     public static function showResponse(Request $request)
     {
 
@@ -31,10 +30,9 @@ class ShowResponseQuery
 
             'status' => 'success',
             'message' => 'Response retrieved successfully.',
-            'ticket_response' => $response
+            'ticket_response' => $response,
 
         ], 200);
 
-        
     }
 }

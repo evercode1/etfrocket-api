@@ -16,7 +16,6 @@ class EtfSeeder extends Seeder
     {
         DB::table('etfs')->truncate();
 
-
         $etfs = [
 
             [

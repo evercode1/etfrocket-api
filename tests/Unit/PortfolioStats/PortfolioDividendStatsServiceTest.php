@@ -45,7 +45,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
     public function test_it_returns_zero_monthly_income_for_empty_holdings(): void
     {
-        $income = (new PortfolioDividendStatsService())->getMonthlyDividendIncome(
+        $income = (new PortfolioDividendStatsService)->getMonthlyDividendIncome(
             collect(),
             Carbon::parse('2026-05-01')
         );
@@ -69,7 +69,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $income = (new PortfolioDividendStatsService())->getMonthlyDividendIncome(
+        $income = (new PortfolioDividendStatsService)->getMonthlyDividendIncome(
             $holdings,
             Carbon::parse('2026-05-01')
         );
@@ -94,7 +94,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $income = (new PortfolioDividendStatsService())->getMonthlyDividendIncome(
+        $income = (new PortfolioDividendStatsService)->getMonthlyDividendIncome(
             $holdings,
             Carbon::parse('2026-05-01')
         );
@@ -115,7 +115,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $average = (new PortfolioDividendStatsService())->getAverageRecentMonthlyIncome(
+        $average = (new PortfolioDividendStatsService)->getAverageRecentMonthlyIncome(
             $holdings,
             3
         );
@@ -140,7 +140,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $projectedMonthlyIncome = (new PortfolioDividendStatsService())
+        $projectedMonthlyIncome = (new PortfolioDividendStatsService)
             ->getProjectedMonthlyIncome($holdings);
 
         $this->assertSame(7.5, $projectedMonthlyIncome);
@@ -156,7 +156,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $average = (new PortfolioDividendStatsService())->getAverageRecentMonthlyIncome(
+        $average = (new PortfolioDividendStatsService)->getAverageRecentMonthlyIncome(
             $holdings,
             3
         );
@@ -177,7 +177,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $growth = (new PortfolioDividendStatsService())->getDividendGrowthPercentage(
+        $growth = (new PortfolioDividendStatsService)->getDividendGrowthPercentage(
             $holdings
         );
 
@@ -197,7 +197,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $growth = (new PortfolioDividendStatsService())->getDividendGrowthPercentage(
+        $growth = (new PortfolioDividendStatsService)->getDividendGrowthPercentage(
             $holdings
         );
 
@@ -216,7 +216,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $growth = (new PortfolioDividendStatsService())->getDividendGrowthPercentage(
+        $growth = (new PortfolioDividendStatsService)->getDividendGrowthPercentage(
             $holdings
         );
 
@@ -225,7 +225,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
     public function test_it_returns_null_growth_when_holdings_are_empty(): void
     {
-        $growth = (new PortfolioDividendStatsService())->getDividendGrowthPercentage(
+        $growth = (new PortfolioDividendStatsService)->getDividendGrowthPercentage(
             collect()
         );
 
@@ -249,7 +249,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
             ],
         ]);
 
-        $yield = (new PortfolioDividendStatsService())->getForwardYieldPercentage(
+        $yield = (new PortfolioDividendStatsService)->getForwardYieldPercentage(
             $holdings,
             20.0
         );
@@ -271,7 +271,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
             ],
         ]);
 
-        $yield = (new PortfolioDividendStatsService())->getForwardYieldPercentage(
+        $yield = (new PortfolioDividendStatsService)->getForwardYieldPercentage(
             $holdings,
             20.0
         );
@@ -294,7 +294,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $latestDividendDate = (new PortfolioDividendStatsService())
+        $latestDividendDate = (new PortfolioDividendStatsService)
             ->getLatestDividendDate($holdings);
 
         $this->assertSame('2026-05-15', $latestDividendDate);
@@ -310,7 +310,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $latestDividendDate = (new PortfolioDividendStatsService())
+        $latestDividendDate = (new PortfolioDividendStatsService)
             ->getLatestDividendDate($holdings);
 
         $this->assertNull($latestDividendDate);
@@ -329,7 +329,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $income = (new PortfolioDividendStatsService())->getMonthlyDividendIncome(
+        $income = (new PortfolioDividendStatsService)->getMonthlyDividendIncome(
             $holdings,
             Carbon::parse('2026-05-01')
         );
@@ -390,7 +390,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
     private function getHoldings(int $portfolioId): Collection
     {
-        return (new PortfolioHoldingsStatsService())->getCurrentHoldings(
+        return (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolioId
         );
     }
@@ -413,7 +413,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $timeline = (new PortfolioDividendStatsService())
+        $timeline = (new PortfolioDividendStatsService)
             ->getProjectedIncomeTimeline($holdings);
 
         $this->assertCount(5, $timeline);

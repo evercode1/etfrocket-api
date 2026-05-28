@@ -20,8 +20,7 @@ use Tests\TestCase;
 
 class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 {
-    private RunAiEtfPriceExtractionsHandler
-        $handler;
+    private RunAiEtfPriceExtractionsHandler $handler;
 
     protected function setUp(): void
     {
@@ -99,7 +98,7 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
         $results =
             $this->handler
-            ->handleRunAiEtfPriceExtractions();
+                ->handleRunAiEtfPriceExtractions();
 
         $this->assertEquals(
             1,
@@ -137,11 +136,9 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
             [
 
-                'import_type_id' =>
-                ImportType::AI_DATA_EXTRACTION,
+                'import_type_id' => ImportType::AI_DATA_EXTRACTION,
 
-                'status_id' =>
-                Status::PENDING,
+                'status_id' => Status::PENDING,
 
                 'total_etfs' => 2,
 
@@ -183,11 +180,9 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
             [
 
-                'etf_ingestion_batch_id' =>
-                $batch->id,
+                'etf_ingestion_batch_id' => $batch->id,
 
-                'status_id' =>
-                Status::PENDING,
+                'status_id' => Status::PENDING,
 
                 'is_processed' => 0,
 
@@ -208,11 +203,11 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
         $results =
             $this->handler
-            ->handleRunAiEtfPriceExtractions([
+                ->handleRunAiEtfPriceExtractions([
 
-                'symbol' => 'CHPY',
+                    'symbol' => 'CHPY',
 
-            ]);
+                ]);
 
         $this->assertEquals(
             1,
@@ -251,11 +246,11 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
     {
         $results =
             $this->handler
-            ->handleRunAiEtfPriceExtractions([
+                ->handleRunAiEtfPriceExtractions([
 
-                'limit' => 5,
+                    'limit' => 5,
 
-            ]);
+                ]);
 
         $this->assertEquals(
             1,
@@ -290,37 +285,30 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
             Etf::where(
                 'status_id',
                 Status::ACTIVE
-            )->get()
-
-            as $etf
+            )->get() as $etf
 
         ) {
 
             EtfPriceHistory::create([
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'price_date' =>
-                $today,
+                'price_date' => $today,
 
-                'close_price' =>
-                25.44,
+                'close_price' => 25.44,
 
-                'volume' =>
-                100000,
+                'volume' => 100000,
 
                 'data_source_id' => 1,
 
-                'retrieved_at' =>
-                now(),
+                'retrieved_at' => now(),
 
             ]);
         }
 
         $results =
             $this->handler
-            ->handleRunAiEtfPriceExtractions();
+                ->handleRunAiEtfPriceExtractions();
 
         $this->assertEquals(
             1,
@@ -339,42 +327,36 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
     {
         EtfPriceHistory::create([
 
-            'etf_id' =>
-            Etf::first()->id,
+            'etf_id' => Etf::first()->id,
 
-            'price_date' =>
-            now()->toDateString(),
+            'price_date' => now()->toDateString(),
 
-            'close_price' =>
-            25.44,
+            'close_price' => 25.44,
 
-            'volume' =>
-            100000,
+            'volume' => 100000,
 
             'data_source_id' => 1,
 
-            'retrieved_at' =>
-            now(),
+            'retrieved_at' => now(),
 
         ]);
 
         AiDataExtraction::factory()
             ->create([
 
-                'created_at' =>
-                now(),
+                'created_at' => now(),
 
             ]);
 
         $results =
             $this->handler
-            ->handleRunAiEtfPriceExtractions([
+                ->handleRunAiEtfPriceExtractions([
 
-                'force' => true,
+                    'force' => true,
 
-                'limit' => 2,
+                    'limit' => 2,
 
-            ]);
+                ]);
 
         $this->assertEquals(
             1,
@@ -399,7 +381,7 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
         $results =
             $this->handler
-            ->handleRunAiEtfPriceExtractions();
+                ->handleRunAiEtfPriceExtractions();
 
         $this->assertEquals(
             1,

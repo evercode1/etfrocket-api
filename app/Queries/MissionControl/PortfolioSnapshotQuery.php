@@ -113,7 +113,7 @@ class PortfolioSnapshotQuery
     {
         $navValues = collect($holdings)
             ->pluck('nav_erosion_percentage')
-            ->filter(fn($value) => ! is_null($value));
+            ->filter(fn ($value) => ! is_null($value));
 
         if ($navValues->isEmpty()) {
             return 'Unknown';

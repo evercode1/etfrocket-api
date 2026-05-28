@@ -3,17 +3,16 @@
 namespace App\Http\Controllers\User\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Services\Auth\LoginService;
+use App\Http\Requests\RegistrationRequest;
 use App\Models\PersonalAccessToken;
 use App\Models\User;
-use App\Utilities\Auth;
-use App\Http\Requests\RegistrationRequest;
+use App\Services\Auth\LoginService;
 use App\Services\Auth\RegistrationService;
+use App\Utilities\Auth;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-
     public function register(RegistrationRequest $request, RegistrationService $register)
     {
 
@@ -26,7 +25,7 @@ class AuthController extends Controller
         $fields = $request->validate([
 
             'email' => 'required|string',
-            'password' => 'required|string'
+            'password' => 'required|string',
 
         ]);
 
@@ -38,14 +37,14 @@ class AuthController extends Controller
 
         $user_id = Auth::id();
 
-        // delete all tokens for user       
+        // delete all tokens for user
 
         PersonalAccessToken::where('tokenable_id', $user_id)->delete();
 
         return response()->json([
 
             'status' => 'success',
-            'message' => 'Logged out'
+            'message' => 'Logged out',
 
         ]);
     }
@@ -54,7 +53,7 @@ class AuthController extends Controller
     {
         $request->validate([
 
-            'token' => 'string|required'
+            'token' => 'string|required',
 
         ]);
 
@@ -67,7 +66,7 @@ class AuthController extends Controller
             return response()->json([
 
                 'exists' => false,
-                'user' => null
+                'user' => null,
 
             ]);
         }
@@ -77,7 +76,7 @@ class AuthController extends Controller
         return response()->json([
 
             'exists' => true,
-            'user' => $user
+            'user' => $user,
 
         ]);
     }
@@ -89,7 +88,7 @@ class AuthController extends Controller
 
             'status' => 'error',
 
-            'message' => 'Permission denied'
+            'message' => 'Permission denied',
 
         ], 422);
     }

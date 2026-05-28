@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 
 class RespondToSupportService
 {
-
     public static function respondToSupport(Request $request)
     {
 
@@ -20,18 +19,18 @@ class RespondToSupportService
 
             'support_topic_id' => 'integer|required',
             'support_ticket_id' => ['integer', 'required', new TicketBelongsToUser($user_id), new TicketIsOpen],
-            'response_text' => 'string|required|max:1000'
+            'response_text' => 'string|required|max:1000',
 
         ]);
 
         $ticketResponse = TicketResponse::create([
 
             'support_topic_id' => $request->support_topic_id,
-            'support_ticket_id' =>  $request->support_ticket_id,
+            'support_ticket_id' => $request->support_ticket_id,
             'user_id' => $user_id,
             'response_text' => $request->response_text,
             'is_from_customer' => 1,
-            'is_read' => 1
+            'is_read' => 1,
 
         ]);
 
@@ -39,10 +38,9 @@ class RespondToSupportService
 
             'status' => 'success',
             'message' => 'Response added successfully.',
-            'ticket_response' => $ticketResponse
-        
+            'ticket_response' => $ticketResponse,
+
         ], 200);
 
-    }   
-
+    }
 }

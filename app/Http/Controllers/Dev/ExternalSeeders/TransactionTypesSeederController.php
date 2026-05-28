@@ -6,7 +6,6 @@ use App\Models\TransactionType;
 
 class TransactionTypesSeederController
 {
-
     public function run(): void
     {
         TransactionType::truncate();
@@ -27,8 +26,4 @@ class TransactionTypesSeederController
             ]
         );
     }
-
-
-
-
 }

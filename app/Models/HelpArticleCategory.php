@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\HelpArticleCategoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class HelpArticleCategory extends Model
 {
-    /** @use HasFactory<\Database\Factories\HelpArticleCategoryFactory> */
+    /** @use HasFactory<HelpArticleCategoryFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -25,7 +26,7 @@ class HelpArticleCategory extends Model
         return [
 
             'created_at' => 'date:Y-m-d',
-            'updated_at' => 'date:Y-m-d'
+            'updated_at' => 'date:Y-m-d',
 
         ];
     }

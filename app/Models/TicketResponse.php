@@ -16,7 +16,7 @@ class TicketResponse extends Model
         'user_id',
         'response_text',
         'is_from_customer',
-        'is_read'
+        'is_read',
 
     ];
 
@@ -26,7 +26,7 @@ class TicketResponse extends Model
         return [
 
             'created_at' => 'date:Y-m-d',
-            'updated_at' => 'date:Y-m-d'
+            'updated_at' => 'date:Y-m-d',
 
         ];
 
@@ -36,7 +36,6 @@ class TicketResponse extends Model
     {
 
         return $this->belongsTo(SupportTicket::class);
-        
-    }
 
+    }
 }

@@ -4,12 +4,11 @@ namespace App\Services\Settings;
 
 use App\Models\User;
 use App\Utilities\Auth;
-use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class UpdateEmailService
 {
-
     public static function updateEmail(Request $request)
     {
 
@@ -17,14 +16,13 @@ class UpdateEmailService
 
         if ($request->input('email') != $request->input('email_confirmation')) {
 
-
             // json response with error message if email and email confirmation do not match
 
             return response()->json(
 
                 [
                     'status' => 'error',
-                    'message' => 'email and email confirmation do not match.'
+                    'message' => 'email and email confirmation do not match.',
 
                 ], 422
 
@@ -38,7 +36,7 @@ class UpdateEmailService
 
                 'required',
                 'email',
-                Rule::unique('users')->ignore($id)
+                Rule::unique('users')->ignore($id),
             ],
 
         ]);
@@ -53,12 +51,11 @@ class UpdateEmailService
 
             [
                 'status' => 'success',
-                'message' => 'your email has been updated.'
+                'message' => 'your email has been updated.',
 
             ], 200
 
         );
 
     }
-    
 }

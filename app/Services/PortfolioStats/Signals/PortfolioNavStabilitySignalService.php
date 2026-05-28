@@ -30,21 +30,20 @@ class PortfolioNavStabilitySignalService
         }
 
         $watchRows = $rows
-            ->filter(fn(array $row) => (float) $row['nav_erosion_percentage'] < -10)
+            ->filter(fn (array $row) => (float) $row['nav_erosion_percentage'] < -10)
             ->sortBy('nav_erosion_percentage')
             ->values();
 
         $mixedRows = $rows
             ->filter(
-                fn(array $row) =>
-                (float) $row['nav_erosion_percentage'] < -3 &&
+                fn (array $row) => (float) $row['nav_erosion_percentage'] < -3 &&
                     (float) $row['nav_erosion_percentage'] >= -10
             )
             ->sortBy('nav_erosion_percentage')
             ->values();
 
         $stableRows = $rows
-            ->filter(fn(array $row) => (float) $row['nav_erosion_percentage'] >= -3)
+            ->filter(fn (array $row) => (float) $row['nav_erosion_percentage'] >= -3)
             ->sortByDesc('nav_erosion_percentage')
             ->values();
 
@@ -75,7 +74,7 @@ class PortfolioNavStabilitySignalService
     {
         $etfIds = $holdings
             ->pluck('etf_id')
-            ->map(fn($etfId) => (int) $etfId)
+            ->map(fn ($etfId) => (int) $etfId)
             ->filter()
             ->unique()
             ->values()

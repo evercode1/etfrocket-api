@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Dev\ExternalSeeders;
 use App\Http\Controllers\Controller;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
-use Database\Factories\PortfolioFactory;
 
 class PortfoliosSeederController extends Controller
 {
@@ -32,7 +31,6 @@ class PortfoliosSeederController extends Controller
             'is_default' => 1,
             'user_id' => 2,
         ]);
-
 
         // Protfolio Transaction
 

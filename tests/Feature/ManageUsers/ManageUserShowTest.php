@@ -44,7 +44,7 @@ class ManageUserShowTest extends TestCase
 
         Sanctum::actingAs($admin, ['*']);
 
-        $response = $this->getJson('/api/manage-user/' . $user->id);
+        $response = $this->getJson('/api/manage-user/'.$user->id);
 
         $response->assertOk()
             ->assertJson([

@@ -13,7 +13,7 @@ class EtfMetricStatsService
         array $performanceRangeTypeIds
     ): Collection {
         $etfIds = collect($etfIds)
-            ->map(fn($etfId) => (int) $etfId)
+            ->map(fn ($etfId) => (int) $etfId)
             ->filter()
             ->unique()
             ->values()
@@ -48,7 +48,7 @@ class EtfMetricStatsService
 
         $etfIds = $holdings
             ->pluck('etf_id')
-            ->map(fn($etfId) => (int) $etfId)
+            ->map(fn ($etfId) => (int) $etfId)
             ->filter()
             ->unique()
             ->values();
@@ -122,7 +122,7 @@ class EtfMetricStatsService
         Collection $holdings
     ): Collection {
         return $this->getDistributionGrowthFromMetrics($holdings)
-            ->filter(fn(array $row) => (float) $row['growth_percentage'] > 0)
+            ->filter(fn (array $row) => (float) $row['growth_percentage'] > 0)
             ->values();
     }
 
@@ -130,7 +130,7 @@ class EtfMetricStatsService
         Collection $holdings
     ): Collection {
         return $this->getDistributionGrowthFromMetrics($holdings)
-            ->filter(fn(array $row) => (float) $row['growth_percentage'] < 0)
+            ->filter(fn (array $row) => (float) $row['growth_percentage'] < 0)
             ->values();
     }
 
@@ -146,7 +146,7 @@ class EtfMetricStatsService
 
         $etfIds = $holdings
             ->pluck('etf_id')
-            ->map(fn($etfId) => (int) $etfId)
+            ->map(fn ($etfId) => (int) $etfId)
             ->filter()
             ->unique()
             ->values();
@@ -198,7 +198,7 @@ class EtfMetricStatsService
             'nav_health' => $navHealth,
             'worst_nav_erosion_percentage' => round((float) $worstNavErosion, 4),
             'affected_etfs' => $rows
-                ->filter(fn(array $row) => (float) $row['nav_erosion_percentage'] === (float) $worstNavErosion)
+                ->filter(fn (array $row) => (float) $row['nav_erosion_percentage'] === (float) $worstNavErosion)
                 ->pluck('symbol')
                 ->filter()
                 ->values()

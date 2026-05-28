@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Dev\ExternalSeeders;
 
-use App\Models\NotificationStatus;
 use App\Http\Controllers\Controller;
+use App\Models\NotificationStatus;
 
 class NotificationStatusesSeederController extends Controller
 {
@@ -16,7 +16,6 @@ class NotificationStatusesSeederController extends Controller
             'sent',
             'previously sent',
             'nothing to send',
-
 
         ];
 

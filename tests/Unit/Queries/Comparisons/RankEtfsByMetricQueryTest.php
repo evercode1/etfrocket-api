@@ -37,8 +37,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
             'etf_id' => $chpy->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'price_change_percentage' => 22.50,
 
@@ -48,14 +47,13 @@ class RankEtfsByMetricQueryTest extends TestCase
 
             'etf_id' => $amdy->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'price_change_percentage' => 10.25,
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery())->getData(
+        $rows = (new RankEtfsByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -65,8 +63,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
                 'label' => 'Price Growth',
 
-                'metric_column' =>
-                'price_change_percentage',
+                'metric_column' => 'price_change_percentage',
 
             ],
 
@@ -117,8 +114,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
             'etf_id' => $chpy->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'nav_erosion_percentage' => -15,
 
@@ -128,14 +124,13 @@ class RankEtfsByMetricQueryTest extends TestCase
 
             'etf_id' => $amdy->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'nav_erosion_percentage' => -5,
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery())->getData(
+        $rows = (new RankEtfsByMetricQuery)->getData(
 
             metric: 'nav_stability',
 
@@ -145,8 +140,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
                 'label' => 'NAV Stability',
 
-                'metric_column' =>
-                'nav_erosion_percentage',
+                'metric_column' => 'nav_erosion_percentage',
 
             ],
 
@@ -179,16 +173,14 @@ class RankEtfsByMetricQueryTest extends TestCase
 
                 'etf_id' => $etf->id,
 
-                'performance_range_type_id' =>
-                PerformanceRangeType::NINETY_DAY,
+                'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
-                'price_change_percentage' =>
-                $index,
+                'price_change_percentage' => $index,
 
             ]);
         }
 
-        $rows = (new RankEtfsByMetricQuery())->getData(
+        $rows = (new RankEtfsByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -198,8 +190,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
                 'label' => 'Price Growth',
 
-                'metric_column' =>
-                'price_change_percentage',
+                'metric_column' => 'price_change_percentage',
 
             ],
 
@@ -223,14 +214,13 @@ class RankEtfsByMetricQueryTest extends TestCase
 
             'etf_id' => $etf->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::ONE_YEAR,
+            'performance_range_type_id' => PerformanceRangeType::ONE_YEAR,
 
             'price_change_percentage' => 88.88,
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery())->getData(
+        $rows = (new RankEtfsByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -240,8 +230,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
                 'label' => 'Price Growth',
 
-                'metric_column' =>
-                'price_change_percentage',
+                'metric_column' => 'price_change_percentage',
 
             ],
 
@@ -272,8 +261,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
             'etf_id' => $chpy->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'price_change_percentage' => null,
 
@@ -283,14 +271,13 @@ class RankEtfsByMetricQueryTest extends TestCase
 
             'etf_id' => $amdy->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'price_change_percentage' => 11.50,
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery())->getData(
+        $rows = (new RankEtfsByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -300,8 +287,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
                 'label' => 'Price Growth',
 
-                'metric_column' =>
-                'price_change_percentage',
+                'metric_column' => 'price_change_percentage',
 
             ],
 
@@ -330,8 +316,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
             'etf_id' => $etf->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'nav_erosion_percentage' => 2,
 
@@ -339,7 +324,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery())->getData(
+        $rows = (new RankEtfsByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -349,8 +334,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
                 'label' => 'Price Growth',
 
-                'metric_column' =>
-                'price_change_percentage',
+                'metric_column' => 'price_change_percentage',
 
             ],
 
@@ -374,8 +358,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
             'etf_id' => $etf->id,
 
-            'performance_range_type_id' =>
-            PerformanceRangeType::NINETY_DAY,
+            'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
             'nav_erosion_percentage' => -15,
 
@@ -383,7 +366,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery())->getData(
+        $rows = (new RankEtfsByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -393,8 +376,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
                 'label' => 'Price Growth',
 
-                'metric_column' =>
-                'price_change_percentage',
+                'metric_column' => 'price_change_percentage',
 
             ],
 
@@ -412,7 +394,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
     public function test_it_returns_empty_array_when_no_rows_exist()
     {
-        $rows = (new RankEtfsByMetricQuery())->getData(
+        $rows = (new RankEtfsByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -422,8 +404,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
                 'label' => 'Price Growth',
 
-                'metric_column' =>
-                'price_change_percentage',
+                'metric_column' => 'price_change_percentage',
 
             ],
 
@@ -447,8 +428,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
             'symbol' => $symbol,
 
-            'fund_name' =>
-            "{$symbol} Test ETF",
+            'fund_name' => "{$symbol} Test ETF",
 
         ]);
     }

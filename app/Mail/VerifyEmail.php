@@ -2,19 +2,20 @@
 
 namespace App\Mail;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Models\User;
 
 class VerifyEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $user; // Change to public so it's available in the view
+
     public string $token;
 
     /**
@@ -35,7 +36,7 @@ class VerifyEmail extends Mailable
             markdown: 'mail.verification-request',
             with: [
                 // Generate the full URL here instead of just the token
-                'url' => env('FRONTEND_URL') . '/account/verify/' . $this->token,
+                'url' => env('FRONTEND_URL').'/account/verify/'.$this->token,
                 'name' => $this->user->name,
             ],
         );
@@ -53,11 +54,10 @@ class VerifyEmail extends Mailable
         );
     }
 
-
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

@@ -4,7 +4,6 @@ namespace App\Services\Settings;
 
 class EditUserNameFormConfigService
 {
-
     public static function getUserNameFormConfig()
     {
 
@@ -17,19 +16,18 @@ class EditUserNameFormConfigService
                 'label' => 'Username',
                 'required' => 1,
                 'max_length' => 50,
-                'instructions' => ''
-                
-            ]
+                'instructions' => '',
+
+            ],
 
         ];
 
         return [
-            
-            'form_config' => $form_config, 
-            'post_endpoint' => 'update-my-user-name'
-        
+
+            'form_config' => $form_config,
+            'post_endpoint' => 'update-my-user-name',
+
         ];
 
     }
-
 }

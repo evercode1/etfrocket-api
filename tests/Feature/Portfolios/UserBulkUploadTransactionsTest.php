@@ -273,7 +273,7 @@ class UserBulkUploadTransactionsTest extends TestCase
         $content = collect($rows)
             ->map(function (array $row) {
                 return collect($row)
-                    ->map(fn($value) => str_contains((string) $value, ',') ? "\"{$value}\"" : $value)
+                    ->map(fn ($value) => str_contains((string) $value, ',') ? "\"{$value}\"" : $value)
                     ->implode(',');
             })
             ->implode("\n");

@@ -118,8 +118,7 @@ class RunAiEtfPriceExtractionsTest extends TestCase
 
             [
 
-                '--symbol' =>
-                'CHPY',
+                '--symbol' => 'CHPY',
 
             ]
 
@@ -168,30 +167,24 @@ class RunAiEtfPriceExtractionsTest extends TestCase
     {
         EtfPriceHistory::create([
 
-            'etf_id' =>
-            Etf::first()->id,
+            'etf_id' => Etf::first()->id,
 
-            'price_date' =>
-            now()->toDateString(),
+            'price_date' => now()->toDateString(),
 
-            'close_price' =>
-            25.55,
+            'close_price' => 25.55,
 
-            'volume' =>
-            100000,
+            'volume' => 100000,
 
             'data_source_id' => 1,
 
-            'retrieved_at' =>
-            now(),
+            'retrieved_at' => now(),
 
         ]);
 
         AiDataExtraction::factory()
             ->create([
 
-                'created_at' =>
-                now(),
+                'created_at' => now(),
 
             ]);
 
@@ -225,30 +218,23 @@ class RunAiEtfPriceExtractionsTest extends TestCase
             Etf::where(
                 'status_id',
                 Status::ACTIVE
-            )->get()
-
-            as $etf
+            )->get() as $etf
 
         ) {
 
             EtfPriceHistory::create([
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'price_date' =>
-                $today,
+                'price_date' => $today,
 
-                'close_price' =>
-                25.55,
+                'close_price' => 25.55,
 
-                'volume' =>
-                100000,
+                'volume' => 100000,
 
                 'data_source_id' => 1,
 
-                'retrieved_at' =>
-                now(),
+                'retrieved_at' => now(),
 
             ]);
         }

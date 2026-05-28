@@ -2,11 +2,10 @@
 
 namespace Tests\Feature\Auth;
 
-use Tests\TestCase;
 use App\Models\User;
-use Carbon\Carbon;
 use App\Models\UserVerification;
-
+use Carbon\Carbon;
+use Tests\TestCase;
 
 class VerifyAccountTest extends TestCase
 {
@@ -15,7 +14,7 @@ class VerifyAccountTest extends TestCase
         parent::setUp();
 
         Carbon::setTestNow(Carbon::parse('2026-04-03 12:00:00'));
-  
+
         UserVerification::truncate();
         User::truncate();
 
@@ -23,7 +22,7 @@ class VerifyAccountTest extends TestCase
 
     protected function tearDown(): void
     {
-       
+
         UserVerification::truncate();
         User::truncate();
         Carbon::setTestNow();
@@ -53,7 +52,7 @@ class VerifyAccountTest extends TestCase
             'token' => 'valid-verification-token',
         ]);
 
-        $response = $this->getJson('/api/account/verify/' . $verification->token);
+        $response = $this->getJson('/api/account/verify/'.$verification->token);
 
         $response->assertOk()
             ->assertJson([
@@ -85,7 +84,7 @@ class VerifyAccountTest extends TestCase
             'token' => 'already-active-token',
         ]);
 
-        $response = $this->getJson('/api/account/verify/' . $verification->token);
+        $response = $this->getJson('/api/account/verify/'.$verification->token);
 
         $response->assertOk()
             ->assertJson([
@@ -104,7 +103,7 @@ class VerifyAccountTest extends TestCase
             'token' => 'orphaned-token',
         ]);
 
-        $response = $this->getJson('/api/account/verify/' . $verification->token);
+        $response = $this->getJson('/api/account/verify/'.$verification->token);
 
         $response->assertOk()
             ->assertJson([

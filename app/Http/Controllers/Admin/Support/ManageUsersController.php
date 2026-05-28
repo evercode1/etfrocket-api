@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Admin\Support;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Services\Admin\Users\UserEditService;
+use App\Utilities\SortBy;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use App\Models\User;
-use App\Utilities\SortBy;
-use App\Services\Admin\Users\UserEditService;
 
 class ManageUsersController extends Controller
 {
-
     public $indexColumns = [
 
         'users.id',
@@ -29,7 +28,7 @@ class ManageUsersController extends Controller
 
         $columns = $this->indexColumns;
 
-        list($sortBy, $sortOrder) = SortBy::setSortBy($request, $columns);
+        [$sortBy, $sortOrder] = SortBy::setSortBy($request, $columns);
 
         $users = User::select($columns)
 
@@ -51,7 +50,7 @@ class ManageUsersController extends Controller
             'details_endpoint' => $details_endpoint,
             'delete_endpoint' => $delete_endpoint,
             'search_endpoint' => $search_endpoint,
-            'users' => $users
+            'users' => $users,
 
         ], 200);
 
@@ -87,8 +86,8 @@ class ManageUsersController extends Controller
         return response()->json([
 
             'status' => 'success',
-            'user' => $user
-        
+            'user' => $user,
+
         ], 200);
     }
 
@@ -124,10 +123,10 @@ class ManageUsersController extends Controller
 
             'status' => 'success',
             'message' => 'user updated',
-            'user' => $user
-        
+            'user' => $user,
+
         ], 201);
-        
+
     }
 
     public function destroy(int $id)
@@ -140,7 +139,7 @@ class ManageUsersController extends Controller
         return response()->json([
 
             'status' => 'success',
-            'message' => 'The user has been deleted.'
+            'message' => 'The user has been deleted.',
         ], 200);
 
     }
@@ -150,13 +149,13 @@ class ManageUsersController extends Controller
 
         $columns = $this->indexColumns;
 
-        list($sortBy, $sortOrder) = SortBy::setSortBy($request, $columns);
+        [$sortBy, $sortOrder] = SortBy::setSortBy($request, $columns);
 
         $users = User::select($columns)
 
-            ->where('users.name', 'like', '%' . $keyword . '%')
+            ->where('users.name', 'like', '%'.$keyword.'%')
 
-            ->orWhere('users.email', 'like', '%' . $keyword . '%')
+            ->orWhere('users.email', 'like', '%'.$keyword.'%')
 
             ->orderBy($sortBy, $sortOrder)
 
@@ -174,10 +173,9 @@ class ManageUsersController extends Controller
             'edit_endpoint' => $edit_endpoint,
             'details_endpoint' => $details_endpoint,
             'delete_endpoint' => $delete_endpoint,
-            'users' => $users
+            'users' => $users,
 
         ], 200);
 
     }
-
 }

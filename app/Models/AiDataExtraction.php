@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\AiDataExtractionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AiDataExtraction extends Model
 {
-    /** @use HasFactory<\Database\Factories\AiDataExtractionFactory> */
+    /** @use HasFactory<AiDataExtractionFactory> */
     use HasFactory;
 
     protected $fillable = [

@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\User\MissionControl\MissionControlController;
-
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,11 +14,10 @@ use App\Http\Controllers\User\MissionControl\MissionControlController;
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
-
     Route::get('/get-portfolio-selects', [MissionControlController::class, 'getPortfolioSelects']);
     Route::get('/mission-control', [MissionControlController::class, 'index']);
     Route::get('/portfolio-income-projection/{portfolio_id}', [
         MissionControlController::class,
-        'portfolioIncomeProjection'
+        'portfolioIncomeProjection',
     ]);
 });

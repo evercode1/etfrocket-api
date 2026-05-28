@@ -51,7 +51,7 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             'portfolio_name' => 'Empty Portfolio',
         ]);
 
-        $results = (new PortfolioIncomeProjectionQuery())->getData($portfolio->id);
+        $results = (new PortfolioIncomeProjectionQuery)->getData($portfolio->id);
 
         $this->assertSame([], $results);
     }
@@ -99,7 +99,7 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             ]);
         }
 
-        $results = (new PortfolioIncomeProjectionQuery())->getData($portfolio->id, 3);
+        $results = (new PortfolioIncomeProjectionQuery)->getData($portfolio->id, 3);
 
         // Average dividend = 0.35
         // Weekly monthly multiplier = 52 / 12
@@ -161,7 +161,7 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             ]);
         }
 
-        $results = (new PortfolioIncomeProjectionQuery())->getData($portfolio->id, 1);
+        $results = (new PortfolioIncomeProjectionQuery)->getData($portfolio->id, 1);
 
         // Latest four average = 0.4
         // Weekly monthly multiplier = 52 / 12
@@ -215,7 +215,7 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $results = (new PortfolioIncomeProjectionQuery())->getData($portfolio->id, 1);
+        $results = (new PortfolioIncomeProjectionQuery)->getData($portfolio->id, 1);
 
         // Shares after sell = 6
         // Weekly monthly multiplier = 52 / 12
@@ -284,7 +284,7 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $results = (new PortfolioIncomeProjectionQuery())->getData($portfolio->id, 2);
+        $results = (new PortfolioIncomeProjectionQuery)->getData($portfolio->id, 2);
 
         // First ETF: 10 * 0.5 * 4.333333 = 21.6667
         // Second ETF: 20 * 0.25 * 4.333333 = 21.6667
@@ -329,7 +329,7 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             'data_source_id' => 1,
         ]);
 
-        $results = (new PortfolioIncomeProjectionQuery())->getData($portfolio->id, 1);
+        $results = (new PortfolioIncomeProjectionQuery)->getData($portfolio->id, 1);
 
         // Monthly multiplier = 1
         // 10 shares * 1.0 = 10.0
@@ -365,7 +365,7 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             'transaction_date' => '2026-01-01',
         ]);
 
-        $results = (new PortfolioIncomeProjectionQuery())->getData($portfolio->id, 1);
+        $results = (new PortfolioIncomeProjectionQuery)->getData($portfolio->id, 1);
 
         $this->assertCount(1, $results);
         $this->assertSame('May', $results[0]['month']);

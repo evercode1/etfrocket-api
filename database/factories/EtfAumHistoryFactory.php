@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\EtfAumHistory;
 use App\Models\DataSource;
+use App\Models\EtfAumHistory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

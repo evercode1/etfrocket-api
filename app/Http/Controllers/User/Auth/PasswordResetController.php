@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\User\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Services\Auth\PasswordResetFormService;
 use App\Services\Auth\RequestPasswordResetTokenService;
 use App\Services\Auth\ResetPasswordService;
-
+use Illuminate\Http\Request;
 
 class PasswordResetController extends Controller
 {
@@ -16,11 +15,11 @@ class PasswordResetController extends Controller
 
         $request->validate([
 
-            'email' => 'required|email'
+            'email' => 'required|email',
 
         ]);
 
-       return $service->requestResetToken($request); 
+        return $service->requestResetToken($request);
 
     }
 
@@ -31,12 +30,10 @@ class PasswordResetController extends Controller
 
     }
 
-
     public function passwordReset(Request $request, ResetPasswordService $service)
     {
 
         return $service->passwordReset($request);
 
     }
-
 }

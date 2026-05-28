@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Crons;
 
-use App\Models\User;
 use App\Models\CronLog;
 use App\Models\Interval;
 use App\Models\NotificationStatus;
 use App\Models\Status;
+use App\Models\User;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
 use Database\Seeders\StatusSeeder;
@@ -49,9 +49,9 @@ class CronReportTest extends TestCase
 
         $adminUser =
             User::factory()
-            ->create([
-                'is_admin' => true,
-            ]);
+                ->create([
+                    'is_admin' => true,
+                ]);
 
         Sanctum::actingAs(
 
@@ -88,21 +88,15 @@ class CronReportTest extends TestCase
             ->count(3)
             ->create([
 
-                'status_id' =>
-
-                Status::getStatusId(
+                'status_id' => Status::getStatusId(
                     'completed'
                 ),
 
-                'interval_id' =>
-
-                Interval::getIntervalId(
+                'interval_id' => Interval::getIntervalId(
                     'Hourly'
                 ),
 
-                'notification_status_id' =>
-
-                NotificationStatus::getNotificationStatusId(
+                'notification_status_id' => NotificationStatus::getNotificationStatusId(
                     'nothing to send'
                 ),
 
@@ -160,9 +154,7 @@ class CronReportTest extends TestCase
             ->count(2)
             ->create([
 
-                'status_id' =>
-
-                Status::getStatusId(
+                'status_id' => Status::getStatusId(
                     'completed'
                 ),
 
@@ -171,9 +163,7 @@ class CronReportTest extends TestCase
         CronLog::factory()
             ->create([
 
-                'status_id' =>
-
-                Status::getStatusId(
+                'status_id' => Status::getStatusId(
                     'failed'
                 ),
 
@@ -232,21 +222,15 @@ class CronReportTest extends TestCase
         CronLog::factory()
             ->create([
 
-                'status_id' =>
-
-                Status::getStatusId(
+                'status_id' => Status::getStatusId(
                     'completed'
                 ),
 
-                'interval_id' =>
-
-                Interval::getIntervalId(
+                'interval_id' => Interval::getIntervalId(
                     'Daily'
                 ),
 
-                'notification_status_id' =>
-
-                NotificationStatus::getNotificationStatusId(
+                'notification_status_id' => NotificationStatus::getNotificationStatusId(
                     'nothing to send'
                 ),
 

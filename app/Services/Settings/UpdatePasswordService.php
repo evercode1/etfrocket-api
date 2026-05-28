@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 class UpdatePasswordService
 {
-
     public static function updatePassword(Request $request)
     {
 
@@ -27,10 +26,7 @@ class UpdatePasswordService
             'status' => 'success',
             'message' => 'your password has been updated.'],
 
-        
-          200);
+            200);
 
-       
     }
-
 }

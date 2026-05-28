@@ -31,7 +31,7 @@ class TruncateTable extends Command
         $tables = collect(
             explode(',', $this->argument('tables'))
         )
-            ->map(fn($table) => trim($table))
+            ->map(fn ($table) => trim($table))
             ->filter()
             ->values();
 

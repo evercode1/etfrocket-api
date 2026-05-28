@@ -12,8 +12,7 @@ use Tests\TestCase;
 
 class AiEtfNavExtractionServiceTest extends TestCase
 {
-    private AiEtfNavExtractionService
-        $service;
+    private AiEtfNavExtractionService $service;
 
     protected function setUp(): void
     {
@@ -49,9 +48,7 @@ class AiEtfNavExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([
+            'https://api.openai.com/v1/responses' => Http::response([
 
                 'output' => [
 
@@ -63,14 +60,11 @@ class AiEtfNavExtractionServiceTest extends TestCase
 
                                 'text' => json_encode([
 
-                                    'symbol' =>
-                                    $etf->symbol,
+                                    'symbol' => $etf->symbol,
 
-                                    'nav_per_share' =>
-                                    25.44,
+                                    'nav_per_share' => 25.44,
 
-                                    'nav_date' =>
-                                    now()->toDateString(),
+                                    'nav_date' => now()->toDateString(),
 
                                 ]),
 
@@ -88,9 +82,9 @@ class AiEtfNavExtractionServiceTest extends TestCase
 
         $extraction =
             $this->service
-            ->extract(
-                $etf
-            );
+                ->extract(
+                    $etf
+                );
 
         $this->assertInstanceOf(
             AiDataExtraction::class,
@@ -111,9 +105,7 @@ class AiEtfNavExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' =>
-
-            Http::response([], 500),
+            'https://api.openai.com/v1/responses' => Http::response([], 500),
 
         ]);
 

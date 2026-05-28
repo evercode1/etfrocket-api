@@ -10,7 +10,7 @@ class ImportEtfBackfillHistory extends Command
 {
     protected $signature =
 
-    'etfs:import-backfill-history
+        'etfs:import-backfill-history
 
         {table : Database table to import into}
 
@@ -18,7 +18,7 @@ class ImportEtfBackfillHistory extends Command
 
     protected $description =
 
-    'Import ETF backfill history records from CSV file.';
+        'Import ETF backfill history records from CSV file.';
 
     private array $allowedTables = [
 
@@ -83,11 +83,11 @@ class ImportEtfBackfillHistory extends Command
 
             config('imports.path')
 
-            . '/'
+            .'/'
 
-            . $table
+            .$table
 
-            . '.csv';
+            .'.csv';
 
         /*
         |--------------------------------------------------------------------------
@@ -291,7 +291,7 @@ class ImportEtfBackfillHistory extends Command
         */
 
         $this->info(
-            "Import complete."
+            'Import complete.'
         );
 
         $this->info(

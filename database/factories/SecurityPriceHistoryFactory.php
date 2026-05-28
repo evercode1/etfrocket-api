@@ -2,14 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\EtfPriceHistory;
 use App\Models\DataSource;
+use App\Models\SecurityPriceHistory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<EtfPriceHistory>
+ * @extends Factory<SecurityPriceHistory>
  */
-class EtfPriceHistoryFactory extends Factory
+class SecurityPriceHistoryFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -20,7 +20,7 @@ class EtfPriceHistoryFactory extends Factory
     {
         return [
 
-            'etf_id' => rand(1,7),
+            'security_id' => rand(1, 7),
 
             'price_date' => $this->faker->unique()->date(),
 

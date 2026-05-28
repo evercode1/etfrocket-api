@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class EtfIssuersSeederController extends Controller
 {
-
     public function run(): void
     {
         DB::table('etf_issuers')->truncate();

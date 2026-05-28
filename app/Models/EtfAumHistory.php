@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\EtfAumHistoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class EtfAumHistory extends Model
 {
-    /** @use HasFactory<\Database\Factories\EtfAumHistoryFactory> */
+    /** @use HasFactory<EtfAumHistoryFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -16,7 +17,7 @@ class EtfAumHistory extends Model
         'aum_date',
         'assets_under_management',
         'data_source_id',
-        'retrieved_at'
+        'retrieved_at',
 
     ];
 

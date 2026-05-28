@@ -3,7 +3,6 @@
 namespace Tests\Unit\Commands\Handlers;
 
 use App\Jobs\RunAiEtfNavExtractionJob;
-use App\Models\AiDataExtraction;
 use App\Models\Etf;
 use App\Models\EtfNavHistory;
 use App\Models\ImportType;
@@ -18,8 +17,7 @@ use Tests\TestCase;
 
 class RunAiEtfNavExtractionsHandlerTest extends TestCase
 {
-    private RunAiEtfNavExtractionsHandler
-        $handler;
+    private RunAiEtfNavExtractionsHandler $handler;
 
     protected function setUp(): void
     {
@@ -83,7 +81,7 @@ class RunAiEtfNavExtractionsHandlerTest extends TestCase
 
         $results =
             $this->handler
-            ->handleRunAiEtfNavExtractions();
+                ->handleRunAiEtfNavExtractions();
 
         $this->assertEquals(
             1,
@@ -111,11 +109,9 @@ class RunAiEtfNavExtractionsHandlerTest extends TestCase
 
             [
 
-                'import_type_id' =>
-                ImportType::AI_DATA_EXTRACTION,
+                'import_type_id' => ImportType::AI_DATA_EXTRACTION,
 
-                'status_id' =>
-                Status::PENDING,
+                'status_id' => Status::PENDING,
 
                 'total_etfs' => 2,
 
@@ -131,34 +127,28 @@ class RunAiEtfNavExtractionsHandlerTest extends TestCase
             Etf::where(
                 'status_id',
                 Status::ACTIVE
-            )->get()
-
-            as $etf
+            )->get() as $etf
 
         ) {
 
             EtfNavHistory::create([
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'nav_per_share' =>
-                25.44,
+                'nav_per_share' => 25.44,
 
-                'nav_date' =>
-                now()->toDateString(),
+                'nav_date' => now()->toDateString(),
 
                 'data_source_id' => 1,
 
-                'retrieved_at' =>
-                now(),
+                'retrieved_at' => now(),
 
             ]);
         }
 
         $results =
             $this->handler
-            ->handleRunAiEtfNavExtractions();
+                ->handleRunAiEtfNavExtractions();
 
         $this->assertEquals(
             1,

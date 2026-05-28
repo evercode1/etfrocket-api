@@ -63,7 +63,7 @@ class MySupportResponseTest extends TestCase
             'is_read' => 0,
         ]);
 
-        $response = $this->getJson('/api/my-support-response?ticket_response_id=' . $ticketResponse->id);
+        $response = $this->getJson('/api/my-support-response?ticket_response_id='.$ticketResponse->id);
 
         $response->assertOk()
             ->assertJson([
@@ -127,7 +127,7 @@ class MySupportResponseTest extends TestCase
             'is_read' => 0,
         ]);
 
-        $response = $this->getJson('/api/my-support-response?ticket_response_id=' . $otherResponse->id);
+        $response = $this->getJson('/api/my-support-response?ticket_response_id='.$otherResponse->id);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['ticket_response_id']);

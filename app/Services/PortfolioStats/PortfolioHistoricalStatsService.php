@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
 class PortfolioHistoricalStatsService
 {
     private const BUY = 1;
+
     private const SELL = 2;
 
     public function getHoldingsAsOfDate(

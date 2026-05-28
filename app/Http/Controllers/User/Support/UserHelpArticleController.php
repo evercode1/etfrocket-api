@@ -46,12 +46,12 @@ class UserHelpArticleController extends Controller
                     ->orWhere(
                         'help_articles.title',
                         'like',
-                        '%' . $search . '%'
+                        '%'.$search.'%'
                     )
                     ->orWhere(
                         'help_articles.summary',
                         'like',
-                        '%' . $search . '%'
+                        '%'.$search.'%'
                     );
             });
         }

@@ -27,11 +27,11 @@ class BackTestingServiceTest extends TestCase
         $this->service =
             new BackTestingService(
 
-                new GetBackTestPriceHistoryQuery(),
+                new GetBackTestPriceHistoryQuery,
 
-                new GetBackTestDividendHistoryQuery(),
+                new GetBackTestDividendHistoryQuery,
 
-                new GenerateBackTestAnalyticsService(),
+                new GenerateBackTestAnalyticsService,
 
             );
     }
@@ -462,7 +462,6 @@ class BackTestingServiceTest extends TestCase
         );
     }
 
-
     private function createEtf(
         string $symbol
     ): Etf {
@@ -471,8 +470,7 @@ class BackTestingServiceTest extends TestCase
 
             'symbol' => $symbol,
 
-            'fund_name' =>
-            "{$symbol} Test ETF",
+            'fund_name' => "{$symbol} Test ETF",
 
         ]);
     }

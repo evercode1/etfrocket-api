@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\NotificationStatus;
+use Illuminate\Database\Seeder;
 
 class NotificationStatusSeeder extends Seeder
 {
@@ -20,7 +20,7 @@ class NotificationStatusSeeder extends Seeder
 
             'previously sent',
 
-            'nothing to send'
+            'nothing to send',
         ];
 
         foreach ($values as $value) {

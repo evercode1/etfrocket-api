@@ -36,7 +36,7 @@ class DeleteUserTest extends TestCase
 
         Sanctum::actingAs($admin, ['*']);
 
-        $response = $this->deleteJson('/api/delete-user/' . $user->id);
+        $response = $this->deleteJson('/api/delete-user/'.$user->id);
 
         $response->assertOk()
             ->assertJson([

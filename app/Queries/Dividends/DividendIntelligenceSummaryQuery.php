@@ -37,7 +37,7 @@ class DividendIntelligenceSummaryQuery
             'projected_monthly_income' => round($projectedMonthlyIncome, 4),
 
             'upcoming_weekly_events_count' => $holdings
-                ->filter(fn(array $holding) => (int) $holding['distribution_frequency_id'] === self::WEEKLY)
+                ->filter(fn (array $holding) => (int) $holding['distribution_frequency_id'] === self::WEEKLY)
                 ->count(),
 
             'forward_yield_percentage' => $this->dividendStatsService

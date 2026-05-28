@@ -18,8 +18,7 @@ class GenerateAiSignalsHandler
 {
     public function __construct(
 
-        private IsMarketOpenService
-        $isMarketOpenService
+        private IsMarketOpenService $isMarketOpenService
 
     ) {}
 
@@ -174,17 +173,11 @@ class GenerateAiSignalsHandler
 
             $signalTypes = [
 
-                SignalType::MARKET_SNAPSHOT =>
+                SignalType::MARKET_SNAPSHOT => ImportType::MARKET_SNAPSHOT,
 
-                ImportType::MARKET_SNAPSHOT,
+                SignalType::MARKET_CONDITIONS => ImportType::MARKET_CONDITIONS,
 
-                SignalType::MARKET_CONDITIONS =>
-
-                ImportType::MARKET_CONDITIONS,
-
-                SignalType::MARKET_EVENTS =>
-
-                ImportType::MARKET_EVENTS,
+                SignalType::MARKET_EVENTS => ImportType::MARKET_EVENTS,
 
             ];
 
@@ -197,15 +190,11 @@ class GenerateAiSignalsHandler
             $batch =
                 AiSignalBatch::create([
 
-                    'batch_uuid' =>
+                    'batch_uuid' => Str::uuid()->toString(),
 
-                    Str::uuid()->toString(),
+                    'status_id' => Status::PENDING,
 
-                    'status_id' =>
-                    Status::PENDING,
-
-                    'total_signals' =>
-                    count($signalTypes),
+                    'total_signals' => count($signalTypes),
 
                     'processed_count' => 0,
 
@@ -215,16 +204,13 @@ class GenerateAiSignalsHandler
 
                     'passed_data_integrity_check' => false,
 
-                    'processing_notes' =>
-
-                    $force
+                    'processing_notes' => $force
 
                         ? 'Forced AI signal batch queued.'
 
                         : 'AI signal batch queued.',
 
-                    'started_at' =>
-                    now(),
+                    'started_at' => now(),
 
                 ]);
 
@@ -236,27 +222,19 @@ class GenerateAiSignalsHandler
 
             foreach (
 
-                $signalTypes as
-
-                $signalTypeId =>
-
-                $importTypeId
+                $signalTypes as $signalTypeId => $importTypeId
 
             ) {
 
                 AiSignalBatchItem::create([
 
-                    'ai_signal_batch_id' =>
-                    $batch->id,
+                    'ai_signal_batch_id' => $batch->id,
 
-                    'signal_type_id' =>
-                    $signalTypeId,
+                    'signal_type_id' => $signalTypeId,
 
-                    'import_type_id' =>
-                    $importTypeId,
+                    'import_type_id' => $importTypeId,
 
-                    'status_id' =>
-                    Status::PENDING,
+                    'status_id' => Status::PENDING,
 
                     'attempts' => 0,
 
@@ -294,9 +272,7 @@ class GenerateAiSignalsHandler
 
                 'success' => 0,
 
-                'cron_fail_details' =>
-
-                $this->errorMessage() .
+                'cron_fail_details' => $this->errorMessage().
 
                     $e->getMessage(),
 
@@ -306,7 +282,6 @@ class GenerateAiSignalsHandler
 
     public function errorMessage(): string
     {
-        return
-            'AI signal generation failed. ';
+        return 'AI signal generation failed. ';
     }
 }

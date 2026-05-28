@@ -107,17 +107,13 @@ class ImportLogsServiceTest extends TestCase
             'import_logs',
             [
 
-                'id' =>
-                $log->id,
+                'id' => $log->id,
 
-                'import_type_id' =>
-                ImportType::ETF_PRICE_IMPORT,
+                'import_type_id' => ImportType::ETF_PRICE_IMPORT,
 
-                'status_id' =>
-                Status::COMPLETED,
+                'status_id' => Status::COMPLETED,
 
-                'data_source_id' =>
-                DataSource::TIINGO_API,
+                'data_source_id' => DataSource::TIINGO_API,
 
                 'run_time' => 12,
 

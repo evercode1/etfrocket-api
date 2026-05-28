@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\PerformanceRangeType;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use App\Models\PerformanceRangeType;
 
 class PerformanceRangeTypeSeeder extends Seeder
 {

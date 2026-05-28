@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\User\Dividends;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Services\Dividends\DividendIntelligenceService;
+use Illuminate\Support\Facades\Auth;
 
 class DividendIntelligenceController extends Controller
 {

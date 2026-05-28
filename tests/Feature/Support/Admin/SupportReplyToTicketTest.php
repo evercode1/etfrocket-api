@@ -5,7 +5,6 @@ namespace Tests\Feature\Support\Admin;
 use App\Models\Status;
 use App\Models\SupportTicket;
 use App\Models\SupportTopic;
-use App\Models\TicketResponse;
 use App\Models\User;
 use Database\Seeders\StatusSeeder;
 use Database\Seeders\SupportTopicSeeder;

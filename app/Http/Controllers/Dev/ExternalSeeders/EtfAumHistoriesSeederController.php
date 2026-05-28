@@ -144,25 +144,20 @@ class EtfAumHistoriesSeederController extends Controller
 
             EtfNavHistory::create([
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'nav_date' =>
-                $startDate->format(
+                'nav_date' => $startDate->format(
                     'Y-m-d'
                 ),
 
-                'nav_per_share' =>
-                round(
+                'nav_per_share' => round(
                     $currentNav,
                     4
                 ),
 
-                'data_source_id' =>
-                DataSource::MANUAL_ENTRY,
+                'data_source_id' => DataSource::MANUAL_ENTRY,
 
-                'retrieved_at' =>
-                now(),
+                'retrieved_at' => now(),
 
             ]);
 
@@ -174,24 +169,19 @@ class EtfAumHistoriesSeederController extends Controller
 
             EtfAumHistory::create([
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'aum_date' =>
-                $startDate->format(
+                'aum_date' => $startDate->format(
                     'Y-m-d'
                 ),
 
-                'assets_under_management' =>
-                (int) round(
+                'assets_under_management' => (int) round(
                     $currentAum
                 ),
 
-                'data_source_id' =>
-                DataSource::MANUAL_ENTRY,
+                'data_source_id' => DataSource::MANUAL_ENTRY,
 
-                'retrieved_at' =>
-                now(),
+                'retrieved_at' => now(),
 
             ]);
 

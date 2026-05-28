@@ -6,7 +6,6 @@ use App\Models\SupportTopic;
 
 class NewTicketFormConfigService
 {
-
     public static function getNewTicketFormConfig()
     {
 
@@ -19,7 +18,7 @@ class NewTicketFormConfigService
                 'options' => SupportTopic::getSelects(),
                 'required' => 1,
                 'max_length' => 50,
-                'instructions' => ''
+                'instructions' => '',
             ],
 
             [
@@ -28,9 +27,9 @@ class NewTicketFormConfigService
                 'label' => 'Your Issue',
                 'required' => 1,
                 'max_length' => 2000,
-                'instructions' => ''
+                'instructions' => '',
 
-            ]
+            ],
 
         ];
 
@@ -38,10 +37,9 @@ class NewTicketFormConfigService
 
             'status' => 'success',
             'form_config' => $form_config,
-            'post_endpoint' => 'create-support-ticket'
+            'post_endpoint' => 'create-support-ticket',
 
         ], 200);
 
     }
-    
 }

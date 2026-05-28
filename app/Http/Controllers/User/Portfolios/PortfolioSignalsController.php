@@ -4,8 +4,8 @@ namespace App\Http\Controllers\User\Portfolios;
 
 use App\Http\Controllers\Controller;
 use App\Models\Portfolio;
-use App\Services\PortfolioStats\Signals\PortfolioDistributionGrowthSignalService;
 use App\Services\PortfolioStats\Signals\PortfolioAumGrowthSignalService;
+use App\Services\PortfolioStats\Signals\PortfolioDistributionGrowthSignalService;
 use App\Services\PortfolioStats\Signals\PortfolioNavStabilitySignalService;
 use Illuminate\Support\Facades\Auth;
 

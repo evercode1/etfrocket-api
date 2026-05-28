@@ -15,8 +15,7 @@ use Tests\TestCase;
 
 class CronReportQueryTest extends TestCase
 {
-    private CronReportQuery
-        $query;
+    private CronReportQuery $query;
 
     protected function setUp(): void
     {
@@ -47,7 +46,7 @@ class CronReportQueryTest extends TestCase
         );
 
         $this->query =
-            new CronReportQuery();
+            new CronReportQuery;
     }
 
     protected function tearDown(): void
@@ -73,9 +72,7 @@ class CronReportQueryTest extends TestCase
             ->count(3)
             ->create([
 
-                'status_id' =>
-
-                Status::getStatusId(
+                'status_id' => Status::getStatusId(
                     'completed'
                 ),
 
@@ -85,9 +82,7 @@ class CronReportQueryTest extends TestCase
             ->count(2)
             ->create([
 
-                'status_id' =>
-
-                Status::getStatusId(
+                'status_id' => Status::getStatusId(
                     'failed'
                 ),
 
@@ -95,7 +90,7 @@ class CronReportQueryTest extends TestCase
 
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $this->assertArrayHasKey(
             'summary',
@@ -137,7 +132,7 @@ class CronReportQueryTest extends TestCase
 
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $this->assertEquals(
 
@@ -153,30 +148,27 @@ class CronReportQueryTest extends TestCase
         CronLog::factory()
             ->create([
 
-                'cron_name' =>
-                'cron-a',
+                'cron_name' => 'cron-a',
 
             ]);
 
         CronLog::factory()
             ->create([
 
-                'cron_name' =>
-                'cron-a',
+                'cron_name' => 'cron-a',
 
             ]);
 
         CronLog::factory()
             ->create([
 
-                'cron_name' =>
-                'cron-b',
+                'cron_name' => 'cron-b',
 
             ]);
 
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $this->assertEquals(
 
@@ -195,7 +187,7 @@ class CronReportQueryTest extends TestCase
 
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $this->assertArrayHasKey(
             'logs',
@@ -216,21 +208,15 @@ class CronReportQueryTest extends TestCase
         CronLog::factory()
             ->create([
 
-                'status_id' =>
-
-                Status::getStatusId(
+                'status_id' => Status::getStatusId(
                     'completed'
                 ),
 
-                'interval_id' =>
-
-                Interval::getIntervalId(
+                'interval_id' => Interval::getIntervalId(
                     'Daily'
                 ),
 
-                'notification_status_id' =>
-
-                NotificationStatus::getNotificationStatusId(
+                'notification_status_id' => NotificationStatus::getNotificationStatusId(
                     'nothing to send'
                 ),
 
@@ -238,11 +224,11 @@ class CronReportQueryTest extends TestCase
 
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $log =
             $results['logs']
-            ->first();
+                ->first();
 
         $this->assertNotNull(
             $log->status_name
@@ -262,28 +248,24 @@ class CronReportQueryTest extends TestCase
         CronLog::factory()
             ->create([
 
-                'cron_name' =>
-                'older-cron',
+                'cron_name' => 'older-cron',
 
-                'start_time' =>
-                now()->subHour(),
+                'start_time' => now()->subHour(),
 
             ]);
 
         CronLog::factory()
             ->create([
 
-                'cron_name' =>
-                'newer-cron',
+                'cron_name' => 'newer-cron',
 
-                'start_time' =>
-                now(),
+                'start_time' => now(),
 
             ]);
 
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $logs =
             $results['logs'];
@@ -309,7 +291,7 @@ class CronReportQueryTest extends TestCase
     {
         $results =
             $this->query
-            ->getData();
+                ->getData();
 
         $this->assertEquals(
 

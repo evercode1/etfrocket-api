@@ -33,7 +33,7 @@ class CompareSymbolsService
 
         $requestedSymbols = collect($symbols)
 
-            ->map(fn($symbol) => strtoupper(trim($symbol)))
+            ->map(fn ($symbol) => strtoupper(trim($symbol)))
 
             ->filter()
 
@@ -94,17 +94,13 @@ class CompareSymbolsService
 
                 'nav_health' => $this->resolveNavHealth($metricRecord),
 
-                'aum_change_percentage' =>
-                optional($metricRecord)->aum_change_percentage,
+                'aum_change_percentage' => optional($metricRecord)->aum_change_percentage,
 
-                'total_return_percentage' =>
-                optional($metricRecord)->total_return_percentage,
+                'total_return_percentage' => optional($metricRecord)->total_return_percentage,
 
-                'nav_erosion_percentage' =>
-                optional($metricRecord)->nav_erosion_percentage,
+                'nav_erosion_percentage' => optional($metricRecord)->nav_erosion_percentage,
 
-                'price_change_percentage' =>
-                optional($metricRecord)->price_change_percentage,
+                'price_change_percentage' => optional($metricRecord)->price_change_percentage,
 
                 'chart_value' => $this->resolveChartValue(
                     metric: $metric,
@@ -310,26 +306,21 @@ class CompareSymbolsService
 
         return match ($metric) {
 
-            'return' =>
-            optional($metricRecord)->total_return_percentage,
+            'return' => optional($metricRecord)->total_return_percentage,
 
-            'aum' =>
-            optional($metricRecord)->aum_change_percentage,
+            'aum' => optional($metricRecord)->aum_change_percentage,
 
-            'nav' =>
-            optional($metricRecord)->nav_erosion_percentage,
+            'nav' => optional($metricRecord)->nav_erosion_percentage,
 
-            'income' =>
-            optional($metricRecord)->dividends_paid,
+            'income' => optional($metricRecord)->dividends_paid,
 
-            default =>
-            $latestPrice,
+            default => $latestPrice,
         };
     }
 
     private function resolveNavHealth(?EtfMetric $metricRecord): string
     {
-        if (!$metricRecord) {
+        if (! $metricRecord) {
             return 'Unknown';
         }
 

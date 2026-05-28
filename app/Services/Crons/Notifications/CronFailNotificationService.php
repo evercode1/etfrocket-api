@@ -3,13 +3,11 @@
 namespace App\Services\Crons\Notifications;
 
 use App\Mail\CronFailureNotification;
-use Illuminate\Support\Facades\Mail;
 use App\Models\User;
-
+use Illuminate\Support\Facades\Mail;
 
 class CronFailNotificationService
 {
-
     public static function sendNotifications(string $cron_name, string $cron_failure_details)
     {
 

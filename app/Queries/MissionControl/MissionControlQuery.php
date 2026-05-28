@@ -11,7 +11,7 @@ class MissionControlQuery
     {
         $user = Auth::user();
 
-        $portfolios = (new PortfolioListQuery())
+        $portfolios = (new PortfolioListQuery)
             ->getData($user->id);
 
         $selectedPortfolio = $this->resolveSelectedPortfolio(
@@ -41,11 +41,11 @@ class MissionControlQuery
 
                 : [],
 
-            'risk_alerts' => (new RiskAlertsQuery())->getData(),
+            'risk_alerts' => (new RiskAlertsQuery)->getData(),
 
-            'watchlist' => (new WatchlistQuery())->getData(),
+            'watchlist' => (new WatchlistQuery)->getData(),
 
-            'activity' => (new ActivityQuery())->getData(),
+            'activity' => (new ActivityQuery)->getData(),
 
         ];
     }

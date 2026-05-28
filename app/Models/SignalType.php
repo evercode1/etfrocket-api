@@ -2,21 +2,24 @@
 
 namespace App\Models;
 
+use Database\Factories\SignalTypeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class SignalType extends Model
 {
-    /** @use HasFactory<\Database\Factories\SignalTypeFactory> */
+    /** @use HasFactory<SignalTypeFactory> */
     use HasFactory;
 
     const MARKET_SNAPSHOT = 1;
+
     const MARKET_CONDITIONS = 2;
+
     const MARKET_EVENTS = 3;
 
     protected $fillable = [
 
-        'signal_type_name'
+        'signal_type_name',
 
     ];
 
@@ -26,7 +29,7 @@ class SignalType extends Model
         return [
 
             'created_at' => 'date:Y-m-d',
-            'updated_at' => 'date:Y-m-d'
+            'updated_at' => 'date:Y-m-d',
 
         ];
     }

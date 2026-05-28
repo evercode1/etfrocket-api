@@ -51,7 +51,7 @@ class CronService
         */
 
         $class =
-            '\\App\\Services\\Crons\\Handlers\\' .
+            '\\App\\Services\\Crons\\Handlers\\'.
             $handler_class_name;
 
         $handler =
@@ -149,18 +149,15 @@ class CronService
                     'created_at',
                     $start_day
                 )
-
-                ->where(
-                    'status_id',
-                    $failed_status_id
-                )
-
-                ->where(
-                    'notification_status_id',
-                    $sent
-                )
-
-                ->exists()
+                    ->where(
+                        'status_id',
+                        $failed_status_id
+                    )
+                    ->where(
+                        'notification_status_id',
+                        $sent
+                    )
+                    ->exists()
 
             ) {
 
@@ -186,32 +183,23 @@ class CronService
 
         CronLog::create([
 
-            'cron_name' =>
-            $command_signature,
+            'cron_name' => $command_signature,
 
-            'status_id' =>
-            $status_id,
+            'status_id' => $status_id,
 
-            'cron_description' =>
-            $command_description,
+            'cron_description' => $command_description,
 
-            'cron_fail_details' =>
-            $cron_failure_details,
+            'cron_fail_details' => $cron_failure_details,
 
-            'interval_id' =>
-            $interval_id,
+            'interval_id' => $interval_id,
 
-            'run_time' =>
-            $run_time,
+            'run_time' => $run_time,
 
-            'start_time' =>
-            $start_time,
+            'start_time' => $start_time,
 
-            'end_time' =>
-            $end_time,
+            'end_time' => $end_time,
 
-            'notification_status_id' =>
-            $notification_status_id,
+            'notification_status_id' => $notification_status_id,
 
         ]);
     }

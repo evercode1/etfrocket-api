@@ -11,7 +11,6 @@ use Illuminate\Support\Str;
 
 class UserBulkTransactionUploadService
 {
-
     private const HEADER_ALIASES = [
 
         'symbol' => [
@@ -87,6 +86,7 @@ class UserBulkTransactionUploadService
         ],
 
     ];
+
     public function import(
         int $userId,
         int $portfolioId,
@@ -186,12 +186,12 @@ class UserBulkTransactionUploadService
 
         $headers = collect($headers)
 
-            ->map(fn($header) => $this->resolveHeaderAlias($header))
+            ->map(fn ($header) => $this->resolveHeaderAlias($header))
 
             ->toArray();
 
         $headers = collect($headers)
-            ->map(fn($header) => Str::snake(strtolower(trim($header))))
+            ->map(fn ($header) => Str::snake(strtolower(trim($header))))
             ->toArray();
 
         $rows = [];
@@ -260,7 +260,7 @@ class UserBulkTransactionUploadService
     private function isEmptyRow(array $row): bool
     {
         return collect($row)
-            ->filter(fn($value) => trim((string) $value) !== '')
+            ->filter(fn ($value) => trim((string) $value) !== '')
             ->isEmpty();
     }
 

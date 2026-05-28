@@ -483,7 +483,6 @@ class EtfMetricUnitTest extends TestCase
         $this->assertNull($metric->end_aum);
     }
 
-
     private function createEtf(): Etf
     {
         return Etf::create([

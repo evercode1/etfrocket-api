@@ -45,7 +45,7 @@ class HelpArticleCategoryFactory extends Factory
 
     public function active(): static
     {
-        return $this->state(fn() => [
+        return $this->state(fn () => [
 
             'is_active' => 1,
 
@@ -54,7 +54,7 @@ class HelpArticleCategoryFactory extends Factory
 
     public function inactive(): static
     {
-        return $this->state(fn() => [
+        return $this->state(fn () => [
 
             'is_active' => 0,
 

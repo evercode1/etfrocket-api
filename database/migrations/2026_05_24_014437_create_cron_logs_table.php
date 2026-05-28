@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedInteger('notification_status_id');
             $table->timestamps();
 
-            // Indexes 
+            // Indexes
 
             $table->index('status_id');
             $table->index('interval_id');

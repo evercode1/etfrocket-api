@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Jobs\FinalizeEtfDividendExtractionBatchJob;
 use App\Models\Etf;
 use App\Models\EtfIngestionBatch;
 use App\Models\EtfIngestionBatchItem;
@@ -32,24 +31,19 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
     public function handle(
 
-        AiEtfDividendExtractionService
-        $aiEtfDividendExtractionService,
+        AiEtfDividendExtractionService $aiEtfDividendExtractionService,
 
-        ProcessAiEtfDividendExtractionService
-        $processAiEtfDividendExtractionService
+        ProcessAiEtfDividendExtractionService $processAiEtfDividendExtractionService
 
     ): void {
 
         Log::info('JOB START', [
 
-            'batch_id' =>
-            $this->batchId,
+            'batch_id' => $this->batchId,
 
-            'etf_id' =>
-            $this->etfId,
+            'etf_id' => $this->etfId,
 
-            'attempt' =>
-            $this->attempts(),
+            'attempt' => $this->attempts(),
 
         ]);
 
@@ -65,29 +59,24 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
                 $this->batchId
 
             )
+                ->where(
 
-            ->where(
+                    'etf_id',
 
-                'etf_id',
+                    $this->etfId
 
-                $this->etfId
-
-            )
-
-            ->firstOrFail();
+                )
+                ->firstOrFail();
 
         try {
 
             $batchItem->update([
 
-                'status_id' =>
-                Status::PROCESSING,
+                'status_id' => Status::PROCESSING,
 
-                'attempts' =>
-                $batchItem->attempts + 1,
+                'attempts' => $batchItem->attempts + 1,
 
-                'started_at' =>
-                now(),
+                'started_at' => now(),
 
             ]);
 
@@ -99,9 +88,9 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
             $extraction =
 
                 $aiEtfDividendExtractionService
-                ->extract(
-                    $etf
-                );
+                    ->extract(
+                        $etf
+                    );
 
             $processAiEtfDividendExtractionService
                 ->process(
@@ -129,14 +118,11 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
                     $batchItem->update([
 
-                        'status_id' =>
-                        Status::COMPLETED,
+                        'status_id' => Status::COMPLETED,
 
-                        'runtime_ms' =>
-                        $runtimeMs,
+                        'runtime_ms' => $runtimeMs,
 
-                        'completed_at' =>
-                        now(),
+                        'completed_at' => now(),
 
                     ]);
 
@@ -199,18 +185,13 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
                     $batchItem->update([
 
-                        'status_id' =>
-                        $statusId,
+                        'status_id' => $statusId,
 
-                        'runtime_ms' =>
-                        $runtimeMs,
+                        'runtime_ms' => $runtimeMs,
 
-                        'error_message' =>
-                        $e->getMessage(),
+                        'error_message' => $e->getMessage(),
 
-                        'completed_at' =>
-
-                        $statusId === Status::FAILED
+                        'completed_at' => $statusId === Status::FAILED
 
                             ? now()
 
@@ -255,14 +236,11 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
                 [
 
-                    'batch_id' =>
-                    $this->batchId,
+                    'batch_id' => $this->batchId,
 
-                    'etf_id' =>
-                    $this->etfId,
+                    'etf_id' => $this->etfId,
 
-                    'message' =>
-                    $e->getMessage(),
+                    'message' => $e->getMessage(),
 
                 ]
 
@@ -306,17 +284,14 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
                     $batch->id
 
                 )
+                    ->whereNull(
+                        'completed_at'
+                    )
+                    ->update([
 
-                ->whereNull(
-                    'completed_at'
-                )
+                        'completed_at' => now(),
 
-                ->update([
-
-                    'completed_at' =>
-                    now(),
-
-                ]);
+                    ]);
 
             if ($updated) {
 

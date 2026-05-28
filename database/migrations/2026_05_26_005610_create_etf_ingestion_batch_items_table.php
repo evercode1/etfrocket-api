@@ -42,7 +42,7 @@ return new class extends Migration
 
                 $table->index(['etf_ingestion_batch_id']);
 
-                $table->index(['etf_id',]);
+                $table->index(['etf_id']);
 
                 $table->index(['is_processed']);
 

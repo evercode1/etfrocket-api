@@ -5,13 +5,13 @@ namespace Tests\Unit\Queries\AiSignals;
 use App\Models\AiMarketSignal;
 use App\Models\SignalType;
 use App\Queries\AiSignals\GetLatestAiSignalsQuery;
+use Database\Seeders\SignalTypeSeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class GetLatestAiSignalsQueryTest extends TestCase
 {
-    private GetLatestAiSignalsQuery
-        $query;
+    private GetLatestAiSignalsQuery $query;
 
     protected function setUp(): void
     {
@@ -24,11 +24,11 @@ class GetLatestAiSignalsQueryTest extends TestCase
             ->truncate();
 
         $this->seed(
-            \Database\Seeders\SignalTypeSeeder::class
+            SignalTypeSeeder::class
         );
 
         $this->query =
-            new GetLatestAiSignalsQuery();
+            new GetLatestAiSignalsQuery;
     }
 
     protected function tearDown(): void
@@ -47,28 +47,22 @@ class GetLatestAiSignalsQueryTest extends TestCase
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_SNAPSHOT,
+                'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
-                'title' =>
-                'Old Snapshot',
+                'title' => 'Old Snapshot',
 
-                'generated_at' =>
-                now()->subDay(),
+                'generated_at' => now()->subDay(),
 
             ]);
 
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_SNAPSHOT,
+                'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
-                'title' =>
-                'New Snapshot',
+                'title' => 'New Snapshot',
 
-                'generated_at' =>
-                now(),
+                'generated_at' => now(),
 
             ]);
 
@@ -91,24 +85,21 @@ class GetLatestAiSignalsQueryTest extends TestCase
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_SNAPSHOT,
+                'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
             ]);
 
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_CONDITIONS,
+                'signal_type_id' => SignalType::MARKET_CONDITIONS,
 
             ]);
 
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_EVENTS,
+                'signal_type_id' => SignalType::MARKET_EVENTS,
 
             ]);
 
@@ -126,16 +117,14 @@ class GetLatestAiSignalsQueryTest extends TestCase
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_SNAPSHOT,
+                'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
             ]);
 
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_CONDITIONS,
+                'signal_type_id' => SignalType::MARKET_CONDITIONS,
 
             ]);
 
@@ -204,8 +193,7 @@ class GetLatestAiSignalsQueryTest extends TestCase
         AiMarketSignal::factory()
             ->create([
 
-                'signal_type_id' =>
-                SignalType::MARKET_SNAPSHOT,
+                'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
             ]);
 
@@ -223,22 +211,18 @@ class GetLatestAiSignalsQueryTest extends TestCase
         AiMarketSignal::factory()
             ->create([
 
-                'title' =>
-                'Older Signal',
+                'title' => 'Older Signal',
 
-                'generated_at' =>
-                now()->subHours(2),
+                'generated_at' => now()->subHours(2),
 
             ]);
 
         AiMarketSignal::factory()
             ->create([
 
-                'title' =>
-                'Newest Signal',
+                'title' => 'Newest Signal',
 
-                'generated_at' =>
-                now(),
+                'generated_at' => now(),
 
             ]);
 

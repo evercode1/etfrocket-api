@@ -17,6 +17,7 @@ use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Mockery;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class GenerateAiSignalJobTest extends TestCase
@@ -85,30 +86,27 @@ class GenerateAiSignalJobTest extends TestCase
     {
         $batch =
             AiSignalBatch::factory()
-            ->create([
+                ->create([
 
-                'total_signals' => 1,
+                    'total_signals' => 1,
 
-            ]);
+                ]);
 
         $batchItem =
             AiSignalBatchItem::factory()
-            ->create([
+                ->create([
 
-                'ai_signal_batch_id' =>
-                $batch->id,
+                    'ai_signal_batch_id' => $batch->id,
 
-                'signal_type_id' =>
-                SignalType::MARKET_SNAPSHOT,
+                    'signal_type_id' => SignalType::MARKET_SNAPSHOT,
 
-                'import_type_id' =>
-                ImportType::MARKET_SNAPSHOT,
+                    'import_type_id' => ImportType::MARKET_SNAPSHOT,
 
-            ]);
+                ]);
 
         $signal =
             AiMarketSignal::factory()
-            ->make();
+                ->make();
 
         $service =
             Mockery::mock(
@@ -166,20 +164,19 @@ class GenerateAiSignalJobTest extends TestCase
     {
         $batch =
             AiSignalBatch::factory()
-            ->create([
+                ->create([
 
-                'total_signals' => 1,
+                    'total_signals' => 1,
 
-            ]);
+                ]);
 
         $batchItem =
             AiSignalBatchItem::factory()
-            ->create([
+                ->create([
 
-                'ai_signal_batch_id' =>
-                $batch->id,
+                    'ai_signal_batch_id' => $batch->id,
 
-            ]);
+                ]);
 
         $service =
             Mockery::mock(
@@ -192,7 +189,7 @@ class GenerateAiSignalJobTest extends TestCase
                 new \Exception('Failure')
             );
 
-        /** @var GenerateAiSignalJob|\Mockery\MockInterface $job */
+        /** @var GenerateAiSignalJob|MockInterface $job */
         $job =
             Mockery::mock(
 
@@ -209,10 +206,8 @@ class GenerateAiSignalJobTest extends TestCase
                 ]
 
             )
-
-            ->makePartial()
-
-            ->shouldAllowMockingProtectedMethods();
+                ->makePartial()
+                ->shouldAllowMockingProtectedMethods();
 
         $job->shouldReceive('attempts')
             ->andReturn(3);
@@ -254,23 +249,22 @@ class GenerateAiSignalJobTest extends TestCase
     {
         $batch =
             AiSignalBatch::factory()
-            ->create([
+                ->create([
 
-                'total_signals' => 1,
+                    'total_signals' => 1,
 
-            ]);
+                ]);
 
         AiSignalBatchItem::factory()
             ->create([
 
-                'ai_signal_batch_id' =>
-                $batch->id,
+                'ai_signal_batch_id' => $batch->id,
 
             ]);
 
         $signal =
             AiMarketSignal::factory()
-            ->make();
+                ->make();
 
         $service =
             Mockery::mock(

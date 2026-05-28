@@ -39,13 +39,13 @@ class SymbolPriceHistoryChartQuery
 
                 ?->symbol;
 
-            if (!$symbol) {
+            if (! $symbol) {
                 continue;
             }
 
             $date = $history->price_date->toDateString();
 
-            if (!isset($groupedByDate[$date])) {
+            if (! isset($groupedByDate[$date])) {
 
                 $groupedByDate[$date] = [
 

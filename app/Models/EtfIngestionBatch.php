@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\EtfIngestionBatchFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class EtfIngestionBatch extends Model
 {
-    /** @use HasFactory<\Database\Factories\EtfIngestionBatchFactory> */
+    /** @use HasFactory<EtfIngestionBatchFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -37,7 +38,6 @@ class EtfIngestionBatch extends Model
         'started_at',
 
         'completed_at',
-
 
     ];
 

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 class EtfIngestionBatchFactory extends Factory
 {
     protected $model =
-    EtfIngestionBatch::class;
+        EtfIngestionBatch::class;
 
     public function definition(): array
     {
@@ -42,7 +42,6 @@ class EtfIngestionBatchFactory extends Factory
             'started_at' => now(),
 
             'completed_at' => null,
-
 
         ];
     }

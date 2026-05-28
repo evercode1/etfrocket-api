@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\AiMarketSignalFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AiMarketSignal extends Model
 {
-    /** @use HasFactory<\Database\Factories\AiMarketSignalFactory> */
+    /** @use HasFactory<AiMarketSignalFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -22,7 +23,7 @@ class AiMarketSignal extends Model
         'generated_at',
         'expires_at',
         'is_active',
-        'ai_model'
+        'ai_model',
 
     ];
 
@@ -42,7 +43,6 @@ class AiMarketSignal extends Model
     }
 
     public function signalType()
-
     {
 
         return $this->belongsTo(

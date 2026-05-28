@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\AiMarketSignal;
 use App\Models\AiSignalBatch;
 use App\Models\AiSignalBatchItem;
 use App\Models\Status;
@@ -86,9 +87,9 @@ class FinalizeAiSignalBatchJob implements ShouldQueue
             $batch->started_at
 
             ? $batch->started_at
-            ->diffInSeconds(
-                $completedAt
-            )
+                ->diffInSeconds(
+                    $completedAt
+                )
 
             : 0;
 
@@ -142,19 +143,17 @@ class FinalizeAiSignalBatchJob implements ShouldQueue
 
             $signal =
 
-                \App\Models\AiMarketSignal::where(
+                AiMarketSignal::where(
 
                     'signal_type_id',
 
                     $batchItem->signal_type_id
 
                 )
-
-                ->latest(
-                    'generated_at'
-                )
-
-                ->first();
+                    ->latest(
+                        'generated_at'
+                    )
+                    ->first();
 
             if ($signal) {
 
@@ -217,17 +216,13 @@ class FinalizeAiSignalBatchJob implements ShouldQueue
 
         $batch->update([
 
-            'status_id' =>
-            $statusId,
+            'status_id' => $statusId,
 
-            'passed_data_integrity_check' =>
-            $passedIntegrityCheck,
+            'passed_data_integrity_check' => $passedIntegrityCheck,
 
-            'processing_notes' =>
-            $processingNotes,
+            'processing_notes' => $processingNotes,
 
-            'completed_at' =>
-            $completedAt,
+            'completed_at' => $completedAt,
 
         ]);
     }

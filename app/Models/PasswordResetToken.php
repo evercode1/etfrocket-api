@@ -19,5 +19,4 @@ class PasswordResetToken extends Model
         'token',
         'created_at',
     ];
-
 }

@@ -6,12 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
 use App\Services\PortfolioTransactions\CreatePortfolioTransactionService;
+use App\Services\PortfolioTransactions\ExportPortfolioTransactionsService;
+use App\Services\PortfolioTransactions\ImportPortfolioTransactionsService;
 use App\Services\PortfolioTransactions\ListPortfolioTransactionsService;
 use App\Services\PortfolioTransactions\UpdatePortfolioTransactionService;
-use App\Services\PortfolioTransactions\ViewPortfolioTransactionFormService;
-use App\Services\PortfolioTransactions\ImportPortfolioTransactionsService;
-use App\Services\PortfolioTransactions\ExportPortfolioTransactionsService;
 use App\Services\PortfolioTransactions\UserBulkTransactionUploadService;
+use App\Services\PortfolioTransactions\ViewPortfolioTransactionFormService;
 use App\Utilities\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -44,7 +44,6 @@ class PortfolioTransactionsController extends Controller
 
             );
         } catch (\Exception $e) {
-
 
             return response()->json([
                 'success' => false,
@@ -104,7 +103,6 @@ class PortfolioTransactionsController extends Controller
             );
         } catch (\Exception $e) {
 
-
             return response()->json([
                 'success' => false,
                 'message' => 'Oops, something went wrong. Please try again later.',
@@ -125,7 +123,6 @@ class PortfolioTransactionsController extends Controller
 
             $transaction = $service->getData(Auth::id(), $id);
         } catch (\Exception $e) {
-
 
             return response()->json([
                 'success' => false,
@@ -164,7 +161,6 @@ class PortfolioTransactionsController extends Controller
                 $request->all()
             );
         } catch (\Exception $e) {
-
 
             return response()->json([
                 'success' => false,
@@ -267,7 +263,6 @@ class PortfolioTransactionsController extends Controller
             );
         } catch (\Exception $e) {
 
-
             return response()->json([
 
                 'success' => false,
@@ -310,7 +305,6 @@ class PortfolioTransactionsController extends Controller
             PortfolioTransaction::where('portfolio_id', $portfolio->id)
                 ->delete();
         } catch (\Exception $e) {
-
 
             return response()->json([
 
@@ -433,8 +427,6 @@ class PortfolioTransactionsController extends Controller
                 $request->file('csv_file')
             );
         } catch (\Exception $e) {
-
-
 
             return response()->json([
                 'success' => false,

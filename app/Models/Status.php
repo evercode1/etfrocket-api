@@ -7,31 +7,45 @@ use Illuminate\Database\Eloquent\Model;
 
 class Status extends Model
 {
-
     use HasFactory;
 
     const DUMPED = 1;
-    const PENDING_EMAIL_VERIFICATION = 2;
-    const PENDING = 3;
-    const ACTIVE = 4;
-    const REJECTED = 5;
-    const WHITELIST = 6;
-    const SUBMITTED = 7;
-    const UNDER_REVIEW = 8;
-    const APPROVED = 9;
-    const OPEN = 10;
-    const CLOSED = 11;
-    const RUNNING = 12;
-    const COMPLETED = 13;
-    const INACTIVE = 14;
-    const SUCCESS = 15;
-    const FAILED = 16;
-    const PROCESSING = 17;
 
+    const PENDING_EMAIL_VERIFICATION = 2;
+
+    const PENDING = 3;
+
+    const ACTIVE = 4;
+
+    const REJECTED = 5;
+
+    const WHITELIST = 6;
+
+    const SUBMITTED = 7;
+
+    const UNDER_REVIEW = 8;
+
+    const APPROVED = 9;
+
+    const OPEN = 10;
+
+    const CLOSED = 11;
+
+    const RUNNING = 12;
+
+    const COMPLETED = 13;
+
+    const INACTIVE = 14;
+
+    const SUCCESS = 15;
+
+    const FAILED = 16;
+
+    const PROCESSING = 17;
 
     protected $fillable = [
 
-        'status_name'
+        'status_name',
 
     ];
 
@@ -41,7 +55,7 @@ class Status extends Model
         return [
 
             'created_at' => 'date:Y-m-d',
-            'updated_at' => 'date:Y-m-d'
+            'updated_at' => 'date:Y-m-d',
 
         ];
     }

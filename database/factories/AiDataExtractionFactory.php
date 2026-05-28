@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\AiDataExtraction;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\DataSource;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends Factory<AiDataExtraction>

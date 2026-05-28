@@ -42,7 +42,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $holdings = (new PortfolioHoldingsStatsService())->getCurrentHoldings(
+        $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
         );
 
@@ -63,7 +63,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
         $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
         $this->createTransaction($portfolio->id, $etf->id, 1, 5, 30);
 
-        $holdings = (new PortfolioHoldingsStatsService())->getCurrentHoldings(
+        $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
         );
 
@@ -98,7 +98,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
         $this->createTransaction($portfolio->id, $nvi->id, 1, 10, 25);
         $this->createTransaction($portfolio->id, $jepi->id, 1, 5, 50);
 
-        $holdings = (new PortfolioHoldingsStatsService())->getCurrentHoldings(
+        $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
         );
 
@@ -122,7 +122,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
         $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
         $this->createTransaction($portfolio->id, $etf->id, 2, 4, 30);
 
-        $holdings = (new PortfolioHoldingsStatsService())->getCurrentHoldings(
+        $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
         );
 
@@ -147,7 +147,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
         $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
         $this->createTransaction($portfolio->id, $etf->id, 2, 10, 30);
 
-        $holdings = (new PortfolioHoldingsStatsService())->getCurrentHoldings(
+        $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
         );
 
@@ -167,7 +167,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
         $this->createTransaction($portfolio->id, $etf->id, 1, 5, 25);
         $this->createTransaction($portfolio->id, $etf->id, 2, 10, 30);
 
-        $holdings = (new PortfolioHoldingsStatsService())->getCurrentHoldings(
+        $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
         );
 
@@ -195,7 +195,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
         $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
         $this->createTransaction($otherPortfolio->id, $otherEtf->id, 1, 99, 10);
 
-        $holdings = (new PortfolioHoldingsStatsService())->getCurrentHoldings(
+        $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
         );
 
@@ -215,7 +215,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
 
         $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
 
-        $result = (new PortfolioHoldingsStatsService())->hasCurrentHoldings(
+        $result = (new PortfolioHoldingsStatsService)->hasCurrentHoldings(
             $portfolio->id
         );
 
@@ -226,7 +226,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $result = (new PortfolioHoldingsStatsService())->hasCurrentHoldings(
+        $result = (new PortfolioHoldingsStatsService)->hasCurrentHoldings(
             $portfolio->id
         );
 
@@ -261,7 +261,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
         $this->createTransaction($portfolio->id, $sold->id, 1, 10, 25);
         $this->createTransaction($portfolio->id, $sold->id, 2, 10, 30);
 
-        $ids = (new PortfolioHoldingsStatsService())->getCurrentEtfIds(
+        $ids = (new PortfolioHoldingsStatsService)->getCurrentEtfIds(
             $portfolio->id
         );
 
@@ -286,7 +286,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
 
         $this->createTransaction($portfolio->id, $etf->id, 1, 1.23456, 10.98765);
 
-        $holding = (new PortfolioHoldingsStatsService())
+        $holding = (new PortfolioHoldingsStatsService)
             ->getCurrentHoldings($portfolio->id)
             ->first();
 

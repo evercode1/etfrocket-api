@@ -43,12 +43,10 @@ class GetBackTestDividendHistoryQuery
 
                 return [
 
-                    'date' =>
-                    $row->ex_dividend_date
+                    'date' => $row->ex_dividend_date
                         ->toDateString(),
 
-                    'dividend' =>
-                    (float)
+                    'dividend' => (float)
                     $row->dividend_amount,
 
                 ];

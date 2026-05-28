@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class PersonalAccessToken extends Model
 {
-
     use HasFactory;
 
     protected $fillable = [
@@ -18,19 +17,17 @@ class PersonalAccessToken extends Model
         'tokenable_type',
         'abilities',
         'last_used_at',
-        'expires_at'
-        
+        'expires_at',
+
     ];
 
     protected function casts(): array
     {
         return [
-            
+
             'created_at' => 'date:Y-m-d H:i:s',
-            'updated_at' => 'date:Y-m-d H:i:s'
-            
+            'updated_at' => 'date:Y-m-d H:i:s',
+
         ];
     }
-
-
 }

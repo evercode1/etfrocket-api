@@ -13,8 +13,7 @@ use Tests\TestCase;
 
 class ProcessAiEtfPriceExtractionServiceTest extends TestCase
 {
-    private ProcessAiEtfPriceExtractionService
-        $service;
+    private ProcessAiEtfPriceExtractionService $service;
 
     protected function setUp(): void
     {
@@ -63,37 +62,31 @@ class ProcessAiEtfPriceExtractionServiceTest extends TestCase
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'data_source_id' =>
-                DataSource::MANUAL_ENTRY,
+                    'data_source_id' => DataSource::MANUAL_ENTRY,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'symbol' =>
-                    'CHPY',
+                        'symbol' => 'CHPY',
 
-                    'close_price' =>
-                    25.44,
+                        'close_price' => 25.44,
 
-                    'price_date' =>
-                    now()->toDateString(),
+                        'price_date' => now()->toDateString(),
 
-                    'volume' =>
-                    250000,
+                        'volume' => 250000,
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         $result =
             $this->service
-            ->process(
-                $extraction
-            );
+                ->process(
+                    $extraction
+                );
 
         $this->assertTrue(
             $result->is_validated
@@ -103,14 +96,11 @@ class ProcessAiEtfPriceExtractionServiceTest extends TestCase
             'etf_price_histories',
             [
 
-                'etf_id' =>
-                $etf->id,
+                'etf_id' => $etf->id,
 
-                'close_price' =>
-                25.44,
+                'close_price' => 25.44,
 
-                'volume' =>
-                250000,
+                'volume' => 250000,
 
             ]
         );
@@ -126,53 +116,41 @@ class ProcessAiEtfPriceExtractionServiceTest extends TestCase
 
         EtfPriceHistory::create([
 
-            'etf_id' =>
-            $etf->id,
+            'etf_id' => $etf->id,
 
-            'price_date' =>
-            now()->toDateString(),
+            'price_date' => now()->toDateString(),
 
-            'close_price' =>
-            10.00,
+            'close_price' => 10.00,
 
-            'volume' =>
-            1000,
+            'volume' => 1000,
 
-            'data_source_id' =>
-            DataSource::MANUAL_ENTRY,
+            'data_source_id' => DataSource::MANUAL_ENTRY,
 
-            'retrieved_at' =>
-            now(),
+            'retrieved_at' => now(),
 
         ]);
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'data_source_id' =>
-                DataSource::MANUAL_ENTRY,
+                    'data_source_id' => DataSource::MANUAL_ENTRY,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'symbol' =>
-                    'CHPY',
+                        'symbol' => 'CHPY',
 
-                    'close_price' =>
-                    44.55,
+                        'close_price' => 44.55,
 
-                    'price_date' =>
-                    now()->toDateString(),
+                        'price_date' => now()->toDateString(),
 
-                    'volume' =>
-                    999999,
+                        'volume' => 999999,
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         $this->service
             ->process(
@@ -188,11 +166,9 @@ class ProcessAiEtfPriceExtractionServiceTest extends TestCase
             'etf_price_histories',
             [
 
-                'close_price' =>
-                44.55,
+                'close_price' => 44.55,
 
-                'volume' =>
-                999999,
+                'volume' => 999999,
 
             ]
         );
@@ -208,25 +184,21 @@ class ProcessAiEtfPriceExtractionServiceTest extends TestCase
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'close_price' =>
-                    10.22,
+                        'close_price' => 10.22,
 
-                    'price_date' =>
-                    now()->toDateString(),
+                        'price_date' => now()->toDateString(),
 
-                    'volume' =>
-                    1000,
+                        'volume' => 1000,
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         $this->expectException(
             \RuntimeException::class
@@ -252,28 +224,23 @@ class ProcessAiEtfPriceExtractionServiceTest extends TestCase
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'symbol' =>
-                    'WRONG',
+                        'symbol' => 'WRONG',
 
-                    'close_price' =>
-                    10.22,
+                        'close_price' => 10.22,
 
-                    'price_date' =>
-                    now()->toDateString(),
+                        'price_date' => now()->toDateString(),
 
-                    'volume' =>
-                    1000,
+                        'volume' => 1000,
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         $this->expectException(
             \RuntimeException::class
@@ -299,30 +266,25 @@ class ProcessAiEtfPriceExtractionServiceTest extends TestCase
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'symbol' =>
-                    'CHPY',
+                        'symbol' => 'CHPY',
 
-                    'close_price' =>
-                    12.55,
+                        'close_price' => 12.55,
 
-                    'price_date' =>
-                    now()
-                        ->subDays(10)
-                        ->toDateString(),
+                        'price_date' => now()
+                            ->subDays(10)
+                            ->toDateString(),
 
-                    'volume' =>
-                    1000,
+                        'volume' => 1000,
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         $this->expectException(
             \RuntimeException::class
@@ -348,28 +310,23 @@ class ProcessAiEtfPriceExtractionServiceTest extends TestCase
 
         $extraction =
             AiDataExtraction::factory()
-            ->create([
+                ->create([
 
-                'etf_id' =>
-                $etf->id,
+                    'etf_id' => $etf->id,
 
-                'extracted_data' => [
+                    'extracted_data' => [
 
-                    'symbol' =>
-                    'WRONG',
+                        'symbol' => 'WRONG',
 
-                    'close_price' =>
-                    12.55,
+                        'close_price' => 12.55,
 
-                    'price_date' =>
-                    now()->toDateString(),
+                        'price_date' => now()->toDateString(),
 
-                    'volume' =>
-                    1000,
+                        'volume' => 1000,
 
-                ],
+                    ],
 
-            ]);
+                ]);
 
         try {
 

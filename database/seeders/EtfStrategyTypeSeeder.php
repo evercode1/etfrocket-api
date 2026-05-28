@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\EtfStrategyType;
-use App\Models\Status;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -41,7 +40,7 @@ class EtfStrategyTypeSeeder extends Seeder
             'Crypto Income',
             'Precious Metals',
             'Defense',
-            'Risk Managed'
+            'Risk Managed',
 
         ];
 

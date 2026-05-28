@@ -7,7 +7,6 @@ use App\Utilities\DropDownListMaker;
 
 class UserEditService
 {
-
     public DropDownListMaker $listMaker;
 
     public function __construct()
@@ -30,7 +29,6 @@ class UserEditService
         // set empty array to hold mutated data
 
         $form_config_data = [];
-
 
         // iterate over each config and format selects with dropdown values
         // the listmaker service that was handed in will retrieve our select values
@@ -61,7 +59,7 @@ class UserEditService
 
                         'old_option_value' => $old_option_value,
                         'old_option_text' => $old_option_text,
-                        'selects' => $select_list
+                        'selects' => $select_list,
 
                     ]
 
@@ -70,7 +68,6 @@ class UserEditService
                 $form_config_data[] = $config;
 
             } else {
-
 
                 $column = $config['name'];
 
@@ -89,8 +86,8 @@ class UserEditService
 
             'section_heading' => 'Edit User',
             'request_type' => 'post',
-            'post_endpoint' => 'manage-user/' . $user->id,
-            'form_configs' => $form_config_data
+            'post_endpoint' => 'manage-user/'.$user->id,
+            'form_configs' => $form_config_data,
 
         ];
     }
@@ -108,7 +105,7 @@ class UserEditService
                 'required' => 1,
                 'max_length' => 50,
                 'default_value' => '',
-                'instructions' => ''
+                'instructions' => '',
             ],
 
             [
@@ -119,7 +116,7 @@ class UserEditService
                 'required' => 1,
                 'max_length' => 50,
                 'default_value' => '',
-                'instructions' => ''
+                'instructions' => '',
 
             ],
 
@@ -131,7 +128,7 @@ class UserEditService
                 'required' => 1,
                 'max_length' => 50,
                 'default_value' => '',
-                'instructions' => ''
+                'instructions' => '',
 
             ],
 
@@ -143,7 +140,7 @@ class UserEditService
                 'required' => 1,
                 'max_length' => 50,
                 'default_value' => '',
-                'instructions' => ''
+                'instructions' => '',
 
             ],
 
@@ -155,7 +152,7 @@ class UserEditService
                 'required' => 1,
                 'max_length' => 50,
                 'default_value' => '',
-                'instructions' => ''
+                'instructions' => '',
 
             ],
 
@@ -167,9 +164,9 @@ class UserEditService
                 'required' => 1,
                 'max_length' => 50,
                 'default_value' => '',
-                'instructions' => ''
+                'instructions' => '',
 
-            ]
+            ],
 
         ];
     }

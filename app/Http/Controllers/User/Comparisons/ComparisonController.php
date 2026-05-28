@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\User\Comparisons;
 
 use App\Http\Controllers\Controller;
-use App\Services\Comparisons\PortfolioCompareService;
-use App\Services\Comparisons\CompareSymbolsService;
-use App\Services\Comparisons\MetricExplorerService;
-use App\Services\Comparisons\EtfComparisonService;
 use App\Queries\Etfs\CompareEtfsQuery;
+use App\Services\Comparisons\CompareSymbolsService;
+use App\Services\Comparisons\EtfComparisonService;
+use App\Services\Comparisons\MetricExplorerService;
+use App\Services\Comparisons\PortfolioCompareService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -106,7 +106,6 @@ class ComparisonController extends Controller
             );
         } catch (\Exception $e) {
 
-
             return response()->json([
 
                 'success' => false,
@@ -190,8 +189,7 @@ class ComparisonController extends Controller
 
                 'success' => false,
 
-                'message' =>
-                'Oops, something went wrong. Please try again later.',
+                'message' => 'Oops, something went wrong. Please try again later.',
 
             ], 500);
         }
@@ -217,7 +215,7 @@ class ComparisonController extends Controller
                 $request->all()
             );
 
-            $comparison = (new CompareEtfsQuery())->getData(
+            $comparison = (new CompareEtfsQuery)->getData(
                 $resolved
             );
         } catch (\Exception $e) {

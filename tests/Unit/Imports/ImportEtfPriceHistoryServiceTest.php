@@ -6,6 +6,7 @@ use App\Models\Etf;
 use App\Models\EtfDividendHistory;
 use App\Models\EtfPriceHistory;
 use App\Services\Imports\ImportEtfPriceHistoryService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -64,7 +65,7 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             '381,300',
         ]);
 
-        $result = (new ImportEtfPriceHistoryService())->import(
+        $result = (new ImportEtfPriceHistoryService)->import(
             $etf->id,
             $filePath
         );
@@ -160,7 +161,7 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             '190,900',
         ]);
 
-        $result = (new ImportEtfPriceHistoryService())->import(
+        $result = (new ImportEtfPriceHistoryService)->import(
             $selectedEtf->id,
             $filePath
         );
@@ -239,7 +240,7 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             '381,300',
         ]);
 
-        $result = (new ImportEtfPriceHistoryService())->import(
+        $result = (new ImportEtfPriceHistoryService)->import(
             $etf->id,
             $filePath
         );
@@ -287,7 +288,7 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             '190,900',
         ]);
 
-        (new ImportEtfPriceHistoryService())->import(
+        (new ImportEtfPriceHistoryService)->import(
             $etf->id,
             $filePath
         );
@@ -322,10 +323,10 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             '190,900',
         ]);
 
-        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->expectException(ModelNotFoundException::class);
 
         try {
-            (new ImportEtfPriceHistoryService())->import(999999, $filePath);
+            (new ImportEtfPriceHistoryService)->import(999999, $filePath);
         } finally {
             unlink($filePath);
         }
@@ -396,7 +397,7 @@ class ImportEtfPriceHistoryServiceTest extends TestCase
             '190,900',
         ]);
 
-        (new ImportEtfPriceHistoryService())->import(
+        (new ImportEtfPriceHistoryService)->import(
             $etf->id,
             $filePath
         );

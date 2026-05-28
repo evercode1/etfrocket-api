@@ -7,15 +7,10 @@ use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class MarketMoodServiceTest extends TestCase
-
 {
-
-    private MarketMoodService
-
-        $service;
+    private MarketMoodService $service;
 
     protected function setUp(): void
-
     {
 
         parent::setUp();
@@ -30,14 +25,11 @@ class MarketMoodServiceTest extends TestCase
     }
 
     public function test_it_returns_euphoric_market_mood()
-
     {
 
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([
+            'https://api.openai.com/*' => Http::response([
 
                 'output' => [
 
@@ -47,9 +39,7 @@ class MarketMoodServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-
-                                'Euphoric',
+                                'text' => 'Euphoric',
 
                             ],
 
@@ -66,8 +56,7 @@ class MarketMoodServiceTest extends TestCase
         $result =
 
             $this->service
-
-            ->determine();
+                ->determine();
 
         $this->assertEquals(
 
@@ -87,14 +76,11 @@ class MarketMoodServiceTest extends TestCase
     }
 
     public function test_it_returns_bullish_market_mood()
-
     {
 
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([
+            'https://api.openai.com/*' => Http::response([
 
                 'output' => [
 
@@ -104,9 +90,7 @@ class MarketMoodServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-
-                                'Bullish',
+                                'text' => 'Bullish',
 
                             ],
 
@@ -123,8 +107,7 @@ class MarketMoodServiceTest extends TestCase
         $result =
 
             $this->service
-
-            ->determine();
+                ->determine();
 
         $this->assertEquals(
 
@@ -144,14 +127,11 @@ class MarketMoodServiceTest extends TestCase
     }
 
     public function test_it_returns_neutral_market_mood()
-
     {
 
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([
+            'https://api.openai.com/*' => Http::response([
 
                 'output' => [
 
@@ -161,9 +141,7 @@ class MarketMoodServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-
-                                'Neutral',
+                                'text' => 'Neutral',
 
                             ],
 
@@ -180,8 +158,7 @@ class MarketMoodServiceTest extends TestCase
         $result =
 
             $this->service
-
-            ->determine();
+                ->determine();
 
         $this->assertEquals(
 
@@ -201,14 +178,11 @@ class MarketMoodServiceTest extends TestCase
     }
 
     public function test_it_returns_undetermined_when_response_is_invalid()
-
     {
 
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([
+            'https://api.openai.com/*' => Http::response([
 
                 'output' => [
 
@@ -218,9 +192,7 @@ class MarketMoodServiceTest extends TestCase
 
                             [
 
-                                'text' =>
-
-                                'INVALID_RESPONSE',
+                                'text' => 'INVALID_RESPONSE',
 
                             ],
 
@@ -237,8 +209,7 @@ class MarketMoodServiceTest extends TestCase
         $result =
 
             $this->service
-
-            ->determine();
+                ->determine();
 
         $this->assertEquals(
 
@@ -258,22 +229,18 @@ class MarketMoodServiceTest extends TestCase
     }
 
     public function test_it_returns_undetermined_when_api_fails()
-
     {
 
         Http::fake([
 
-            'https://api.openai.com/*' =>
-
-            Http::response([], 500),
+            'https://api.openai.com/*' => Http::response([], 500),
 
         ]);
 
         $result =
 
             $this->service
-
-            ->determine();
+                ->determine();
 
         $this->assertEquals(
 
@@ -293,13 +260,11 @@ class MarketMoodServiceTest extends TestCase
     }
 
     public function test_it_returns_undetermined_when_exception_occurs()
-
     {
 
         Http::fake(function () {
 
             throw new \Exception(
-
                 'Connection failed'
 
             );
@@ -308,8 +273,7 @@ class MarketMoodServiceTest extends TestCase
         $result =
 
             $this->service
-
-            ->determine();
+                ->determine();
 
         $this->assertEquals(
 
@@ -329,7 +293,6 @@ class MarketMoodServiceTest extends TestCase
     }
 
     public function test_it_returns_allowed_market_moods_only()
-
     {
 
         $allowedMoods = [
@@ -356,9 +319,7 @@ class MarketMoodServiceTest extends TestCase
 
             Http::fake([
 
-                'https://api.openai.com/*' =>
-
-                Http::response([
+                'https://api.openai.com/*' => Http::response([
 
                     'output' => [
 
@@ -368,9 +329,7 @@ class MarketMoodServiceTest extends TestCase
 
                                 [
 
-                                    'text' =>
-
-                                    $mood,
+                                    'text' => $mood,
 
                                 ],
 
@@ -387,8 +346,7 @@ class MarketMoodServiceTest extends TestCase
             $result =
 
                 $this->service
-
-                ->determine();
+                    ->determine();
 
             $this->assertContains(
 

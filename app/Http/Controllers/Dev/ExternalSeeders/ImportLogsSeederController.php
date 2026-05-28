@@ -3,38 +3,25 @@
 namespace App\Http\Controllers\Dev\ExternalSeeders;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\DataSource;
-
 use App\Models\ImportLog;
-
 use App\Models\ImportType;
-
 use App\Models\Status;
 
 class ImportLogsSeederController extends Controller
-
 {
-
     public function run(): void
-
     {
 
         ImportLog::truncate();
 
         ImportLog::create([
 
-            'import_type_id' =>
+            'import_type_id' => ImportType::MARKET_SNAPSHOT,
 
-            ImportType::MARKET_SNAPSHOT,
+            'status_id' => Status::COMPLETED,
 
-            'status_id' =>
-
-            Status::COMPLETED,
-
-            'data_source_id' =>
-
-            DataSource::AI_SCRAPER,
+            'data_source_id' => DataSource::AI_SCRAPER,
 
             'run_time' => 8,
 
@@ -50,41 +37,25 @@ class ImportLogsSeederController extends Controller
 
             'passed_data_integrity_check' => 1,
 
-            'generated_markdown' =>
+            'generated_markdown' => '# AI Market Snapshot',
 
-            '# AI Market Snapshot',
+            'processing_notes' => 'Market snapshot generated successfully.',
 
-            'processing_notes' =>
+            'import_fail_details' => null,
 
-            'Market snapshot generated successfully.',
+            'started_at' => now()->subMinutes(30),
 
-            'import_fail_details' =>
-
-            null,
-
-            'started_at' =>
-
-            now()->subMinutes(30),
-
-            'completed_at' =>
-
-            now()->subMinutes(29),
+            'completed_at' => now()->subMinutes(29),
 
         ]);
 
         ImportLog::create([
 
-            'import_type_id' =>
+            'import_type_id' => ImportType::ETF_PRICE_IMPORT,
 
-            ImportType::ETF_PRICE_IMPORT,
+            'status_id' => Status::FAILED,
 
-            'status_id' =>
-
-            Status::FAILED,
-
-            'data_source_id' =>
-
-            DataSource::TIINGO_API,
+            'data_source_id' => DataSource::TIINGO_API,
 
             'run_time' => 5,
 
@@ -100,41 +71,25 @@ class ImportLogsSeederController extends Controller
 
             'passed_data_integrity_check' => 0,
 
-            'generated_markdown' =>
+            'generated_markdown' => null,
 
-            null,
+            'processing_notes' => 'Provider timeout occurred during synchronization.',
 
-            'processing_notes' =>
+            'import_fail_details' => 'Tiingo API timeout while processing ETF prices.',
 
-            'Provider timeout occurred during synchronization.',
+            'started_at' => now()->subMinutes(20),
 
-            'import_fail_details' =>
-
-            'Tiingo API timeout while processing ETF prices.',
-
-            'started_at' =>
-
-            now()->subMinutes(20),
-
-            'completed_at' =>
-
-            now()->subMinutes(19),
+            'completed_at' => now()->subMinutes(19),
 
         ]);
 
         ImportLog::create([
 
-            'import_type_id' =>
+            'import_type_id' => ImportType::CALCULATE_ETF_METRICS,
 
-            ImportType::CALCULATE_ETF_METRICS,
+            'status_id' => Status::COMPLETED,
 
-            'status_id' =>
-
-            Status::COMPLETED,
-
-            'data_source_id' =>
-
-            DataSource::MANUAL_ENTRY,
+            'data_source_id' => DataSource::MANUAL_ENTRY,
 
             'run_time' => 14,
 
@@ -150,25 +105,15 @@ class ImportLogsSeederController extends Controller
 
             'passed_data_integrity_check' => 1,
 
-            'generated_markdown' =>
+            'generated_markdown' => '# ETF Metrics Calculation Complete',
 
-            '# ETF Metrics Calculation Complete',
+            'processing_notes' => 'ETF metrics calculated successfully.',
 
-            'processing_notes' =>
+            'import_fail_details' => null,
 
-            'ETF metrics calculated successfully.',
+            'started_at' => now()->subMinutes(10),
 
-            'import_fail_details' =>
-
-            null,
-
-            'started_at' =>
-
-            now()->subMinutes(10),
-
-            'completed_at' =>
-
-            now()->subMinutes(9),
+            'completed_at' => now()->subMinutes(9),
 
         ]);
     }

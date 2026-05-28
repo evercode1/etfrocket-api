@@ -4,7 +4,6 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 
 class LoginCheckTest extends TestCase
@@ -46,7 +45,7 @@ class LoginCheckTest extends TestCase
 
         $plainTextToken = explode('|', $newAccessToken->plainTextToken, 2)[1];
 
-        $response = $this->getJson('/api/login-check?token=' . $plainTextToken);
+        $response = $this->getJson('/api/login-check?token='.$plainTextToken);
 
         $response->assertOk()
             ->assertJson([
