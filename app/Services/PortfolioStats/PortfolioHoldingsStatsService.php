@@ -19,7 +19,7 @@ class PortfolioHoldingsStatsService
                 'portfolio_transactions.security_id',
                 'securities.symbol',
                 'security_details.security_name',
-                'securities.distribution_frequency_id',
+                'security_details.distribution_frequency_id',
                 'distribution_frequencies.distribution_frequency_name',
                 DB::raw('
                     SUM(
@@ -44,7 +44,7 @@ class PortfolioHoldingsStatsService
             ->join('security_details', 'securities.id', '=', 'security_details.security_id')
             ->leftJoin(
                 'distribution_frequencies',
-                'securities.distribution_frequency_id',
+                'security_details.distribution_frequency_id',
                 '=',
                 'distribution_frequencies.id'
             )
@@ -53,7 +53,7 @@ class PortfolioHoldingsStatsService
                 'portfolio_transactions.security_id',
                 'securities.symbol',
                 'security_details.security_name',
-                'securities.distribution_frequency_id',
+                'security_details.distribution_frequency_id',
                 'distribution_frequencies.distribution_frequency_name',
             ])
             ->having('shares', '>', 0)

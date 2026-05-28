@@ -116,7 +116,7 @@ class CalculateSecurityMetricService
         );
     }
 
-    private function getStartDate(int $performance_range_type_id, int $etf_id): ?string
+    private function getStartDate(int $performance_range_type_id, int $security_id): ?string
     {
         return match ($performance_range_type_id) {
             PerformanceRangeType::FIVE_DAY => now()->subDays(5)->toDateString(),
@@ -124,7 +124,7 @@ class CalculateSecurityMetricService
             PerformanceRangeType::NINETY_DAY => now()->subDays(90)->toDateString(),
             PerformanceRangeType::YEAR_TO_DATE => now()->startOfYear()->toDateString(),
             PerformanceRangeType::ONE_YEAR => now()->subYear()->toDateString(),
-            PerformanceRangeType::MAX => $this->getMaxStartDate($etf_id),
+            PerformanceRangeType::MAX => $this->getMaxStartDate($security_id),
             default => now()->subDays(30)->toDateString(),
         };
     }

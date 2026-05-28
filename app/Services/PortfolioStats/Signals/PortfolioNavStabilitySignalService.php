@@ -72,36 +72,36 @@ class PortfolioNavStabilitySignalService
 
     private function getNavRows(Collection $holdings): Collection
     {
-        $etfIds = $holdings
-            ->pluck('etf_id')
-            ->map(fn ($etfId) => (int) $etfId)
+        $securityIds = $holdings
+            ->pluck('security_id')
+            ->map(fn ($securityId) => (int) $securityId)
             ->filter()
             ->unique()
             ->values()
             ->toArray();
 
-        if (empty($etfIds)) {
+        if (empty($securityIds)) {
             return collect();
         }
 
         $metricsBySecurity = SecurityMetric::query()
-            ->whereIn('etf_id', $etfIds)
+            ->whereIn('security_id', $securityIds)
             ->where('performance_range_type_id', self::RANGE_TYPE_ID)
             ->get()
-            ->keyBy('etf_id');
+            ->keyBy('security_id');
 
         return $holdings
             ->map(function (array $holding) use ($metricsBySecurity) {
-                $etfId = (int) $holding['etf_id'];
+                $securityId = (int) $holding['security_id'];
 
-                $metric = $metricsBySecurity->get($etfId);
+                $metric = $metricsBySecurity->get($securityId);
 
                 if (! $metric || is_null($metric->nav_erosion_percentage)) {
                     return null;
                 }
 
                 return [
-                    'etf_id' => $etfId,
+                    'security_id' => $securityId,
                     'symbol' => $holding['symbol'] ?? null,
                     'fund_name' => $holding['fund_name'] ?? null,
                     'shares' => round((float) ($holding['shares'] ?? 0), 4),

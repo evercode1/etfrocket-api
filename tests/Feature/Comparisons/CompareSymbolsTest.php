@@ -26,6 +26,7 @@ class CompareSymbolsTest extends TestCase
         DB::table('security_aum_histories')->truncate();
         DB::table('security_metrics')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -37,6 +38,7 @@ class CompareSymbolsTest extends TestCase
         DB::table('security_aum_histories')->truncate();
         DB::table('security_metrics')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -51,8 +53,6 @@ class CompareSymbolsTest extends TestCase
         $security = Security::factory()->create([
 
             'symbol' => 'CHPY',
-
-            'fund_name' => 'CHPY Test Security',
 
         ]);
 
@@ -98,7 +98,7 @@ class CompareSymbolsTest extends TestCase
 
         $response->assertJsonPath(
 
-            'data.summary.compared_etfs_count',
+            'data.summary.compared_securities_count',
 
             1
 
@@ -184,7 +184,7 @@ class CompareSymbolsTest extends TestCase
 
                 'summary' => [
 
-                    'compared_etfs_count',
+                    'compared_securities_count',
 
                     'selected_metric',
 
@@ -198,11 +198,11 @@ class CompareSymbolsTest extends TestCase
 
                     [
 
-                        'etf_id',
+                        'security_id',
 
                         'symbol',
 
-                        'fund_name',
+                        'security_name',
 
                         'selected_metric',
 

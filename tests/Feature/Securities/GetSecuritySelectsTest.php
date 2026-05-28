@@ -1,46 +1,48 @@
 <?php
 
-namespace Tests\Feature\Etfs;
+namespace Tests\Feature\Securities;
 
-use App\Models\Etf;
+use App\Models\Security;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class GetEtfSelectsTest extends TestCase
+class GetSecuritySelectsTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }
 
-    public function test_it_returns_etf_select_options_ordered_by_symbol(): void
+    public function test_it_returns_security_select_options_ordered_by_symbol(): void
     {
         Sanctum::actingAs(User::factory()->create(), ['*']);
 
-        $third = Etf::factory()->create([
+        $third = Security::factory()->create([
             'symbol' => 'YMAX',
         ]);
 
-        $first = Etf::factory()->create([
+        $first = Security::factory()->create([
             'symbol' => 'JEPI',
         ]);
 
-        $second = Etf::factory()->create([
+        $second = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
-        $response = $this->getJson('/api/get-etf-selects');
+        $response = $this->getJson('/api/get-security-selects');
 
         $response->assertOk()
             ->assertJson([
@@ -71,11 +73,11 @@ class GetEtfSelectsTest extends TestCase
         );
     }
 
-    public function test_it_returns_empty_data_when_no_etfs_exist(): void
+    public function test_it_returns_empty_data_when_no_securities_exist(): void
     {
         Sanctum::actingAs(User::factory()->create(), ['*']);
 
-        $response = $this->getJson('/api/get-etf-selects');
+        $response = $this->getJson('/api/get-security-selects');
 
         $response->assertOk()
             ->assertJson([

@@ -1,36 +1,38 @@
 <?php
 
-namespace Tests\Feature\Etfs;
+namespace Tests\Feature\Securities;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
+use App\Models\Security;
+use App\Models\SecurityMetric;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class ListEtfsTest extends TestCase
+class ListSecuritiesTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         Carbon::setTestNow();
 
         parent::tearDown();
     }
 
-    public function test_authenticated_user_can_list_filtered_etfs(): void
+    public function test_authenticated_user_can_list_filtered_securities(): void
     {
         Carbon::setTestNow('2026-05-15');
 
@@ -38,15 +40,15 @@ class ListEtfsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $lowEtf = Etf::factory()->create(['symbol' => 'LOW']);
-        $highEtf = Etf::factory()->create(['symbol' => 'HIGH']);
-        $middleEtf = Etf::factory()->create(['symbol' => 'MID']);
+        $lowSecurity = Security::factory()->create(['symbol' => 'LOW']);
+        $highSecurity = Security::factory()->create(['symbol' => 'HIGH']);
+        $middleSecurity = Security::factory()->create(['symbol' => 'MID']);
 
-        $this->createMetric($lowEtf, ['total_return_percentage' => 5.25]);
-        $this->createMetric($highEtf, ['total_return_percentage' => 22.75]);
-        $this->createMetric($middleEtf, ['total_return_percentage' => 12.50]);
+        $this->createMetric($lowSecurity, ['total_return_percentage' => 5.25]);
+        $this->createMetric($highSecurity, ['total_return_percentage' => 22.75]);
+        $this->createMetric($middleSecurity, ['total_return_percentage' => 12.50]);
 
-        $response = $this->getJson('/api/list-etfs?category=momentum&filter=highest_total_return_percentage&scope=all&range=1y&limit=25');
+        $response = $this->getJson('/api/list-securities?category=momentum&filter=highest_total_return_percentage&scope=all&range=1y&limit=25');
 
         $response->assertStatus(200);
 
@@ -62,9 +64,9 @@ class ListEtfsTest extends TestCase
         $response->assertJsonPath('data.per_page', 25);
     }
 
-    public function test_guest_cannot_list_etfs(): void
+    public function test_guest_cannot_list_securities(): void
     {
-        $response = $this->getJson('/api/list-etfs');
+        $response = $this->getJson('/api/list-securities');
 
         $response->assertStatus(401);
     }
@@ -77,13 +79,13 @@ class ListEtfsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $lowEtf = Etf::factory()->create(['symbol' => 'LOW']);
-        $highEtf = Etf::factory()->create(['symbol' => 'HIGH']);
+        $lowSecurity = Security::factory()->create(['symbol' => 'LOW']);
+        $highSecurity = Security::factory()->create(['symbol' => 'HIGH']);
 
-        $this->createMetric($lowEtf, ['total_return_percentage' => 3.00]);
-        $this->createMetric($highEtf, ['total_return_percentage' => 15.00]);
+        $this->createMetric($lowSecurity, ['total_return_percentage' => 3.00]);
+        $this->createMetric($highSecurity, ['total_return_percentage' => 15.00]);
 
-        $response = $this->getJson('/api/list-etfs');
+        $response = $this->getJson('/api/list-securities');
 
         $response->assertStatus(200);
 
@@ -96,7 +98,7 @@ class ListEtfsTest extends TestCase
         $response->assertJsonPath('data.total', 2);
     }
 
-    public function test_it_paginates_filtered_etfs(): void
+    public function test_it_paginates_filtered_securities(): void
     {
         Carbon::setTestNow('2026-05-15');
 
@@ -105,16 +107,16 @@ class ListEtfsTest extends TestCase
         Sanctum::actingAs($user, ['*']);
 
         for ($i = 1; $i <= 30; $i++) {
-            $etf = Etf::factory()->create([
-                'symbol' => 'ETF'.$i,
+            $security = Security::factory()->create([
+                'symbol' => 'SEC'.$i,
             ]);
 
-            $this->createMetric($etf, [
+            $this->createMetric($security, [
                 'total_return_percentage' => $i,
             ]);
         }
 
-        $response = $this->getJson('/api/list-etfs?category=momentum&filter=highest_total_return_percentage&scope=all&range=1y&limit=10');
+        $response = $this->getJson('/api/list-securities?category=momentum&filter=highest_total_return_percentage&scope=all&range=1y&limit=10');
 
         $response->assertStatus(200);
 
@@ -122,8 +124,8 @@ class ListEtfsTest extends TestCase
         $response->assertJsonPath('data.total', 30);
         $response->assertJsonPath('data.last_page', 3);
 
-        $response->assertJsonPath('data.data.0.symbol', 'ETF30');
-        $response->assertJsonPath('data.data.9.symbol', 'ETF21');
+        $response->assertJsonPath('data.data.0.symbol', 'SEC30');
+        $response->assertJsonPath('data.data.9.symbol', 'SEC21');
     }
 
     public function test_it_returns_500_for_invalid_filter_request(): void
@@ -132,7 +134,7 @@ class ListEtfsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $response = $this->getJson('/api/list-etfs?category=bad-category');
+        $response = $this->getJson('/api/list-securities?category=bad-category');
 
         $response->assertStatus(500);
 
@@ -142,10 +144,10 @@ class ListEtfsTest extends TestCase
         ]);
     }
 
-    private function createMetric(Etf $etf, array $overrides = []): EtfMetric
+    private function createMetric(Security $security, array $overrides = []): SecurityMetric
     {
-        return EtfMetric::factory()->create(array_merge([
-            'etf_id' => $etf->id,
+        return SecurityMetric::factory()->create(array_merge([
+            'security_id' => $security->id,
             'performance_range_type_id' => 1,
 
             'start_date' => Carbon::now()->subDays(30)->toDateString(),

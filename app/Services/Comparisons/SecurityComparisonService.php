@@ -90,39 +90,39 @@ class SecurityComparisonService
         return $range;
     }
 
-    public function resolveEtfIds(array|string|null $etfIds): array
+    public function resolveSecurityIds(array|string|null $securityIds): array
     {
-        if (is_null($etfIds)) {
+        if (is_null($securityIds)) {
             throw new InvalidArgumentException('At least one security is required for comparison.');
         }
 
-        if (is_string($etfIds)) {
-            $etfIds = explode(',', $etfIds);
+        if (is_string($securityIds)) {
+            $securityIds = explode(',', $securityIds);
         }
 
-        $etfIds = collect($etfIds)
+        $securityIds = collect($securityIds)
             ->map(fn ($id) => (int) $id)
             ->filter(fn ($id) => $id > 0)
             ->unique()
             ->values()
             ->toArray();
 
-        if (empty($etfIds)) {
+        if (empty($securityIds)) {
             throw new InvalidArgumentException('At least one valid security is required for comparison.');
         }
 
-        if (count($etfIds) > $this->getMaxSecurities()) {
+        if (count($securityIds) > $this->getMaxSecurities()) {
             throw new InvalidArgumentException("You may compare up to {$this->getMaxSecurities()} securities at one time.");
         }
 
-        return $etfIds;
+        return $securityIds;
     }
 
     public function resolve(array $input = []): array
     {
         $metric = $this->resolveMetric($input['metric'] ?? null);
         $range = $this->resolveRange($input['range'] ?? null);
-        $etfIds = $this->resolveEtfIds($input['etf_ids'] ?? null);
+        $securityIds = $this->resolveSecurityIds($input['security_ids'] ?? null);
 
         $metricConfig = $this->getMetric($metric);
         $days = $this->getRange($range);
@@ -135,7 +135,7 @@ class SecurityComparisonService
 
             'days' => $days,
 
-            'etf_ids' => $etfIds,
+            'security_ids' => $securityIds,
 
             'metric_config' => $metricConfig,
 

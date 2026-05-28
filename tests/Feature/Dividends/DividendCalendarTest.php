@@ -5,6 +5,7 @@ namespace Tests\Feature\Dividends;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
 use App\Models\Security;
+use App\Models\SecurityDetail;
 use App\Models\SecurityDividendHistory;
 use App\Models\Status;
 use App\Models\User;
@@ -25,6 +26,7 @@ class DividendCalendarTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -34,6 +36,7 @@ class DividendCalendarTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -52,9 +55,15 @@ class DividendCalendarTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
+
+        ]);
+
+        SecurityDetail::create([
+            'security_id' => $security->id,
+            'security_name' => 'NVIDIA Corporation',
             'distribution_frequency_id' => 2,
         ]);
 
@@ -124,9 +133,15 @@ class DividendCalendarTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'QQQI',
             'status_id' => Status::ACTIVE,
+
+        ]);
+
+        SecurityDetail::create([
+            'security_id' => $security->id,
+            'security_name' => 'QQQI Corporation',
             'distribution_frequency_id' => 2,
         ]);
 
@@ -171,9 +186,15 @@ class DividendCalendarTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $monthlySecurity = Security::factory()->create([
+        $monthlySecurity = Security::create([
             'symbol' => 'JEPI',
             'status_id' => Status::ACTIVE,
+
+        ]);
+
+        SecurityDetail::create([
+            'security_id' => $monthlySecurity->id,
+            'security_name' => 'JEPI Corporation',
             'distribution_frequency_id' => 4,
         ]);
 

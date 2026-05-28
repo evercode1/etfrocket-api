@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Comparisons;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
+use App\Models\Security;
+use App\Models\SecurityMetric;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
@@ -16,15 +16,17 @@ class MetricExplorerTest extends TestCase
     {
         parent::setUp();
 
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -36,17 +38,15 @@ class MetricExplorerTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
 
             'symbol' => 'CHPY',
 
-            'fund_name' => 'CHPY Test ETF',
-
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -138,11 +138,11 @@ class MetricExplorerTest extends TestCase
 
                         'rank',
 
-                        'etf_id',
+                        'security_id',
 
                         'symbol',
 
-                        'fund_name',
+                        'security_name',
 
                         'metric',
 
@@ -166,11 +166,11 @@ class MetricExplorerTest extends TestCase
 
                         'rank',
 
-                        'etf_id',
+                        'security_id',
 
                         'symbol',
 
-                        'fund_name',
+                        'security_name',
 
                         'metric',
 
@@ -207,15 +207,15 @@ class MetricExplorerTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
 
             'symbol' => 'CHPY',
 
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -254,15 +254,15 @@ class MetricExplorerTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
 
             'symbol' => 'CHPY',
 
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::ONE_YEAR,
 
@@ -301,21 +301,21 @@ class MetricExplorerTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $high = Etf::factory()->create([
+        $high = Security::factory()->create([
 
             'symbol' => 'HIGH',
 
         ]);
 
-        $low = Etf::factory()->create([
+        $low = Security::factory()->create([
 
             'symbol' => 'LOW',
 
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $high->id,
+            'security_id' => $high->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -323,9 +323,9 @@ class MetricExplorerTest extends TestCase
 
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $low->id,
+            'security_id' => $low->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -358,15 +358,15 @@ class MetricExplorerTest extends TestCase
 
         foreach (range(1, 10) as $index) {
 
-            $etf = Etf::factory()->create([
+            $security = Security::factory()->create([
 
-                'symbol' => "ETF{$index}",
+                'symbol' => "SEC{$index}",
 
             ]);
 
-            EtfMetric::factory()->create([
+            SecurityMetric::factory()->create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 

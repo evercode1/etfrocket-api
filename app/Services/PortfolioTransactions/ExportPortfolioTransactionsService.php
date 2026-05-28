@@ -11,7 +11,7 @@ class ExportPortfolioTransactionsService
     public function export(
         int $userId,
         int $portfolioId,
-        ?int $etfId = null
+        ?int $securityId = null
     ): StreamedResponse {
         Portfolio::where('user_id', $userId)
             ->where('id', $portfolioId)
@@ -37,8 +37,8 @@ class ExportPortfolioTransactionsService
 
             ->orderBy('portfolio_transactions.id');
 
-        if ($etfId) {
-            $query->where('portfolio_transactions.etf_id', $etfId);
+        if ($securityId) {
+            $query->where('portfolio_transactions.security_id', $securityId);
         }
 
         $transactions = $query->get();

@@ -201,9 +201,9 @@ class PortfolioCompareService
         $startDate = $this->getStartDate($resolved['days']);
 
         $query = DB::table($resolved['table'])
-            ->whereIn('etf_id', $resolved['etf_ids'])
+            ->whereIn('security_id', $resolved['security_ids'])
             ->select([
-                'etf_id',
+                'security_id',
                 $resolved['date_column'].' as metric_date',
                 $resolved['value_column'].' as metric_value',
             ])

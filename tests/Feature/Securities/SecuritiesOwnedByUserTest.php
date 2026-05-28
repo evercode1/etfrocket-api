@@ -1,16 +1,16 @@
 <?php
 
-namespace Tests\Feature\Etfs;
+namespace Tests\Feature\Securities;
 
-use App\Models\Etf;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class EtfsOwnedByUserTest extends TestCase
+class SecuritiesOwnedByUserTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -18,19 +18,21 @@ class EtfsOwnedByUserTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
     }
 
     protected function tearDown(): void
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }
 
-    public function test_authenticated_user_can_list_etfs_owned_by_portfolio_sorted_by_symbol(): void
+    public function test_authenticated_user_can_list_securities_owned_by_portfolio_sorted_by_symbol(): void
     {
         $user = User::factory()->create();
 
@@ -40,26 +42,26 @@ class EtfsOwnedByUserTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $vym = Etf::factory()->create(['symbol' => 'VYM']);
-        $schd = Etf::factory()->create(['symbol' => 'SCHD']);
-        $qqqi = Etf::factory()->create(['symbol' => 'QQQI']);
+        $vym = Security::factory()->create(['symbol' => 'VYM']);
+        $schd = Security::factory()->create(['symbol' => 'SCHD']);
+        $qqqi = Security::factory()->create(['symbol' => 'QQQI']);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $vym->id,
+            'security_id' => $vym->id,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $qqqi->id,
+            'security_id' => $qqqi->id,
         ]);
 
-        $response = $this->getJson("/api/list-etfs-owned-by-user/{$portfolio->id}");
+        $response = $this->getJson("/api/list-securities-owned-by-user/{$portfolio->id}");
 
         $response->assertStatus(200);
 
@@ -91,7 +93,7 @@ class EtfsOwnedByUserTest extends TestCase
         );
     }
 
-    public function test_it_returns_each_etf_only_once_even_when_multiple_transactions_exist(): void
+    public function test_it_returns_each_security_only_once_even_when_multiple_transactions_exist(): void
     {
         $user = User::factory()->create();
 
@@ -101,21 +103,21 @@ class EtfsOwnedByUserTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $schd = Etf::factory()->create([
+        $schd = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
         ]);
 
-        $response = $this->getJson("/api/list-etfs-owned-by-user/{$portfolio->id}");
+        $response = $this->getJson("/api/list-securities-owned-by-user/{$portfolio->id}");
 
         $response->assertStatus(200);
 
@@ -132,7 +134,7 @@ class EtfsOwnedByUserTest extends TestCase
         $this->assertCount(1, $response->json('data'));
     }
 
-    public function test_it_does_not_include_etfs_from_other_portfolios(): void
+    public function test_it_does_not_include_securities_from_other_portfolios(): void
     {
         $user = User::factory()->create();
 
@@ -144,25 +146,25 @@ class EtfsOwnedByUserTest extends TestCase
 
         $otherPortfolio = Portfolio::factory()->create();
 
-        $schd = Etf::factory()->create([
+        $schd = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
-        $vym = Etf::factory()->create([
+        $vym = Security::factory()->create([
             'symbol' => 'VYM',
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $otherPortfolio->id,
-            'etf_id' => $vym->id,
+            'security_id' => $vym->id,
         ]);
 
-        $response = $this->getJson("/api/list-etfs-owned-by-user/{$portfolio->id}");
+        $response = $this->getJson("/api/list-securities-owned-by-user/{$portfolio->id}");
 
         $response->assertStatus(200);
 
@@ -193,7 +195,7 @@ class EtfsOwnedByUserTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $response = $this->getJson("/api/list-etfs-owned-by-user/{$portfolio->id}");
+        $response = $this->getJson("/api/list-securities-owned-by-user/{$portfolio->id}");
 
         $response->assertStatus(200);
 
@@ -203,9 +205,9 @@ class EtfsOwnedByUserTest extends TestCase
         ]);
     }
 
-    public function test_guest_cannot_list_etfs_owned_by_user(): void
+    public function test_guest_cannot_list_securities_owned_by_user(): void
     {
-        $response = $this->getJson('/api/list-etfs-owned-by-user/1');
+        $response = $this->getJson('/api/list-securities-owned-by-user/1');
 
         $response->assertStatus(401);
     }

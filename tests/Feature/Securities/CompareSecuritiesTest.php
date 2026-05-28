@@ -1,35 +1,36 @@
 <?php
 
-namespace Tests\Feature\Etfs;
+namespace Tests\Feature\Security;
 
-use App\Models\Etf;
+use App\Models\Security;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class CompareEtfsTest extends TestCase
+class CompareSecuritiesTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
-
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         Carbon::setTestNow();
 
         parent::tearDown();
     }
 
-    public function test_authenticated_user_can_compare_etfs(): void
+    public function test_authenticated_user_can_compare_securities(): void
     {
         Carbon::setTestNow('2026-05-15');
 
@@ -37,14 +38,14 @@ class CompareEtfsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $schd = Etf::factory()->create([
+        $schd = Security::factory()->create([
             'symbol' => 'SCHD',
-            'fund_name' => 'Schwab U.S. Dividend Equity ETF',
+
         ]);
 
-        $vym = Etf::factory()->create([
+        $vym = Security::factory()->create([
             'symbol' => 'VYM',
-            'fund_name' => 'Vanguard High Dividend Yield ETF',
+
         ]);
 
         $this->createPriceHistory($schd->id, '2026-05-13', 78.12);
@@ -66,16 +67,16 @@ class CompareEtfsTest extends TestCase
         $response->assertJsonPath('data.metric', 'price');
         $response->assertJsonPath('data.range', '30d');
 
-        $response->assertJsonPath('data.series.0.etf_id', $schd->id);
+        $response->assertJsonPath('data.series.0.security_id', $schd->id);
         $response->assertJsonPath('data.series.0.symbol', 'SCHD');
-        $response->assertJsonPath('data.series.0.fund_name', 'Schwab U.S. Dividend Equity ETF');
+        $response->assertJsonPath('data.series.0.fund_name', 'SCHD_name');
 
         $response->assertJsonPath('data.series.0.points.0.date', '2026-05-13');
         $response->assertJsonPath('data.series.0.points.0.value', '78.1200');
         $response->assertJsonPath('data.series.0.points.1.date', '2026-05-14');
         $response->assertJsonPath('data.series.0.points.1.value', '78.4400');
 
-        $response->assertJsonPath('data.series.1.etf_id', $vym->id);
+        $response->assertJsonPath('data.series.1.security_id', $vym->id);
         $response->assertJsonPath('data.series.1.symbol', 'VYM');
 
         $response->assertJsonPath('data.series.1.points.0.date', '2026-05-13');
@@ -84,14 +85,14 @@ class CompareEtfsTest extends TestCase
         $response->assertJsonPath('data.series.1.points.1.value', '120.1000');
     }
 
-    public function test_guest_cannot_compare_etfs(): void
+    public function test_guest_cannot_compare_securities(): void
     {
-        $response = $this->getJson('/api/compare-etfs');
+        $response = $this->getJson('/api/compare-securities');
 
         $response->assertStatus(401);
     }
 
-    public function test_compare_etfs_uses_default_metric_and_range(): void
+    public function test_compare_securities_uses_default_metric_and_range(): void
     {
         Carbon::setTestNow('2026-05-15');
 
@@ -99,14 +100,14 @@ class CompareEtfsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
-        $this->createPriceHistory($etf->id, '2026-05-14', 78.44);
+        $this->createPriceHistory($security->id, '2026-05-14', 78.44);
 
         $response = $this->getJson(
-            "/api/compare-etfs?etf_ids={$etf->id}"
+            "/api/compare-securities?security_ids={$security->id}"
         );
 
         $response->assertStatus(200);
@@ -118,7 +119,7 @@ class CompareEtfsTest extends TestCase
         $response->assertJsonPath('data.series.0.points.0.value', '78.4400');
     }
 
-    public function test_compare_etfs_filters_history_by_range(): void
+    public function test_compare_securities_filters_history_by_range(): void
     {
         Carbon::setTestNow('2026-05-15');
 
@@ -126,16 +127,16 @@ class CompareEtfsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
-        $this->createPriceHistory($etf->id, '2026-04-01', 75.00);
-        $this->createPriceHistory($etf->id, '2026-05-01', 77.00);
-        $this->createPriceHistory($etf->id, '2026-05-14', 78.00);
+        $this->createPriceHistory($security->id, '2026-04-01', 75.00);
+        $this->createPriceHistory($security->id, '2026-05-01', 77.00);
+        $this->createPriceHistory($security->id, '2026-05-14', 78.00);
 
         $response = $this->getJson(
-            "/api/compare-etfs?metric=price&range=30d&etf_ids={$etf->id}"
+            "/api/compare-securities?metric=price&range=30d&security_ids={$security->id}"
         );
 
         $response->assertStatus(200);
@@ -146,7 +147,7 @@ class CompareEtfsTest extends TestCase
         $this->assertCount(2, $response->json('data.series.0.points'));
     }
 
-    public function test_compare_etfs_preserves_requested_etf_order(): void
+    public function test_compare_securities_preserves_requested_security_order(): void
     {
         Carbon::setTestNow('2026-05-15');
 
@@ -154,14 +155,14 @@ class CompareEtfsTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $aaa = Etf::factory()->create(['symbol' => 'AAA']);
-        $bbb = Etf::factory()->create(['symbol' => 'BBB']);
+        $aaa = Security::factory()->create(['symbol' => 'AAA']);
+        $bbb = Security::factory()->create(['symbol' => 'BBB']);
 
         $this->createPriceHistory($aaa->id, '2026-05-14', 10.00);
         $this->createPriceHistory($bbb->id, '2026-05-14', 20.00);
 
         $response = $this->getJson(
-            "/api/compare-etfs?metric=price&range=30d&etf_ids={$bbb->id},{$aaa->id}"
+            "/api/compare-securities?metric=price&range=30d&security_ids={$bbb->id},{$aaa->id}"
         );
 
         $response->assertStatus(200);
@@ -170,14 +171,14 @@ class CompareEtfsTest extends TestCase
         $response->assertJsonPath('data.series.1.symbol', 'AAA');
     }
 
-    public function test_compare_etfs_returns_500_for_invalid_metric(): void
+    public function test_compare_securities_returns_500_for_invalid_metric(): void
     {
         $user = User::factory()->create();
 
         Sanctum::actingAs($user, ['*']);
 
         $response = $this->getJson(
-            '/api/compare-etfs?metric=bad_metric&range=30d&etf_ids=1,2'
+            '/api/compare-securities?metric=bad_metric&range=30d&security_ids=1,2'
         );
 
         $response->assertStatus(500);
@@ -188,13 +189,13 @@ class CompareEtfsTest extends TestCase
         ]);
     }
 
-    public function test_compare_etfs_returns_500_when_no_etfs_are_provided(): void
+    public function test_compare_securities_returns_500_when_no_securities_are_provided(): void
     {
         $user = User::factory()->create();
 
         Sanctum::actingAs($user, ['*']);
 
-        $response = $this->getJson('/api/compare-etfs?metric=price&range=30d');
+        $response = $this->getJson('/api/compare-securities?metric=price&range=30d');
 
         $response->assertStatus(500);
 
@@ -204,10 +205,10 @@ class CompareEtfsTest extends TestCase
         ]);
     }
 
-    private function createPriceHistory(int $etfId, string $date, float $closePrice): void
+    private function createPriceHistory(int $securityId, string $date, float $closePrice): void
     {
-        DB::table('etf_price_histories')->insert([
-            'etf_id' => $etfId,
+        DB::table('security_price_histories')->insert([
+            'security_id' => $securityId,
             'price_date' => $date,
             'close_price' => $closePrice,
             'created_at' => Carbon::now(),

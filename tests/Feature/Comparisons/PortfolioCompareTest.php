@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Comparisons;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
-use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityMetric;
+use App\Models\SecurityPriceHistory;
 use App\Models\Status;
 use App\Models\User;
 use Carbon\Carbon;
@@ -25,9 +25,10 @@ class PortfolioCompareTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -35,9 +36,10 @@ class PortfolioCompareTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -57,36 +59,35 @@ class PortfolioCompareTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test ETF',
             'status_id' => Status::ACTIVE,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 25,
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfPriceHistory::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
             'price_date' => '2026-05-20',
             'close_price' => '30.0000',
             'volume' => 1000,
         ]);
 
-        EtfMetric::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityMetric::factory()->create([
+            'security_id' => $security->id,
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
             'total_return_percentage' => '18.0000',
         ]);
 
-        EtfMetric::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityMetric::factory()->create([
+            'security_id' => $security->id,
             'performance_range_type_id' => PerformanceRangeType::MAX,
             'nav_erosion_percentage' => '-2.0000',
         ]);
@@ -105,7 +106,7 @@ class PortfolioCompareTest extends TestCase
         $response->assertJsonPath('data.portfolio.name', 'Main Portfolio');
         $response->assertJsonPath('data.selected.metric', 'price');
         $response->assertJsonPath('data.selected.range', '30d');
-        $response->assertJsonPath('data.summary.compared_etfs_count', 1);
+        $response->assertJsonPath('data.summary.compared_securities_count', 1);
         $response->assertJsonPath('data.table_rows.0.symbol', 'NVII');
 
         $this->assertEquals(
@@ -130,7 +131,7 @@ class PortfolioCompareTest extends TestCase
 
         $response->assertStatus(200);
 
-        $response->assertJsonPath('data.summary.compared_etfs_count', 0);
+        $response->assertJsonPath('data.summary.compared_securities_count', 0);
 
         $this->assertSame([], $response->json('data.table_rows'));
         $this->assertSame([], $response->json('data.chart_rows'));

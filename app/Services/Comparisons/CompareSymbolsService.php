@@ -84,7 +84,7 @@ class CompareSymbolsService
 
                 'symbol' => $security->symbol,
 
-                'security_name' => $security->security_name,
+                'security_name' => $security->detail->security_name,
 
                 'selected_metric' => $metric,
 
@@ -129,7 +129,7 @@ class CompareSymbolsService
 
             'summary' => [
 
-                'compared_etfs_count' => count($tableRows),
+                'compared_securities_count' => count($tableRows),
 
                 'selected_metric' => $metric,
 

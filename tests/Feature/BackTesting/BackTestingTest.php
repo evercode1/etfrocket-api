@@ -19,6 +19,7 @@ class BackTestingTest extends TestCase
         DB::table('security_price_histories')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -27,6 +28,7 @@ class BackTestingTest extends TestCase
         DB::table('security_price_histories')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();

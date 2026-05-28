@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\SecurityFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Security extends Model
 {
@@ -28,6 +29,11 @@ class Security extends Model
             'updated_at' => 'date:Y-m-d',
 
         ];
+    }
+
+    public function detail(): HasOne
+    {
+        return $this->hasOne(SecurityDetail::class, 'security_id', 'id');
     }
 
     public static function getSelects()

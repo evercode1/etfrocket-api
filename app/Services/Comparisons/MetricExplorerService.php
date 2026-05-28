@@ -131,7 +131,7 @@ class MetricExplorerService
     ): string {
 
         $ranges =
-            config('etf_comparison.ranges');
+            config('security_comparison.ranges');
 
         $range =
             $range ?: '90d';
