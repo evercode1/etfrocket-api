@@ -24,9 +24,9 @@ class PortfolioTransactionsController extends Controller
         ListPortfolioTransactionsService $service
     ) {
 
-        $etfId = $request->filled('etf_id')
+        $securityId = $request->filled('security_id')
 
-            ? (int) $request->input('etf_id')
+            ? (int) $request->input('security_id')
 
             : null;
 
@@ -40,7 +40,7 @@ class PortfolioTransactionsController extends Controller
 
                 $portfolio_id,
 
-                $etfId
+                $securityId
 
             );
         } catch (\Exception $e) {
@@ -87,7 +87,7 @@ class PortfolioTransactionsController extends Controller
         CreatePortfolioTransactionService $service
     ) {
         $request->validate([
-            'etf_id' => ['required', 'integer'],
+            'security_id' => ['required', 'integer'],
             'transaction_type_id' => ['required', 'integer'],
             'shares' => ['required', 'numeric', 'gt:0'],
             'price_per_share' => ['required', 'numeric', 'gte:0'],
@@ -146,7 +146,7 @@ class PortfolioTransactionsController extends Controller
         UpdatePortfolioTransactionService $service
     ) {
         $request->validate([
-            'etf_id' => ['sometimes', 'required', 'integer'],
+            'security_id' => ['sometimes', 'required', 'integer'],
             'transaction_type_id' => ['sometimes', 'required', 'integer'],
             'shares' => ['sometimes', 'required', 'numeric', 'gt:0'],
             'price_per_share' => ['sometimes', 'required', 'numeric', 'gte:0'],
@@ -204,11 +204,11 @@ class PortfolioTransactionsController extends Controller
     {
         return [
             [
-                'name' => 'etf_id',
-                'label' => 'ETF',
+                'name' => 'security_id',
+                'label' => 'Security',
                 'type' => 'select',
                 'required' => true,
-                'value' => $transaction?->etf_id,
+                'value' => $transaction?->security_id,
             ],
             [
                 'name' => 'transaction_type_id',
@@ -392,7 +392,7 @@ class PortfolioTransactionsController extends Controller
             return $service->export(
                 Auth::id(),
                 $portfolio_id,
-                $request->input('etf_id')
+                $request->input('security_id')
             );
         } catch (\Exception $e) {
 
@@ -462,13 +462,13 @@ class PortfolioTransactionsController extends Controller
 
                 ->leftJoin('portfolios', 'portfolio_transactions.portfolio_id', '=', 'portfolios.id')
 
-                ->leftJoin('etfs', 'portfolio_transactions.etf_id', '=', 'etfs.id')
+                ->leftJoin('securities', 'portfolio_transactions.security_id', '=', 'securities.id')
 
                 ->where('portfolios.user_id', Auth::id())
 
                 ->select([
                     'portfolio_transactions.*',
-                    'etfs.symbol',
+                    'securities.symbol',
                 ])
 
                 ->firstOrFail();

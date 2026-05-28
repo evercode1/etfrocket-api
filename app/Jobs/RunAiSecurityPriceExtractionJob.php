@@ -2,18 +2,18 @@
 
 namespace App\Jobs;
 
-use App\Models\Etf;
-use App\Models\EtfIngestionBatch;
-use App\Models\EtfIngestionBatchItem;
+use App\Models\Security;
+use App\Models\SecurityIngestionBatch;
+use App\Models\SecurityIngestionBatchItem;
 use App\Models\Status;
-use App\Services\AI\Extractions\AiEtfPriceExtractionService;
-use App\Services\AI\Extractions\ProcessAiEtfPriceExtractionService;
+use App\Services\AI\Extractions\AiSecurityPriceExtractionService;
+use App\Services\AI\Extractions\ProcessAiSecurityPriceExtractionService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class RunAiEtfPriceExtractionJob implements ShouldQueue
+class RunAiSecurityPriceExtractionJob implements ShouldQueue
 {
     use Queueable;
 
@@ -25,15 +25,15 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
         public int $batchId,
 
-        public int $etfId
+        public int $securityId
 
     ) {}
 
     public function handle(
 
-        AiEtfPriceExtractionService $aiEtfPriceExtractionService,
+        AiSecurityPriceExtractionService $aiSecurityPriceExtractionService,
 
-        ProcessAiEtfPriceExtractionService $processAiEtfPriceExtractionService
+        ProcessAiSecurityPriceExtractionService $processAiSecurityPriceExtractionService
 
     ): void {
 
@@ -48,18 +48,17 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
         $batchItem =
 
-            EtfIngestionBatchItem::where(
+            SecurityIngestionBatchItem::where(
 
-                'etf_ingestion_batch_id',
+                'security_ingestion_batch_id',
 
                 $this->batchId
 
             )
                 ->where(
 
-                    'etf_id',
-
-                    $this->etfId
+                    'security_id',
+                    $this->securityId
 
                 )
                 ->firstOrFail();
@@ -86,20 +85,20 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
                 'batch_id' => $this->batchId,
 
-                'etf_id' => $this->etfId,
+                'security_id' => $this->securityId,
 
             ]);
 
             /*
             |--------------------------------------------------------------------------
-            | ETF Lookup
+            | Security Lookup
             |--------------------------------------------------------------------------
             */
 
-            $etf =
+            $security =
 
-                Etf::findOrFail(
-                    $this->etfId
+                Security::findOrFail(
+                    $this->securityId
                 );
 
             /*
@@ -110,9 +109,9 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
             $extraction =
 
-                $aiEtfPriceExtractionService
+                $aiSecurityPriceExtractionService
                     ->extract(
-                        $etf
+                        $security
                     );
 
             /*
@@ -121,7 +120,7 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
             |--------------------------------------------------------------------------
             */
 
-            $processAiEtfPriceExtractionService
+            $processAiSecurityPriceExtractionService
                 ->process(
                     $extraction
                 );
@@ -167,7 +166,7 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
                     ]);
 
-                    EtfIngestionBatch::where(
+                    SecurityIngestionBatch::where(
 
                         'id',
 
@@ -181,7 +180,7 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
                         );
 
-                    EtfIngestionBatch::where(
+                    SecurityIngestionBatch::where(
 
                         'id',
 
@@ -291,7 +290,7 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
                     ) {
 
-                        EtfIngestionBatch::where(
+                        SecurityIngestionBatch::where(
 
                             'id',
 
@@ -305,7 +304,7 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
                             );
 
-                        EtfIngestionBatch::where(
+                        SecurityIngestionBatch::where(
 
                             'id',
 
@@ -348,7 +347,7 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
         $batch =
 
-            EtfIngestionBatch::findOrFail(
+            SecurityIngestionBatch::findOrFail(
                 $this->batchId
             );
 
@@ -373,7 +372,7 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
             $updated =
 
-                EtfIngestionBatch::where(
+                SecurityIngestionBatch::where(
 
                     'id',
 
@@ -393,7 +392,7 @@ class RunAiEtfPriceExtractionJob implements ShouldQueue
 
             if ($updated) {
 
-                FinalizeEtfPriceExtractionBatchJob::dispatch(
+                FinalizeSecurityPriceExtractionBatchJob::dispatch(
 
                     $batch->id
 

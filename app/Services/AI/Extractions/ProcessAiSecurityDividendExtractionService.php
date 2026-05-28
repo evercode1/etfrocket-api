@@ -3,12 +3,12 @@
 namespace App\Services\AI\Extractions;
 
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ProcessAiEtfDividendExtractionService
+class ProcessAiSecurityDividendExtractionService
 {
     public function process(
         AiDataExtraction $extraction
@@ -20,16 +20,16 @@ class ProcessAiEtfDividendExtractionService
 
                 function () use ($extraction) {
 
-                    $etf =
+                    $security =
 
-                        Etf::find(
-                            $extraction->etf_id
+                        Security::find(
+                            $extraction->security_id
                         );
 
-                    if (! $etf) {
+                    if (! $security) {
 
                         throw new \RuntimeException(
-                            'ETF not found for AI dividend extraction.'
+                            'Security not found for AI dividend extraction.'
                         );
                     }
 
@@ -40,12 +40,12 @@ class ProcessAiEtfDividendExtractionService
                     if (! is_array($data)) {
 
                         throw new \RuntimeException(
-                            'Extracted ETF dividend data is missing or invalid.'
+                            'Extracted Security dividend data is missing or invalid.'
                         );
                     }
 
                     $this->validateSymbol(
-                        $etf,
+                        $security,
                         $data
                     );
 
@@ -64,7 +64,7 @@ class ProcessAiEtfDividendExtractionService
 
                         'failure_reason' => null,
 
-                        'validation_notes' => 'AI ETF dividend extraction processed successfully.',
+                        'validation_notes' => 'AI Security dividend extraction processed successfully.',
 
                     ]);
 
@@ -82,7 +82,7 @@ class ProcessAiEtfDividendExtractionService
 
                 'failure_reason' => $e->getMessage(),
 
-                'validation_notes' => 'AI ETF dividend extraction failed processing.',
+                'validation_notes' => 'AI Security dividend extraction failed processing.',
 
             ]);
 
@@ -91,7 +91,7 @@ class ProcessAiEtfDividendExtractionService
     }
 
     private function validateSymbol(
-        Etf $etf,
+        Security $security,
         array $data
     ): void {
 
@@ -105,12 +105,12 @@ class ProcessAiEtfDividendExtractionService
         if (
 
             strtoupper($data['symbol']) !==
-            strtoupper($etf->symbol)
+            strtoupper($security->symbol)
 
         ) {
 
             throw new \RuntimeException(
-                'Extracted symbol does not match ETF symbol.'
+                'Extracted symbol does not match Security symbol.'
             );
         }
     }
@@ -170,11 +170,11 @@ class ProcessAiEtfDividendExtractionService
                 );
         }
 
-        EtfDividendHistory::updateOrCreate(
+        SecurityDividendHistory::updateOrCreate(
 
             [
 
-                'etf_id' => $extraction->etf_id,
+                'security_id' => $extraction->security_id,
 
                 'ex_dividend_date' => $exDividendDate,
 

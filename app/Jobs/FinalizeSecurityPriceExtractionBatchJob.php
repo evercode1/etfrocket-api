@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
-use App\Models\EtfIngestionBatch;
 use App\Models\ImportType;
+use App\Models\SecurityIngestionBatch;
 use App\Models\Status;
 use App\Services\ImportLogs\ImportLogsService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class FinalizeEtfPriceExtractionBatchJob implements ShouldQueue
+class FinalizeSecurityPriceExtractionBatchJob implements ShouldQueue
 {
     use Queueable;
 
@@ -27,7 +27,7 @@ class FinalizeEtfPriceExtractionBatchJob implements ShouldQueue
     {
         $batch =
 
-            EtfIngestionBatch::findOrFail(
+            SecurityIngestionBatch::findOrFail(
                 $this->batchId
             );
 
@@ -41,7 +41,7 @@ class FinalizeEtfPriceExtractionBatchJob implements ShouldQueue
 
             $batch->processed_count
             >=
-            $batch->total_etfs;
+            $batch->total_securities;
 
         /*
         |--------------------------------------------------------------------------
@@ -56,7 +56,7 @@ class FinalizeEtfPriceExtractionBatchJob implements ShouldQueue
             &&
 
             $batch->success_count ===
-            $batch->total_etfs;
+            $batch->total_securities;
 
         /*
         |--------------------------------------------------------------------------

@@ -2,18 +2,18 @@
 
 namespace App\Jobs;
 
-use App\Models\Etf;
-use App\Models\EtfIngestionBatch;
-use App\Models\EtfIngestionBatchItem;
+use App\Models\Security;
+use App\Models\SecurityIngestionBatch;
+use App\Models\SecurityIngestionBatchItem;
 use App\Models\Status;
-use App\Services\AI\Extractions\AiEtfDividendExtractionService;
-use App\Services\AI\Extractions\ProcessAiEtfDividendExtractionService;
+use App\Services\AI\Extractions\AiSecurityDividendExtractionService;
+use App\Services\AI\Extractions\ProcessAiSecurityDividendExtractionService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class RunAiEtfDividendExtractionJob implements ShouldQueue
+class RunAiSecurityDividendExtractionJob implements ShouldQueue
 {
     use Queueable;
 
@@ -25,15 +25,15 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
         public int $batchId,
 
-        public int $etfId
+        public int $securityId
 
     ) {}
 
     public function handle(
 
-        AiEtfDividendExtractionService $aiEtfDividendExtractionService,
+        AiSecurityDividendExtractionService $aiSecurityDividendExtractionService,
 
-        ProcessAiEtfDividendExtractionService $processAiEtfDividendExtractionService
+        ProcessAiSecurityDividendExtractionService $processAiSecurityDividendExtractionService
 
     ): void {
 
@@ -41,7 +41,7 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
             'batch_id' => $this->batchId,
 
-            'etf_id' => $this->etfId,
+            'security_id' => $this->securityId,
 
             'attempt' => $this->attempts(),
 
@@ -52,18 +52,17 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
         $batchItem =
 
-            EtfIngestionBatchItem::where(
+            SecurityIngestionBatchItem::where(
 
-                'etf_ingestion_batch_id',
+                'security_ingestion_batch_id',
 
                 $this->batchId
 
             )
                 ->where(
 
-                    'etf_id',
-
-                    $this->etfId
+                    'security_id',
+                    $this->securityId
 
                 )
                 ->firstOrFail();
@@ -80,19 +79,19 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
             ]);
 
-            $etf =
-                Etf::findOrFail(
-                    $this->etfId
+            $security =
+                Security::findOrFail(
+                    $this->securityId
                 );
 
             $extraction =
 
-                $aiEtfDividendExtractionService
+                $aiSecurityDividendExtractionService
                     ->extract(
-                        $etf
+                        $security
                     );
 
-            $processAiEtfDividendExtractionService
+            $processAiSecurityDividendExtractionService
                 ->process(
                     $extraction
                 );
@@ -126,7 +125,7 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
                     ]);
 
-                    EtfIngestionBatch::where(
+                    SecurityIngestionBatch::where(
 
                         'id',
 
@@ -136,7 +135,7 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
                         'processed_count'
                     );
 
-                    EtfIngestionBatch::where(
+                    SecurityIngestionBatch::where(
 
                         'id',
 
@@ -206,7 +205,7 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
                     ) {
 
-                        EtfIngestionBatch::where(
+                        SecurityIngestionBatch::where(
 
                             'id',
 
@@ -216,7 +215,7 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
                             'processed_count'
                         );
 
-                        EtfIngestionBatch::where(
+                        SecurityIngestionBatch::where(
 
                             'id',
 
@@ -232,13 +231,13 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
             Log::error(
 
-                'AI ETF dividend extraction job failed.',
+                'AI Security dividend extraction job failed.',
 
                 [
 
                     'batch_id' => $this->batchId,
 
-                    'etf_id' => $this->etfId,
+                    'security_id' => $this->securityId,
 
                     'message' => $e->getMessage(),
 
@@ -264,20 +263,20 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
     {
         $batch =
 
-            EtfIngestionBatch::findOrFail(
+            SecurityIngestionBatch::findOrFail(
                 $this->batchId
             );
 
         if (
 
             $batch->processed_count >=
-            $batch->total_etfs
+            $batch->total_securities
 
         ) {
 
             $updated =
 
-                EtfIngestionBatch::where(
+                SecurityIngestionBatch::where(
 
                     'id',
 
@@ -295,7 +294,7 @@ class RunAiEtfDividendExtractionJob implements ShouldQueue
 
             if ($updated) {
 
-                FinalizeEtfDividendExtractionBatchJob::dispatch(
+                FinalizeSecurityDividendExtractionBatchJob::dispatch(
 
                     $batch->id
 

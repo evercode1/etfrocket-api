@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Models\Etf;
-use App\Models\EtfIngestionBatch;
-use App\Models\EtfIngestionBatchItem;
+use App\Models\Security;
+use App\Models\SecurityIngestionBatch;
+use App\Models\SecurityIngestionBatchItem;
 use App\Models\Status;
 use App\Services\AI\Extractions\AiEtfAumExtractionService;
 use App\Services\AI\Extractions\ProcessAiEtfAumExtractionService;
@@ -25,7 +25,7 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
 
         public int $batchId,
 
-        public int $etfId
+        public int $securityId
 
     ) {}
 
@@ -42,18 +42,18 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
 
         $batchItem =
 
-            EtfIngestionBatchItem::where(
+            SecurityIngestionBatchItem::where(
 
-                'etf_ingestion_batch_id',
+                'security_ingestion_batch_id',
 
                 $this->batchId
 
             )
                 ->where(
 
-                    'etf_id',
+                    'security_id',
 
-                    $this->etfId
+                    $this->securityId
 
                 )
                 ->firstOrFail();
@@ -70,16 +70,16 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
 
             ]);
 
-            $etf =
-                Etf::findOrFail(
-                    $this->etfId
+            $security =
+                Security::findOrFail(
+                    $this->securityId
                 );
 
             $extraction =
 
                 $aiEtfAumExtractionService
                     ->extract(
-                        $etf
+                        $security
                     );
 
             $processAiEtfAumExtractionService
@@ -116,7 +116,7 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
 
                     ]);
 
-                    EtfIngestionBatch::where(
+                    SecurityIngestionBatch::where(
 
                         'id',
 
@@ -126,7 +126,7 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
                         'processed_count'
                     );
 
-                    EtfIngestionBatch::where(
+                    SecurityIngestionBatch::where(
 
                         'id',
 
@@ -196,7 +196,7 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
 
                     ) {
 
-                        EtfIngestionBatch::where(
+                        SecurityIngestionBatch::where(
 
                             'id',
 
@@ -206,7 +206,7 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
                             'processed_count'
                         );
 
-                        EtfIngestionBatch::where(
+                        SecurityIngestionBatch::where(
 
                             'id',
 
@@ -228,7 +228,7 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
 
                     'batch_id' => $this->batchId,
 
-                    'etf_id' => $this->etfId,
+                    'security_id' => $this->securityId,
 
                     'message' => $e->getMessage(),
 
@@ -254,20 +254,20 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
     {
         $batch =
 
-            EtfIngestionBatch::findOrFail(
+            SecurityIngestionBatch::findOrFail(
                 $this->batchId
             );
 
         if (
 
             $batch->processed_count >=
-            $batch->total_etfs
+            $batch->total_securities
 
         ) {
 
             $updated =
 
-                EtfIngestionBatch::where(
+                SecurityIngestionBatch::where(
 
                     'id',
 
