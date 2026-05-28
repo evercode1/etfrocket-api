@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\User\Etfs;
+namespace App\Http\Controllers\User\Securities;
 
 use App\Http\Controllers\Controller;
-use App\Models\Etf;
-use App\Services\EtfFilters\EtfFilterService;
+use App\Models\Security;
+use App\Services\SecurityFilters\SecurityFilterService;
 use Illuminate\Http\Request;
 
-class EtfsFilterController extends Controller
+class SecuritiesFilterController extends Controller
 {
-    public function getFilters(Request $request, EtfFilterService $filterService)
+    public function getFilters(Request $request, SecurityFilterService $filterService)
     {
 
         $filters = $filterService->getOptions();
@@ -25,7 +25,7 @@ class EtfsFilterController extends Controller
     public function getSelects()
     {
 
-        $selects = Etf::getSelects();
+        $selects = Security::getSelects();
 
         return response()->json([
 

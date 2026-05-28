@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Services\EtfFilters;
+namespace App\Services\SecurityFilters;
 
 use InvalidArgumentException;
 
-class EtfFilterService
+class SecurityFilterService
 {
     public function getConfig(): array
     {
-        return config('etf_filters');
+        return config('security_filters');
     }
 
     public function getCategories(): array
     {
-        return config('etf_filters.categories', []);
+        return config('security_filters.categories', []);
     }
 
     public function getCategory(string $category): array
@@ -21,7 +21,7 @@ class EtfFilterService
         $categories = $this->getCategories();
 
         if (! array_key_exists($category, $categories)) {
-            throw new InvalidArgumentException("Invalid ETF filter category [{$category}].");
+            throw new InvalidArgumentException("Invalid security filter category [{$category}].");
         }
 
         return $categories[$category];
@@ -37,7 +37,7 @@ class EtfFilterService
         $filters = $this->getFiltersByCategory($category);
 
         if (! array_key_exists($filter, $filters)) {
-            throw new InvalidArgumentException("Invalid ETF filter [{$filter}] for category [{$category}].");
+            throw new InvalidArgumentException("Invalid security filter [{$filter}] for category [{$category}].");
         }
 
         return $filters[$filter];
@@ -45,7 +45,7 @@ class EtfFilterService
 
     public function getScopes(): array
     {
-        return config('etf_filters.scopes', []);
+        return config('security_filters.scopes', []);
     }
 
     public function getScope(string $scope): array
@@ -53,7 +53,7 @@ class EtfFilterService
         $scopes = $this->getScopes();
 
         if (! array_key_exists($scope, $scopes)) {
-            throw new InvalidArgumentException("Invalid ETF filter scope [{$scope}].");
+            throw new InvalidArgumentException("Invalid security filter scope [{$scope}].");
         }
 
         return $scopes[$scope];
@@ -61,7 +61,7 @@ class EtfFilterService
 
     public function getRanges(): array
     {
-        return config('etf_filters.ranges', []);
+        return config('security_filters.ranges', []);
     }
 
     public function getRange(string $range): array
@@ -69,7 +69,7 @@ class EtfFilterService
         $ranges = $this->getRanges();
 
         if (! array_key_exists($range, $ranges)) {
-            throw new InvalidArgumentException("Invalid ETF filter range [{$range}].");
+            throw new InvalidArgumentException("Invalid security filter range [{$range}].");
         }
 
         return $ranges[$range];
@@ -77,7 +77,7 @@ class EtfFilterService
 
     public function getDefaults(): array
     {
-        return config('etf_filters.defaults', []);
+        return config('security_filters.defaults', []);
     }
 
     public function getDefaultCategory(): string
