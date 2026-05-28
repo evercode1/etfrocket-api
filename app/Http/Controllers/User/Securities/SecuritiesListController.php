@@ -1,30 +1,30 @@
 <?php
 
-namespace App\Http\Controllers\User\Etfs;
+namespace App\Http\Controllers\User\Securities;
 
 use App\Http\Controllers\Controller;
 use App\Models\PortfolioTransaction;
-use App\Queries\Etfs\FilteredEtfsQuery;
-use App\Services\EtfFilters\EtfFilterService;
+use App\Queries\Securities\FilteredSecuritiesQuery;
+use App\Services\SecurityFilters\SecurityFilterService;
 use App\Utilities\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class EtfsListController extends Controller
+class SecuritiesListController extends Controller
 {
-    public function listEtfs(Request $request, EtfFilterService $filterService)
+    public function listSecurities(Request $request, SecurityFilterService $filterService)
     {
         try {
 
             $filters = $filterService->resolve($request->all());
 
-            $etfs = (new FilteredEtfsQuery)->getData(
+            $securities = (new FilteredSecuritiesQuery)->getData(
                 $filters,
                 Auth::id()
             );
         } catch (\Exception $e) {
 
-            Log::error('Failed to fetch filtered ETFs', [
+            Log::error('Failed to fetch filtered securities', [
                 'user_id' => Auth::id(),
                 'filters' => $request->all(),
                 'error' => $e->getMessage(),
@@ -38,34 +38,34 @@ class EtfsListController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $etfs,
+            'data' => $securities,
         ], 200);
     }
 
-    public function listEtfsOwnedByUser($portfolioId)
+    public function listSecuritiesOwnedByUser($portfolioId)
     {
         try {
 
-            $etfs = PortfolioTransaction::where('portfolio_transactions.portfolio_id', $portfolioId)
+            $securities = PortfolioTransaction::where('portfolio_transactions.portfolio_id', $portfolioId)
 
-                ->leftJoin('etfs', 'portfolio_transactions.etf_id', '=', 'etfs.id')
+                ->leftJoin('securities', 'portfolio_transactions.security_id', '=', 'securities.id')
 
                 ->select([
 
-                    'etfs.id',
+                    'securities.id',
 
-                    'etfs.symbol',
+                    'securities.symbol',
 
                 ])
 
                 ->distinct()
 
-                ->orderBy('etfs.symbol', 'asc')
+                ->orderBy('securities.symbol', 'asc')
 
                 ->get();
         } catch (\Exception $e) {
 
-            Log::error('Failed to fetch user-owned ETFs', [
+            Log::error('Failed to fetch user-owned securities', [
                 'user_id' => Auth::id(),
                 'error' => $e->getMessage(),
             ]);
@@ -78,7 +78,7 @@ class EtfsListController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $etfs,
+            'data' => $securities,
         ], 200);
     }
 }
