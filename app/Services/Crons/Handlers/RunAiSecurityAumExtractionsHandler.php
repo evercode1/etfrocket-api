@@ -2,24 +2,26 @@
 
 namespace App\Services\Crons\Handlers;
 
-use App\Jobs\RunAiEtfPriceExtractionJob;
-use App\Models\Etf;
-use App\Models\EtfIngestionBatch;
-use App\Models\EtfIngestionBatchItem;
-use App\Models\EtfPriceHistory;
+use App\Jobs\RunAiSecurityAumExtractionJob;
 use App\Models\ImportType;
+use App\Models\Security;
+use App\Models\SecurityAumHistory;
+use App\Models\SecurityIngestionBatch;
+use App\Models\SecurityIngestionBatchItem;
 use App\Models\Status;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
-class RunAiEtfPriceExtractionsHandler
+class RunAiSecurityAumExtractionsHandler
 {
-    public function handleRunAiEtfPriceExtractions(
+    public function handleRunAiSecurityAumExtractions(
         array $payload = []
     ): array {
 
         try {
+
+            Log::info('AUM EXTRACTION HANDLER STARTED');
 
             $symbol =
                 $payload['symbol']
@@ -42,31 +44,45 @@ class RunAiEtfPriceExtractionsHandler
             $today =
                 now()->toDateString();
 
-            $totalEtfCount =
+            $totalSecurityCount =
 
-                Etf::where(
+                Security::where(
                     'status_id',
                     Status::ACTIVE
                 )
                     ->count();
 
-            $updatedEtfCount =
+            $updatedSecurityCount =
 
-                EtfPriceHistory::where(
-                    'price_date',
+                SecurityAumHistory::whereDate(
+                    'retrieved_at',
                     $today
                 )
-                    ->distinct('etf_id')
-                    ->count('etf_id');
+                    ->distinct('security_id')
+                    ->count('security_id');
+
+            Log::info('AUM FRESHNESS CHECK', [
+
+                'today' => $today,
+
+                'total_security_count' => $totalSecurityCount,
+
+                'updated_security_count' => $updatedSecurityCount,
+
+            ]);
 
             if (
 
                 ! $force &&
 
-                $updatedEtfCount >=
-                $totalEtfCount
+                $updatedSecurityCount >=
+                $totalSecurityCount
 
             ) {
+
+                Log::warning(
+                    'AUM EXTRACTION SKIPPED - ALL SECURITIES ALREADY UPDATED'
+                );
 
                 return [
 
@@ -79,12 +95,12 @@ class RunAiEtfPriceExtractionsHandler
 
             /*
             |--------------------------------------------------------------------------
-            | ETF Query
+            | Security Query
             |--------------------------------------------------------------------------
             */
 
             $query =
-                Etf::query()
+                Security::query()
                     ->where(
                         'status_id',
                         Status::ACTIVE
@@ -118,22 +134,32 @@ class RunAiEtfPriceExtractionsHandler
 
                     'id',
 
-                    EtfPriceHistory::where(
-                        'price_date',
+                    SecurityAumHistory::whereDate(
+                        'retrieved_at',
                         $today
                     )
 
-                        ->pluck('etf_id')
+                        ->pluck('security_id')
 
                 );
             }
 
-            $etfs =
+            $securities =
                 $query->get();
 
+            Log::info('AUM SECURITY QUERY COMPLETE', [
+
+                'count' => $securities->count(),
+
+            ]);
+
             if (
-                $etfs->isEmpty()
+                $securities->isEmpty()
             ) {
+
+                Log::warning(
+                    'NO SECURITIES FOUND FOR AUM PROCESSING'
+                );
 
                 return [
 
@@ -151,7 +177,7 @@ class RunAiEtfPriceExtractionsHandler
             */
 
             $batch =
-                EtfIngestionBatch::create([
+                SecurityIngestionBatch::create([
 
                     'batch_uuid' => Str::uuid()->toString(),
 
@@ -159,7 +185,7 @@ class RunAiEtfPriceExtractionsHandler
 
                     'status_id' => Status::PENDING,
 
-                    'total_etfs' => $etfs->count(),
+                    'total_securities' => $securities->count(),
 
                     'processed_count' => 0,
 
@@ -172,10 +198,8 @@ class RunAiEtfPriceExtractionsHandler
                     'passed_data_integrity_check' => false,
 
                     'processing_notes' => $force
-
-                        ? 'Forced AI ETF price extraction batch queued.'
-
-                        : 'AI ETF price extraction batch queued.',
+                        ? 'Forced AI SECURITY AUM extraction batch queued.'
+                        : 'AI SECURITY AUM extraction batch queued.',
 
                     'started_at' => now(),
 
@@ -188,14 +212,14 @@ class RunAiEtfPriceExtractionsHandler
             */
 
             foreach (
-                $etfs as $etf
+                $securities as $security
             ) {
 
-                EtfIngestionBatchItem::create([
+                SecurityIngestionBatchItem::create([
 
-                    'etf_ingestion_batch_id' => $batch->id,
+                    'security_ingestion_batch_id' => $batch->id,
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'status_id' => Status::PENDING,
 
@@ -207,14 +231,16 @@ class RunAiEtfPriceExtractionsHandler
 
                 ]);
 
-                RunAiEtfPriceExtractionJob::dispatch(
+                RunAiSecurityAumExtractionJob::dispatch(
 
                     $batch->id,
 
-                    $etf->id
+                    $security->id
 
                 );
             }
+
+            Log::info('AUM EXTRACTION HANDLER COMPLETE');
 
             return [
 
@@ -227,7 +253,7 @@ class RunAiEtfPriceExtractionsHandler
 
             Log::error(
 
-                'PRICE EXTRACTION HANDLER FAILED',
+                'AUM EXTRACTION HANDLER FAILED',
 
                 [
 
@@ -254,6 +280,6 @@ class RunAiEtfPriceExtractionsHandler
 
     public function errorMessage(): string
     {
-        return 'AI ETF price extraction failed. ';
+        return 'AI SECURITY AUM extraction failed. ';
     }
 }

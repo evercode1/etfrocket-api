@@ -2,20 +2,20 @@
 
 namespace App\Services\Crons\Handlers;
 
-use App\Jobs\RunAiEtfNavExtractionJob;
-use App\Models\Etf;
-use App\Models\EtfIngestionBatch;
-use App\Models\EtfIngestionBatchItem;
-use App\Models\EtfNavHistory;
+use App\Jobs\RunAiSecurityNavExtractionJob;
 use App\Models\ImportType;
+use App\Models\Security;
+use App\Models\SecurityIngestionBatch;
+use App\Models\SecurityIngestionBatchItem;
+use App\Models\SecurityNavHistory;
 use App\Models\Status;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
-class RunAiEtfNavExtractionsHandler
+class RunAiSecurityNavExtractionsHandler
 {
-    public function handleRunAiEtfNavExtractions(
+    public function handleRunAiSecurityNavExtractions(
         array $payload = []
     ): array {
 
@@ -44,30 +44,30 @@ class RunAiEtfNavExtractionsHandler
             $today =
                 now()->toDateString();
 
-            $totalEtfCount =
+            $totalSecurityCount =
 
-                Etf::where(
+                Security::where(
                     'status_id',
                     Status::ACTIVE
                 )
                     ->count();
 
-            $updatedEtfCount =
+            $updatedSecurityCount =
 
-                EtfNavHistory::whereDate(
+                SecurityNavHistory::whereDate(
                     'retrieved_at',
                     $today
                 )
-                    ->distinct('etf_id')
-                    ->count('etf_id');
+                    ->distinct('security_id')
+                    ->count('security_id');
 
             Log::info('NAV FRESHNESS CHECK', [
 
                 'today' => $today,
 
-                'total_etf_count' => $totalEtfCount,
+                'total_security_count' => $totalSecurityCount,
 
-                'updated_etf_count' => $updatedEtfCount,
+                'updated_security_count' => $updatedSecurityCount,
 
             ]);
 
@@ -75,13 +75,13 @@ class RunAiEtfNavExtractionsHandler
 
                 ! $force &&
 
-                $updatedEtfCount >=
-                $totalEtfCount
+                $updatedSecurityCount >=
+                $totalSecurityCount
 
             ) {
 
                 Log::warning(
-                    'NAV EXTRACTION SKIPPED - ALL ETFS ALREADY UPDATED'
+                    'NAV EXTRACTION SKIPPED - ALL SECURITIES ALREADY UPDATED'
                 );
 
                 return [
@@ -95,12 +95,12 @@ class RunAiEtfNavExtractionsHandler
 
             /*
             |--------------------------------------------------------------------------
-            | ETF Query
+            | Security Query
             |--------------------------------------------------------------------------
             */
 
             $query =
-                Etf::query()
+                Security::query()
                     ->where(
                         'status_id',
                         Status::ACTIVE
@@ -124,7 +124,7 @@ class RunAiEtfNavExtractionsHandler
 
             /*
             |--------------------------------------------------------------------------
-            | Exclude Already Updated ETFs
+            | Exclude Already Updated Securities
             |--------------------------------------------------------------------------
             */
 
@@ -134,31 +134,31 @@ class RunAiEtfNavExtractionsHandler
 
                     'id',
 
-                    EtfNavHistory::whereDate(
+                    SecurityNavHistory::whereDate(
                         'retrieved_at',
                         $today
                     )
 
-                        ->pluck('etf_id')
+                        ->pluck('security_id')
 
                 );
             }
 
-            $etfs =
+            $securities =
                 $query->get();
 
-            Log::info('NAV ETF QUERY COMPLETE', [
+            Log::info('NAV SECURITY QUERY COMPLETE', [
 
-                'count' => $etfs->count(),
+                'count' => $securities->count(),
 
             ]);
 
             if (
-                $etfs->isEmpty()
+                $securities->isEmpty()
             ) {
 
                 Log::warning(
-                    'NO ETFS FOUND FOR NAV PROCESSING'
+                    'NO SECURITIES FOUND FOR NAV PROCESSING'
                 );
 
                 return [
@@ -177,7 +177,7 @@ class RunAiEtfNavExtractionsHandler
             */
 
             $batch =
-                EtfIngestionBatch::create([
+                SecurityIngestionBatch::create([
 
                     'batch_uuid' => Str::uuid()->toString(),
 
@@ -185,7 +185,7 @@ class RunAiEtfNavExtractionsHandler
 
                     'status_id' => Status::PENDING,
 
-                    'total_etfs' => $etfs->count(),
+                    'total_securities' => $securities->count(),
 
                     'processed_count' => 0,
 
@@ -198,10 +198,8 @@ class RunAiEtfNavExtractionsHandler
                     'passed_data_integrity_check' => false,
 
                     'processing_notes' => $force
-
-                        ? 'Forced AI ETF NAV extraction batch queued.'
-
-                        : 'AI ETF NAV extraction batch queued.',
+                        ? 'Forced AI Security NAV extraction batch queued.'
+                        : 'AI Security NAV extraction batch queued.',
 
                     'started_at' => now(),
 
@@ -214,14 +212,14 @@ class RunAiEtfNavExtractionsHandler
             */
 
             foreach (
-                $etfs as $etf
+                $securities as $security
             ) {
 
-                EtfIngestionBatchItem::create([
+                SecurityIngestionBatchItem::create([
 
-                    'etf_ingestion_batch_id' => $batch->id,
+                    'security_ingestion_batch_id' => $batch->id,
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'status_id' => Status::PENDING,
 
@@ -233,11 +231,11 @@ class RunAiEtfNavExtractionsHandler
 
                 ]);
 
-                RunAiEtfNavExtractionJob::dispatch(
+                RunAiSecurityNavExtractionJob::dispatch(
 
                     $batch->id,
 
-                    $etf->id
+                    $security->id
 
                 );
             }
@@ -282,6 +280,6 @@ class RunAiEtfNavExtractionsHandler
 
     public function errorMessage(): string
     {
-        return 'AI ETF NAV extraction failed. ';
+        return 'AI Security NAV extraction failed. ';
     }
 }

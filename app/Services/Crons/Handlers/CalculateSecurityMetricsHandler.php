@@ -2,25 +2,25 @@
 
 namespace App\Services\Crons\Handlers;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
-use App\Models\EtfPriceHistory;
 use App\Models\ImportType;
 use App\Models\PerformanceRangeType;
+use App\Models\Security;
+use App\Models\SecurityMetric;
+use App\Models\SecurityPriceHistory;
 use App\Models\Status;
-use App\Services\EtfMetrics\CalculateEtfMetricService;
 use App\Services\ImportLogs\ImportLogsService;
+use App\Services\SecurityMetrics\CalculateSecurityMetricService;
 use Throwable;
 
-class CalculateEtfMetricsHandler
+class CalculateSecurityMetricsHandler
 {
     public function __construct(
 
-        private CalculateEtfMetricService $calculateEtfMetricService
+        private CalculateSecurityMetricService $calculateSecurityMetricService
 
     ) {}
 
-    public function handleCalculateEtfMetrics(
+    public function handleCalculateSecurityMetrics(
 
         array $payload = []
 
@@ -54,7 +54,7 @@ class CalculateEtfMetricsHandler
 
             $latestPriceDate =
 
-                EtfPriceHistory::max(
+                SecurityPriceHistory::max(
 
                     'price_date'
 
@@ -62,7 +62,7 @@ class CalculateEtfMetricsHandler
 
             $latestMetricEndDate =
 
-                EtfMetric::max(
+                SecurityMetric::max(
 
                     'end_date'
 
@@ -137,9 +137,9 @@ class CalculateEtfMetricsHandler
 
             */
 
-            $etfs =
+            $securities =
 
-                Etf::where(
+                Security::where(
 
                     'status_id',
 
@@ -183,7 +183,7 @@ class CalculateEtfMetricsHandler
 
             if (
 
-                $etfs->isEmpty()
+                $securities->isEmpty()
 
             ) {
 
@@ -257,7 +257,7 @@ class CalculateEtfMetricsHandler
 
             foreach (
 
-                $etfs as $etf
+                $securities as $security
 
             ) {
 
@@ -271,10 +271,10 @@ class CalculateEtfMetricsHandler
 
                     $metric =
 
-                        $this->calculateEtfMetricService
+                        $this->calculateSecurityMetricService
                             ->calculate(
 
-                                $etf,
+                                $security,
 
                                 $rangeType->id
 
@@ -330,9 +330,9 @@ class CalculateEtfMetricsHandler
 
                 processing_notes: $force
 
-                    ? 'Forced ETF metric recalculation executed successfully.'
+                    ? 'Forced security metric recalculation executed successfully.'
 
-                    : 'ETF metrics calculated successfully.',
+                    : 'Security metrics calculated successfully.',
 
                 started_at: $startedAt,
 
@@ -375,7 +375,7 @@ class CalculateEtfMetricsHandler
 
                 passed_data_integrity_check: false,
 
-                processing_notes: 'ETF metric calculation failed.',
+                processing_notes: 'Security metric calculation failed.',
 
                 import_fail_details: $e->getMessage(),
 
@@ -400,6 +400,6 @@ class CalculateEtfMetricsHandler
     public function errorMessage(): string
     {
 
-        return 'ETF metric calculation failed. ';
+        return 'Security metric calculation failed. ';
     }
 }
