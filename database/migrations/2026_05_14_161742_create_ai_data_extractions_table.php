@@ -15,7 +15,7 @@ return new class extends Migration
 
             $table->id();
 
-            $table->unsignedInteger('etf_id')->nullable()->index();
+            $table->unsignedInteger('security_id')->nullable()->index();
 
             $table->unsignedInteger('data_source_id')->nullable()->index();
 

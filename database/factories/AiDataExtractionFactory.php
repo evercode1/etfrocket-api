@@ -20,7 +20,7 @@ class AiDataExtractionFactory extends Factory
     {
         return [
 
-            'etf_id' => 6,
+            'security_id' => 6,
 
             'data_source_id' => DataSource::MANUAL_ENTRY,
 
@@ -34,7 +34,7 @@ class AiDataExtractionFactory extends Factory
                 'dividend' => '0.2635',
             ]),
 
-            'prompt' => 'Extract ETF price, NAV, AUM, and dividend data from the provided source payload.',
+            'prompt' => 'Extract security price, NAV, AUM, and dividend data from the provided source payload.',
 
             'extracted_data' => [
 

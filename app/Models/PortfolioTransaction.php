@@ -14,7 +14,7 @@ class PortfolioTransaction extends Model
     protected $fillable = [
 
         'portfolio_id',
-        'etf_id',
+        'security_id',
         'transaction_type_id',
         'shares',
         'price_per_share',
