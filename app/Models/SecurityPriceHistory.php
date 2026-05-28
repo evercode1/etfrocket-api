@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use Database\Factories\EtfPriceHistoryFactory;
+use Database\Factories\SecurityPriceHistoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EtfPriceHistory extends Model
+class SecurityPriceHistory extends Model
 {
-    /** @use HasFactory<EtfPriceHistoryFactory> */
+    /** @use HasFactory<SecurityPriceHistoryFactory> */
     use HasFactory;
 
     protected $fillable = [
 
-        'etf_id',
+        'security_id',
         'price_date',
         'close_price',
         'volume',

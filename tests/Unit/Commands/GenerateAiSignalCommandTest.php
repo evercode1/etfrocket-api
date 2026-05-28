@@ -378,8 +378,6 @@ class GenerateAiSignalCommandTest extends TestCase
 
                 'cron_name' => 'ai:generate-signals
 
-        {--type=}
-
         {--force : Force signal generation even if no fresh data exists}',
 
                 'cron_description' => 'Generate AI market signals',

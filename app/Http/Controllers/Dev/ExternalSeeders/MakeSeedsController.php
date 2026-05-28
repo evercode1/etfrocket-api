@@ -35,6 +35,8 @@ class MakeSeedsController extends Controller
             'NotificationStatuses',
             'PerformanceRangeTypes',
             'Portfolios',
+            'Securities',
+            'SecurityDetails',
             'SecurityTypes',
             'SignalTypes',
             'Statuses',
