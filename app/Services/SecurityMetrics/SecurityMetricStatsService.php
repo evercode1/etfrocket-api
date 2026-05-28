@@ -1,41 +1,41 @@
 <?php
 
-namespace App\Services\EtfMetrics;
+namespace App\Services\SecurityMetrics;
 
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
+use App\Models\SecurityMetric;
 use Illuminate\Support\Collection;
 
-class EtfMetricStatsService
+class SecurityMetricStatsService
 {
-    public function getMetricsForEtfs(
-        array|Collection $etfIds,
+    public function getMetricsForSecurities(
+        array|Collection $securityIds,
         array $performanceRangeTypeIds
     ): Collection {
-        $etfIds = collect($etfIds)
-            ->map(fn ($etfId) => (int) $etfId)
+        $securityIds = collect($securityIds)
+            ->map(fn ($securityId) => (int) $securityId)
             ->filter()
             ->unique()
             ->values()
             ->toArray();
 
-        if (empty($etfIds) || empty($performanceRangeTypeIds)) {
+        if (empty($securityIds) || empty($performanceRangeTypeIds)) {
             return collect();
         }
 
-        return EtfMetric::query()
-            ->whereIn('etf_id', $etfIds)
+        return SecurityMetric::query()
+            ->whereIn('security_id', $securityIds)
             ->whereIn('performance_range_type_id', $performanceRangeTypeIds)
             ->get()
-            ->groupBy('etf_id');
+            ->groupBy('security_id');
     }
 
-    public function getMetricForEtf(
-        int $etfId,
+    public function getMetricForSecurity(
+        int $securityId,
         int $performanceRangeTypeId
-    ): ?EtfMetric {
-        return EtfMetric::query()
-            ->where('etf_id', $etfId)
+    ): ?SecurityMetric {
+        return SecurityMetric::query()
+            ->where('security_id', $securityId)
             ->where('performance_range_type_id', $performanceRangeTypeId)
             ->first();
     }
@@ -46,23 +46,23 @@ class EtfMetricStatsService
             return collect();
         }
 
-        $etfIds = $holdings
-            ->pluck('etf_id')
-            ->map(fn ($etfId) => (int) $etfId)
+        $securityIds = $holdings
+            ->pluck('security_id')
+            ->map(fn ($securityId) => (int) $securityId)
             ->filter()
             ->unique()
             ->values();
 
-        $metricsByEtf = $this->getMetricsForEtfs($etfIds, [
+        $metricsBySecurity = $this->getMetricsForSecurities($securityIds, [
             PerformanceRangeType::THIRTY_DAY,
             PerformanceRangeType::NINETY_DAY,
         ]);
 
         return $holdings
-            ->map(function (array $holding) use ($metricsByEtf) {
-                $etfId = (int) $holding['etf_id'];
+            ->map(function (array $holding) use ($metricsBySecurity) {
+                $securityId = (int) $holding['security_id'];
 
-                $metrics = collect($metricsByEtf->get($etfId, collect()));
+                $metrics = collect($metricsBySecurity->get($securityId, collect()));
 
                 $recentMetric = $metrics
                     ->firstWhere(
@@ -99,9 +99,9 @@ class EtfMetricStatsService
                 );
 
                 return [
-                    'etf_id' => $etfId,
+                    'security_id' => $securityId,
                     'symbol' => $holding['symbol'] ?? null,
-                    'fund_name' => $holding['fund_name'] ?? null,
+                    'security_name' => $holding['security_name'] ?? null,
                     'shares' => round($shares, 4),
                     'recent_average_dividend' => round($recentAverageDividend, 4),
                     'baseline_average_dividend' => round($baselineAverageDividend, 4),
@@ -144,22 +144,22 @@ class EtfMetricStatsService
             ];
         }
 
-        $etfIds = $holdings
-            ->pluck('etf_id')
-            ->map(fn ($etfId) => (int) $etfId)
+        $securityIds = $holdings
+            ->pluck('security_id')
+            ->map(fn ($securityId) => (int) $securityId)
             ->filter()
             ->unique()
             ->values();
 
-        $metricsByEtf = $this->getMetricsForEtfs($etfIds, [
+        $metricsBySecurity = $this->getMetricsForSecurities($securityIds, [
             PerformanceRangeType::MAX,
         ]);
 
         $rows = $holdings
-            ->map(function (array $holding) use ($metricsByEtf) {
-                $etfId = (int) $holding['etf_id'];
+            ->map(function (array $holding) use ($metricsBySecurity) {
+                $securityId = (int) $holding['security_id'];
 
-                $metric = collect($metricsByEtf->get($etfId, collect()))
+                $metric = collect($metricsBySecurity->get($securityId, collect()))
                     ->firstWhere(
                         'performance_range_type_id',
                         PerformanceRangeType::MAX
@@ -170,7 +170,7 @@ class EtfMetricStatsService
                 }
 
                 return [
-                    'etf_id' => $etfId,
+                    'security_id' => $securityId,
                     'symbol' => $holding['symbol'] ?? null,
                     'nav_erosion_percentage' => (float) $metric->nav_erosion_percentage,
                 ];
@@ -182,7 +182,7 @@ class EtfMetricStatsService
             return [
                 'nav_health' => 'Unknown',
                 'worst_nav_erosion_percentage' => null,
-                'affected_etfs' => [],
+                'affected_securities' => [],
             ];
         }
 
@@ -197,7 +197,7 @@ class EtfMetricStatsService
         return [
             'nav_health' => $navHealth,
             'worst_nav_erosion_percentage' => round((float) $worstNavErosion, 4),
-            'affected_etfs' => $rows
+            'affected_securities' => $rows
                 ->filter(fn (array $row) => (float) $row['nav_erosion_percentage'] === (float) $worstNavErosion)
                 ->pluck('symbol')
                 ->filter()

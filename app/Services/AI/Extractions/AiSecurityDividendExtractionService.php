@@ -160,15 +160,15 @@ class AiSecurityDividendExtractionService
 
         return "
 
-You are extracting Security dividend data for Etf Rocket.
+You are extracting ETF dividend data for Etf Rocket.
 
 Today's date: {$currentDate}
 
-Security Symbol:
+ETF Symbol:
 {$security->symbol}
 
-Security Name:
-{$security->fund_name}
+ETF Name:
+{$security->security_name}
 
 Official Website:
 {$security->website_url}

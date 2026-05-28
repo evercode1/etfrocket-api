@@ -2,8 +2,8 @@
 
 namespace App\Queries\Comparisons;
 
-use App\Models\EtfAumHistory;
 use App\Models\Security;
+use App\Models\SecurityAumHistory;
 
 class SymbolAumHistoryChartQuery
 {
@@ -18,7 +18,7 @@ class SymbolAumHistoryChartQuery
 
             ->keyBy('id');
 
-        $aumHistories = EtfAumHistory::whereIn(
+        $aumHistories = SecurityAumHistory::whereIn(
             'security_id',
             $securityIds
         )

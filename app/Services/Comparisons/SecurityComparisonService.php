@@ -108,7 +108,7 @@ class SecurityComparisonService
             ->toArray();
 
         if (empty($etfIds)) {
-            throw new InvalidArgumentException('At least one valid ETF is required for comparison.');
+            throw new InvalidArgumentException('At least one valid security is required for comparison.');
         }
 
         if (count($etfIds) > $this->getMaxSecurities()) {

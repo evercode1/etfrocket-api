@@ -6,7 +6,7 @@ use App\Models\PerformanceRangeType;
 use App\Models\SecurityMetric;
 use Illuminate\Support\Facades\DB;
 
-class RankSecuritiesByMetricQuery
+class RankSecurityByMetricQuery
 {
     public function getData(
         string $metric,
