@@ -13,7 +13,7 @@ class ListPortfolioTransactionsService
 {
     private array $columns = [
         'portfolio_transactions.transaction_date',
-        'etfs.symbol',
+        'securities.symbol',
         'portfolio_transactions.transaction_type_id',
         'portfolio_transactions.shares',
         'portfolio_transactions.price_per_share',
@@ -25,7 +25,7 @@ class ListPortfolioTransactionsService
         Request $request,
         int $userId,
         int $portfolioId,
-        ?int $etfId = null
+        ?int $securityId = null
     ): Collection|LengthAwarePaginator {
 
         Portfolio::where('user_id', $userId)
@@ -35,15 +35,15 @@ class ListPortfolioTransactionsService
         [$sortBy, $sortOrder] = SortBy::setSortBy($request, $this->columns);
 
         $query = PortfolioTransaction::where('portfolio_transactions.portfolio_id', $portfolioId)
-            ->leftJoin('etfs', 'portfolio_transactions.etf_id', '=', 'etfs.id')
+            ->leftJoin('securities', 'portfolio_transactions.security_id', '=', 'securities.id')
             ->select([
                 'portfolio_transactions.*',
-                'etfs.symbol',
+                'securities.symbol',
             ])
             ->selectRaw('(portfolio_transactions.shares * portfolio_transactions.price_per_share) as transaction_value');
 
-        if ($etfId) {
-            $query->where('portfolio_transactions.etf_id', $etfId);
+        if ($securityId) {
+            $query->where('portfolio_transactions.security_id', $securityId);
         }
 
         $query->orderBy($sortBy, $sortOrder)

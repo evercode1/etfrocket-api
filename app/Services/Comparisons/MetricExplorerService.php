@@ -2,14 +2,14 @@
 
 namespace App\Services\Comparisons;
 
-use App\Queries\Comparisons\Metrics\RankEtfsByMetricQuery;
+use App\Queries\Comparisons\Metrics\RankSecurityByMetricQuery;
 use InvalidArgumentException;
 
 class MetricExplorerService
 {
     public function __construct(
 
-        private RankEtfsByMetricQuery $rankEtfsByMetricQuery
+        private RankSecurityByMetricQuery $rankSecurityByMetricQuery
 
     ) {}
 
@@ -43,7 +43,7 @@ class MetricExplorerService
             );
 
         $rows =
-            $this->rankEtfsByMetricQuery
+            $this->rankSecurityByMetricQuery
                 ->getData(
 
                     metric: $metric,
@@ -96,7 +96,7 @@ class MetricExplorerService
     ): array {
 
         $metrics =
-            config('etf_metrics.metrics');
+            config('security_metrics.metrics');
 
         if (
             ! array_key_exists(
@@ -131,7 +131,7 @@ class MetricExplorerService
     ): string {
 
         $ranges =
-            config('etf_comparison.ranges');
+            config('security_comparison.ranges');
 
         $range =
             $range ?: '90d';
@@ -193,7 +193,7 @@ class MetricExplorerService
     private function getMetricOptions(): array
     {
         return collect(
-            config('etf_metrics.metrics')
+            config('security_metrics.metrics')
         )
 
             ->map(function (
@@ -218,7 +218,7 @@ class MetricExplorerService
     private function getRangeOptions(): array
     {
         return collect(
-            config('etf_comparison.ranges')
+            config('security_comparison.ranges')
         )
 
             ->map(function (

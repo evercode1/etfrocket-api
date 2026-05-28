@@ -15,8 +15,8 @@ class UpdatePortfolioTransactionService
             ->where('portfolios.user_id', $userId)
             ->firstOrFail();
 
-        if (array_key_exists('etf_id', $data)) {
-            $transaction->etf_id = $data['etf_id'];
+        if (array_key_exists('security_id', $data)) {
+            $transaction->security_id = $data['security_id'];
         }
 
         if (array_key_exists('transaction_type_id', $data)) {

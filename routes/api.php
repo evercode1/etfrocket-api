@@ -43,14 +43,14 @@ IncludeRoutes::file('routes/Admin/Support/admin-support.php');
 
 /*
 |--------------------------------------------------------------------------
-| Admin Etf Data ROUTES
+| Admin Security Data ROUTES
 |--------------------------------------------------------------------------
 |
-| routes for admin functionalities, requires authentication
+| routes for security data, requires authentication
 |
 */
 
-IncludeRoutes::file('routes/Admin/EtfData/etf-data.php');
+IncludeRoutes::file('routes/Admin/SecurityData/security-data.php');
 
 /*
 |--------------------------------------------------------------------------
@@ -129,14 +129,14 @@ IncludeRoutes::file('routes/User/Dividends/dividends.php');
 
 /*
 |--------------------------------------------------------------------------
-| Etfs ROUTES
+| Securities ROUTES
 |--------------------------------------------------------------------------
 |
-| routes for user etfs, requires authentication
+| routes for user securities, requires authentication
 |
 */
 
-IncludeRoutes::file('routes/User/Etfs/etfs.php');
+IncludeRoutes::file('routes/User/Securities/securities.php');
 
 /*
 |--------------------------------------------------------------------------

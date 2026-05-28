@@ -2,10 +2,10 @@
 
 namespace App\Services\Comparisons;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
-use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
+use App\Models\Security;
+use App\Models\SecurityMetric;
+use App\Models\SecurityPriceHistory;
 use App\Queries\Comparisons\SymbolAumHistoryChartQuery;
 use App\Queries\Comparisons\SymbolDividendHistoryChartQuery;
 use App\Queries\Comparisons\SymbolNavHistoryChartQuery;
@@ -41,11 +41,11 @@ class CompareSymbolsService
 
             ->values();
 
-        $etfs = Etf::whereIn('symbol', $requestedSymbols)
+        $securities = Security::whereIn('symbol', $requestedSymbols)
 
             ->get();
 
-        $foundSymbols = $etfs->pluck('symbol');
+        $foundSymbols = $securities->pluck('symbol');
 
         $invalidSymbols = $requestedSymbols
 
@@ -57,13 +57,13 @@ class CompareSymbolsService
 
         $performanceRangeTypeId = $this->resolveRangeType($range);
 
-        $tableRows = $etfs->map(function ($etf) use (
+        $tableRows = $securities->map(function ($security) use (
             $performanceRangeTypeId,
             $metric,
             $range
         ) {
 
-            $metricRecord = EtfMetric::where('etf_id', $etf->id)
+            $metricRecord = SecurityMetric::where('security_id', $security->id)
 
                 ->where(
                     'performance_range_type_id',
@@ -72,7 +72,7 @@ class CompareSymbolsService
 
                 ->first();
 
-            $latestPrice = EtfPriceHistory::where('etf_id', $etf->id)
+            $latestPrice = SecurityPriceHistory::where('security_id', $security->id)
 
                 ->latest('price_date')
 
@@ -80,11 +80,11 @@ class CompareSymbolsService
 
             return [
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
-                'symbol' => $etf->symbol,
+                'symbol' => $security->symbol,
 
-                'fund_name' => $etf->fund_name,
+                'security_name' => $security->detail->security_name,
 
                 'selected_metric' => $metric,
 
@@ -119,7 +119,7 @@ class CompareSymbolsService
 
             metric: $metric,
 
-            etfIds: $etfs->pluck('id')->toArray(),
+            securityIds: $securities->pluck('id')->toArray(),
 
             startDate: $this->resolveStartDate($range)
 
@@ -129,7 +129,7 @@ class CompareSymbolsService
 
             'summary' => [
 
-                'compared_etfs_count' => count($tableRows),
+                'compared_securities_count' => count($tableRows),
 
                 'selected_metric' => $metric,
 
@@ -240,7 +240,7 @@ class CompareSymbolsService
 
     private function resolveChartRows(
         string $metric,
-        array $etfIds,
+        array $securityIds,
         string $startDate
     ): array {
 
@@ -248,7 +248,7 @@ class CompareSymbolsService
 
             'income' => $this->dividendHistoryChartQuery->getData(
 
-                etfIds: $etfIds,
+                securityIds: $securityIds,
 
                 startDate: $startDate
 
@@ -256,7 +256,7 @@ class CompareSymbolsService
 
             'nav' => $this->navHistoryChartQuery->getData(
 
-                etfIds: $etfIds,
+                securityIds: $securityIds,
 
                 startDate: $startDate
 
@@ -264,7 +264,7 @@ class CompareSymbolsService
 
             'aum' => $this->aumHistoryChartQuery->getData(
 
-                etfIds: $etfIds,
+                securityIds: $securityIds,
 
                 startDate: $startDate
 
@@ -272,7 +272,7 @@ class CompareSymbolsService
 
             default => $this->priceHistoryChartQuery->getData(
 
-                etfIds: $etfIds,
+                securityIds: $securityIds,
 
                 startDate: $startDate
 
@@ -301,7 +301,7 @@ class CompareSymbolsService
     private function resolveChartValue(
         string $metric,
         mixed $latestPrice,
-        ?EtfMetric $metricRecord
+        ?SecurityMetric $metricRecord
     ): mixed {
 
         return match ($metric) {
@@ -318,7 +318,7 @@ class CompareSymbolsService
         };
     }
 
-    private function resolveNavHealth(?EtfMetric $metricRecord): string
+    private function resolveNavHealth(?SecurityMetric $metricRecord): string
     {
         if (! $metricRecord) {
             return 'Unknown';

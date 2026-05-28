@@ -32,13 +32,13 @@ class DividendHistoryQuery
 
         $query = DB::table('security_dividend_histories')
             ->join('securities', 'security_dividend_histories.security_id', '=', 'securities.id')
+            ->leftJoin('security_details', 'securities.id', '=', 'security_details.security_id')
             ->leftJoin(
                 'distribution_frequencies',
-                'securities.distribution_frequency_id',
+                'security_details.distribution_frequency_id',
                 '=',
                 'distribution_frequencies.id'
             )
-            ->leftJoin('security_details', 'securities.id', '=', 'security_details.security_id')
             ->whereIn('security_dividend_histories.security_id', $portfolioSecurityIds)
             ->whereNotNull('security_dividend_histories.payment_date')
             ->select([
@@ -46,7 +46,7 @@ class DividendHistoryQuery
                 'security_dividend_histories.security_id',
                 'securities.symbol',
                 'security_details.security_name',
-                'securities.distribution_frequency_id',
+                'security_details.distribution_frequency_id',
                 'distribution_frequencies.distribution_frequency_name',
                 'security_dividend_histories.dividend_amount',
                 'security_dividend_histories.ex_dividend_date',
@@ -63,7 +63,7 @@ class DividendHistoryQuery
 
         if ($request->filled('frequency_id')) {
             $query->where(
-                'securities.distribution_frequency_id',
+                'security_details.distribution_frequency_id',
                 (int) $request->input('frequency_id')
             );
         }

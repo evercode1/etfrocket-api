@@ -5,11 +5,10 @@ namespace App\Http\Controllers\User\Securities;
 use App\Http\Controllers\Controller;
 use App\Models\Security;
 use App\Services\SecurityFilters\SecurityFilterService;
-use Illuminate\Http\Request;
 
 class SecuritiesFilterController extends Controller
 {
-    public function getFilters(Request $request, SecurityFilterService $filterService)
+    public function getFilters(SecurityFilterService $filterService)
     {
 
         $filters = $filterService->getOptions();

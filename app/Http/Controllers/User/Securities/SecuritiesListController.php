@@ -42,7 +42,7 @@ class SecuritiesListController extends Controller
         ], 200);
     }
 
-    public function listSecuritiesOwnedByUser($portfolioId)
+    public function listSecuritiesOwnedByUser(int $portfolioId)
     {
         try {
 

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Portfolios;
 
-use App\Models\Etf;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
@@ -18,14 +18,18 @@ class ShowPortfolioTransactionTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
+        DB::table('users')->truncate();
     }
 
     protected function tearDown(): void
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
+        DB::table('users')->truncate();
 
         parent::tearDown();
     }
@@ -40,13 +44,13 @@ class ShowPortfolioTransactionTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
         $transaction = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 10,
             'price_per_share' => 75.25,
@@ -62,7 +66,7 @@ class ShowPortfolioTransactionTest extends TestCase
             'data' => [
                 'id' => $transaction->id,
                 'portfolio_id' => $portfolio->id,
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
                 'transaction_type_id' => 1,
                 'shares' => '10.0000',
                 'price_per_share' => '75.2500',
@@ -91,13 +95,13 @@ class ShowPortfolioTransactionTest extends TestCase
             'user_id' => $otherUser->id,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
         $transaction = PortfolioTransaction::factory()->create([
             'portfolio_id' => $otherPortfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
         ]);
 
         $response = $this->getJson("/api/show-portfolio-transaction/{$transaction->id}");

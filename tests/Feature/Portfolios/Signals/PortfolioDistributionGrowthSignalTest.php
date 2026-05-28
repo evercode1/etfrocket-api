@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Portfolios\Signals;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityMetric;
 use App\Models\Status;
 use App\Models\User;
 use Carbon\Carbon;
@@ -24,8 +24,9 @@ class PortfolioDistributionGrowthSignalTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -33,8 +34,9 @@ class PortfolioDistributionGrowthSignalTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -54,30 +56,29 @@ class PortfolioDistributionGrowthSignalTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test ETF',
             'status_id' => Status::ACTIVE,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 100,
             'price_per_share' => 25,
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfMetric::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityMetric::factory()->create([
+            'security_id' => $security->id,
             'performance_range_type_id' => PerformanceRangeType::THIRTY_DAY,
             'average_dividend' => '0.6000',
             'dividend_count' => 4,
         ]);
 
-        EtfMetric::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityMetric::factory()->create([
+            'security_id' => $security->id,
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
             'average_dividend' => '0.5000',
             'dividend_count' => 12,
@@ -103,7 +104,7 @@ class PortfolioDistributionGrowthSignalTest extends TestCase
         );
 
         $response->assertJsonPath(
-            'data.affected_etfs.0',
+            'data.affected_securities.0',
             'NVII'
         );
 
@@ -154,7 +155,7 @@ class PortfolioDistributionGrowthSignalTest extends TestCase
             $response->json('data.portfolio_income_impact')
         );
 
-        $this->assertSame([], $response->json('data.affected_etfs'));
+        $this->assertSame([], $response->json('data.affected_securities'));
         $this->assertSame([], $response->json('data.top_contributors'));
         $this->assertSame([], $response->json('data.all_rows'));
     }

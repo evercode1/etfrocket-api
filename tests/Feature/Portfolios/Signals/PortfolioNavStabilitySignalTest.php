@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Portfolios\Signals;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityMetric;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -21,8 +21,9 @@ class PortfolioNavStabilitySignalTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -30,8 +31,9 @@ class PortfolioNavStabilitySignalTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -48,23 +50,22 @@ class PortfolioNavStabilitySignalTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'RISK',
-            'fund_name' => 'RISK Test ETF',
             'status_id' => Status::ACTIVE,
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 100,
             'price_per_share' => 25,
             'transaction_date' => '2026-01-01',
         ]);
 
-        EtfMetric::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityMetric::factory()->create([
+            'security_id' => $security->id,
             'performance_range_type_id' => PerformanceRangeType::MAX,
             'start_date' => '2026-01-01',
             'end_date' => '2026-05-01',
@@ -91,7 +92,7 @@ class PortfolioNavStabilitySignalTest extends TestCase
         $response->assertJsonPath('data.watch_count', 1);
         $response->assertJsonPath('data.mixed_count', 0);
         $response->assertJsonPath('data.stable_count', 0);
-        $response->assertJsonPath('data.affected_etfs.0', 'RISK');
+        $response->assertJsonPath('data.affected_securities.0', 'RISK');
         $response->assertJsonPath('data.watch_list.0.symbol', 'RISK');
 
         $this->assertEquals(

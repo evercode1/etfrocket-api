@@ -13,7 +13,7 @@ class PortfolioIncomeProjectionQuery
 
             ->selectRaw('
                 portfolio_transactions.security_id,
-                securities.distribution_frequency_id,
+                security_details.distribution_frequency_id,
                 SUM(
                     CASE
                         WHEN portfolio_transactions.transaction_type_id = 1 THEN portfolio_transactions.shares
@@ -25,11 +25,13 @@ class PortfolioIncomeProjectionQuery
 
             ->join('securities', 'portfolio_transactions.security_id', '=', 'securities.id')
 
+            ->leftJoin('security_details', 'securities.id', '=', 'security_details.security_id')
+
             ->where('portfolio_transactions.portfolio_id', $portfolio_id)
 
             ->groupBy([
                 'portfolio_transactions.security_id',
-                'securities.distribution_frequency_id',
+                'security_details.distribution_frequency_id',
             ])
 
             ->having('shares', '>', 0)

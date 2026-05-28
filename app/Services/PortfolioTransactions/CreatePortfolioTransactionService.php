@@ -15,7 +15,7 @@ class CreatePortfolioTransactionService
 
         return PortfolioTransaction::create([
             'portfolio_id' => $portfolioId,
-            'etf_id' => $data['etf_id'],
+            'security_id' => $data['security_id'],
             'transaction_type_id' => $data['transaction_type_id'],
             'shares' => $data['shares'],
             'price_per_share' => $data['price_per_share'],

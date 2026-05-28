@@ -2,12 +2,12 @@
 
 namespace App\Services\Comparisons;
 
-use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
-use App\Services\EtfMetrics\EtfMetricStatsService;
+use App\Models\SecurityPriceHistory;
 use App\Services\PortfolioStats\PortfolioDividendStatsService;
 use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
+use App\Services\SecurityMetrics\SecurityMetricStatsService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -17,8 +17,8 @@ class PortfolioCompareService
     public function __construct(
         private PortfolioHoldingsStatsService $holdingsStatsService,
         private PortfolioDividendStatsService $dividendStatsService,
-        private EtfMetricStatsService $metricStatsService,
-        private EtfComparisonService $comparisonService
+        private SecurityMetricStatsService $metricStatsService,
+        private SecurityComparisonService $comparisonService
     ) {}
 
     public function getData(
@@ -42,26 +42,26 @@ class PortfolioCompareService
             return $this->emptyResponse($portfolio, $portfolioSelects, $filters);
         }
 
-        $maxEtfs = $this->comparisonService->getMaxEtfs();
+        $maxSecurities = $this->comparisonService->getMaxSecurities();
 
         $comparisonHoldings = $this->getTopHoldingsForComparison(
             $holdings,
-            $maxEtfs
+            $maxSecurities
         );
 
-        $etfIds = $comparisonHoldings
-            ->pluck('etf_id')
+        $securityIds = $comparisonHoldings
+            ->pluck('security_id')
             ->values()
             ->toArray();
 
         $resolved = $this->comparisonService->resolve([
             'metric' => $filters['metric'] ?? null,
             'range' => $filters['range'] ?? null,
-            'etf_ids' => $etfIds,
+            'security_ids' => $securityIds,
         ]);
 
-        $metricsByEtf = $this->metricStatsService->getMetricsForEtfs(
-            $etfIds,
+        $metricsBySecurity = $this->metricStatsService->getMetricsForSecurities(
+            $securityIds,
             [
                 PerformanceRangeType::THIRTY_DAY,
                 PerformanceRangeType::NINETY_DAY,
@@ -69,7 +69,7 @@ class PortfolioCompareService
             ]
         );
 
-        $tableRows = $this->buildTableRows($comparisonHoldings, $metricsByEtf);
+        $tableRows = $this->buildTableRows($comparisonHoldings, $metricsBySecurity);
 
         return [
             'portfolio' => [
@@ -93,7 +93,7 @@ class PortfolioCompareService
 
             'chart_rows' => $this->buildChartRows($resolved, $comparisonHoldings),
             'comparison_limit' => [
-                'max_etfs' => $maxEtfs,
+                'max_securities' => $maxSecurities,
                 'total_holdings_count' => $holdings->count(),
                 'included_holdings_count' => $comparisonHoldings->count(),
                 'selection_method' => 'Top holdings by current market value',
@@ -103,13 +103,13 @@ class PortfolioCompareService
 
     private function buildTableRows(
         Collection $holdings,
-        Collection $metricsByEtf
+        Collection $metricsBySecurity
     ): Collection {
         return $holdings
-            ->map(function (array $holding) use ($metricsByEtf) {
-                $etfId = (int) $holding['etf_id'];
+            ->map(function (array $holding) use ($metricsBySecurity) {
+                $securityId = (int) $holding['security_id'];
 
-                $metrics = collect($metricsByEtf->get($etfId, collect()));
+                $metrics = collect($metricsBySecurity->get($securityId, collect()));
 
                 $thirtyDayMetric = $metrics->firstWhere(
                     'performance_range_type_id',
@@ -130,7 +130,7 @@ class PortfolioCompareService
 
                 $price = array_key_exists('latest_price', $holding)
                     ? $holding['latest_price']
-                    : EtfPriceHistory::where('etf_id', $etfId)
+                    : SecurityPriceHistory::where('security_id', $securityId)
                         ->orderByDesc('price_date')
                         ->value('close_price');
 
@@ -152,7 +152,7 @@ class PortfolioCompareService
                     ->getProjectedMonthlyIncome(collect([$holding]));
 
                 return [
-                    'etf_id' => $etfId,
+                    'security_id' => $securityId,
                     'symbol' => $holding['symbol'] ?? null,
                     'fund_name' => $holding['fund_name'] ?? null,
                     'shares' => round($shares, 4),
@@ -201,9 +201,9 @@ class PortfolioCompareService
         $startDate = $this->getStartDate($resolved['days']);
 
         $query = DB::table($resolved['table'])
-            ->whereIn('etf_id', $resolved['etf_ids'])
+            ->whereIn('security_id', $resolved['security_ids'])
             ->select([
-                'etf_id',
+                'security_id',
                 $resolved['date_column'].' as metric_date',
                 $resolved['value_column'].' as metric_value',
             ])
@@ -213,20 +213,20 @@ class PortfolioCompareService
             $query->whereDate($resolved['date_column'], '>=', $startDate);
         }
 
-        $symbolsByEtfId = $holdings
-            ->pluck('symbol', 'etf_id')
+        $symbolsBySecurityId = $holdings
+            ->pluck('symbol', 'security_id')
             ->toArray();
 
         return $query
             ->get()
             ->groupBy('metric_date')
-            ->map(function (Collection $rows, string $date) use ($symbolsByEtfId) {
+            ->map(function (Collection $rows, string $date) use ($symbolsBySecurityId) {
                 $chartRow = [
                     'date' => Carbon::parse($date)->format('M d'),
                 ];
 
                 foreach ($rows as $row) {
-                    $symbol = $symbolsByEtfId[$row->etf_id] ?? null;
+                    $symbol = $symbolsBySecurityId[$row->security_id] ?? null;
 
                     if (! $symbol) {
                         continue;
@@ -254,7 +254,7 @@ class PortfolioCompareService
             ->first();
 
         return [
-            'compared_etfs_count' => $tableRows->count(),
+            'compared_securities_count' => $tableRows->count(),
 
             'best_total_return_symbol' => $bestReturnRow['symbol'] ?? null,
             'best_total_return_percentage' => $bestReturnRow['total_return_percentage_90_day'] ?? null,
@@ -311,7 +311,7 @@ class PortfolioCompareService
             ],
             'options' => $this->buildOptions(),
             'summary' => [
-                'compared_etfs_count' => 0,
+                'compared_securities_count' => 0,
                 'best_total_return_symbol' => null,
                 'best_total_return_percentage' => null,
                 'strongest_nav_symbol' => null,
@@ -321,7 +321,7 @@ class PortfolioCompareService
             'chart_rows' => [],
             'comparison_limit' => [
 
-                'max_etfs' => $this->comparisonService->getMaxEtfs(),
+                'max_securities' => $this->comparisonService->getMaxSecurities(),
 
                 'total_holdings_count' => 0,
 
@@ -374,18 +374,18 @@ class PortfolioCompareService
 
     private function getTopHoldingsForComparison(
         Collection $holdings,
-        int $maxEtfs
+        int $maxSecurities
     ): Collection {
-        $latestPrices = EtfPriceHistory::query()
-            ->whereIn('etf_id', $holdings->pluck('etf_id')->toArray())
+        $latestPrices = SecurityPriceHistory::query()
+            ->whereIn('security_id', $holdings->pluck('security_id')->toArray())
             ->orderByDesc('price_date')
             ->get()
-            ->groupBy('etf_id')
+            ->groupBy('security_id')
             ->map(fn ($prices) => (float) $prices->first()->close_price);
 
         return $holdings
             ->map(function (array $holding) use ($latestPrices) {
-                $price = $latestPrices->get((int) $holding['etf_id'], 0);
+                $price = $latestPrices->get((int) $holding['security_id'], 0);
 
                 $holding['latest_price'] = round((float) $price, 4);
                 $holding['market_value'] = round(
@@ -396,7 +396,7 @@ class PortfolioCompareService
                 return $holding;
             })
             ->sortByDesc('market_value')
-            ->take($maxEtfs)
+            ->take($maxSecurities)
             ->values();
     }
 }

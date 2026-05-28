@@ -2,8 +2,8 @@
 
 namespace App\Queries\Comparisons;
 
-use App\Models\EtfNavHistory;
 use App\Models\Security;
+use App\Models\SecurityNavHistory;
 
 class SymbolNavHistoryChartQuery
 {
@@ -18,7 +18,7 @@ class SymbolNavHistoryChartQuery
 
             ->keyBy('id');
 
-        $navHistories = EtfNavHistory::whereIn(
+        $navHistories = SecurityNavHistory::whereIn(
             'security_id',
             $securityIds
         )
