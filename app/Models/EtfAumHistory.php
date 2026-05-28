@@ -13,7 +13,7 @@ class EtfAumHistory extends Model
 
     protected $fillable = [
 
-        'etf_id',
+        'security_id',
         'aum_date',
         'assets_under_management',
         'data_source_id',
