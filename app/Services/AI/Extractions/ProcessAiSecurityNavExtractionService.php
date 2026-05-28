@@ -3,12 +3,12 @@
 namespace App\Services\AI\Extractions;
 
 use App\Models\AiDataExtraction;
-use App\Models\EtfAumHistory;
 use App\Models\Security;
+use App\Models\SecurityNavHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ProcessAiEtfAumExtractionService
+class ProcessAiSecurityNavExtractionService
 {
     public function process(
         AiDataExtraction $extraction
@@ -29,7 +29,7 @@ class ProcessAiEtfAumExtractionService
                     if (! $security) {
 
                         throw new \RuntimeException(
-                            'Security not found for AI AUM extraction.'
+                            'Security not found for AI NAV extraction.'
                         );
                     }
 
@@ -40,7 +40,7 @@ class ProcessAiEtfAumExtractionService
                     if (! is_array($data)) {
 
                         throw new \RuntimeException(
-                            'Extracted ETF AUM data is missing or invalid.'
+                            'Extracted Security NAV data is missing or invalid.'
                         );
                     }
 
@@ -49,7 +49,7 @@ class ProcessAiEtfAumExtractionService
                         $data
                     );
 
-                    $this->processAum(
+                    $this->processNav(
                         $extraction,
                         $data
                     );
@@ -64,7 +64,7 @@ class ProcessAiEtfAumExtractionService
 
                         'failure_reason' => null,
 
-                        'validation_notes' => 'AI ETF AUM extraction processed successfully.',
+                        'validation_notes' => 'AI ETF NAV extraction processed successfully.',
 
                     ]);
 
@@ -82,7 +82,7 @@ class ProcessAiEtfAumExtractionService
 
                 'failure_reason' => $e->getMessage(),
 
-                'validation_notes' => 'AI ETF AUM extraction failed processing.',
+                'validation_notes' => 'AI ETF NAV extraction failed processing.',
 
             ]);
 
@@ -115,55 +115,55 @@ class ProcessAiEtfAumExtractionService
         }
     }
 
-    private function processAum(
+    private function processNav(
         AiDataExtraction $extraction,
         array $data
     ): void {
 
         if (
 
-            empty($data['assets_under_management']) ||
+            empty($data['nav_per_share']) ||
 
-            empty($data['aum_date'])
+            empty($data['nav_date'])
 
         ) {
 
             return;
         }
 
-        $assetsUnderManagement =
+        $navPerShare =
 
-            $this->positiveInteger(
+            $this->positiveNumber(
 
-                $data['assets_under_management'],
+                $data['nav_per_share'],
 
-                'assets_under_management'
+                'nav_per_share'
 
             );
 
-        $aumDate =
+        $navDate =
 
             $this->freshDate(
 
-                $data['aum_date'],
+                $data['nav_date'],
 
-                'aum_date'
+                'nav_date'
 
             );
 
-        EtfAumHistory::updateOrCreate(
+        SecurityNavHistory::updateOrCreate(
 
             [
 
                 'security_id' => $extraction->security_id,
 
-                'aum_date' => $aumDate,
+                'nav_date' => $navDate,
 
             ],
 
             [
 
-                'assets_under_management' => $assetsUnderManagement,
+                'nav_per_share' => $navPerShare,
 
                 'data_source_id' => $extraction->data_source_id,
 
@@ -174,10 +174,10 @@ class ProcessAiEtfAumExtractionService
         );
     }
 
-    private function positiveInteger(
+    private function positiveNumber(
         mixed $value,
         string $field
-    ): int {
+    ): float {
 
         if (! is_numeric($value)) {
 
@@ -187,7 +187,7 @@ class ProcessAiEtfAumExtractionService
         }
 
         $value =
-            (int) $value;
+            (float) $value;
 
         if ($value <= 0) {
 
@@ -196,7 +196,10 @@ class ProcessAiEtfAumExtractionService
             );
         }
 
-        return $value;
+        return round(
+            $value,
+            4
+        );
     }
 
     private function freshDate(

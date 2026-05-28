@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
-use App\Models\EtfIngestionBatch;
 use App\Models\ImportType;
+use App\Models\SecurityIngestionBatch;
 use App\Models\Status;
 use App\Services\ImportLogs\ImportLogsService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class FinalizeEtfAumExtractionBatchJob implements ShouldQueue
+class FinalizeSecurityAumExtractionBatchJob implements ShouldQueue
 {
     use Queueable;
 
@@ -27,7 +27,7 @@ class FinalizeEtfAumExtractionBatchJob implements ShouldQueue
     {
         $batch =
 
-            EtfIngestionBatch::findOrFail(
+            SecurityIngestionBatch::findOrFail(
                 $this->batchId
             );
 
@@ -38,7 +38,7 @@ class FinalizeEtfAumExtractionBatchJob implements ShouldQueue
             &&
 
             $batch->success_count ===
-            $batch->total_etfs;
+            $batch->total_securities;
 
         $statusId =
 
@@ -66,9 +66,9 @@ class FinalizeEtfAumExtractionBatchJob implements ShouldQueue
 
             $batch->failure_count > 0
 
-            ? 'AI ETF AUM extraction batch completed with failures.'
+            ? 'AI Security AUM extraction batch completed with failures.'
 
-            : 'AI ETF AUM extraction batch completed successfully.';
+            : 'AI Security AUM extraction batch completed successfully.';
 
         ImportLogsService::log(
 

@@ -6,14 +6,14 @@ use App\Models\Security;
 use App\Models\SecurityIngestionBatch;
 use App\Models\SecurityIngestionBatchItem;
 use App\Models\Status;
-use App\Services\AI\Extractions\AiEtfAumExtractionService;
-use App\Services\AI\Extractions\ProcessAiEtfAumExtractionService;
+use App\Services\AI\Extractions\AiSecurityAumExtractionService;
+use App\Services\AI\Extractions\ProcessAiSecurityAumExtractionService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class RunAiEtfAumExtractionJob implements ShouldQueue
+class RunAiSecurityAumExtractionJob implements ShouldQueue
 {
     use Queueable;
 
@@ -31,9 +31,9 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
 
     public function handle(
 
-        AiEtfAumExtractionService $aiEtfAumExtractionService,
+        AiSecurityAumExtractionService $aiSecurityAumExtractionService,
 
-        ProcessAiEtfAumExtractionService $processAiEtfAumExtractionService
+        ProcessAiSecurityAumExtractionService $processAiSecurityAumExtractionService
 
     ): void {
 
@@ -77,12 +77,12 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
 
             $extraction =
 
-                $aiEtfAumExtractionService
+                $aiSecurityAumExtractionService
                     ->extract(
                         $security
                     );
 
-            $processAiEtfAumExtractionService
+            $processAiSecurityAumExtractionService
                 ->process(
                     $extraction
                 );
@@ -285,7 +285,7 @@ class RunAiEtfAumExtractionJob implements ShouldQueue
 
             if ($updated) {
 
-                FinalizeEtfAumExtractionBatchJob::dispatch(
+                FinalizeSecurityAumExtractionBatchJob::dispatch(
 
                     $batch->id
 

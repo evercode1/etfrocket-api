@@ -6,14 +6,14 @@ use App\Models\Security;
 use App\Models\SecurityIngestionBatch;
 use App\Models\SecurityIngestionBatchItem;
 use App\Models\Status;
-use App\Services\AI\Extractions\AiEtfNavExtractionService;
-use App\Services\AI\Extractions\ProcessAiEtfNavExtractionService;
+use App\Services\AI\Extractions\AiSecurityNavExtractionService;
+use App\Services\AI\Extractions\ProcessAiSecurityNavExtractionService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class RunAiEtfNavExtractionJob implements ShouldQueue
+class RunAiSecurityNavExtractionJob implements ShouldQueue
 {
     use Queueable;
 
@@ -31,9 +31,9 @@ class RunAiEtfNavExtractionJob implements ShouldQueue
 
     public function handle(
 
-        AiEtfNavExtractionService $aiEtfNavExtractionService,
+        AiSecurityNavExtractionService $aiSecurityNavExtractionService,
 
-        ProcessAiEtfNavExtractionService $processAiEtfNavExtractionService
+        ProcessAiSecurityNavExtractionService $processAiSecurityNavExtractionService
 
     ): void {
 
@@ -77,12 +77,12 @@ class RunAiEtfNavExtractionJob implements ShouldQueue
 
             $extraction =
 
-                $aiEtfNavExtractionService
+                $aiSecurityNavExtractionService
                     ->extract(
                         $security
                     );
 
-            $processAiEtfNavExtractionService
+            $processAiSecurityNavExtractionService
                 ->process(
                     $extraction
                 );
@@ -285,7 +285,7 @@ class RunAiEtfNavExtractionJob implements ShouldQueue
 
             if ($updated) {
 
-                FinalizeEtfNavExtractionBatchJob::dispatch(
+                FinalizeSecurityNavExtractionBatchJob::dispatch(
 
                     $batch->id
 

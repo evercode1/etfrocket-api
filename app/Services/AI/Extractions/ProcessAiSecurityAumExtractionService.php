@@ -3,12 +3,12 @@
 namespace App\Services\AI\Extractions;
 
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Models\EtfNavHistory;
+use App\Models\Security;
+use App\Models\SecurityAumHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ProcessAiEtfNavExtractionService
+class ProcessAiSecurityAumExtractionService
 {
     public function process(
         AiDataExtraction $extraction
@@ -20,16 +20,16 @@ class ProcessAiEtfNavExtractionService
 
                 function () use ($extraction) {
 
-                    $etf =
+                    $security =
 
-                        Etf::find(
-                            $extraction->etf_id
+                        Security::find(
+                            $extraction->security_id
                         );
 
-                    if (! $etf) {
+                    if (! $security) {
 
                         throw new \RuntimeException(
-                            'ETF not found for AI NAV extraction.'
+                            'Security not found for AI AUM extraction.'
                         );
                     }
 
@@ -40,16 +40,16 @@ class ProcessAiEtfNavExtractionService
                     if (! is_array($data)) {
 
                         throw new \RuntimeException(
-                            'Extracted ETF NAV data is missing or invalid.'
+                            'Extracted ETF AUM data is missing or invalid.'
                         );
                     }
 
                     $this->validateSymbol(
-                        $etf,
+                        $security,
                         $data
                     );
 
-                    $this->processNav(
+                    $this->processAum(
                         $extraction,
                         $data
                     );
@@ -64,7 +64,7 @@ class ProcessAiEtfNavExtractionService
 
                         'failure_reason' => null,
 
-                        'validation_notes' => 'AI ETF NAV extraction processed successfully.',
+                        'validation_notes' => 'AI ETF AUM extraction processed successfully.',
 
                     ]);
 
@@ -82,7 +82,7 @@ class ProcessAiEtfNavExtractionService
 
                 'failure_reason' => $e->getMessage(),
 
-                'validation_notes' => 'AI ETF NAV extraction failed processing.',
+                'validation_notes' => 'AI ETF AUM extraction failed processing.',
 
             ]);
 
@@ -91,7 +91,7 @@ class ProcessAiEtfNavExtractionService
     }
 
     private function validateSymbol(
-        Etf $etf,
+        Security $security,
         array $data
     ): void {
 
@@ -105,65 +105,65 @@ class ProcessAiEtfNavExtractionService
         if (
 
             strtoupper($data['symbol']) !==
-            strtoupper($etf->symbol)
+            strtoupper($security->symbol)
 
         ) {
 
             throw new \RuntimeException(
-                'Extracted symbol does not match ETF symbol.'
+                'Extracted symbol does not match Security symbol.'
             );
         }
     }
 
-    private function processNav(
+    private function processAum(
         AiDataExtraction $extraction,
         array $data
     ): void {
 
         if (
 
-            empty($data['nav_per_share']) ||
+            empty($data['assets_under_management']) ||
 
-            empty($data['nav_date'])
+            empty($data['aum_date'])
 
         ) {
 
             return;
         }
 
-        $navPerShare =
+        $assetsUnderManagement =
 
-            $this->positiveNumber(
+            $this->positiveInteger(
 
-                $data['nav_per_share'],
+                $data['assets_under_management'],
 
-                'nav_per_share'
+                'assets_under_management'
 
             );
 
-        $navDate =
+        $aumDate =
 
             $this->freshDate(
 
-                $data['nav_date'],
+                $data['aum_date'],
 
-                'nav_date'
+                'aum_date'
 
             );
 
-        EtfNavHistory::updateOrCreate(
+        SecurityAumHistory::updateOrCreate(
 
             [
 
-                'etf_id' => $extraction->etf_id,
+                'security_id' => $extraction->security_id,
 
-                'nav_date' => $navDate,
+                'aum_date' => $aumDate,
 
             ],
 
             [
 
-                'nav_per_share' => $navPerShare,
+                'assets_under_management' => $assetsUnderManagement,
 
                 'data_source_id' => $extraction->data_source_id,
 
@@ -174,10 +174,10 @@ class ProcessAiEtfNavExtractionService
         );
     }
 
-    private function positiveNumber(
+    private function positiveInteger(
         mixed $value,
         string $field
-    ): float {
+    ): int {
 
         if (! is_numeric($value)) {
 
@@ -187,7 +187,7 @@ class ProcessAiEtfNavExtractionService
         }
 
         $value =
-            (float) $value;
+            (int) $value;
 
         if ($value <= 0) {
 
@@ -196,10 +196,7 @@ class ProcessAiEtfNavExtractionService
             );
         }
 
-        return round(
-            $value,
-            4
-        );
+        return $value;
     }
 
     private function freshDate(

@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class AiEtfNavExtractionService
+class AiSecurityAumExtractionService
 {
     public function extract(
         Security $security
@@ -47,7 +47,7 @@ class AiEtfNavExtractionService
 
                                 'role' => 'system',
 
-                                'content' => 'You extract ETF NAV data and return only valid JSON matching the required schema.',
+                                'content' => 'You extract Security AUM data and return only valid JSON matching the required schema.',
 
                             ],
 
@@ -67,7 +67,7 @@ class AiEtfNavExtractionService
 
                                 'type' => 'json_schema',
 
-                                'name' => 'etf_nav_extraction',
+                                'name' => 'etf_aum_extraction',
 
                                 'schema' => $this->schema(),
 
@@ -85,7 +85,7 @@ class AiEtfNavExtractionService
 
             Log::error(
 
-                'OpenAI ETF NAV extraction failed.',
+                'OpenAI ETF AUM extraction failed.',
 
                 [
 
@@ -100,7 +100,7 @@ class AiEtfNavExtractionService
             );
 
             throw new \RuntimeException(
-                'AI ETF NAV extraction failed.'
+                'AI Security AUM extraction failed.'
             );
         }
 
@@ -120,7 +120,7 @@ class AiEtfNavExtractionService
         if (! is_array($extractedData)) {
 
             throw new \RuntimeException(
-                'AI ETF NAV extraction returned invalid JSON.'
+                'AI Security AUM extraction returned invalid JSON.'
             );
         }
 
@@ -160,7 +160,7 @@ class AiEtfNavExtractionService
 
         return "
 
-You are extracting ETF NAV data for Etf Rocket.
+You are extracting ETF assets under management data for Etf Rocket.
 
 Today's date: {$currentDate}
 
@@ -175,15 +175,16 @@ Official Website:
 
 Extract ONLY:
 
-- nav_per_share
-- nav_date
+- assets_under_management
+- aum_date
 
 Rules:
 
-- Use the MOST RECENT officially published NAV.
+- Use the MOST RECENT published AUM.
+- Convert abbreviations into full numeric values.
+- Example: 1.2B = 1200000000
 - Do not guess.
 - Dates must be YYYY-MM-DD.
-- Numbers must be raw numeric values.
 - Return ONLY valid JSON matching the schema.
 
 ";
@@ -201,9 +202,9 @@ Rules:
 
                 'symbol',
 
-                'nav_per_share',
+                'assets_under_management',
 
-                'nav_date',
+                'aum_date',
 
             ],
 
@@ -215,11 +216,11 @@ Rules:
 
                 ],
 
-                'nav_per_share' => [
+                'assets_under_management' => [
 
                     'type' => [
 
-                        'number',
+                        'integer',
 
                         'null',
 
@@ -227,7 +228,7 @@ Rules:
 
                 ],
 
-                'nav_date' => [
+                'aum_date' => [
 
                     'type' => [
 
