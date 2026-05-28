@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 
-class EtfDataSeedController extends Controller
+class SecurityDataSeedController extends Controller
 {
     public function backfillPriceHistory(Request $request)
     {
@@ -40,7 +40,7 @@ class EtfDataSeedController extends Controller
         }
 
         $exitCode = Artisan::call(
-            'etfs:calculate-metrics',
+            'securities:calculate-metrics',
             $params
         );
 
@@ -72,7 +72,7 @@ class EtfDataSeedController extends Controller
         }
 
         $exitCode = Artisan::call(
-            'etfs:run-ai-extraction',
+            'securities:run-ai-extraction',
             $params
         );
 

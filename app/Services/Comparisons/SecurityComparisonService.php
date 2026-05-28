@@ -4,19 +4,19 @@ namespace App\Services\Comparisons;
 
 use InvalidArgumentException;
 
-class EtfComparisonService
+class SecurityComparisonService
 {
     public function getConfig(): array
     {
 
-        $etf_config = config('etf_comparison');
+        $security_config = config('security_comparison');
 
-        return $etf_config ?: [];
+        return $security_config ?: [];
     }
 
     public function getMetrics(): array
     {
-        $metrics = config('etf_comparison.metrics');
+        $metrics = config('security_comparison.metrics');
 
         return $metrics ?: [];
     }
@@ -26,7 +26,7 @@ class EtfComparisonService
         $metrics = $this->getMetrics();
 
         if (! array_key_exists($metric, $metrics)) {
-            throw new InvalidArgumentException("Invalid ETF comparison metric [{$metric}].");
+            throw new InvalidArgumentException("Invalid security comparison metric [{$metric}].");
         }
 
         return $metrics[$metric];
@@ -34,7 +34,7 @@ class EtfComparisonService
 
     public function getRanges(): array
     {
-        $ranges = config('etf_comparison.ranges');
+        $ranges = config('security_comparison.ranges');
 
         return $ranges ?: [];
     }
@@ -44,7 +44,7 @@ class EtfComparisonService
         $ranges = $this->getRanges();
 
         if (! array_key_exists($range, $ranges)) {
-            throw new InvalidArgumentException("Invalid ETF comparison range [{$range}].");
+            throw new InvalidArgumentException("Invalid security comparison range [{$range}].");
         }
 
         return $ranges[$range];
@@ -52,7 +52,7 @@ class EtfComparisonService
 
     public function getDefaults(): array
     {
-        $defaults = config('etf_comparison.defaults');
+        $defaults = config('security_comparison.defaults');
 
         return $defaults ?: [];
     }
@@ -67,9 +67,9 @@ class EtfComparisonService
         return $this->getDefaults()['range'];
     }
 
-    public function getMaxEtfs(): int
+    public function getMaxSecurities(): int
     {
-        return $this->getDefaults()['max_etfs'];
+        return $this->getDefaults()['max_securities'];
     }
 
     public function resolveMetric(?string $metric): string
@@ -93,7 +93,7 @@ class EtfComparisonService
     public function resolveEtfIds(array|string|null $etfIds): array
     {
         if (is_null($etfIds)) {
-            throw new InvalidArgumentException('At least one ETF is required for comparison.');
+            throw new InvalidArgumentException('At least one security is required for comparison.');
         }
 
         if (is_string($etfIds)) {
@@ -111,8 +111,8 @@ class EtfComparisonService
             throw new InvalidArgumentException('At least one valid ETF is required for comparison.');
         }
 
-        if (count($etfIds) > $this->getMaxEtfs()) {
-            throw new InvalidArgumentException("You may compare up to {$this->getMaxEtfs()} ETFs at one time.");
+        if (count($etfIds) > $this->getMaxSecurities()) {
+            throw new InvalidArgumentException("You may compare up to {$this->getMaxSecurities()} securities at one time.");
         }
 
         return $etfIds;

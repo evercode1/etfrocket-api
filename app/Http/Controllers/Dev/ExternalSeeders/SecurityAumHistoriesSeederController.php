@@ -4,42 +4,42 @@ namespace App\Http\Controllers\Dev\ExternalSeeders;
 
 use App\Http\Controllers\Controller;
 use App\Models\DataSource;
-use App\Models\Etf;
-use App\Models\EtfAumHistory;
-use App\Models\EtfNavHistory;
+use App\Models\Security;
+use App\Models\SecurityAumHistory;
+use App\Models\SecurityNavHistory;
 use Carbon\Carbon;
 
-class EtfAumHistoriesSeederController extends Controller
+class SecurityAumHistoriesSeederController extends Controller
 {
     public function run(): void
     {
-        EtfAumHistory::truncate();
+        SecurityAumHistory::truncate();
 
-        EtfNavHistory::truncate();
+        SecurityNavHistory::truncate();
 
-        $etfs = Etf::whereIn('id', [1, 2, 3, 4])
+        $securities = Security::whereIn('id', [1, 2, 3, 4])
 
             ->orderBy('id')
 
             ->get();
 
-        foreach ($etfs as $etf) {
+        foreach ($securities as $security) {
 
-            $this->seedEtfHistory($etf);
+            $this->seedSecurityHistory($security);
         }
     }
 
-    private function seedEtfHistory(
-        Etf $etf
+    private function seedSecurityHistory(
+        Security $security
     ): void {
 
         /*
         |--------------------------------------------------------------------------
-        | ETF Specific Baselines
+        | Security Specific Baselines
         |--------------------------------------------------------------------------
         */
 
-        $config = match ((int) $etf->id) {
+        $config = match ((int) $security->id) {
 
             1 => [
 
@@ -142,9 +142,9 @@ class EtfAumHistoriesSeederController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            EtfNavHistory::create([
+            SecurityNavHistory::create([
 
-                'security_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'nav_date' => $startDate->format(
                     'Y-m-d'
@@ -167,9 +167,9 @@ class EtfAumHistoriesSeederController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            EtfAumHistory::create([
+            SecurityAumHistory::create([
 
-                'security_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'aum_date' => $startDate->format(
                     'Y-m-d'

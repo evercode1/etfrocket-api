@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\User\Comparisons;
 
 use App\Http\Controllers\Controller;
-use App\Queries\Etfs\CompareEtfsQuery;
+use App\Queries\Securities\CompareSecuritiesQuery;
 use App\Services\Comparisons\CompareSymbolsService;
-use App\Services\Comparisons\EtfComparisonService;
 use App\Services\Comparisons\MetricExplorerService;
 use App\Services\Comparisons\PortfolioCompareService;
+use App\Services\Comparisons\SecurityComparisonService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -205,7 +205,7 @@ class ComparisonController extends Controller
 
     public function compareEtfs(
         Request $request,
-        EtfComparisonService $comparisonService
+        SecurityComparisonService $comparisonService
     ) {
 
         Log::info($request->all());
@@ -215,12 +215,12 @@ class ComparisonController extends Controller
                 $request->all()
             );
 
-            $comparison = (new CompareEtfsQuery)->getData(
+            $comparison = (new CompareSecuritiesQuery)->getData(
                 $resolved
             );
         } catch (\Exception $e) {
 
-            Log::error('Failed to compare ETFs', [
+            Log::error('Failed to compare securities', [
 
                 'user_id' => Auth::id(),
 
