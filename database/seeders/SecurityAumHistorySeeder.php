@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\DataSource;
-use App\Models\Etf;
-use App\Models\EtfAumHistory;
+use App\Models\Security;
+use App\Models\SecurityAumHistory;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
@@ -13,11 +13,11 @@ use Illuminate\Database\Seeder;
 // testing, and UI prototyping. It should not be treated as accurate
 // market data.
 
-class EtfAumHistorySeeder extends Seeder
+class SecurityAumHistorySeeder extends Seeder
 {
     public function run(): void
     {
-        EtfAumHistory::truncate();
+        SecurityAumHistory::truncate();
 
         $dataSourceId = DataSource::MANUAL_ENTRY;
 
@@ -53,9 +53,9 @@ class EtfAumHistorySeeder extends Seeder
         ];
 
         foreach ($rows as $symbol => $aumRange) {
-            $etf = Etf::where('symbol', $symbol)->first();
+            $security = Security::where('symbol', $symbol)->first();
 
-            if (! $etf) {
+            if (! $security) {
                 continue;
             }
 
@@ -71,9 +71,9 @@ class EtfAumHistorySeeder extends Seeder
                         (($aumRange['end'] - $aumRange['start']) / $totalDays) * $day
                 );
 
-                EtfAumHistory::updateOrCreate(
+                SecurityAumHistory::updateOrCreate(
                     [
-                        'etf_id' => $etf->id,
+                        'security_id' => $security->id,
                         'aum_date' => $aumDate,
                     ],
                     [

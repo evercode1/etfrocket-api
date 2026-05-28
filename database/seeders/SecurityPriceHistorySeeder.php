@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\DataSource;
-use App\Models\Etf;
-use App\Models\EtfPriceHistory;
+use App\Models\Security;
+use App\Models\SecurityPriceHistory;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -14,11 +14,11 @@ use Illuminate\Support\Facades\DB;
 // testing, and UI prototyping. It should not be treated as accurate
 // market data.
 
-class EtfPriceHistorySeeder extends Seeder
+class SecurityPriceHistorySeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('etf_price_histories')->truncate();
+        DB::table('security_price_histories')->truncate();
 
         $dataSourceId = DataSource::MANUAL_ENTRY;
 
@@ -33,9 +33,9 @@ class EtfPriceHistorySeeder extends Seeder
         ];
 
         foreach ($rows as $symbol => $range) {
-            $etf = Etf::where('symbol', $symbol)->first();
+            $security = Security::where('symbol', $symbol)->first();
 
-            if (! $etf) {
+            if (! $security) {
                 continue;
             }
 
@@ -55,9 +55,9 @@ class EtfPriceHistorySeeder extends Seeder
                     $range['start_volume'] + (($range['end_volume'] - $range['start_volume']) / $totalDays) * $day
                 );
 
-                EtfPriceHistory::updateOrCreate(
+                SecurityPriceHistory::updateOrCreate(
                     [
-                        'etf_id' => $etf->id,
+                        'security_id' => $security->id,
                         'price_date' => $priceDate,
                     ],
                     [

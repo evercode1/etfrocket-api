@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\DataSource;
-use App\Models\Etf;
-use App\Models\EtfNavHistory;
+use App\Models\Security;
+use App\Models\SecurityNavHistory;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -14,11 +14,11 @@ use Illuminate\Support\Facades\DB;
 // testing, and UI prototyping. It should not be treated as accurate
 // market data.
 
-class EtfNavHistorySeeder extends Seeder
+class SecurityNavHistorySeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('etf_nav_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
 
         $dataSourceId = DataSource::MANUAL_ENTRY;
 
@@ -54,9 +54,9 @@ class EtfNavHistorySeeder extends Seeder
         ];
 
         foreach ($rows as $symbol => $navRange) {
-            $etf = Etf::where('symbol', $symbol)->first();
+            $security = Security::where('symbol', $symbol)->first();
 
-            if (! $etf) {
+            if (! $security) {
                 continue;
             }
 
@@ -73,9 +73,9 @@ class EtfNavHistorySeeder extends Seeder
                     4
                 );
 
-                EtfNavHistory::updateOrCreate(
+                SecurityNavHistory::updateOrCreate(
                     [
-                        'etf_id' => $etf->id,
+                        'security_id' => $security->id,
                         'nav_date' => $navDate,
                     ],
                     [
