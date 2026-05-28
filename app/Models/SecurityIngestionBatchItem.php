@@ -2,20 +2,20 @@
 
 namespace App\Models;
 
-use Database\Factories\EtfIngestionBatchItemFactory;
+use Database\Factories\SecurityIngestionBatchItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EtfIngestionBatchItem extends Model
+class SecurityIngestionBatchItem extends Model
 {
-    /** @use HasFactory<EtfIngestionBatchItemFactory> */
+    /** @use HasFactory<SecurityIngestionBatchItemFactory> */
     use HasFactory;
 
     protected $fillable = [
 
-        'etf_ingestion_batch_id',
+        'security_ingestion_batch_id',
 
-        'etf_id',
+        'security_id',
 
         'status_id',
 

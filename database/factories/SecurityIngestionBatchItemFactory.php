@@ -2,19 +2,19 @@
 
 namespace Database\Factories;
 
-use App\Models\EtfIngestionBatchItem;
+use App\Models\SecurityIngestionBatchItem;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class EtfIngestionBatchItemFactory extends Factory
+class SecurityIngestionBatchItemFactory extends Factory
 {
-    protected $model = EtfIngestionBatchItem::class;
+    protected $model = SecurityIngestionBatchItem::class;
 
     public function definition(): array
     {
         return [
-            'etf_ingestion_batch_id' => 1,
-            'etf_id' => 1,
+            'security_ingestion_batch_id' => 1,
+            'security_id' => 1,
             'status_id' => Status::PENDING,
             'attempts' => 0,
             'runtime_ms' => null,
