@@ -10,15 +10,15 @@ return new class extends Migration
     {
         Schema::create(
 
-            'etf_ingestion_batch_items',
+            'security_ingestion_batch_items',
 
             function (Blueprint $table) {
 
                 $table->id();
 
-                $table->unsignedBigInteger('etf_ingestion_batch_id');
+                $table->unsignedBigInteger('security_ingestion_batch_id');
 
-                $table->unsignedBigInteger('etf_id');
+                $table->unsignedBigInteger('security_id');
 
                 $table->unsignedBigInteger('status_id')->nullable();
 
@@ -40,9 +40,9 @@ return new class extends Migration
 
                 // indexes
 
-                $table->index(['etf_ingestion_batch_id']);
+                $table->index(['security_ingestion_batch_id']);
 
-                $table->index(['etf_id']);
+                $table->index(['security_id']);
 
                 $table->index(['is_processed']);
 
@@ -55,7 +55,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists(
-            'etf_ingestion_batch_items'
+            'security_ingestion_batch_items'
         );
     }
 };
