@@ -2,7 +2,7 @@
 
 namespace App\Queries\Dividends;
 
-use App\Models\EtfDividendHistory;
+use App\Models\SecurityDividendHistory;
 use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
 use Carbon\Carbon;
 
@@ -43,16 +43,16 @@ class UpcomingWeeklyDividendsQuery
     {
         $today = Carbon::today();
 
-        $declaredDividend = EtfDividendHistory::where('etf_id', $holding['etf_id'])
+        $declaredDividend = SecurityDividendHistory::where('security_id', $holding['security_id'])
             ->whereDate('ex_dividend_date', '>=', $today->toDateString())
             ->orderBy('ex_dividend_date')
             ->first();
 
         if ($declaredDividend) {
             return [
-                'etf_id' => (int) $holding['etf_id'],
+                'security_id' => (int) $holding['security_id'],
                 'symbol' => $holding['symbol'],
-                'fund_name' => $holding['fund_name'],
+                'security_name' => $holding['security_name'],
                 'shares' => round((float) $holding['shares'], 4),
                 'distribution_amount' => round((float) $declaredDividend->dividend_amount, 4),
                 'estimated_payment_amount' => round(
@@ -70,15 +70,15 @@ class UpcomingWeeklyDividendsQuery
             ];
         }
 
-        $latestDividend = EtfDividendHistory::where('etf_id', $holding['etf_id'])
+        $latestDividend = SecurityDividendHistory::where('security_id', $holding['security_id'])
             ->orderByDesc('ex_dividend_date')
             ->first();
 
         if (! $latestDividend) {
             return [
-                'etf_id' => (int) $holding['etf_id'],
+                'security_id' => (int) $holding['security_id'],
                 'symbol' => $holding['symbol'],
-                'fund_name' => $holding['fund_name'],
+                'security_name' => $holding['security_name'],
                 'shares' => round((float) $holding['shares'], 4),
                 'distribution_amount' => null,
                 'estimated_payment_amount' => null,
@@ -97,9 +97,9 @@ class UpcomingWeeklyDividendsQuery
         }
 
         return [
-            'etf_id' => (int) $holding['etf_id'],
+            'security_id' => (int) $holding['security_id'],
             'symbol' => $holding['symbol'],
-            'fund_name' => $holding['fund_name'],
+            'security_name' => $holding['security_name'],
             'shares' => round((float) $holding['shares'], 4),
             'distribution_amount' => null,
             'estimated_payment_amount' => null,

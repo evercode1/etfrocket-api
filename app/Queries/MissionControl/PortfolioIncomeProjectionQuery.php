@@ -2,8 +2,8 @@
 
 namespace App\Queries\MissionControl;
 
-use App\Models\EtfDividendHistory;
 use App\Models\PortfolioTransaction;
+use App\Models\SecurityDividendHistory;
 
 class PortfolioIncomeProjectionQuery
 {
@@ -12,8 +12,8 @@ class PortfolioIncomeProjectionQuery
         $holdings = PortfolioTransaction::query()
 
             ->selectRaw('
-                portfolio_transactions.etf_id,
-                etfs.distribution_frequency_id,
+                portfolio_transactions.security_id,
+                securities.distribution_frequency_id,
                 SUM(
                     CASE
                         WHEN portfolio_transactions.transaction_type_id = 1 THEN portfolio_transactions.shares
@@ -23,13 +23,13 @@ class PortfolioIncomeProjectionQuery
                 ) as shares
             ')
 
-            ->join('etfs', 'portfolio_transactions.etf_id', '=', 'etfs.id')
+            ->join('securities', 'portfolio_transactions.security_id', '=', 'securities.id')
 
             ->where('portfolio_transactions.portfolio_id', $portfolio_id)
 
             ->groupBy([
-                'portfolio_transactions.etf_id',
-                'etfs.distribution_frequency_id',
+                'portfolio_transactions.security_id',
+                'securities.distribution_frequency_id',
             ])
 
             ->having('shares', '>', 0)
@@ -44,7 +44,7 @@ class PortfolioIncomeProjectionQuery
 
         foreach ($holdings as $holding) {
 
-            $recentDividends = EtfDividendHistory::where('etf_id', $holding->etf_id)
+            $recentDividends = SecurityDividendHistory::where('security_id', $holding->security_id)
 
                 ->orderByDesc('ex_dividend_date')
 

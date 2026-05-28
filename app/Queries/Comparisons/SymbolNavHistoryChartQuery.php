@@ -2,25 +2,25 @@
 
 namespace App\Queries\Comparisons;
 
-use App\Models\Etf;
 use App\Models\EtfNavHistory;
+use App\Models\Security;
 
 class SymbolNavHistoryChartQuery
 {
     public function getData(
-        array $etfIds,
+        array $securityIds,
         string $startDate
     ): array {
 
-        $etfs = Etf::whereIn('id', $etfIds)
+        $securities = Security::whereIn('id', $securityIds)
 
             ->get()
 
             ->keyBy('id');
 
         $navHistories = EtfNavHistory::whereIn(
-            'etf_id',
-            $etfIds
+            'security_id',
+            $securityIds
         )
 
             ->where('nav_date', '>=', $startDate)
@@ -33,9 +33,9 @@ class SymbolNavHistoryChartQuery
 
         foreach ($navHistories as $history) {
 
-            $symbol = $etfs
+            $symbol = $securities
 
-                ->get($history->etf_id)
+                ->get($history->security_id)
 
                 ?->symbol;
 

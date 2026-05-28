@@ -2,25 +2,25 @@
 
 namespace App\Queries\Comparisons;
 
-use App\Models\Etf;
-use App\Models\EtfPriceHistory;
+use App\Models\Security;
+use App\Models\SecurityPriceHistory;
 
 class SymbolPriceHistoryChartQuery
 {
     public function getData(
-        array $etfIds,
+        array $securityIds,
         string $startDate
     ): array {
 
-        $etfs = Etf::whereIn('id', $etfIds)
+        $securities = Security::whereIn('id', $securityIds)
 
             ->get()
 
             ->keyBy('id');
 
-        $priceHistories = EtfPriceHistory::whereIn(
-            'etf_id',
-            $etfIds
+        $priceHistories = SecurityPriceHistory::whereIn(
+            'security_id',
+            $securityIds
         )
 
             ->where('price_date', '>=', $startDate)
@@ -33,9 +33,9 @@ class SymbolPriceHistoryChartQuery
 
         foreach ($priceHistories as $history) {
 
-            $symbol = $etfs
+            $symbol = $securities
 
-                ->get($history->etf_id)
+                ->get($history->security_id)
 
                 ?->symbol;
 

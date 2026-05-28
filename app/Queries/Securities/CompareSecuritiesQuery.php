@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Queries\Etfs;
+namespace App\Queries\Securities;
 
-use App\Models\Etf;
+use App\Models\Security;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class CompareEtfsQuery
+class CompareSecuritiesQuery
 {
     public function getData(array $resolved): array
     {
-        $etfIds = $resolved['etf_ids'];
+        $securityIds = $resolved['security_ids'];
         $table = $resolved['table'];
         $dateColumn = $resolved['date_column'];
         $valueColumn = $resolved['value_column'];
@@ -20,16 +20,18 @@ class CompareEtfsQuery
             ->subDays($days)
             ->toDateString();
 
-        $etfs = Etf::query()
+        $securities = Security::query()
 
             ->select([
-                'id',
-                'symbol',
-                'fund_name',
-                'website_url',
+                'securities.id',
+                'securities.symbol',
+                'security_details.security_name',
+                'security_details.website_url',
             ])
 
-            ->whereIn('id', $etfIds)
+            ->leftJoin('security_details', 'securities.id', '=', 'security_details.security_id')
+
+            ->whereIn('securities.id', $securityIds)
 
             ->get()
 
@@ -38,12 +40,12 @@ class CompareEtfsQuery
         $rows = DB::table($table)
 
             ->select([
-                'etf_id',
+                'security_id',
                 "{$dateColumn} as comparison_date",
                 "{$valueColumn} as comparison_value",
             ])
 
-            ->whereIn('etf_id', $etfIds)
+            ->whereIn('security_id', $securityIds)
 
             ->whereDate($dateColumn, '>=', $startDate)
 
@@ -53,19 +55,19 @@ class CompareEtfsQuery
 
             ->get()
 
-            ->groupBy('etf_id');
+            ->groupBy('security_id');
 
         $series = [];
 
-        foreach ($etfIds as $etfId) {
+        foreach ($securityIds as $securityId) {
 
-            if (! isset($etfs[$etfId])) {
+            if (! isset($securities[$securityId])) {
                 continue;
             }
 
-            $etf = $etfs[$etfId];
+            $security = $securities[$securityId];
 
-            $points = collect($rows->get($etfId, []))
+            $points = collect($rows->get($securityId, []))
 
                 ->map(function ($row) {
 
@@ -82,13 +84,13 @@ class CompareEtfsQuery
 
             $series[] = [
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
-                'symbol' => $etf->symbol,
+                'symbol' => $security->symbol,
 
-                'fund_name' => $etf->fund_name,
+                'security_name' => $security->security_name,
 
-                'website_url' => $etf->website_url,
+                'website_url' => $security->website_url,
 
                 'points' => $points,
 

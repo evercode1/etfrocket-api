@@ -2,25 +2,25 @@
 
 namespace App\Queries\Comparisons;
 
-use App\Models\Etf;
-use App\Models\EtfDividendHistory;
+use App\Models\Security;
+use App\Models\SecurityDividendHistory;
 
 class SymbolDividendHistoryChartQuery
 {
     public function getData(
-        array $etfIds,
+        array $securityIds,
         string $startDate
     ): array {
 
-        $etfs = Etf::whereIn('id', $etfIds)
+        $securities = Security::whereIn('id', $securityIds)
 
             ->get()
 
             ->keyBy('id');
 
-        $dividendHistories = EtfDividendHistory::whereIn(
-            'etf_id',
-            $etfIds
+        $dividendHistories = SecurityDividendHistory::whereIn(
+            'security_id',
+            $securityIds
         )
 
             ->where('ex_dividend_date', '>=', $startDate)
@@ -33,9 +33,9 @@ class SymbolDividendHistoryChartQuery
 
         foreach ($dividendHistories as $history) {
 
-            $symbol = $etfs
+            $symbol = $securities
 
-                ->get($history->etf_id)
+                ->get($history->security_id)
 
                 ?->symbol;
 

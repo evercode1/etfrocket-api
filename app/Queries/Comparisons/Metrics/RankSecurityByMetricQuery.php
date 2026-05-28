@@ -2,11 +2,11 @@
 
 namespace App\Queries\Comparisons\Metrics;
 
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
+use App\Models\SecurityMetric;
 use Illuminate\Support\Facades\DB;
 
-class RankEtfsByMetricQuery
+class RankSecuritiesByMetricQuery
 {
     public function getData(
         string $metric,
@@ -22,38 +22,45 @@ class RankEtfsByMetricQuery
         $performanceRangeTypeId =
             $this->resolveRangeType($range);
 
-        $rows = EtfMetric::query()
+        $rows = SecurityMetric::query()
 
             ->select([
 
-                'etf_metrics.etf_id',
+                'security_metrics.security_id',
 
-                'etfs.symbol',
+                'securities.symbol',
 
-                'etfs.fund_name',
+                'security_details.security_name',
 
                 DB::raw("
                     {$metricColumn}
                     as metric_value
                 "),
 
-                'etf_metrics.total_return_percentage',
+                'security_metrics.total_return_percentage',
 
-                'etf_metrics.aum_change_percentage',
+                'security_metrics.aum_change_percentage',
 
-                'etf_metrics.nav_erosion_percentage',
+                'security_metrics.nav_erosion_percentage',
 
             ])
 
             ->join(
-                'etfs',
-                'etfs.id',
+                'securities',
+                'securities.id',
                 '=',
-                'etf_metrics.etf_id'
+                'security_metrics.security_id'
+            )
+
+            ->join(
+                'security_details',
+                'security_details.security_id',
+                '=',
+                'security_metrics.security_id'
             )
 
             ->where(
-                'etf_metrics.performance_range_type_id',
+                'security_metrics.performance_range_type_id',
                 $performanceRangeTypeId
             )
 
@@ -82,11 +89,11 @@ class RankEtfsByMetricQuery
 
                 'rank' => $index + 1,
 
-                'etf_id' => $row->etf_id,
+                'security_id' => $row->security_id,
 
                 'symbol' => $row->symbol,
 
-                'fund_name' => $row->fund_name,
+                'security_name' => $row->security_name,
 
                 'metric' => $metric,
 
