@@ -13,7 +13,7 @@ class EtfNavHistory extends Model
 
     protected $fillable = [
 
-        'etf_id',
+        'security_id',
         'nav_date',
         'nav_per_share',
         'data_source_id',
