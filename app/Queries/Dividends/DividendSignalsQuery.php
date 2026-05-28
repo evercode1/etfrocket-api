@@ -2,7 +2,7 @@
 
 namespace App\Queries\Dividends;
 
-use App\Models\EtfDividendHistory;
+use App\Models\SecurityDividendHistory;
 use App\Services\PortfolioStats\PortfolioDividendStatsService;
 use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
 use Carbon\Carbon;
@@ -37,7 +37,7 @@ class DividendSignalsQuery
         $growthRows = [];
 
         foreach ($holdings as $holding) {
-            $latestTwoDividends = EtfDividendHistory::where('etf_id', $holding['etf_id'])
+            $latestTwoDividends = SecurityDividendHistory::where('security_id', $holding['security_id'])
                 ->orderByDesc('ex_dividend_date')
                 ->limit(2)
                 ->get();
@@ -123,7 +123,7 @@ class DividendSignalsQuery
         $expectedEtfs = [];
 
         foreach ($weeklyHoldings as $holding) {
-            $futureDeclaredDividend = EtfDividendHistory::where('etf_id', $holding['etf_id'])
+            $futureDeclaredDividend = SecurityDividendHistory::where('security_id', $holding['security_id'])
                 ->whereDate('ex_dividend_date', '>=', $today->toDateString())
                 ->exists();
 
@@ -131,7 +131,7 @@ class DividendSignalsQuery
                 continue;
             }
 
-            $latestDividend = EtfDividendHistory::where('etf_id', $holding['etf_id'])
+            $latestDividend = SecurityDividendHistory::where('security_id', $holding['security_id'])
                 ->orderByDesc('ex_dividend_date')
                 ->first();
 
@@ -175,7 +175,7 @@ class DividendSignalsQuery
             return [
                 'title' => 'Income Stability',
                 'message' => 'More dividend history is needed to evaluate portfolio income stability.',
-                'affected_etfs' => ['Portfolio'],
+                'affected_securities' => ['Portfolio'],
                 'observation' => 'At least two months of dividend data are needed to compare income consistency.',
                 'possible_causes' => [
                     'Portfolio may be new',
@@ -191,7 +191,7 @@ class DividendSignalsQuery
             return [
                 'title' => 'Income Stability',
                 'message' => 'Dividend income stability cannot be evaluated because recent income is zero.',
-                'affected_etfs' => ['Portfolio'],
+                'affected_securities' => ['Portfolio'],
                 'observation' => 'No recent paid dividend income was detected across the current holdings.',
                 'possible_causes' => [
                     'No dividends paid in the recent window',
@@ -210,10 +210,10 @@ class DividendSignalsQuery
             return [
                 'title' => 'Income Stability',
                 'message' => 'Portfolio income variance remains within healthy expected ranges.',
-                'affected_etfs' => ['Portfolio'],
+                'affected_securities' => ['Portfolio'],
                 'observation' => 'Recent monthly income spread is '.round($spreadPercentage, 2).'% across the evaluated window.',
                 'possible_causes' => [
-                    'Diversified ETF income sources',
+                    'Diversified security income sources',
                     'Consistent weekly payer cadence',
                     'No major distribution cuts detected',
                 ],
@@ -223,7 +223,7 @@ class DividendSignalsQuery
         return [
             'title' => 'Income Stability',
             'message' => 'Portfolio income has shown noticeable variation across recent dividend cycles.',
-            'affected_etfs' => ['Portfolio'],
+            'affected_securities' => ['Portfolio'],
             'observation' => 'Recent monthly income spread is '.round($spreadPercentage, 2).'% across the evaluated window.',
             'possible_causes' => [
                 'Large distribution changes',

@@ -3,7 +3,7 @@
 namespace App\Services\AI\Extractions;
 
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
+use App\Models\Security;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Log;
 class AiEtfAumExtractionService
 {
     public function extract(
-        Etf $etf
+        Security $security
     ): AiDataExtraction {
 
         $prompt =
             $this->buildPrompt(
-                $etf
+                $security
             );
 
         $response =
@@ -89,9 +89,9 @@ class AiEtfAumExtractionService
 
                 [
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
-                    'symbol' => $etf->symbol,
+                    'symbol' => $security->symbol,
 
                     'response' => $response->json(),
 
@@ -126,12 +126,12 @@ class AiEtfAumExtractionService
 
         return AiDataExtraction::create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
-            'data_source_id' => $etf->data_source_id
+            'data_source_id' => $security->data_source_id
                 ?? null,
 
-            'source_url' => $etf->website_url,
+            'source_url' => $security->website_url,
 
             'raw_payload' => $response->body(),
 
@@ -149,7 +149,7 @@ class AiEtfAumExtractionService
     }
 
     private function buildPrompt(
-        Etf $etf
+        Security $security
     ): string {
 
         $currentDate =
@@ -164,14 +164,14 @@ You are extracting ETF assets under management data for Etf Rocket.
 
 Today's date: {$currentDate}
 
-ETF Symbol:
-{$etf->symbol}
+Security Symbol:
+{$security->symbol}
 
-ETF Name:
-{$etf->fund_name}
+Security Name:
+{$security->security_name}
 
 Official Website:
-{$etf->website_url}
+{$security->website_url}
 
 Extract ONLY:
 

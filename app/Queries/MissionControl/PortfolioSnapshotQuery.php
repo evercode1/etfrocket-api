@@ -2,10 +2,10 @@
 
 namespace App\Queries\MissionControl;
 
-use App\Models\EtfMetric;
-use App\Models\EtfPriceHistory;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
+use App\Models\SecurityMetric;
+use App\Models\SecurityPriceHistory;
 use App\Services\PortfolioStats\PortfolioDividendStatsService;
 use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
 
@@ -49,11 +49,11 @@ class PortfolioSnapshotQuery
         $costBasis = 0;
 
         foreach ($holdings as $holding) {
-            $latestPrice = EtfPriceHistory::where('etf_id', $holding['etf_id'])
+            $latestPrice = SecurityPriceHistory::where('security_id', $holding['security_id'])
                 ->orderByDesc('price_date')
                 ->value('close_price');
 
-            $latestMetric = EtfMetric::where('etf_id', $holding['etf_id'])
+            $latestMetric = SecurityMetric::where('security_id', $holding['security_id'])
                 ->where('performance_range_type_id', PerformanceRangeType::MAX)
                 ->first();
 
@@ -69,9 +69,9 @@ class PortfolioSnapshotQuery
             $costBasis += $holdingCostBasis;
 
             $holdingRows[] = [
-                'etf_id' => $holding['etf_id'],
+                'security_id' => $holding['security_id'],
                 'symbol' => $holding['symbol'],
-                'fund_name' => $holding['fund_name'],
+                'security_name' => $holding['security_name'],
                 'distribution_frequency_id' => $holding['distribution_frequency_id'],
                 'shares' => round($shares, 4),
                 'cost_basis' => round($holdingCostBasis, 4),
