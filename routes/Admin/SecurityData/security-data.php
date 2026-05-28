@@ -6,8 +6,7 @@ use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
 |
-|
-| Admin Etf Data ROUTES
+| Admin Security Data ROUTES
 |--------------------------------------------------------------------------
 |
 |
@@ -16,6 +15,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['allowExternalData']], function () {
 
-    Route::post('/etf-data', [ExternalDataController::class, 'updateEtfData']);
+    Route::post('/security-data', [ExternalDataController::class, 'updateSecurityData']);
 
 });

@@ -203,14 +203,14 @@ return [
 
         'all' => [
             'display_order' => 1,
-            'label' => 'All ETFs',
-            'description' => 'Search across all tracked ETFs.',
+            'label' => 'All Securities',
+            'description' => 'Search across all tracked securities.',
         ],
 
         'owned' => [
             'display_order' => 2,
-            'label' => 'My ETFs',
-            'description' => 'Search only ETFs owned in the user portfolio.',
+            'label' => 'My Securities',
+            'description' => 'Search only securities owned in the user portfolio.',
         ],
 
     ],

@@ -4,11 +4,11 @@ use Illuminate\Support\Facades\Schedule;
 
 // data extraction for price and dividend
 
-Schedule::command('etfs:run-ai-extraction')
+Schedule::command('securities:run-ai-extraction')
     ->dailyAt('00:05')
     ->withoutOverlapping();
 
-Schedule::command('etf:calculate-metrics')
+Schedule::command('securities:calculate-metrics')
     ->dailyAt('02:00')
     ->withoutOverlapping();
 

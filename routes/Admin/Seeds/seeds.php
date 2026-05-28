@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\DataSeeds\EtfDataSeedController;
+use App\Http\Controllers\Admin\DataSeeds\SecurityDataSeedController;
 use App\Http\Controllers\Dev\ExternalSeeders\MakeAdminUsersSeederController;
 use App\Http\Controllers\Dev\ExternalSeeders\MakeSeedsController;
 use Illuminate\Support\Facades\Route;
@@ -21,11 +21,11 @@ Route::group(['middleware' => ['allowSeeds']], function () {
     Route::get('/make-seed', [MakeSeedsController::class, 'makeSeed']);
     Route::get('/drop-seed', [MakeSeedsController::class, 'dropSeed']);
 
-    Route::post('/data/backfill-price-history', [EtfDataSeedController::class, 'backfillPriceHistory']);
+    Route::post('/data/backfill-price-history', [SecurityDataSeedController::class, 'backfillPriceHistory']);
 
-    Route::post('/data/calculate-etf-metrics', [EtfDataSeedController::class, 'calculateEtfMetrics']);
+    Route::post('/data/calculate-security-metrics', [SecurityDataSeedController::class, 'calculateSecurityMetrics']);
 
-    Route::post('/data/run-ai-data-extractions', [EtfDataSeedController::class, 'runAiDataExtractions']);
+    Route::post('/data/run-ai-data-extractions', [SecurityDataSeedController::class, 'runAiDataExtractions']);
 
-    Route::post('/data/truncate-tables', [EtfDataSeedController::class, 'truncateTables']);
+    Route::post('/data/truncate-tables', [SecurityDataSeedController::class, 'truncateTables']);
 });
