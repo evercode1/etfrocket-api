@@ -144,7 +144,7 @@ class EtfAumHistoriesSeederController extends Controller
 
             EtfNavHistory::create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $etf->id,
 
                 'nav_date' => $startDate->format(
                     'Y-m-d'
@@ -169,7 +169,7 @@ class EtfAumHistoriesSeederController extends Controller
 
             EtfAumHistory::create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $etf->id,
 
                 'aum_date' => $startDate->format(
                     'Y-m-d'

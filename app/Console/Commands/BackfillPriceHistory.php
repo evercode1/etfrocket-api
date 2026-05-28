@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Etf;
-use App\Models\EtfPriceHistory;
-use App\Services\Imports\ImportEtfPriceHistoryService;
+use App\Models\Security;
+use App\Models\SecurityPriceHistory;
+use App\Services\Imports\ImportSecurityPriceHistoryService;
 use Illuminate\Console\Command;
 
 class BackfillPriceHistory extends Command
@@ -14,14 +14,14 @@ class BackfillPriceHistory extends Command
      *
      * @var string
      */
-    protected $signature = 'etfs:backfill-price-history {symbol}';
+    protected $signature = 'securities:backfill-price-history {symbol}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Backfill ETF price history from a CSV import file';
+    protected $description = 'Backfill security price history from a CSV import file';
 
     /**
      * Execute the console command.
@@ -32,17 +32,17 @@ class BackfillPriceHistory extends Command
             trim($this->argument('symbol'))
         );
 
-        $etf = Etf::where('symbol', $symbol)
+        $security = Security::where('symbol', $symbol)
             ->first();
 
-        if (! $etf) {
+        if (! $security) {
 
-            $this->error("ETF with symbol [{$symbol}] was not found.");
+            $this->error("Security with symbol [{$symbol}] was not found.");
 
             return self::FAILURE;
         }
 
-        $countBefore = EtfPriceHistory::where('etf_id', $etf->id)->count();
+        $countBefore = SecurityPriceHistory::where('security_id', $security->id)->count();
 
         $this->info("Rows before import: {$countBefore}");
 
@@ -57,8 +57,8 @@ class BackfillPriceHistory extends Command
 
         try {
 
-            $results = (new ImportEtfPriceHistoryService)->import(
-                $etf->id,
+            $results = (new ImportSecurityPriceHistoryService)->import(
+                $security->id,
                 $filePath
             );
         } catch (\Exception $e) {
@@ -68,10 +68,10 @@ class BackfillPriceHistory extends Command
             return self::FAILURE;
         }
 
-        $this->info("Successfully imported ETF history for {$results['symbol']}.");
+        $this->info("Successfully imported security history for {$results['symbol']}.");
 
         $this->table([
-            'ETF ID',
+            'Security ID',
             'Symbol',
 
             'Price Rows Imported',
@@ -84,7 +84,7 @@ class BackfillPriceHistory extends Command
             'End Date',
 
         ], [[
-            $results['etf_id'],
+            $results['security_id'],
 
             $results['symbol'],
 

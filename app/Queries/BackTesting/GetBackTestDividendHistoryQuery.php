@@ -2,17 +2,17 @@
 
 namespace App\Queries\BackTesting;
 
-use App\Models\EtfDividendHistory;
+use App\Models\SecurityDividendHistory;
 
 class GetBackTestDividendHistoryQuery
 {
     public function getData(
-        int $etfId,
+        int $securityId,
         string $startDate,
         string $endDate
     ): array {
 
-        return EtfDividendHistory::query()
+        return SecurityDividendHistory::query()
 
             ->select([
 
@@ -23,8 +23,8 @@ class GetBackTestDividendHistoryQuery
             ])
 
             ->where(
-                'etf_id',
-                $etfId
+                'security_id',
+                $securityId
             )
 
             ->whereBetween(

@@ -19,7 +19,7 @@ class BackTestingService
     ) {}
 
     public function getData(
-        int $etfId,
+        int $securityId,
         string $startDate,
         string $endDate,
         float $initialInvestment,
@@ -31,7 +31,7 @@ class BackTestingService
             $this->priceHistoryQuery
                 ->getData(
 
-                    etfId: $etfId,
+                    securityId: $securityId,
 
                     startDate: $startDate,
 
@@ -43,7 +43,7 @@ class BackTestingService
             $this->dividendHistoryQuery
                 ->getData(
 
-                    etfId: $etfId,
+                    securityId: $securityId,
 
                     startDate: $startDate,
 

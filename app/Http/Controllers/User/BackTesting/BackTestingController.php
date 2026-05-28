@@ -15,7 +15,7 @@ class BackTestingController extends Controller
 
         $request->validate([
 
-            'etf_id' => [
+            'security_id' => [
 
                 'required',
 
@@ -82,7 +82,7 @@ class BackTestingController extends Controller
             $data = $backTestingService
                 ->getData(
 
-                    etfId: (int) $request->etf_id,
+                    securityId: (int) $request->security_id,
 
                     startDate: $request->start_date,
 
@@ -92,13 +92,13 @@ class BackTestingController extends Controller
                     $request->initial_investment,
 
                     monthlyContribution: (float)
-                    $request->get(
+                    $request->input(
                         'monthly_contribution',
                         0
                     ),
 
                     dripPercentage: (float)
-                    $request->get(
+                    $request->input(
                         'drip_percentage',
                         100
                     ),

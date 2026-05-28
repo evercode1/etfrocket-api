@@ -25,36 +25,37 @@ class DividendHistoryQuery
             ->where('user_id', $userId)
             ->firstOrFail();
 
-        $portfolioEtfIds = PortfolioTransaction::query()
+        $portfolioSecurityIds = PortfolioTransaction::query()
             ->where('portfolio_id', $portfolioId)
             ->distinct()
-            ->pluck('etf_id');
+            ->pluck('security_id');
 
-        $query = DB::table('etf_dividend_histories')
-            ->join('etfs', 'etf_dividend_histories.etf_id', '=', 'etfs.id')
+        $query = DB::table('security_dividend_histories')
+            ->join('securities', 'security_dividend_histories.security_id', '=', 'securities.id')
             ->leftJoin(
                 'distribution_frequencies',
-                'etfs.distribution_frequency_id',
+                'securities.distribution_frequency_id',
                 '=',
                 'distribution_frequencies.id'
             )
-            ->whereIn('etf_dividend_histories.etf_id', $portfolioEtfIds)
-            ->whereNotNull('etf_dividend_histories.payment_date')
+            ->leftJoin('security_details', 'securities.id', '=', 'security_details.security_id')
+            ->whereIn('security_dividend_histories.security_id', $portfolioSecurityIds)
+            ->whereNotNull('security_dividend_histories.payment_date')
             ->select([
-                'etf_dividend_histories.id',
-                'etf_dividend_histories.etf_id',
-                'etfs.symbol',
-                'etfs.fund_name',
-                'etfs.distribution_frequency_id',
+                'security_dividend_histories.id',
+                'security_dividend_histories.security_id',
+                'securities.symbol',
+                'security_details.security_name',
+                'securities.distribution_frequency_id',
                 'distribution_frequencies.distribution_frequency_name',
-                'etf_dividend_histories.dividend_amount',
-                'etf_dividend_histories.ex_dividend_date',
-                'etf_dividend_histories.payment_date',
+                'security_dividend_histories.dividend_amount',
+                'security_dividend_histories.ex_dividend_date',
+                'security_dividend_histories.payment_date',
             ]);
 
         if ($request->filled('symbol')) {
             $query->where(
-                'etfs.symbol',
+                'securities.symbol',
                 'like',
                 '%'.$request->input('symbol').'%'
             );
@@ -62,14 +63,14 @@ class DividendHistoryQuery
 
         if ($request->filled('frequency_id')) {
             $query->where(
-                'etfs.distribution_frequency_id',
+                'securities.distribution_frequency_id',
                 (int) $request->input('frequency_id')
             );
         }
 
         if ($request->filled('date_from')) {
             $query->whereDate(
-                'etf_dividend_histories.ex_dividend_date',
+                'security_dividend_histories.ex_dividend_date',
                 '>=',
                 $request->input('date_from')
             );
@@ -77,21 +78,21 @@ class DividendHistoryQuery
 
         if ($request->filled('date_to')) {
             $query->whereDate(
-                'etf_dividend_histories.ex_dividend_date',
+                'security_dividend_histories.ex_dividend_date',
                 '<=',
                 $request->input('date_to')
             );
         }
 
         $rows = $query
-            ->orderByDesc('etf_dividend_histories.ex_dividend_date')
-            ->orderBy('etfs.symbol')
+            ->orderByDesc('security_dividend_histories.ex_dividend_date')
+            ->orderBy('securities.symbol')
             ->get()
             ->map(function ($row) use ($portfolioId) {
                 $sharesOwned = $this->historicalStatsService
                     ->getSharesOwnedAsOfDate(
                         $portfolioId,
-                        (int) $row->etf_id,
+                        (int) $row->security_id,
                         $row->ex_dividend_date
                     );
 

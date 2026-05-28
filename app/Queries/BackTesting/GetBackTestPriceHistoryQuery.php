@@ -2,17 +2,17 @@
 
 namespace App\Queries\BackTesting;
 
-use App\Models\EtfPriceHistory;
+use App\Models\SecurityPriceHistory;
 
 class GetBackTestPriceHistoryQuery
 {
     public function getData(
-        int $etfId,
+        int $securityId,
         string $startDate,
         string $endDate
     ): array {
 
-        return EtfPriceHistory::query()
+        return SecurityPriceHistory::query()
 
             ->select([
 
@@ -23,8 +23,8 @@ class GetBackTestPriceHistoryQuery
             ])
 
             ->where(
-                'etf_id',
-                $etfId
+                'security_id',
+                $securityId
             )
 
             ->whereBetween(
