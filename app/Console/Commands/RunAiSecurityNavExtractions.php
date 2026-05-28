@@ -5,21 +5,21 @@ namespace App\Console\Commands;
 use App\Services\Crons\CronService;
 use Illuminate\Console\Command;
 
-class RunAiEtfAumExtractions extends Command
+class RunAiSecurityNavExtractions extends Command
 {
     protected $signature =
 
-        'etfs:run-ai-aum-extraction
+        'securities:run-ai-nav-extraction
 
-        {--symbol= : Run extraction for a single ETF symbol}
+        {--symbol= : Run extraction for a single security symbol}
 
-        {--limit= : Limit the number of ETFs processed}
+        {--limit= : Limit the number of securities processed}
 
-        {--force : Force extraction even if no fresh AUM data exists}';
+        {--force : Force extraction even if no fresh NAV data exists}';
 
     protected $description =
 
-        'Run AI ETF AUM extraction and process extracted ETF AUM data.';
+        'Run AI security NAV extraction and process extracted security NAV data.';
 
     public function handle(): void
     {
@@ -47,9 +47,9 @@ class RunAiEtfAumExtractions extends Command
 
             $this->description,
 
-            'RunAiEtfAumExtractionsHandler',
+            'RunAiSecurityNavExtractionsHandler',
 
-            'handleRunAiEtfAumExtractions',
+            'handleRunAiSecurityNavExtractions',
 
             $interval,
 

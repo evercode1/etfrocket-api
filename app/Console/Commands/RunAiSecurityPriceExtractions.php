@@ -5,38 +5,45 @@ namespace App\Console\Commands;
 use App\Services\Crons\CronService;
 use Illuminate\Console\Command;
 
-class RunAiEtfNavExtractions extends Command
+class RunAiSecurityPriceExtractions extends Command
 {
     protected $signature =
 
-        'etfs:run-ai-nav-extraction
+        'securities:run-ai-price-extraction
 
-        {--symbol= : Run extraction for a single ETF symbol}
+        {--symbol= : Run extraction for a single security symbol}
 
-        {--limit= : Limit the number of ETFs processed}
+        {--limit= : Limit the number of securities processed}
 
-        {--force : Force extraction even if no fresh NAV data exists}';
+        {--force : Force extraction even if no fresh price data exists}';
 
     protected $description =
 
-        'Run AI ETF NAV extraction and process extracted ETF NAV data.';
+        'Run AI security price extraction and process extracted security price data.';
 
     public function handle(): void
     {
-        $interval = 'Weekly';
+
+        $interval = 'Daily';
 
         $payload = [
 
             'symbol' => $this->option(
+
                 'symbol'
+
             ),
 
             'limit' => $this->option(
+
                 'limit'
+
             ),
 
             'force' => $this->option(
+
                 'force'
+
             ),
 
         ];
@@ -47,9 +54,9 @@ class RunAiEtfNavExtractions extends Command
 
             $this->description,
 
-            'RunAiEtfNavExtractionsHandler',
+            'RunAiSecurityPriceExtractionsHandler',
 
-            'handleRunAiEtfNavExtractions',
+            'handleRunAiSecurityPriceExtractions',
 
             $interval,
 

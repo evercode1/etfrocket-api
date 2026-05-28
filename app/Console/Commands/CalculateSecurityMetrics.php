@@ -5,14 +5,14 @@ namespace App\Console\Commands;
 use App\Services\Crons\CronService;
 use Illuminate\Console\Command;
 
-class CalculateEtfMetrics extends Command
+class CalculateSecurityMetrics extends Command
 {
     protected $signature =
-        'etfs:calculate-metrics
-        {--symbol= : Calculate metrics for a single ETF symbol}';
+        'securities:calculate-metrics
+        {--symbol= : Calculate metrics for a single security symbol}';
 
     protected $description =
-        'Calculate ETF performance metrics for all active ETFs and performance range types.';
+        'Calculate security performance metrics for all active securities and performance range types.';
 
     public function handle(): void
     {
@@ -32,9 +32,9 @@ class CalculateEtfMetrics extends Command
 
             $this->description,
 
-            'CalculateEtfMetricsHandler',
+            'CalculateSecurityMetricsHandler',
 
-            'handleCalculateEtfMetrics',
+            'handleCalculateSecurityMetrics',
 
             $interval,
 

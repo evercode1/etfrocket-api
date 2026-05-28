@@ -6,11 +6,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ImportEtfBackfillHistory extends Command
+class ImportSecurityBackfillHistory extends Command
 {
     protected $signature =
 
-        'etfs:import-backfill-history
+        'securities:import-backfill-history
 
         {table : Database table to import into}
 
@@ -18,17 +18,17 @@ class ImportEtfBackfillHistory extends Command
 
     protected $description =
 
-        'Import ETF backfill history records from CSV file.';
+        'Import security backfill history records from CSV file.';
 
     private array $allowedTables = [
 
-        'etf_price_histories',
+        'security_price_histories',
 
-        'etf_dividend_histories',
+        'security_dividend_histories',
 
-        'etf_nav_histories',
+        'security_nav_histories',
 
-        'etf_aum_histories',
+        'security_aum_histories',
 
     ];
 
