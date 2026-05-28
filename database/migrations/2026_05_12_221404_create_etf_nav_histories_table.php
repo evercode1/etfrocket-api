@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('etf_nav_histories', function (Blueprint $table) {
 
             $table->id();
-            $table->unsignedInteger('etf_id')->index();
+            $table->unsignedInteger('security_id')->index();
             $table->date('nav_date')->index();
             $table->decimal('nav_per_share', 12, 4);
             $table->unsignedInteger('data_source_id')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
 
             // indexes
 
-            $table->unique(['etf_id', 'nav_date']);
+            $table->unique(['security_id', 'nav_date']);
         });
     }
 
