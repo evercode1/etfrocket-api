@@ -24,7 +24,7 @@ class SecurityDataSeedController extends Controller
         ], $exitCode === 0 ? 200 : 500);
     }
 
-    public function calculateEtfMetrics(Request $request)
+    public function calculateSecurityMetrics(Request $request)
     {
         $request->validate([
             'symbol' => 'nullable|string|max:20',
