@@ -11,95 +11,324 @@ class BackfillPriceHistory extends Command
 {
     /**
      * The name and signature of the console command.
-     *
-     * @var string
      */
-    protected $signature = 'securities:backfill-price-history {symbol}';
+    protected $signature =
+
+        'securities:backfill-price-history
+
+        {symbol? : Optional security symbol}
+
+        {--chunk=25 : Number of securities to process per chunk}';
 
     /**
      * The console command description.
-     *
-     * @var string
      */
-    protected $description = 'Backfill security price history from a CSV import file';
+    protected $description =
+
+        'Backfill security price history from CSV import files';
 
     /**
      * Execute the console command.
      */
     public function handle(): int
     {
-        $symbol = strtoupper(
-            trim($this->argument('symbol'))
+        ini_set(
+            'memory_limit',
+            '-1'
         );
 
-        $security = Security::where('symbol', $symbol)
-            ->first();
+        set_time_limit(
+            0
+        );
 
-        if (! $security) {
+        $symbol =
 
-            $this->error("Security with symbol [{$symbol}] was not found.");
+            $this->argument(
+                'symbol'
+            );
 
-            return self::FAILURE;
+        /*
+        |--------------------------------------------------------------------------
+        | Single Security Mode
+        |--------------------------------------------------------------------------
+        */
+
+        if ($symbol) {
+
+            $security =
+
+                Security::where(
+
+                    'symbol',
+
+                    strtoupper(
+                        trim($symbol)
+                    )
+
+                )->first();
+
+            if (! $security) {
+
+                $this->error(
+
+                    "Security with symbol [{$symbol}] was not found."
+
+                );
+
+                return self::FAILURE;
+            }
+
+            return $this->processSecurity(
+                $security
+            );
         }
 
-        $countBefore = SecurityPriceHistory::where('security_id', $security->id)->count();
+        /*
+        |--------------------------------------------------------------------------
+        | All Securities Mode
+        |--------------------------------------------------------------------------
+        */
 
-        $this->info("Rows before import: {$countBefore}");
+        $chunkSize =
 
-        $filePath = app_path('Imports/PriceData/'.strtolower($symbol).'.txt');
+            (int) $this->option(
+                'chunk'
+            );
+
+        $processed = 0;
+
+        $successful = 0;
+
+        $failed = 0;
+
+        $total =
+
+            Security::count();
+
+        $this->info(
+
+            "Processing {$total} securities..."
+
+        );
+
+        Security::orderBy(
+            'symbol'
+        )
+
+            ->chunk(
+
+                $chunkSize,
+
+                function ($securities) use (
+
+                    &$processed,
+
+                    &$successful,
+
+                    &$failed
+
+                ) {
+
+                    foreach (
+
+                        $securities as $security
+
+                    ) {
+
+                        $processed++;
+
+                        $this->line(
+
+                            "[{$processed}] {$security->symbol}"
+
+                        );
+
+                        $result =
+
+                            $this->processSecurity(
+                                $security,
+                                false
+                            );
+
+                        if (
+
+                            $result ===
+                            self::SUCCESS
+
+                        ) {
+
+                            $successful++;
+
+                        } else {
+
+                            $failed++;
+                        }
+                    }
+                }
+
+            );
+
+        $this->newLine();
+
+        $this->info(
+            'Completed.'
+        );
+
+        $this->info(
+            "Processed: {$processed}"
+        );
+
+        $this->info(
+            "Successful: {$successful}"
+        );
+
+        $this->info(
+            "Failed: {$failed}"
+        );
+
+        return self::SUCCESS;
+    }
+
+    private function processSecurity(
+
+        Security $security,
+
+        bool $showTable = true
+
+    ): int {
+
+        $countBefore =
+
+            SecurityPriceHistory::where(
+
+                'security_id',
+
+                $security->id
+
+            )->count();
+
+        if ($showTable) {
+
+            $this->info(
+
+                "Rows before import: {$countBefore}"
+
+            );
+        }
+
+        $filePath =
+
+            app_path(
+
+                'Imports/PriceData/'.
+
+                strtolower(
+                    $security->symbol
+                ).
+
+                '.txt'
+
+            );
 
         if (! file_exists($filePath)) {
 
-            $this->error("Import file not found at [{$filePath}].");
+            $this->warn(
+
+                "Import file not found for {$security->symbol}"
+
+            );
 
             return self::FAILURE;
         }
 
         try {
 
-            $results = (new ImportSecurityPriceHistoryService)->import(
-                $security->id,
-                $filePath
-            );
-        } catch (\Exception $e) {
+            $results =
 
-            $this->error($e->getMessage());
+                app(
+
+                    ImportSecurityPriceHistoryService::class
+
+                )
+                    ->import(
+
+                        $security->id,
+
+                        $filePath
+
+                    );
+
+        } catch (\Throwable $e) {
+
+            $this->error(
+
+                "{$security->symbol}: ".
+
+                $e->getMessage()
+
+            );
 
             return self::FAILURE;
         }
 
-        $this->info("Successfully imported security history for {$results['symbol']}.");
+        if ($showTable) {
 
-        $this->table([
-            'Security ID',
-            'Symbol',
+            $this->info(
 
-            'Price Rows Imported',
-            'Price Rows Deleted',
+                "Successfully imported security history for {$results['symbol']}."
 
-            'Dividend Rows Imported',
-            'Dividend Rows Deleted',
+            );
 
-            'Start Date',
-            'End Date',
+            $this->table([
 
-        ], [[
-            $results['security_id'],
+                'Security ID',
 
-            $results['symbol'],
+                'Symbol',
 
-            $results['rows_imported'],
+                'Price Rows Imported',
 
-            $results['rows_deleted'],
+                'Price Rows Deleted',
 
-            $results['dividend_rows_imported'],
+                'Dividend Rows Imported',
 
-            $results['dividend_rows_deleted'],
+                'Dividend Rows Deleted',
 
-            $results['start_date'],
+                'Start Date',
 
-            $results['end_date'],
-        ]]);
+                'End Date',
+
+            ], [[
+
+                $results['security_id'],
+
+                $results['symbol'],
+
+                $results['rows_imported'],
+
+                $results['rows_deleted'],
+
+                $results['dividend_rows_imported'],
+
+                $results['dividend_rows_deleted'],
+
+                $results['start_date'],
+
+                $results['end_date'],
+
+            ]]);
+
+        } else {
+
+            $this->line(
+
+                "✓ {$results['symbol']} | ".
+
+                "{$results['rows_imported']} prices | ".
+
+                "{$results['dividend_rows_imported']} dividends"
+
+            );
+        }
 
         return self::SUCCESS;
     }
