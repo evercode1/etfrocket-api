@@ -2,16 +2,16 @@
 
 namespace Tests\Unit\Jobs;
 
-use App\Jobs\FinalizeEtfPriceExtractionBatchJob;
-use App\Models\EtfIngestionBatch;
+use App\Jobs\FinalizeSecurityPriceExtractionBatchJob;
 use App\Models\ImportType;
+use App\Models\SecurityIngestionBatch;
 use App\Models\Status;
 use Database\Seeders\ImportTypeSeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
+class FinalizeSecurityPriceExtractionBatchJobTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -20,7 +20,7 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
         DB::table('import_logs')
             ->truncate();
 
-        DB::table('etf_ingestion_batches')
+        DB::table('security_ingestion_batches')
             ->truncate();
 
         DB::table('import_types')
@@ -43,7 +43,7 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
         DB::table('import_logs')
             ->truncate();
 
-        DB::table('etf_ingestion_batches')
+        DB::table('security_ingestion_batches')
             ->truncate();
 
         DB::table('import_types')
@@ -58,14 +58,14 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     public function test_it_finalizes_successful_batch()
     {
         $batch =
-            EtfIngestionBatch::factory()
+            SecurityIngestionBatch::factory()
                 ->create([
 
                     'import_type_id' => ImportType::AI_DATA_EXTRACTION,
 
                     'status_id' => Status::PENDING,
 
-                    'total_etfs' => 10,
+                    'total_securities' => 10,
 
                     'processed_count' => 10,
 
@@ -80,7 +80,7 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
                 ]);
 
         $job =
-            new FinalizeEtfPriceExtractionBatchJob(
+            new FinalizeSecurityPriceExtractionBatchJob(
                 $batch->id
             );
 
@@ -133,14 +133,14 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     public function test_it_finalizes_failed_batch()
     {
         $batch =
-            EtfIngestionBatch::factory()
+            SecurityIngestionBatch::factory()
                 ->create([
 
                     'import_type_id' => ImportType::AI_DATA_EXTRACTION,
 
                     'status_id' => Status::PENDING,
 
-                    'total_etfs' => 10,
+                    'total_securities' => 10,
 
                     'processed_count' => 10,
 
@@ -155,7 +155,7 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
                 ]);
 
         $job =
-            new FinalizeEtfPriceExtractionBatchJob(
+            new FinalizeSecurityPriceExtractionBatchJob(
                 $batch->id
             );
 
@@ -203,19 +203,19 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     public function test_it_sets_completed_at()
     {
         $batch =
-            EtfIngestionBatch::factory()
+            SecurityIngestionBatch::factory()
                 ->create([
 
                     'processed_count' => 5,
 
-                    'total_etfs' => 5,
+                    'total_securities' => 5,
 
                     'success_count' => 5,
 
                 ]);
 
         $job =
-            new FinalizeEtfPriceExtractionBatchJob(
+            new FinalizeSecurityPriceExtractionBatchJob(
                 $batch->id
             );
 
@@ -231,12 +231,12 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     public function test_it_creates_import_log()
     {
         $batch =
-            EtfIngestionBatch::factory()
+            SecurityIngestionBatch::factory()
                 ->create([
 
                     'processed_count' => 3,
 
-                    'total_etfs' => 3,
+                    'total_securities' => 3,
 
                     'success_count' => 3,
 
@@ -245,7 +245,7 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
                 ]);
 
         $job =
-            new FinalizeEtfPriceExtractionBatchJob(
+            new FinalizeSecurityPriceExtractionBatchJob(
                 $batch->id
             );
 
@@ -260,12 +260,12 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     public function test_it_sets_processing_notes_for_failed_batch()
     {
         $batch =
-            EtfIngestionBatch::factory()
+            SecurityIngestionBatch::factory()
                 ->create([
 
                     'processed_count' => 4,
 
-                    'total_etfs' => 4,
+                    'total_securities' => 4,
 
                     'success_count' => 2,
 
@@ -274,7 +274,7 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
                 ]);
 
         $job =
-            new FinalizeEtfPriceExtractionBatchJob(
+            new FinalizeSecurityPriceExtractionBatchJob(
                 $batch->id
             );
 
@@ -284,7 +284,7 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
 
         $this->assertEquals(
 
-            'AI ETF price extraction batch completed with failures.',
+            'AI security price extraction batch completed with failures.',
 
             $batch->processing_notes
 
@@ -294,12 +294,12 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
     public function test_it_sets_processing_notes_for_successful_batch()
     {
         $batch =
-            EtfIngestionBatch::factory()
+            SecurityIngestionBatch::factory()
                 ->create([
 
                     'processed_count' => 4,
 
-                    'total_etfs' => 4,
+                    'total_securities' => 4,
 
                     'success_count' => 4,
 
@@ -308,7 +308,7 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
                 ]);
 
         $job =
-            new FinalizeEtfPriceExtractionBatchJob(
+            new FinalizeSecurityPriceExtractionBatchJob(
                 $batch->id
             );
 
@@ -318,7 +318,7 @@ class FinalizeEtfPriceExtractionBatchJobTest extends TestCase
 
         $this->assertEquals(
 
-            'AI ETF price extraction batch completed successfully.',
+            'AI security price extraction batch completed successfully.',
 
             $batch->processing_notes
 

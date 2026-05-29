@@ -27,6 +27,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -36,6 +37,7 @@ class PortfolioDividendStatsServiceTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -347,13 +349,13 @@ class PortfolioDividendStatsServiceTest extends TestCase
         ]);
     }
 
-    private function createSecurity(string $symbol, int $frequencyId): Security
+    private function createSecurity(string $symbol): Security
     {
         return Security::factory()->create([
             'symbol' => $symbol,
-            'fund_name' => "{$symbol} Test Security",
+
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => $frequencyId,
+
         ]);
     }
 

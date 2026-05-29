@@ -2,22 +2,21 @@
 
 namespace Tests\Unit\Jobs;
 
-use App\Jobs\RunAiEtfPriceExtractionJob;
+use App\Jobs\RunAiSecurityPriceExtractionJob;
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Models\EtfIngestionBatch;
-use App\Models\EtfIngestionBatchItem;
+use App\Models\Security;
+use App\Models\SecurityIngestionBatch;
+use App\Models\SecurityIngestionBatchItem;
 use App\Models\Status;
-use App\Services\AI\Extractions\AiEtfPriceExtractionService;
-use App\Services\AI\Extractions\ProcessAiEtfPriceExtractionService;
-use Database\Seeders\EtfSeeder;
+use App\Services\AI\Extractions\AiSecurityPriceExtractionService;
+use App\Services\AI\Extractions\ProcessAiSecurityPriceExtractionService;
 use Database\Seeders\ImportTypeSeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Mockery;
 use Tests\TestCase;
 
-class RunAiEtfPriceExtractionJobTest extends TestCase
+class RunAiSecurityPriceExtractionJobTest extends TestCase
 {
     private $aiService;
 
@@ -27,16 +26,19 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
     {
         parent::setUp();
 
-        DB::table('etf_ingestion_batch_items')
+        DB::table('security_ingestion_batch_items')
             ->truncate();
 
-        DB::table('etf_ingestion_batches')
+        DB::table('security_ingestion_batches')
             ->truncate();
 
         DB::table('ai_data_extractions')
             ->truncate();
 
-        DB::table('etfs')
+        DB::table('securities')
+            ->truncate();
+
+        DB::table('security_details')
             ->truncate();
 
         DB::table('statuses')
@@ -51,18 +53,16 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
             ImportTypeSeeder::class,
 
-            EtfSeeder::class,
-
         ]);
 
         $this->aiService =
             Mockery::mock(
-                AiEtfPriceExtractionService::class
+                AiSecurityPriceExtractionService::class
             );
 
         $this->processService =
             Mockery::mock(
-                ProcessAiEtfPriceExtractionService::class
+                ProcessAiSecurityPriceExtractionService::class
             );
     }
 
@@ -70,16 +70,19 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
     {
         Mockery::close();
 
-        DB::table('etf_ingestion_batch_items')
+        DB::table('security_ingestion_batch_items')
             ->truncate();
 
-        DB::table('etf_ingestion_batches')
+        DB::table('security_ingestion_batches')
             ->truncate();
 
         DB::table('ai_data_extractions')
             ->truncate();
 
-        DB::table('etfs')
+        DB::table('securities')
+            ->truncate();
+
+        DB::table('security_details')
             ->truncate();
 
         DB::table('statuses')
@@ -91,26 +94,30 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_processes_etf_successfully()
+    public function test_it_processes_security_successfully()
     {
-        $etf =
-            Etf::firstOrFail();
+
+        Security::factory()
+            ->create();
+
+        $security =
+            Security::firstOrFail();
 
         $batch =
-            EtfIngestionBatch::factory()
+            SecurityIngestionBatch::factory()
                 ->create([
 
-                    'total_etfs' => 1,
+                    'total_securities' => 1,
 
                 ]);
 
         $batchItem =
-            EtfIngestionBatchItem::factory()
+            SecurityIngestionBatchItem::factory()
                 ->create([
 
-                    'etf_ingestion_batch_id' => $batch->id,
+                    'security_ingestion_batch_id' => $batch->id,
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'status_id' => Status::PENDING,
 
@@ -120,7 +127,7 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
             AiDataExtraction::factory()
                 ->make([
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                 ]);
 
@@ -131,8 +138,8 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
                 Mockery::on(
 
-                    fn ($passedEtf) => $passedEtf->id ===
-                        $etf->id
+                    fn ($passedSecurity) => $passedSecurity->id ===
+                        $security->id
 
                 )
 
@@ -150,11 +157,11 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
             );
 
         $job =
-            new RunAiEtfPriceExtractionJob(
+            new RunAiSecurityPriceExtractionJob(
 
                 $batch->id,
 
-                $etf->id
+                $security->id
 
             );
 
@@ -201,24 +208,27 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
     public function test_it_marks_batch_item_as_failed_after_final_attempt()
     {
-        $etf =
-            Etf::firstOrFail();
+        Security::factory()
+            ->create();
+
+        $security =
+            Security::firstOrFail();
 
         $batch =
-            EtfIngestionBatch::factory()
+            SecurityIngestionBatch::factory()
                 ->create([
 
-                    'total_etfs' => 1,
+                    'total_securities' => 1,
 
                 ]);
 
         $batchItem =
-            EtfIngestionBatchItem::factory()
+            SecurityIngestionBatchItem::factory()
                 ->create([
 
-                    'etf_ingestion_batch_id' => $batch->id,
+                    'security_ingestion_batch_id' => $batch->id,
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'status_id' => Status::PENDING,
 
@@ -237,7 +247,7 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
             );
 
-        $job = new class($batch->id, $etf->id) extends RunAiEtfPriceExtractionJob
+        $job = new class($batch->id, $security->id) extends RunAiSecurityPriceExtractionJob
         {
             public function attempts(): int
             {
@@ -296,20 +306,23 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
     public function test_it_resets_to_pending_before_final_attempt()
     {
-        $etf =
-            Etf::firstOrFail();
+        Security::factory()
+            ->create();
+
+        $security =
+            Security::firstOrFail();
 
         $batch =
-            EtfIngestionBatch::factory()
+            SecurityIngestionBatch::factory()
                 ->create();
 
         $batchItem =
-            EtfIngestionBatchItem::factory()
+            SecurityIngestionBatchItem::factory()
                 ->create([
 
-                    'etf_ingestion_batch_id' => $batch->id,
+                    'security_ingestion_batch_id' => $batch->id,
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'attempts' => 1,
 
@@ -329,11 +342,11 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
             );
 
         $job =
-            new RunAiEtfPriceExtractionJob(
+            new RunAiSecurityPriceExtractionJob(
 
                 $batch->id,
 
-                $etf->id
+                $security->id
 
             );
 
@@ -390,20 +403,23 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
     public function test_it_increments_attempts()
     {
-        $etf =
-            Etf::firstOrFail();
+        Security::factory()
+            ->create();
+
+        $security =
+            Security::firstOrFail();
 
         $batch =
-            EtfIngestionBatch::factory()
+            SecurityIngestionBatch::factory()
                 ->create();
 
         $batchItem =
-            EtfIngestionBatchItem::factory()
+            SecurityIngestionBatchItem::factory()
                 ->create([
 
-                    'etf_ingestion_batch_id' => $batch->id,
+                    'security_ingestion_batch_id' => $batch->id,
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'attempts' => 2,
 
@@ -413,7 +429,7 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
             AiDataExtraction::factory()
                 ->make([
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                 ]);
 
@@ -429,11 +445,11 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
             ->once();
 
         $job =
-            new RunAiEtfPriceExtractionJob(
+            new RunAiSecurityPriceExtractionJob(
 
                 $batch->id,
 
-                $etf->id
+                $security->id
 
             );
 
@@ -455,20 +471,23 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
 
     public function test_it_sets_processing_status_before_execution()
     {
-        $etf =
-            Etf::firstOrFail();
+        Security::factory()
+            ->create();
+
+        $security =
+            Security::firstOrFail();
 
         $batch =
-            EtfIngestionBatch::factory()
+            SecurityIngestionBatch::factory()
                 ->create();
 
         $batchItem =
-            EtfIngestionBatchItem::factory()
+            SecurityIngestionBatchItem::factory()
                 ->create([
 
-                    'etf_ingestion_batch_id' => $batch->id,
+                    'security_ingestion_batch_id' => $batch->id,
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                 ]);
 
@@ -476,7 +495,7 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
             AiDataExtraction::factory()
                 ->make([
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                 ]);
 
@@ -492,11 +511,11 @@ class RunAiEtfPriceExtractionJobTest extends TestCase
             ->once();
 
         $job =
-            new RunAiEtfPriceExtractionJob(
+            new RunAiSecurityPriceExtractionJob(
 
                 $batch->id,
 
-                $etf->id
+                $security->id
 
             );
 

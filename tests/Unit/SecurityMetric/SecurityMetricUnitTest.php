@@ -3,9 +3,6 @@
 namespace Tests\Unit\SecurityMetric;
 
 use App\Models\DataSource;
-use App\Models\DistributionFrequency;
-use App\Models\EtfIssuer;
-use App\Models\EtfStrategyType;
 use App\Models\MetricDirection;
 use App\Models\PerformanceRangeType;
 use App\Models\Security;
@@ -15,7 +12,7 @@ use App\Models\SecurityMetric;
 use App\Models\SecurityNavHistory;
 use App\Models\SecurityPriceHistory;
 use App\Models\Status;
-use App\Services\CalculateSecurityMetricService;
+use App\Services\SecurityMetrics\CalculateSecurityMetricService;
 use Carbon\Carbon;
 use Database\Seeders\DataSourceSeeder;
 use Database\Seeders\DistributionFrequencySeeder;
@@ -41,6 +38,7 @@ class SecurityMetricUnitTest extends TestCase
         DB::table('security_aum_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         DB::table('data_sources')->truncate();
         DB::table('performance_range_types')->truncate();
@@ -67,7 +65,7 @@ class SecurityMetricUnitTest extends TestCase
         DB::table('security_aum_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
-
+        DB::table('security_details')->truncate();
         DB::table('data_sources')->truncate();
         DB::table('performance_range_types')->truncate();
         DB::table('metric_directions')->truncate();
@@ -81,12 +79,12 @@ class SecurityMetricUnitTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_calculates_full_thirty_day_etf_metric()
+    public function test_it_calculates_full_thirty_day_security_metric()
     {
-        $etf = $this->createEtf();
+        $security = $this->createSecurity();
 
         SecurityPriceHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'price_date' => '2026-04-12',
             'close_price' => 10.0000,
             'volume' => 100000,
@@ -95,7 +93,7 @@ class SecurityMetricUnitTest extends TestCase
         ]);
 
         SecurityPriceHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'price_date' => '2026-05-12',
             'close_price' => 12.0000,
             'volume' => 200000,
@@ -104,7 +102,7 @@ class SecurityMetricUnitTest extends TestCase
         ]);
 
         SecurityDividendHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'dividend_amount' => 0.5000,
             'ex_dividend_date' => '2026-04-20',
             'payment_date' => '2026-04-22',
@@ -113,7 +111,7 @@ class SecurityMetricUnitTest extends TestCase
         ]);
 
         SecurityDividendHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'dividend_amount' => 0.2500,
             'ex_dividend_date' => '2026-05-05',
             'payment_date' => '2026-05-07',
@@ -122,7 +120,7 @@ class SecurityMetricUnitTest extends TestCase
         ]);
 
         SecurityNavHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'nav_date' => '2026-04-12',
             'nav_per_share' => 10.0000,
             'data_source_id' => DataSource::MANUAL_ENTRY,
@@ -130,7 +128,7 @@ class SecurityMetricUnitTest extends TestCase
         ]);
 
         SecurityNavHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'nav_date' => '2026-05-12',
             'nav_per_share' => 10.5000,
             'data_source_id' => DataSource::MANUAL_ENTRY,
@@ -138,7 +136,7 @@ class SecurityMetricUnitTest extends TestCase
         ]);
 
         SecurityAumHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'aum_date' => '2026-04-12',
             'assets_under_management' => 100000000,
             'data_source_id' => DataSource::MANUAL_ENTRY,
@@ -146,7 +144,7 @@ class SecurityMetricUnitTest extends TestCase
         ]);
 
         SecurityAumHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'aum_date' => '2026-05-12',
             'assets_under_management' => 125000000,
             'data_source_id' => DataSource::MANUAL_ENTRY,
@@ -154,11 +152,11 @@ class SecurityMetricUnitTest extends TestCase
         ]);
 
         $metric = (new CalculateSecurityMetricService)->calculate(
-            $etf,
+            $security,
             PerformanceRangeType::THIRTY_DAY
         );
 
-        $this->assertEquals($etf->id, $metric->security_id);
+        $this->assertEquals($security->id, $metric->security_id);
         $this->assertEquals(PerformanceRangeType::THIRTY_DAY, $metric->performance_range_type_id);
 
         $this->assertEquals('2026-04-12', $metric->start_date->toDateString());
@@ -192,52 +190,52 @@ class SecurityMetricUnitTest extends TestCase
 
     public function test_it_calculates_eroding_nav_and_shrinking_aum()
     {
-        $etf = $this->createEtf();
+        $security = $this->createSecurity();
 
         SecurityPriceHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'price_date' => '2026-04-12',
             'close_price' => 20.0000,
         ]);
 
         SecurityPriceHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'price_date' => '2026-05-12',
             'close_price' => 18.0000,
         ]);
 
         SecurityDividendHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'dividend_amount' => 0.5000,
             'ex_dividend_date' => '2026-05-01',
         ]);
 
         SecurityNavHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'nav_date' => '2026-04-12',
             'nav_per_share' => 20.0000,
         ]);
 
         SecurityNavHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'nav_date' => '2026-05-12',
             'nav_per_share' => 18.0000,
         ]);
 
         SecurityAumHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'aum_date' => '2026-04-12',
             'assets_under_management' => 100000000,
         ]);
 
         SecurityAumHistory::create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'aum_date' => '2026-05-12',
             'assets_under_management' => 90000000,
         ]);
 
         $metric = (new CalculateSecurityMetricService)->calculate(
-            $etf,
+            $security,
             PerformanceRangeType::THIRTY_DAY
         );
 
@@ -487,15 +485,9 @@ class SecurityMetricUnitTest extends TestCase
     {
         return Security::create([
             'symbol' => 'TETF',
-            'etf_issuer_id' => EtfIssuer::YIELDMAX,
-            'etf_strategy_type_id' => EtfStrategyType::OPTION_INCOME,
-            'distribution_frequency_id' => DistributionFrequency::WEEKLY,
+
             'status_id' => Status::ACTIVE,
-            'expense_ratio' => 0.99,
-            'inception_date' => '2026-01-01',
-            'source' => 'manual',
-            'website_url' => 'https://example.com',
-            'notes' => null,
+
         ]);
     }
 }

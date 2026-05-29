@@ -14,15 +14,15 @@ class ImportType extends Model
 
     public const MARKET_EVENTS = 4;
 
-    public const CALCULATE_ETF_METRICS = 5;
+    public const CALCULATE_SECURITY_METRICS = 5;
 
-    public const ETF_PRICE_IMPORT = 6;
+    public const SECURITY_PRICE_IMPORT = 6;
 
-    public const ETF_NAV_IMPORT = 7;
+    public const SECURITY_NAV_IMPORT = 7;
 
-    public const ETF_AUM_IMPORT = 8;
+    public const SECURITY_AUM_IMPORT = 8;
 
-    public const ETF_DIVIDEND_IMPORT = 9;
+    public const SECURITY_DIVIDEND_IMPORT = 9;
 
     public const PORTFOLIO_IMPORT = 10;
 

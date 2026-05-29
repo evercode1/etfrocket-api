@@ -4,63 +4,67 @@ namespace Tests\Unit\AiExtraction;
 
 use App\Models\AiDataExtraction;
 use App\Models\DataSource;
-use App\Models\Etf;
-use App\Services\AI\Extractions\ProcessAiEtfAumExtractionService;
-use Database\Seeders\EtfSeeder;
+use App\Models\Security;
+use App\Services\AI\Extractions\ProcessAiSecurityAumExtractionService;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class ProcessAiEtfAumExtractionServiceTest extends TestCase
+class ProcessAiSecurityAumExtractionServiceTest extends TestCase
 {
-    private ProcessAiEtfAumExtractionService $service;
+    private ProcessAiSecurityAumExtractionService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_aum_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
-        $this->seed(
-            EtfSeeder::class
-        );
+        DB::table('security_details')->truncate();
 
         $this->service =
             app(
-                ProcessAiEtfAumExtractionService::class
+                ProcessAiSecurityAumExtractionService::class
             );
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_aum_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }
 
     public function test_it_processes_aum_extraction()
     {
-        $etf =
-            Etf::firstOrFail();
+
+        Security::factory()->create([
+            'symbol' => 'CHPY',
+        ]);
+
+        $security =
+            Security::firstOrFail();
 
         $extraction =
             AiDataExtraction::factory()
                 ->create([
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'data_source_id' => DataSource::MANUAL_ENTRY,
 
                     'extracted_data' => [
 
-                        'symbol' => $etf->symbol,
+                        'symbol' => $security->symbol,
 
                         'assets_under_management' => 1000000000,
 
@@ -81,7 +85,7 @@ class ProcessAiEtfAumExtractionServiceTest extends TestCase
         );
 
         $this->assertDatabaseHas(
-            'etf_aum_histories',
+            'security_aum_histories',
             [
 
                 'assets_under_management' => 1000000000,
@@ -92,18 +96,23 @@ class ProcessAiEtfAumExtractionServiceTest extends TestCase
 
     public function test_it_fails_if_aum_date_is_stale()
     {
-        $etf =
-            Etf::firstOrFail();
+
+        Security::factory()->create([
+            'symbol' => 'CHPY',
+        ]);
+
+        $security =
+            Security::firstOrFail();
 
         $extraction =
             AiDataExtraction::factory()
                 ->create([
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'extracted_data' => [
 
-                        'symbol' => $etf->symbol,
+                        'symbol' => $security->symbol,
 
                         'assets_under_management' => 1000000000,
 

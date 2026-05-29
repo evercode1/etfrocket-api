@@ -24,15 +24,15 @@ class ImportTypeSeeder extends Seeder
 
             'Market Events',
 
-            'Calculate ETF Metrics',
+            'Calculate Security Metrics',
 
-            'ETF Price Import',
+            'Security Price Import',
 
-            'ETF NAV Import',
+            'Security NAV Import',
 
-            'ETF AUM Import',
+            'Security AUM Import',
 
-            'ETF Dividend Import',
+            'Security Dividend Import',
 
             'Portfolio Import',
 

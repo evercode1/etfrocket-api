@@ -2,43 +2,44 @@
 
 namespace Tests\Unit\Commands\Handlers;
 
-use App\Jobs\RunAiEtfPriceExtractionJob;
-use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Models\EtfIngestionBatch;
-use App\Models\EtfIngestionBatchItem;
-use App\Models\EtfPriceHistory;
+use App\Jobs\RunAiSecurityPriceExtractionJob;
 use App\Models\ImportType;
+use App\Models\Security;
+use App\Models\SecurityIngestionBatch;
+use App\Models\SecurityIngestionBatchItem;
+use App\Models\SecurityPriceHistory;
 use App\Models\Status;
-use App\Services\Crons\Handlers\RunAiEtfPriceExtractionsHandler;
-use Database\Seeders\EtfSeeder;
+use App\Services\Crons\Handlers\RunAiSecurityPriceExtractionsHandler;
 use Database\Seeders\ImportTypeSeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
-class RunAiEtfPriceExtractionsHandlerTest extends TestCase
+class RunAiSecurityPriceExtractionsHandlerTest extends TestCase
 {
-    private RunAiEtfPriceExtractionsHandler $handler;
+    private RunAiSecurityPriceExtractionsHandler $handler;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_ingestion_batch_items')
+        DB::table('security_ingestion_batch_items')
             ->truncate();
 
-        DB::table('etf_ingestion_batches')
+        DB::table('security_ingestion_batches')
             ->truncate();
 
-        DB::table('etf_price_histories')
+        DB::table('security_price_histories')
             ->truncate();
 
         DB::table('ai_data_extractions')
             ->truncate();
 
-        DB::table('etfs')
+        DB::table('securities')
+            ->truncate();
+
+        DB::table('security_details')
             ->truncate();
 
         DB::table('import_types')
@@ -53,33 +54,31 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
             ImportTypeSeeder::class,
 
-            EtfSeeder::class,
-
         ]);
 
         Queue::fake();
 
         $this->handler =
             app(
-                RunAiEtfPriceExtractionsHandler::class
+                RunAiSecurityPriceExtractionsHandler::class
             );
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_ingestion_batch_items')
+        DB::table('security_ingestion_batch_items')
             ->truncate();
 
-        DB::table('etf_ingestion_batches')
+        DB::table('security_ingestion_batches')
             ->truncate();
 
-        DB::table('etf_price_histories')
+        DB::table('security_price_histories')
             ->truncate();
 
         DB::table('ai_data_extractions')
             ->truncate();
 
-        DB::table('etfs')
+        DB::table('securities')
             ->truncate();
 
         DB::table('import_types')
@@ -91,14 +90,19 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_dispatches_jobs_for_all_etfs()
+    public function test_it_dispatches_jobs_for_all_securities()
     {
-        $etfCount =
-            Etf::count();
+
+        Security::factory()
+            ->count(5)
+            ->create();
+
+        $securityCount =
+            Security::count();
 
         $results =
             $this->handler
-                ->handleRunAiEtfPriceExtractions();
+                ->handleRunAiSecurityPriceExtractions();
 
         $this->assertEquals(
             1,
@@ -106,25 +110,30 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
         );
 
         Queue::assertPushed(
-            RunAiEtfPriceExtractionJob::class,
-            $etfCount
+            RunAiSecurityPriceExtractionJob::class,
+            $securityCount
         );
 
         $this->assertDatabaseCount(
-            'etf_ingestion_batches',
+            'security_ingestion_batches',
             1
         );
 
         $this->assertDatabaseCount(
-            'etf_ingestion_batch_items',
-            $etfCount
+            'security_ingestion_batch_items',
+            $securityCount
         );
     }
 
     public function test_it_creates_batch_record()
     {
+
+        Security::factory()
+            ->count(2)
+            ->create();
+
         $this->handler
-            ->handleRunAiEtfPriceExtractions([
+            ->handleRunAiSecurityPriceExtractions([
 
                 'limit' => 2,
 
@@ -132,7 +141,7 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
         $this->assertDatabaseHas(
 
-            'etf_ingestion_batches',
+            'security_ingestion_batches',
 
             [
 
@@ -140,7 +149,7 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
                 'status_id' => Status::PENDING,
 
-                'total_etfs' => 2,
+                'total_securities' => 2,
 
                 'processed_count' => 0,
 
@@ -155,15 +164,20 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
     public function test_it_creates_batch_items()
     {
+
+        Security::factory()
+            ->count(5)
+            ->create();
+
         $this->handler
-            ->handleRunAiEtfPriceExtractions([
+            ->handleRunAiSecurityPriceExtractions([
 
                 'limit' => 3,
 
             ]);
 
         $batch =
-            EtfIngestionBatch::first();
+            SecurityIngestionBatch::first();
 
         $this->assertNotNull(
             $batch
@@ -171,16 +185,16 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
         $this->assertEquals(
             3,
-            EtfIngestionBatchItem::count()
+            SecurityIngestionBatchItem::count()
         );
 
         $this->assertDatabaseHas(
 
-            'etf_ingestion_batch_items',
+            'security_ingestion_batch_items',
 
             [
 
-                'etf_ingestion_batch_id' => $batch->id,
+                'security_ingestion_batch_id' => $batch->id,
 
                 'status_id' => Status::PENDING,
 
@@ -195,15 +209,22 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
     public function test_it_dispatches_job_for_single_symbol()
     {
-        $etf =
-            Etf::where(
+
+        Security::create([
+            'symbol' => 'CHPY',
+
+            'status_id' => Status::ACTIVE,
+        ]);
+
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
 
         $results =
             $this->handler
-                ->handleRunAiEtfPriceExtractions([
+                ->handleRunAiSecurityPriceExtractions([
 
                     'symbol' => 'CHPY',
 
@@ -215,23 +236,23 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
         );
 
         $batch =
-            EtfIngestionBatch::first();
+            SecurityIngestionBatch::first();
 
         $this->assertEquals(
             1,
-            $batch->total_etfs
+            $batch->total_securities
         );
 
         Queue::assertPushed(
 
-            RunAiEtfPriceExtractionJob::class,
+            RunAiSecurityPriceExtractionJob::class,
 
-            function ($job) use ($etf, $batch) {
+            function ($job) use ($security, $batch) {
 
                 return
 
-                    $job->etfId ===
-                    $etf->id
+                    $job->securityId ===
+                    $security->id
 
                     &&
 
@@ -244,9 +265,14 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
     public function test_it_respects_limit()
     {
+
+        Security::factory()
+            ->count(10)
+            ->create();
+
         $results =
             $this->handler
-                ->handleRunAiEtfPriceExtractions([
+                ->handleRunAiSecurityPriceExtractions([
 
                     'limit' => 5,
 
@@ -258,40 +284,44 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
         );
 
         Queue::assertPushed(
-            RunAiEtfPriceExtractionJob::class,
+            RunAiSecurityPriceExtractionJob::class,
             5
         );
 
         $this->assertDatabaseHas(
 
-            'etf_ingestion_batches',
+            'security_ingestion_batches',
 
             [
 
-                'total_etfs' => 5,
+                'total_securities' => 5,
 
             ]
 
         );
     }
 
-    public function test_it_skips_when_all_active_etfs_have_fresh_price_data()
+    public function test_it_skips_when_all_active_securities_have_fresh_price_data()
     {
+
+        Security::factory()
+            ->count(3)
+            ->create();
         $today =
             now()->toDateString();
 
         foreach (
 
-            Etf::where(
+            Security::where(
                 'status_id',
                 Status::ACTIVE
-            )->get() as $etf
+            )->get() as $security
 
         ) {
 
-            EtfPriceHistory::create([
+            SecurityPriceHistory::create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'price_date' => $today,
 
@@ -308,7 +338,7 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
         $results =
             $this->handler
-                ->handleRunAiEtfPriceExtractions();
+                ->handleRunAiSecurityPriceExtractions();
 
         $this->assertEquals(
             1,
@@ -318,16 +348,20 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
         Queue::assertNothingPushed();
 
         $this->assertDatabaseCount(
-            'etf_ingestion_batches',
+            'security_ingestion_batches',
             0
         );
     }
 
     public function test_force_flag_bypasses_freshness_check()
     {
-        EtfPriceHistory::create([
+        Security::factory()
+            ->count(2)
+            ->create();
 
-            'etf_id' => Etf::first()->id,
+        SecurityPriceHistory::create([
+
+            'security_id' => Security::first()->id,
 
             'price_date' => now()->toDateString(),
 
@@ -341,16 +375,9 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
 
         ]);
 
-        AiDataExtraction::factory()
-            ->create([
-
-                'created_at' => now(),
-
-            ]);
-
         $results =
             $this->handler
-                ->handleRunAiEtfPriceExtractions([
+                ->handleRunAiSecurityPriceExtractions([
 
                     'force' => true,
 
@@ -364,24 +391,24 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
         );
 
         Queue::assertPushed(
-            RunAiEtfPriceExtractionJob::class,
+            RunAiSecurityPriceExtractionJob::class,
             2
         );
 
         $this->assertDatabaseCount(
-            'etf_ingestion_batches',
+            'security_ingestion_batches',
             1
         );
     }
 
-    public function test_it_returns_success_when_no_etfs_exist()
+    public function test_it_returns_success_when_no_securities_exist()
     {
-        DB::table('etfs')
+        DB::table('securities')
             ->truncate();
 
         $results =
             $this->handler
-                ->handleRunAiEtfPriceExtractions();
+                ->handleRunAiSecurityPriceExtractions();
 
         $this->assertEquals(
             1,
@@ -391,7 +418,7 @@ class RunAiEtfPriceExtractionsHandlerTest extends TestCase
         Queue::assertNothingPushed();
 
         $this->assertDatabaseCount(
-            'etf_ingestion_batches',
+            'security_ingestion_batches',
             0
         );
     }

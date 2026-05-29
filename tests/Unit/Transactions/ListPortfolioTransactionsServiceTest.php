@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Transactions;
 
-use App\Models\Etf;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
 use App\Models\User;
 use App\Services\PortfolioTransactions\ListPortfolioTransactionsService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -21,14 +21,18 @@ class ListPortfolioTransactionsServiceTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
+        DB::table('users')->truncate();
     }
 
     protected function tearDown(): void
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
+        DB::table('users')->truncate();
 
         parent::tearDown();
     }
@@ -41,17 +45,17 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $etf = Etf::factory()->create();
+        $security = Security::factory()->create();
 
         $oldest = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_date' => '2026-05-10',
         ]);
 
         $newer = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_date' => '2026-05-12',
         ]);
 
@@ -82,23 +86,23 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $etf = Etf::factory()->create();
+        $security = Security::factory()->create();
 
         $oldest = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_date' => '2026-05-10',
         ]);
 
         $newerFirst = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_date' => '2026-05-12',
         ]);
 
         $newerSecond = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_date' => '2026-05-12',
         ]);
 
@@ -134,23 +138,23 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $schd = Etf::factory()->create([
+        $schd = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
-        $vym = Etf::factory()->create([
+        $vym = Security::factory()->create([
             'symbol' => 'VYM',
         ]);
 
         $matchingTransaction = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
             'transaction_date' => '2026-05-12',
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $vym->id,
+            'security_id' => $vym->id,
             'transaction_date' => '2026-05-13',
         ]);
 
@@ -180,23 +184,23 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $etf = Etf::factory()->create();
+        $security = Security::factory()->create();
 
         $first = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_date' => '2026-05-13',
         ]);
 
         $second = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_date' => '2026-05-12',
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_date' => '2026-05-11',
         ]);
 
@@ -233,13 +237,13 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $etf = Etf::factory()->create();
+        $security = Security::factory()->create();
 
         PortfolioTransaction::factory()
             ->count(30)
             ->create([
                 'portfolio_id' => $portfolio->id,
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
                 'transaction_date' => '2026-05-12',
             ]);
 
@@ -272,23 +276,23 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $vym = Etf::factory()->create([
+        $vym = Security::factory()->create([
             'symbol' => 'VYM',
         ]);
 
-        $schd = Etf::factory()->create([
+        $schd = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
         $vymTransaction = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $vym->id,
+            'security_id' => $vym->id,
             'transaction_date' => '2026-05-12',
         ]);
 
         $schdTransaction = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $schd->id,
+            'security_id' => $schd->id,
             'transaction_date' => '2026-05-12',
         ]);
 
@@ -323,11 +327,11 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $etf = Etf::factory()->create();
+        $security = Security::factory()->create();
 
         $smallTransaction = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'shares' => 5,
             'price_per_share' => 10,
             'transaction_date' => '2026-05-12',
@@ -335,7 +339,7 @@ class ListPortfolioTransactionsServiceTest extends TestCase
 
         $largeTransaction = PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'shares' => 10,
             'price_per_share' => 20,
             'transaction_date' => '2026-05-12',
@@ -398,13 +402,13 @@ class ListPortfolioTransactionsServiceTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'SCHD',
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_date' => '2026-05-15',
         ]);
 

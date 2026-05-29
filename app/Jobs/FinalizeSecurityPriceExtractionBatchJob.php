@@ -102,9 +102,9 @@ class FinalizeSecurityPriceExtractionBatchJob implements ShouldQueue
 
             $batch->failure_count > 0
 
-            ? 'AI ETF price extraction batch completed with failures.'
+            ? 'AI security price extraction batch completed with failures.'
 
-            : 'AI ETF price extraction batch completed successfully.';
+            : 'AI security price extraction batch completed successfully.';
 
         /*
         |--------------------------------------------------------------------------

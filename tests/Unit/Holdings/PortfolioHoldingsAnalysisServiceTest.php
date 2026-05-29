@@ -31,6 +31,7 @@ class PortfolioHoldingsAnalysisServiceTest extends TestCase
         DB::table('security_metrics')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -42,6 +43,7 @@ class PortfolioHoldingsAnalysisServiceTest extends TestCase
         DB::table('security_metrics')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();

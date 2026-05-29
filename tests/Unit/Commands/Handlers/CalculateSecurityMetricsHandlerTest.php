@@ -3,16 +3,13 @@
 namespace Tests\Unit\Commands\Handlers;
 
 use App\Models\DataSource;
-use App\Models\DistributionFrequency;
-use App\Models\Etf;
-use App\Models\EtfIssuer;
-use App\Models\EtfMetric;
-use App\Models\EtfPriceHistory;
-use App\Models\EtfStrategyType;
 use App\Models\ImportLog;
 use App\Models\ImportType;
+use App\Models\Security;
+use App\Models\SecurityMetric;
+use App\Models\SecurityPriceHistory;
 use App\Models\Status;
-use App\Services\Crons\Handlers\CalculateEtfMetricsHandler;
+use App\Services\Crons\Handlers\CalculateSecurityMetricsHandler;
 use Carbon\Carbon;
 use Database\Seeders\DataSourceSeeder;
 use Database\Seeders\DistributionFrequencySeeder;
@@ -25,9 +22,9 @@ use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class CalculateEtfMetricsHandlerTest extends TestCase
+class CalculateSecurityMetricsHandlerTest extends TestCase
 {
-    private CalculateEtfMetricsHandler $handler;
+    private CalculateSecurityMetricsHandler $handler;
 
     protected function setUp(): void
     {
@@ -46,9 +43,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
         DB::table('import_logs')->truncate();
         DB::table('import_types')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('performance_range_types')->truncate();
         DB::table('metric_directions')->truncate();
         DB::table('distribution_frequencies')->truncate();
@@ -74,7 +71,7 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
             app(
 
-                CalculateEtfMetricsHandler::class
+                CalculateSecurityMetricsHandler::class
 
             );
     }
@@ -84,9 +81,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
         DB::table('import_logs')->truncate();
         DB::table('import_types')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
         DB::table('performance_range_types')->truncate();
         DB::table('metric_directions')->truncate();
         DB::table('distribution_frequencies')->truncate();
@@ -100,12 +97,12 @@ class CalculateEtfMetricsHandlerTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_calculates_metrics_for_all_active_etfs()
+    public function test_it_calculates_metrics_for_all_active_securities()
     {
 
-        $etfOne =
+        $securityOne =
 
-            $this->createEtf(
+            $this->createSecurity(
 
                 'AAA',
 
@@ -113,9 +110,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
             );
 
-        $etfTwo =
+        $securityTwo =
 
-            $this->createEtf(
+            $this->createSecurity(
 
                 'BBB',
 
@@ -125,20 +122,20 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
         $this->createPriceHistory(
 
-            $etfOne
+            $securityOne
 
         );
 
         $this->createPriceHistory(
 
-            $etfTwo
+            $securityTwo
 
         );
 
         $results =
 
             $this->handler
-                ->handleCalculateEtfMetrics([
+                ->handleCalculateSecurityMetrics([
 
                     'force' => true,
 
@@ -156,7 +153,7 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
             12,
 
-            EtfMetric::count()
+            SecurityMetric::count()
 
         );
 
@@ -166,7 +163,7 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
             [
 
-                'import_type_id' => ImportType::CALCULATE_ETF_METRICS,
+                'import_type_id' => ImportType::CALCULATE_SECURITY_METRICS,
 
                 'status_id' => Status::COMPLETED,
 
@@ -178,9 +175,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
     public function test_it_only_processes_requested_symbol()
     {
 
-        $targetEtf =
+        $targetSecurity =
 
-            $this->createEtf(
+            $this->createSecurity(
 
                 'CHPY',
 
@@ -188,9 +185,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
             );
 
-        $otherEtf =
+        $otherSecurity =
 
-            $this->createEtf(
+            $this->createSecurity(
 
                 'AMDY',
 
@@ -200,20 +197,20 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
         $this->createPriceHistory(
 
-            $targetEtf
+            $targetSecurity
 
         );
 
         $this->createPriceHistory(
 
-            $otherEtf
+            $otherSecurity
 
         );
 
         $results =
 
             $this->handler
-                ->handleCalculateEtfMetrics([
+                ->handleCalculateSecurityMetrics([
 
                     'symbol' => 'CHPY',
 
@@ -233,11 +230,11 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
             6,
 
-            EtfMetric::where(
+            SecurityMetric::where(
 
-                'etf_id',
+                'security_id',
 
-                $targetEtf->id
+                $targetSecurity->id
 
             )->count()
 
@@ -247,23 +244,23 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
             0,
 
-            EtfMetric::where(
+            SecurityMetric::where(
 
-                'etf_id',
+                'security_id',
 
-                $otherEtf->id
+                $otherSecurity->id
 
             )->count()
 
         );
     }
 
-    public function test_it_skips_inactive_etfs()
+    public function test_it_skips_inactive_securities()
     {
 
-        $inactiveEtf =
+        $inactiveSecurity =
 
-            $this->createEtf(
+            $this->createSecurity(
 
                 'ZZZ',
 
@@ -273,14 +270,14 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
         $this->createPriceHistory(
 
-            $inactiveEtf
+            $inactiveSecurity
 
         );
 
         $results =
 
             $this->handler
-                ->handleCalculateEtfMetrics([
+                ->handleCalculateSecurityMetrics([
 
                     'force' => true,
 
@@ -298,15 +295,15 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
             0,
 
-            EtfMetric::count()
+            SecurityMetric::count()
 
         );
     }
 
-    public function test_it_returns_success_when_no_active_etfs_exist()
+    public function test_it_returns_success_when_no_active_securities_exist()
     {
 
-        $this->createEtf(
+        $this->createSecurity(
 
             'NONE',
 
@@ -317,7 +314,7 @@ class CalculateEtfMetricsHandlerTest extends TestCase
         $results =
 
             $this->handler
-                ->handleCalculateEtfMetrics([
+                ->handleCalculateSecurityMetrics([
 
                     'force' => true,
 
@@ -341,9 +338,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
     public function test_it_skips_when_no_fresh_price_data_exists()
     {
 
-        EtfMetric::create([
+        SecurityMetric::create([
 
-            'etf_id' => 1,
+            'security_id' => 1,
 
             'performance_range_type_id' => 1,
 
@@ -353,9 +350,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::create([
+        SecurityPriceHistory::create([
 
-            'etf_id' => 1,
+            'security_id' => 1,
 
             'price_date' => '2026-05-12',
 
@@ -372,7 +369,7 @@ class CalculateEtfMetricsHandlerTest extends TestCase
         $results =
 
             $this->handler
-                ->handleCalculateEtfMetrics();
+                ->handleCalculateSecurityMetrics();
 
         $this->assertEquals(
 
@@ -387,10 +384,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
             'import_logs',
 
             [
+                'import_type_id' => ImportType::CALCULATE_SECURITY_METRICS,
 
-                'import_type_id' => ImportType::CALCULATE_ETF_METRICS,
-
-                'processing_notes' => 'Skipped ETF metric calculation. No fresh ETF price data detected.',
+                'processing_notes' => 'Skipped security metric calculation. No fresh security price data detected.',
 
             ]
 
@@ -400,9 +396,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
     public function test_force_flag_bypasses_freshness_check()
     {
 
-        $etf =
+        $security =
 
-            $this->createEtf(
+            $this->createSecurity(
 
                 'FORCE',
 
@@ -412,13 +408,13 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
         $this->createPriceHistory(
 
-            $etf
+            $security
 
         );
 
-        EtfMetric::create([
+        SecurityMetric::create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => 1,
 
@@ -431,7 +427,7 @@ class CalculateEtfMetricsHandlerTest extends TestCase
         $results =
 
             $this->handler
-                ->handleCalculateEtfMetrics([
+                ->handleCalculateSecurityMetrics([
 
                     'force' => true,
 
@@ -447,55 +443,37 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
         $this->assertTrue(
 
-            EtfMetric::count() > 1
+            SecurityMetric::count() > 1
 
         );
     }
 
-    private function createEtf(
+    private function createSecurity(
 
         string $symbol,
 
         int $statusId
 
-    ): Etf {
+    ): Security {
 
-        return Etf::create([
+        return Security::create([
 
             'symbol' => $symbol,
 
-            'fund_name' => $symbol.' Test ETF',
-
-            'etf_issuer_id' => EtfIssuer::YIELDMAX,
-
-            'etf_strategy_type_id' => EtfStrategyType::OPTION_INCOME,
-
-            'distribution_frequency_id' => DistributionFrequency::WEEKLY,
-
             'status_id' => $statusId,
-
-            'expense_ratio' => 0.99,
-
-            'inception_date' => '2026-01-01',
-
-            'source' => 'manual',
-
-            'website_url' => 'https://example.com',
-
-            'notes' => null,
 
         ]);
     }
 
     private function createPriceHistory(
 
-        Etf $etf
+        Security $security
 
     ): void {
 
-        EtfPriceHistory::create([
+        SecurityPriceHistory::create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2026-04-12',
 
@@ -509,9 +487,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::create([
+        SecurityPriceHistory::create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2026-05-12',
 
@@ -529,9 +507,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
     public function test_it_logs_aggregated_import_metrics()
     {
 
-        $etfOne =
+        $securityOne =
 
-            $this->createEtf(
+            $this->createSecurity(
 
                 'AAA',
 
@@ -539,9 +517,9 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
             );
 
-        $etfTwo =
+        $securityTwo =
 
-            $this->createEtf(
+            $this->createSecurity(
 
                 'BBB',
 
@@ -551,20 +529,20 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
         $this->createPriceHistory(
 
-            $etfOne
+            $securityOne
 
         );
 
         $this->createPriceHistory(
 
-            $etfTwo
+            $securityTwo
 
         );
 
         $results =
 
             $this->handler
-                ->handleCalculateEtfMetrics([
+                ->handleCalculateSecurityMetrics([
 
                     'force' => true,
 
@@ -617,7 +595,7 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
     */
 
-        // 2 ETFs × 6 ranges
+        // 2 Securities × 6 ranges
 
         $this->assertEquals(
 
@@ -671,7 +649,7 @@ class CalculateEtfMetricsHandlerTest extends TestCase
 
         $this->assertEquals(
 
-            'Forced ETF metric recalculation executed successfully.',
+            'Forced security metric recalculation executed successfully.',
 
             $log->processing_notes
 

@@ -24,6 +24,8 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
         DB::table('security_dividend_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
+        DB::table('statuses')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -34,6 +36,8 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
         DB::table('security_dividend_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
+        DB::table('statuses')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -310,9 +314,7 @@ class PortfolioHistoricalStatsServiceTest extends TestCase
     {
         return Security::factory()->create([
             'symbol' => $symbol,
-            'fund_name' => "{$symbol} Test ETF",
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
         ]);
     }
 
