@@ -31,6 +31,7 @@ class CompareSymbolsServiceTest extends TestCase
         DB::table('security_aum_histories')->truncate();
         DB::table('security_metrics')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         $this->service = new CompareSymbolsService(
 
@@ -53,7 +54,7 @@ class CompareSymbolsServiceTest extends TestCase
         DB::table('security_aum_histories')->truncate();
         DB::table('security_metrics')->truncate();
         DB::table('securities')->truncate();
-
+        DB::table('security_details')->truncate();
         parent::tearDown();
     }
 
@@ -95,7 +96,7 @@ class CompareSymbolsServiceTest extends TestCase
 
         $this->assertEquals(
             1,
-            $data['summary']['compared_etfs_count']
+            $data['summary']['compared_securities_count']
         );
 
         $this->assertEquals(
@@ -498,8 +499,6 @@ class CompareSymbolsServiceTest extends TestCase
         return Security::factory()->create([
 
             'symbol' => $symbol,
-
-            'name' => "{$symbol} Test Security",
 
         ]);
     }

@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Comparisons;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
-use App\Queries\Comparisons\Metrics\RankEtfsByMetricQuery;
+use App\Models\Security;
+use App\Models\SecurityMetric;
+use App\Queries\Comparisons\Metrics\RankSecurityByMetricQuery;
 use App\Services\Comparisons\MetricExplorerService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -19,32 +19,34 @@ class MetricExplorerServiceTest extends TestCase
     {
         parent::setUp();
 
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         $this->service =
             new MetricExplorerService(
 
-                new RankEtfsByMetricQuery
+                new RankSecurityByMetricQuery
 
             );
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }
 
     public function test_it_returns_metric_explorer_payload()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -105,13 +107,13 @@ class MetricExplorerServiceTest extends TestCase
     {
         foreach (range(1, 5) as $index) {
 
-            $etf = $this->createEtf(
-                "ETF{$index}"
+            $security = $this->createSecurity(
+                "SEC{$index}"
             );
 
-            EtfMetric::factory()->create([
+            SecurityMetric::factory()->create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -130,11 +132,11 @@ class MetricExplorerServiceTest extends TestCase
 
     public function test_it_uses_custom_metric()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -159,11 +161,11 @@ class MetricExplorerServiceTest extends TestCase
 
     public function test_it_uses_custom_range()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::ONE_YEAR,
 
@@ -188,13 +190,13 @@ class MetricExplorerServiceTest extends TestCase
 
     public function test_it_uses_custom_sort_direction()
     {
-        $strong = $this->createEtf('CHPY');
+        $strong = $this->createSecurity('CHPY');
 
-        $weak = $this->createEtf('AMDY');
+        $weak = $this->createSecurity('AMDY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $strong->id,
+            'security_id' => $strong->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -202,9 +204,9 @@ class MetricExplorerServiceTest extends TestCase
 
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $weak->id,
+            'security_id' => $weak->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -226,13 +228,13 @@ class MetricExplorerServiceTest extends TestCase
     {
         foreach (range(1, 10) as $index) {
 
-            $etf = $this->createEtf(
-                "ETF{$index}"
+            $security = $this->createSecurity(
+                "SEC{$index}"
             );
 
-            EtfMetric::factory()->create([
+            SecurityMetric::factory()->create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -320,13 +322,13 @@ class MetricExplorerServiceTest extends TestCase
     {
         foreach (range(1, 150) as $index) {
 
-            $etf = $this->createEtf(
-                "ETF{$index}"
+            $security = $this->createSecurity(
+                "SEC{$index}"
             );
 
-            EtfMetric::factory()->create([
+            SecurityMetric::factory()->create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -347,11 +349,11 @@ class MetricExplorerServiceTest extends TestCase
 
     public function test_it_clamps_limit_to_minimum()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -369,15 +371,13 @@ class MetricExplorerServiceTest extends TestCase
         );
     }
 
-    private function createEtf(
+    private function createSecurity(
         string $symbol
-    ): Etf {
+    ): Security {
 
-        return Etf::factory()->create([
+        return Security::factory()->create([
 
             'symbol' => $symbol,
-
-            'fund_name' => "{$symbol} Test ETF",
 
         ]);
     }
