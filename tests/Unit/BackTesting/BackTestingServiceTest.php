@@ -23,6 +23,7 @@ class BackTestingServiceTest extends TestCase
         DB::table('security_price_histories')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         $this->service =
             new BackTestingService(
@@ -41,6 +42,7 @@ class BackTestingServiceTest extends TestCase
         DB::table('security_price_histories')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }

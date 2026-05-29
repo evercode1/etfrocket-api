@@ -2,36 +2,37 @@
 
 namespace Tests\Unit\Commands\Handlers;
 
-use App\Jobs\RunAiEtfNavExtractionJob;
-use App\Models\Etf;
-use App\Models\EtfNavHistory;
+use App\Jobs\RunAiSecurityNavExtractionJob;
 use App\Models\ImportType;
+use App\Models\Security;
+use App\Models\SecurityNavHistory;
 use App\Models\Status;
-use App\Services\Crons\Handlers\RunAiEtfNavExtractionsHandler;
-use Database\Seeders\EtfSeeder;
+use App\Services\Crons\Handlers\RunAiSecurityNavExtractionsHandler;
 use Database\Seeders\ImportTypeSeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
-class RunAiEtfNavExtractionsHandlerTest extends TestCase
+class RunAiSecurityNavExtractionsHandlerTest extends TestCase
 {
-    private RunAiEtfNavExtractionsHandler $handler;
+    private RunAiSecurityNavExtractionsHandler $handler;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_ingestion_batch_items')->truncate();
+        DB::table('security_ingestion_batch_items')->truncate();
 
-        DB::table('etf_ingestion_batches')->truncate();
+        DB::table('security_ingestion_batches')->truncate();
 
-        DB::table('etf_nav_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+
+        DB::table('security_details')->truncate();
 
         DB::table('import_types')->truncate();
 
@@ -43,29 +44,29 @@ class RunAiEtfNavExtractionsHandlerTest extends TestCase
 
             ImportTypeSeeder::class,
 
-            EtfSeeder::class,
-
         ]);
 
         Queue::fake();
 
         $this->handler =
             app(
-                RunAiEtfNavExtractionsHandler::class
+                RunAiSecurityNavExtractionsHandler::class
             );
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_ingestion_batch_items')->truncate();
+        DB::table('security_ingestion_batch_items')->truncate();
 
-        DB::table('etf_ingestion_batches')->truncate();
+        DB::table('security_ingestion_batches')->truncate();
 
-        DB::table('etf_nav_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+
+        DB::table('security_details')->truncate();
 
         DB::table('import_types')->truncate();
 
@@ -74,14 +75,17 @@ class RunAiEtfNavExtractionsHandlerTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_dispatches_jobs_for_all_etfs()
+    public function test_it_dispatches_jobs_for_all_securities()
     {
-        $etfCount =
-            Etf::count();
+
+        Security::factory()->create();
+
+        $securityCount =
+            Security::count();
 
         $results =
             $this->handler
-                ->handleRunAiEtfNavExtractions();
+                ->handleRunAiSecurityNavExtractions();
 
         $this->assertEquals(
             1,
@@ -89,15 +93,18 @@ class RunAiEtfNavExtractionsHandlerTest extends TestCase
         );
 
         Queue::assertPushed(
-            RunAiEtfNavExtractionJob::class,
-            $etfCount
+            RunAiSecurityNavExtractionJob::class,
+            $securityCount
         );
     }
 
     public function test_it_creates_batch_record()
     {
+
+        Security::factory()->count(2)->create();
+
         $this->handler
-            ->handleRunAiEtfNavExtractions([
+            ->handleRunAiSecurityNavExtractions([
 
                 'limit' => 2,
 
@@ -105,7 +112,7 @@ class RunAiEtfNavExtractionsHandlerTest extends TestCase
 
         $this->assertDatabaseHas(
 
-            'etf_ingestion_batches',
+            'security_ingestion_batches',
 
             [
 
@@ -113,27 +120,30 @@ class RunAiEtfNavExtractionsHandlerTest extends TestCase
 
                 'status_id' => Status::PENDING,
 
-                'total_etfs' => 2,
+                'total_securities' => 2,
 
             ]
 
         );
     }
 
-    public function test_it_skips_when_all_active_etfs_have_fresh_nav_data()
+    public function test_it_skips_when_all_active_securities_have_fresh_nav_data()
     {
+
+        Security::factory()->count(3)->create();
+
         foreach (
 
-            Etf::where(
+            Security::where(
                 'status_id',
                 Status::ACTIVE
-            )->get() as $etf
+            )->get() as $security
 
         ) {
 
-            EtfNavHistory::create([
+            SecurityNavHistory::create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'nav_per_share' => 25.44,
 
@@ -148,7 +158,7 @@ class RunAiEtfNavExtractionsHandlerTest extends TestCase
 
         $results =
             $this->handler
-                ->handleRunAiEtfNavExtractions();
+                ->handleRunAiSecurityNavExtractions();
 
         $this->assertEquals(
             1,
@@ -158,7 +168,7 @@ class RunAiEtfNavExtractionsHandlerTest extends TestCase
         Queue::assertNothingPushed();
 
         $this->assertDatabaseCount(
-            'etf_ingestion_batches',
+            'security_ingestion_batches',
             0
         );
     }

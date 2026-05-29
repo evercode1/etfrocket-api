@@ -84,11 +84,11 @@ class CalculateSecurityMetricsHandler
 
                 $message =
 
-                    'Skipped ETF metric calculation. No fresh ETF price data detected.';
+                    'Skipped Security metric calculation. No fresh Security price data detected.';
 
                 ImportLogsService::log(
 
-                    import_type_id: ImportType::CALCULATE_ETF_METRICS,
+                    import_type_id: ImportType::CALCULATE_SECURITY_METRICS,
 
                     status_id: Status::COMPLETED,
 
@@ -302,7 +302,7 @@ class CalculateSecurityMetricsHandler
 
             ImportLogsService::log(
 
-                import_type_id: ImportType::CALCULATE_ETF_METRICS,
+                import_type_id: ImportType::CALCULATE_SECURITY_METRICS,
 
                 status_id: $failureCount > 0
 
@@ -353,7 +353,7 @@ class CalculateSecurityMetricsHandler
 
             ImportLogsService::log(
 
-                import_type_id: ImportType::CALCULATE_ETF_METRICS,
+                import_type_id: ImportType::CALCULATE_SECURITY_METRICS,
 
                 status_id: Status::FAILED,
 
