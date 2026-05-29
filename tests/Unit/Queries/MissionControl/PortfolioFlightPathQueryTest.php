@@ -5,6 +5,7 @@ namespace Tests\Unit\Queries\MissionControl;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
 use App\Models\Security;
+use App\Models\SecurityDetail;
 use App\Models\SecurityDividendHistory;
 use App\Models\SecurityPriceHistory;
 use App\Models\Status;
@@ -25,6 +26,7 @@ class PortfolioFlightPathQueryTest extends TestCase
         DB::table('security_dividend_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow('2026-05-18');
@@ -39,6 +41,7 @@ class PortfolioFlightPathQueryTest extends TestCase
         DB::table('security_dividend_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -69,9 +72,14 @@ class PortfolioFlightPathQueryTest extends TestCase
             'portfolio_name' => 'Income Rocket',
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'distribution_frequency_id' => 2,
         ]);
 
         PortfolioTransaction::factory()->create([
@@ -210,7 +218,6 @@ class PortfolioFlightPathQueryTest extends TestCase
 
         $security = Security::factory()->create([
             'symbol' => 'CHPY',
-            'fund_name' => 'CHPY Test Security',
             'status_id' => Status::ACTIVE,
         ]);
 
@@ -278,7 +285,6 @@ class PortfolioFlightPathQueryTest extends TestCase
 
         $security = Security::factory()->create([
             'symbol' => 'GOOY',
-            'fund_name' => 'GOOY Test Security',
             'status_id' => Status::ACTIVE,
         ]);
 

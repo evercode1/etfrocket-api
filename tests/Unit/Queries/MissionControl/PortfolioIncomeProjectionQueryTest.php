@@ -5,6 +5,7 @@ namespace Tests\Unit\Queries\MissionControl;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
 use App\Models\Security;
+use App\Models\SecurityDetail;
 use App\Models\SecurityDividendHistory;
 use App\Models\Status;
 use App\Models\User;
@@ -23,6 +24,7 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow('2026-05-18');
@@ -36,6 +38,7 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -66,10 +69,15 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             'portfolio_name' => 'Income Rocket',
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'distribution_frequency_id' => 2, // Weekly
         ]);
 
         PortfolioTransaction::factory()->create([
@@ -126,10 +134,15 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             'portfolio_name' => 'Latest Four Portfolio',
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'AMDY',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'distribution_frequency_id' => 2, // Weekly
         ]);
 
         PortfolioTransaction::factory()->create([
@@ -180,10 +193,15 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             'portfolio_name' => 'Sell Adjusted Portfolio',
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'CHPY',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'distribution_frequency_id' => 2, // Weekly
         ]);
 
         PortfolioTransaction::factory()->create([
@@ -233,16 +251,25 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             'portfolio_name' => 'Multi Security Portfolio',
         ]);
 
-        $firstSecurity = Security::factory()->create([
+        $firstSecurity = Security::create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
+
         ]);
 
-        $secondSecurity = Security::factory()->create([
+        SecurityDetail::factory()->create([
+            'security_id' => $firstSecurity->id,
+            'distribution_frequency_id' => 2, // Weekly
+        ]);
+
+        $secondSecurity = Security::create([
             'symbol' => 'GOOY',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $secondSecurity->id,
+            'distribution_frequency_id' => 2, // test_it_projects_income_using_average_recent_dividends_for_weekly_etf
         ]);
 
         PortfolioTransaction::factory()->create([
@@ -300,10 +327,15 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             'portfolio_name' => 'Monthly Security Portfolio',
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'QQQI',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 4,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'distribution_frequency_id' => 4, // Monthly
         ]);
 
         PortfolioTransaction::factory()->create([
@@ -343,9 +375,14 @@ class PortfolioIncomeProjectionQueryTest extends TestCase
             'portfolio_name' => 'No Dividend Portfolio',
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'NODEV',
             'status_id' => Status::ACTIVE,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 9,
         ]);
 

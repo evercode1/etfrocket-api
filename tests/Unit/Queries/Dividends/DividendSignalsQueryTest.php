@@ -5,6 +5,7 @@ namespace Tests\Unit\Queries\Dividends;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
 use App\Models\Security;
+use App\Models\SecurityDetail;
 use App\Models\SecurityDividendHistory;
 use App\Models\Status;
 use App\Models\User;
@@ -25,6 +26,7 @@ class DividendSignalsQueryTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -34,6 +36,7 @@ class DividendSignalsQueryTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -59,9 +62,13 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 
@@ -98,9 +105,14 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'QQQI',
             'status_id' => Status::ACTIVE,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 
@@ -138,9 +150,13 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'XDTE',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 
@@ -170,9 +186,13 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'QDTE',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 
@@ -202,9 +222,13 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'JEPI',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 4,
         ]);
 
@@ -234,9 +258,13 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 
@@ -274,9 +302,13 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'AMDY',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 
@@ -313,9 +345,13 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'NEWF',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 
@@ -344,9 +380,13 @@ class DividendSignalsQueryTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'SOLD',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 

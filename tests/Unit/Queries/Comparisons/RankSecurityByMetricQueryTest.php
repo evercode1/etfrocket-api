@@ -2,40 +2,42 @@
 
 namespace Tests\Unit\Queries\Comparisons;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
-use App\Queries\Comparisons\Metrics\RankEtfsByMetricQuery;
+use App\Models\Security;
+use App\Models\SecurityMetric;
+use App\Queries\Comparisons\Metrics\RankSecurityByMetricQuery;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class RankEtfsByMetricQueryTest extends TestCase
+class RankSecurityByMetricQueryTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }
 
-    public function test_it_ranks_etfs_by_price_growth_descending()
+    public function test_it_ranks_securities_by_price_growth_descending()
     {
-        $chpy = $this->createEtf('CHPY');
+        $chpy = $this->createSecurity('CHPY');
 
-        $amdy = $this->createEtf('AMDY');
+        $amdy = $this->createSecurity('AMDY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $chpy->id,
+            'security_id' => $chpy->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -43,9 +45,9 @@ class RankEtfsByMetricQueryTest extends TestCase
 
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $amdy->id,
+            'security_id' => $amdy->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -53,7 +55,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery)->getData(
+        $rows = (new RankSecurityByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -104,15 +106,15 @@ class RankEtfsByMetricQueryTest extends TestCase
         );
     }
 
-    public function test_it_ranks_etfs_ascending()
+    public function test_it_ranks_securities_ascending()
     {
-        $chpy = $this->createEtf('CHPY');
+        $chpy = $this->createSecurity('CHPY');
 
-        $amdy = $this->createEtf('AMDY');
+        $amdy = $this->createSecurity('AMDY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $chpy->id,
+            'security_id' => $chpy->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -120,9 +122,9 @@ class RankEtfsByMetricQueryTest extends TestCase
 
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $amdy->id,
+            'security_id' => $amdy->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -130,7 +132,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery)->getData(
+        $rows = (new RankSecurityByMetricQuery)->getData(
 
             metric: 'nav_stability',
 
@@ -165,13 +167,13 @@ class RankEtfsByMetricQueryTest extends TestCase
     {
         foreach (range(1, 5) as $index) {
 
-            $etf = $this->createEtf(
-                "ETF{$index}"
+            $security = $this->createSecurity(
+                "SEC{$index}"
             );
 
-            EtfMetric::factory()->create([
+            SecurityMetric::factory()->create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -180,7 +182,7 @@ class RankEtfsByMetricQueryTest extends TestCase
             ]);
         }
 
-        $rows = (new RankEtfsByMetricQuery)->getData(
+        $rows = (new RankSecurityByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -208,11 +210,11 @@ class RankEtfsByMetricQueryTest extends TestCase
 
     public function test_it_uses_correct_range_type()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::ONE_YEAR,
 
@@ -220,7 +222,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery)->getData(
+        $rows = (new RankSecurityByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -253,13 +255,13 @@ class RankEtfsByMetricQueryTest extends TestCase
 
     public function test_it_excludes_null_metric_values()
     {
-        $chpy = $this->createEtf('CHPY');
+        $chpy = $this->createSecurity('CHPY');
 
-        $amdy = $this->createEtf('AMDY');
+        $amdy = $this->createSecurity('AMDY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $chpy->id,
+            'security_id' => $chpy->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -267,9 +269,9 @@ class RankEtfsByMetricQueryTest extends TestCase
 
         ]);
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $amdy->id,
+            'security_id' => $amdy->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -277,7 +279,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery)->getData(
+        $rows = (new RankSecurityByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -310,11 +312,11 @@ class RankEtfsByMetricQueryTest extends TestCase
 
     public function test_it_resolves_nav_health_stable()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -324,7 +326,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery)->getData(
+        $rows = (new RankSecurityByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -352,11 +354,11 @@ class RankEtfsByMetricQueryTest extends TestCase
 
     public function test_it_resolves_nav_health_watch()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfMetric::factory()->create([
+        SecurityMetric::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
 
@@ -366,7 +368,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
         ]);
 
-        $rows = (new RankEtfsByMetricQuery)->getData(
+        $rows = (new RankSecurityByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -394,7 +396,7 @@ class RankEtfsByMetricQueryTest extends TestCase
 
     public function test_it_returns_empty_array_when_no_rows_exist()
     {
-        $rows = (new RankEtfsByMetricQuery)->getData(
+        $rows = (new RankSecurityByMetricQuery)->getData(
 
             metric: 'price_growth',
 
@@ -420,15 +422,13 @@ class RankEtfsByMetricQueryTest extends TestCase
         );
     }
 
-    private function createEtf(
+    private function createSecurity(
         string $symbol
-    ): Etf {
+    ): Security {
 
-        return Etf::factory()->create([
+        return Security::factory()->create([
 
             'symbol' => $symbol,
-
-            'fund_name' => "{$symbol} Test ETF",
 
         ]);
     }

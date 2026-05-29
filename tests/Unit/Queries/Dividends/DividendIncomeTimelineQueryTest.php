@@ -5,6 +5,7 @@ namespace Tests\Unit\Queries\Dividends;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
 use App\Models\Security;
+use App\Models\SecurityDetail;
 use App\Models\SecurityDividendHistory;
 use App\Models\Status;
 use App\Models\User;
@@ -25,6 +26,7 @@ class DividendIncomeTimelineQueryTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -34,6 +36,7 @@ class DividendIncomeTimelineQueryTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -64,15 +67,25 @@ class DividendIncomeTimelineQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $weeklySecurity = Security::factory()->create([
+        $weeklySecurity = Security::create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $weeklySecurity->id,
             'distribution_frequency_id' => 2,
         ]);
 
-        $monthlySecurity = Security::factory()->create([
+        $monthlySecurity = Security::create([
             'symbol' => 'JEPI',
             'status_id' => Status::ACTIVE,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $monthlySecurity->id,
             'distribution_frequency_id' => 4,
         ]);
 
@@ -155,9 +168,14 @@ class DividendIncomeTimelineQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'SOLD',
             'status_id' => Status::ACTIVE,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 
@@ -201,9 +219,13 @@ class DividendIncomeTimelineQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'NODEV',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 

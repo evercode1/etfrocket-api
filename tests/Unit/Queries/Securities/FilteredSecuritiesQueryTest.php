@@ -1,47 +1,54 @@
 <?php
 
-namespace Tests\Unit\Queries\Etfs;
+namespace Tests\Unit\Queries\Securities;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
-use App\Queries\Etfs\FilteredEtfsQuery;
+use App\Models\Security;
+use App\Models\SecurityDetail;
+use App\Models\SecurityMetric;
+use App\Queries\SEcurities\FilteredSecuritiesQuery;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class FilteredEtfsQueryTest extends TestCase
+class FilteredSecuritiesQueryTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         Carbon::setTestNow();
 
         parent::tearDown();
     }
 
-    public function test_it_returns_etfs_sorted_by_selected_metric_descending(): void
+    public function test_it_returns_securities_sorted_by_selected_metric_descending(): void
     {
         Carbon::setTestNow('2026-05-15');
 
-        $lowEtf = Etf::factory()->create(['symbol' => 'LOW']);
-        $highEtf = Etf::factory()->create(['symbol' => 'HIGH']);
-        $middleEtf = Etf::factory()->create(['symbol' => 'MID']);
+        $lowSecurity = Security::create(['symbol' => 'LOW']);
+        $highSecurity = Security::create(['symbol' => 'HIGH']);
+        $middleSecurity = Security::create(['symbol' => 'MID']);
 
-        $this->createMetric($lowEtf, ['total_return_percentage' => 5.25]);
-        $this->createMetric($highEtf, ['total_return_percentage' => 22.75]);
-        $this->createMetric($middleEtf, ['total_return_percentage' => 12.50]);
+        SecurityDetail::factory()->create(['security_id' => $lowSecurity->id]);
+        SecurityDetail::factory()->create(['security_id' => $highSecurity->id]);
+        SecurityDetail::factory()->create(['security_id' => $middleSecurity->id]);
 
-        $results = (new FilteredEtfsQuery)->getData([
+        $this->createMetric($lowSecurity, ['total_return_percentage' => 5.25]);
+        $this->createMetric($highSecurity, ['total_return_percentage' => 22.75]);
+        $this->createMetric($middleSecurity, ['total_return_percentage' => 12.50]);
+
+        $results = (new FilteredSecuritiesQuery)->getData([
             'column' => 'total_return_percentage',
             'sort_direction' => 'desc',
             'scope' => 'all',
@@ -56,19 +63,23 @@ class FilteredEtfsQueryTest extends TestCase
         $this->assertSame('LOW', $results->items()[2]->symbol);
     }
 
-    public function test_it_returns_etfs_sorted_by_selected_metric_ascending(): void
+    public function test_it_returns_securities_sorted_by_selected_metric_ascending(): void
     {
         Carbon::setTestNow('2026-05-15');
 
-        $bestEtf = Etf::factory()->create(['symbol' => 'BEST']);
-        $worstEtf = Etf::factory()->create(['symbol' => 'WORST']);
-        $middleEtf = Etf::factory()->create(['symbol' => 'MID']);
+        $bestSecurity = Security::create(['symbol' => 'BEST']);
+        $worstSecurity = Security::create(['symbol' => 'WORST']);
+        $middleSecurity = Security::create(['symbol' => 'MID']);
 
-        $this->createMetric($bestEtf, ['nav_erosion_percentage' => 1.10]);
-        $this->createMetric($worstEtf, ['nav_erosion_percentage' => 15.75]);
-        $this->createMetric($middleEtf, ['nav_erosion_percentage' => 6.25]);
+        SecurityDetail::factory()->create(['security_id' => $bestSecurity->id]);
+        SecurityDetail::factory()->create(['security_id' => $worstSecurity->id]);
+        SecurityDetail::factory()->create(['security_id' => $middleSecurity->id]);
 
-        $results = (new FilteredEtfsQuery)->getData([
+        $this->createMetric($bestSecurity, ['nav_erosion_percentage' => 1.10]);
+        $this->createMetric($worstSecurity, ['nav_erosion_percentage' => 15.75]);
+        $this->createMetric($middleSecurity, ['nav_erosion_percentage' => 6.25]);
+
+        $results = (new FilteredSecuritiesQuery)->getData([
             'column' => 'nav_erosion_percentage',
             'sort_direction' => 'asc',
             'scope' => 'all',
@@ -83,17 +94,20 @@ class FilteredEtfsQueryTest extends TestCase
         $this->assertSame('WORST', $results->items()[2]->symbol);
     }
 
-    public function test_it_excludes_etfs_where_selected_metric_is_null(): void
+    public function test_it_excludes_securities_where_selected_metric_is_null(): void
     {
         Carbon::setTestNow('2026-05-15');
 
-        $validEtf = Etf::factory()->create(['symbol' => 'VALID']);
-        $nullEtf = Etf::factory()->create(['symbol' => 'NULL']);
+        $validSecurity = Security::create(['symbol' => 'VALID']);
+        $nullSecurity = Security::create(['symbol' => 'NULL']);
 
-        $this->createMetric($validEtf, ['total_return_percentage' => 4.50]);
-        $this->createMetric($nullEtf, ['total_return_percentage' => null]);
+        SecurityDetail::factory()->create(['security_id' => $validSecurity->id]);
+        SecurityDetail::factory()->create(['security_id' => $nullSecurity->id]);
 
-        $results = (new FilteredEtfsQuery)->getData([
+        $this->createMetric($validSecurity, ['total_return_percentage' => 4.50]);
+        $this->createMetric($nullSecurity, ['total_return_percentage' => null]);
+
+        $results = (new FilteredSecuritiesQuery)->getData([
             'column' => 'total_return_percentage',
             'sort_direction' => 'desc',
             'scope' => 'all',
@@ -109,20 +123,23 @@ class FilteredEtfsQueryTest extends TestCase
     {
         Carbon::setTestNow('2026-05-15');
 
-        $recentEtf = Etf::factory()->create(['symbol' => 'RECENT']);
-        $oldEtf = Etf::factory()->create(['symbol' => 'OLD']);
+        $recentSecurity = Security::create(['symbol' => 'RECENT']);
+        $oldSecurity = Security::create(['symbol' => 'OLD']);
 
-        $this->createMetric($recentEtf, [
+        SecurityDetail::factory()->create(['security_id' => $recentSecurity->id]);
+        SecurityDetail::factory()->create(['security_id' => $oldSecurity->id]);
+
+        $this->createMetric($recentSecurity, [
             'total_return_percentage' => 10.00,
             'calculated_at' => Carbon::now()->subDays(20),
         ]);
 
-        $this->createMetric($oldEtf, [
+        $this->createMetric($oldSecurity, [
             'total_return_percentage' => 99.00,
             'calculated_at' => Carbon::now()->subDays(120),
         ]);
 
-        $results = (new FilteredEtfsQuery)->getData([
+        $results = (new FilteredSecuritiesQuery)->getData([
             'column' => 'total_return_percentage',
             'sort_direction' => 'desc',
             'scope' => 'all',
@@ -138,20 +155,23 @@ class FilteredEtfsQueryTest extends TestCase
     {
         Carbon::setTestNow('2026-05-15');
 
-        $recentEtf = Etf::factory()->create(['symbol' => 'RECENT']);
-        $oldEtf = Etf::factory()->create(['symbol' => 'OLD']);
+        $recentSecurity = Security::create(['symbol' => 'RECENT']);
+        $oldSecurity = Security::create(['symbol' => 'OLD']);
 
-        $this->createMetric($recentEtf, [
+        SecurityDetail::factory()->create(['security_id' => $recentSecurity->id]);
+        SecurityDetail::factory()->create(['security_id' => $oldSecurity->id]);
+
+        $this->createMetric($recentSecurity, [
             'aum_change_percentage' => 100,
             'calculated_at' => Carbon::now()->subDays(5),
         ]);
 
-        $this->createMetric($oldEtf, [
+        $this->createMetric($oldSecurity, [
             'aum_change_percentage' => 200,
             'calculated_at' => Carbon::now()->subDays(500),
         ]);
 
-        $results = (new FilteredEtfsQuery)->getData([
+        $results = (new FilteredSecuritiesQuery)->getData([
             'column' => 'aum_change_percentage',
             'sort_direction' => 'desc',
             'scope' => 'all',
@@ -170,16 +190,15 @@ class FilteredEtfsQueryTest extends TestCase
         Carbon::setTestNow('2026-05-15');
 
         for ($i = 1; $i <= 30; $i++) {
-            $etf = Etf::factory()->create([
-                'symbol' => 'ETF'.$i,
-            ]);
+            $security = Security::create(['symbol' => 'SEC'.$i]);
+            SecurityDetail::factory()->create(['security_id' => $security->id]);
 
-            $this->createMetric($etf, [
+            $this->createMetric($security, [
                 'total_return_percentage' => $i,
             ]);
         }
 
-        $results = (new FilteredEtfsQuery)->getData([
+        $results = (new FilteredSecuritiesQuery)->getData([
             'column' => 'total_return_percentage',
             'sort_direction' => 'desc',
             'scope' => 'all',
@@ -192,21 +211,22 @@ class FilteredEtfsQueryTest extends TestCase
         $this->assertSame(3, $results->lastPage());
         $this->assertCount(10, $results->items());
 
-        $this->assertSame('ETF30', $results->items()[0]->symbol);
-        $this->assertSame('ETF21', $results->items()[9]->symbol);
+        $this->assertSame('SEC30', $results->items()[0]->symbol);
+        $this->assertSame('SEC21', $results->items()[9]->symbol);
     }
 
     public function test_owned_scope_without_user_id_returns_no_results(): void
     {
         Carbon::setTestNow('2026-05-15');
 
-        $etf = Etf::factory()->create(['symbol' => 'OWND']);
+        $security = Security::create(['symbol' => 'OWND']);
+        SecurityDetail::factory()->create(['security_id' => $security->id]);
 
-        $this->createMetric($etf, [
+        $this->createMetric($security, [
             'total_return_percentage' => 10.00,
         ]);
 
-        $results = (new FilteredEtfsQuery)->getData([
+        $results = (new FilteredSecuritiesQuery)->getData([
             'column' => 'total_return_percentage',
             'sort_direction' => 'desc',
             'scope' => 'owned',
@@ -218,10 +238,10 @@ class FilteredEtfsQueryTest extends TestCase
         $this->assertSame(0, $results->total());
     }
 
-    private function createMetric(Etf $etf, array $overrides = []): EtfMetric
+    private function createMetric(Security $security, array $overrides = []): SecurityMetric
     {
-        return EtfMetric::factory()->create(array_merge([
-            'etf_id' => $etf->id,
+        return SecurityMetric::factory()->create(array_merge([
+            'security_id' => $security->id,
             'performance_range_type_id' => 1,
 
             'start_date' => Carbon::now()->subDays(30)->toDateString(),

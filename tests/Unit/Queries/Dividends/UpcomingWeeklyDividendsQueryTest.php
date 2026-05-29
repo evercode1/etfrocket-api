@@ -5,6 +5,7 @@ namespace Tests\Unit\Queries\Dividends;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
 use App\Models\Security;
+use App\Models\SecurityDetail;
 use App\Models\SecurityDividendHistory;
 use App\Models\Status;
 use App\Models\User;
@@ -25,6 +26,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -34,6 +36,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
         DB::table('portfolios')->truncate();
         DB::table('security_dividend_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         Carbon::setTestNow();
@@ -64,10 +67,16 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test Security',
+
             'status_id' => Status::ACTIVE,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'security_name' => 'NVII_name',
             'distribution_frequency_id' => 2,
         ]);
 
@@ -94,7 +103,7 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
 
         $this->assertSame($security->id, $results[0]['security_id']);
         $this->assertSame('NVII', $results[0]['symbol']);
-        $this->assertSame('NVII Test Security', $results[0]['fund_name']);
+        $this->assertSame('NVII_name', $results[0]['security_name']);
         $this->assertSame(10.0, $results[0]['shares']);
         $this->assertSame(1.25, $results[0]['distribution_amount']);
         $this->assertSame(12.5, $results[0]['estimated_payment_amount']);
@@ -112,10 +121,13 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'QQQI',
-            'fund_name' => 'QQQI Test Security',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 
@@ -158,9 +170,13 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $monthlySecurity = Security::factory()->create([
+        $monthlySecurity = Security::create([
             'symbol' => 'JEPI',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $monthlySecurity->id,
             'distribution_frequency_id' => 4,
         ]);
 
@@ -195,9 +211,14 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'SOLD',
             'status_id' => Status::ACTIVE,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 
@@ -241,10 +262,13 @@ class UpcomingWeeklyDividendsQueryTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'NEWF',
-            'fund_name' => 'New Fund Security',
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
             'distribution_frequency_id' => 2,
         ]);
 
