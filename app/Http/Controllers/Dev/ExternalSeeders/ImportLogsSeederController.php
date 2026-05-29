@@ -51,7 +51,7 @@ class ImportLogsSeederController extends Controller
 
         ImportLog::create([
 
-            'import_type_id' => ImportType::ETF_PRICE_IMPORT,
+            'import_type_id' => ImportType::SECURITY_PRICE_IMPORT,
 
             'status_id' => Status::FAILED,
 
@@ -85,7 +85,7 @@ class ImportLogsSeederController extends Controller
 
         ImportLog::create([
 
-            'import_type_id' => ImportType::CALCULATE_ETF_METRICS,
+            'import_type_id' => ImportType::CALCULATE_SECURITY_METRICS,
 
             'status_id' => Status::COMPLETED,
 
