@@ -302,4 +302,117 @@ class ImportSecurityBackfillHistoryTest extends TestCase
             5
         );
     }
+
+    public function test_it_imports_multiple_securities()
+    {
+        $securityOne = Security::factory()->create([
+            'symbol' => 'CHPY',
+        ]);
+
+        $securityTwo = Security::factory()->create([
+            'symbol' => 'NVII',
+        ]);
+
+        $csv =
+
+            "security_id,price_date,close_price,volume,data_source_id,retrieved_at\n".
+
+            "{$securityOne->id},2026-05-26,25.44,100000,1,2026-05-26 12:00:00\n".
+
+            "{$securityOne->id},2026-05-27,26.11,150000,1,2026-05-27 12:00:00\n".
+
+            "{$securityTwo->id},2026-05-26,31.22,200000,1,2026-05-26 12:00:00\n".
+
+            "{$securityTwo->id},2026-05-27,32.55,250000,1,2026-05-27 12:00:00\n";
+
+        file_put_contents(
+
+            $this->testImportPath.
+                '/security_price_histories.csv',
+
+            $csv
+
+        );
+
+        $this->artisan(
+
+            'securities:import-backfill-history',
+
+            [
+
+                'table' => 'security_price_histories',
+
+            ]
+
+        )->assertExitCode(0);
+
+        $this->assertDatabaseCount(
+            'security_price_histories',
+            4
+        );
+
+        $this->assertDatabaseHas(
+
+            'security_price_histories',
+
+            [
+
+                'security_id' => $securityOne->id,
+
+                'price_date' => '2026-05-26',
+
+                'close_price' => 25.44,
+
+            ]
+
+        );
+
+        $this->assertDatabaseHas(
+
+            'security_price_histories',
+
+            [
+
+                'security_id' => $securityOne->id,
+
+                'price_date' => '2026-05-27',
+
+                'close_price' => 26.11,
+
+            ]
+
+        );
+
+        $this->assertDatabaseHas(
+
+            'security_price_histories',
+
+            [
+
+                'security_id' => $securityTwo->id,
+
+                'price_date' => '2026-05-26',
+
+                'close_price' => 31.22,
+
+            ]
+
+        );
+
+        $this->assertDatabaseHas(
+
+            'security_price_histories',
+
+            [
+
+                'security_id' => $securityTwo->id,
+
+                'price_date' => '2026-05-27',
+
+                'close_price' => 32.55,
+
+            ]
+
+        );
+    }
 }
