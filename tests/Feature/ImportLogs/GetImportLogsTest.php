@@ -90,7 +90,7 @@ class GetImportLogsTest extends TestCase
             ->count(3)
             ->create([
 
-                'import_type_id' => ImportType::ETF_PRICE_IMPORT,
+                'import_type_id' => ImportType::SECURITY_PRICE_IMPORT,
 
                 'status_id' => Status::COMPLETED,
 

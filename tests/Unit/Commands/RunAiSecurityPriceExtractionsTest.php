@@ -2,12 +2,11 @@
 
 namespace Tests\Unit\Commands;
 
-use App\Jobs\RunAiEtfPriceExtractionJob;
-use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Models\EtfPriceHistory;
+use App\Jobs\RunAiSecurityPriceExtractionJob;
+use App\Models\Security;
+use App\Models\SecurityDetail;
+use App\Models\SecurityPriceHistory;
 use App\Models\Status;
-use Database\Seeders\EtfSeeder;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
 use Database\Seeders\StatusSeeder;
@@ -15,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
-class RunAiEtfPriceExtractionsTest extends TestCase
+class RunAiSecurityPriceExtractionsTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -30,10 +29,13 @@ class RunAiEtfPriceExtractionsTest extends TestCase
         DB::table('ai_data_extractions')
             ->truncate();
 
-        DB::table('etf_price_histories')
+        DB::table('security_price_histories')
             ->truncate();
 
-        DB::table('etfs')
+        DB::table('securities')
+            ->truncate();
+
+        DB::table('security_details')
             ->truncate();
 
         DB::table('intervals')
@@ -53,8 +55,6 @@ class RunAiEtfPriceExtractionsTest extends TestCase
 
             NotificationStatusSeeder::class,
 
-            EtfSeeder::class,
-
         ]);
 
         Queue::fake();
@@ -71,10 +71,13 @@ class RunAiEtfPriceExtractionsTest extends TestCase
         DB::table('ai_data_extractions')
             ->truncate();
 
-        DB::table('etf_price_histories')
+        DB::table('security_price_histories')
             ->truncate();
 
-        DB::table('etfs')
+        DB::table('securities')
+            ->truncate();
+
+        DB::table('security_details')
             ->truncate();
 
         DB::table('intervals')
@@ -89,32 +92,46 @@ class RunAiEtfPriceExtractionsTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_dispatches_jobs_for_all_etfs()
+    public function test_it_dispatches_jobs_for_all_securities()
     {
-        $etfCount =
-            Etf::count();
+        $securityCount =
+            Security::count();
 
         $this->artisan(
-            'etfs:run-ai-price-extraction'
+            'securities:run-ai-price-extraction'
         )->assertExitCode(0);
 
         Queue::assertPushed(
-            RunAiEtfPriceExtractionJob::class,
-            $etfCount
+            RunAiSecurityPriceExtractionJob::class,
+            $securityCount
         );
     }
 
     public function test_it_dispatches_job_for_single_symbol()
     {
-        $etf =
-            Etf::where(
+
+        $security = Security::create([
+            'symbol' => 'CHPY',
+
+            'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()
+            ->create([
+
+                'security_id' => $security->id,
+
+            ]);
+
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
 
         $this->artisan(
 
-            'etfs:run-ai-price-extraction',
+            'securities:run-ai-price-extraction',
 
             [
 
@@ -126,28 +143,33 @@ class RunAiEtfPriceExtractionsTest extends TestCase
 
         Queue::assertPushed(
 
-            RunAiEtfPriceExtractionJob::class,
+            RunAiSecurityPriceExtractionJob::class,
 
-            function ($job) use ($etf) {
+            function ($job) use ($security) {
 
                 return
-                    $job->etfId ===
-                    $etf->id;
+                    $job->securityId ===
+                    $security->id;
             }
 
         );
 
         Queue::assertPushed(
-            RunAiEtfPriceExtractionJob::class,
+            RunAiSecurityPriceExtractionJob::class,
             1
         );
     }
 
     public function test_it_respects_limit_option()
     {
+
+        Security::factory()
+            ->count(10)
+            ->create();
+
         $this->artisan(
 
-            'etfs:run-ai-price-extraction',
+            'securities:run-ai-price-extraction',
 
             [
 
@@ -158,16 +180,19 @@ class RunAiEtfPriceExtractionsTest extends TestCase
         )->assertExitCode(0);
 
         Queue::assertPushed(
-            RunAiEtfPriceExtractionJob::class,
+            RunAiSecurityPriceExtractionJob::class,
             5
         );
     }
 
     public function test_force_flag_bypasses_freshness_check()
     {
-        EtfPriceHistory::create([
 
-            'etf_id' => Etf::first()->id,
+        Security::factory()->count(2)->create();
+
+        SecurityPriceHistory::create([
+
+            'security_id' => Security::first()->id,
 
             'price_date' => now()->toDateString(),
 
@@ -181,16 +206,9 @@ class RunAiEtfPriceExtractionsTest extends TestCase
 
         ]);
 
-        AiDataExtraction::factory()
-            ->create([
-
-                'created_at' => now(),
-
-            ]);
-
         $this->artisan(
 
-            'etfs:run-ai-price-extraction',
+            'securities:run-ai-price-extraction',
 
             [
 
@@ -203,28 +221,34 @@ class RunAiEtfPriceExtractionsTest extends TestCase
         )->assertExitCode(0);
 
         Queue::assertPushed(
-            RunAiEtfPriceExtractionJob::class,
+            RunAiSecurityPriceExtractionJob::class,
             2
         );
     }
 
-    public function test_it_skips_dispatch_when_all_active_etfs_have_fresh_price_data()
+    public function test_it_skips_dispatch_when_all_active_securities_have_fresh_price_data()
     {
         $today =
             now()->toDateString();
 
+        Security::factory()->count(3)->create([
+
+            'status_id' => Status::ACTIVE,
+
+        ]);
+
         foreach (
 
-            Etf::where(
+            Security::where(
                 'status_id',
                 Status::ACTIVE
-            )->get() as $etf
+            )->get() as $security
 
         ) {
 
-            EtfPriceHistory::create([
+            SecurityPriceHistory::create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'price_date' => $today,
 
@@ -240,19 +264,19 @@ class RunAiEtfPriceExtractionsTest extends TestCase
         }
 
         $this->artisan(
-            'etfs:run-ai-price-extraction'
+            'securities:run-ai-price-extraction'
         )->assertExitCode(0);
 
         Queue::assertNothingPushed();
     }
 
-    public function test_it_returns_success_when_no_etfs_exist()
+    public function test_it_returns_success_when_no_securities_exist()
     {
-        DB::table('etfs')
+        DB::table('securities')
             ->truncate();
 
         $this->artisan(
-            'etfs:run-ai-price-extraction'
+            'securities:run-ai-price-extraction'
         )->assertExitCode(0);
 
         Queue::assertNothingPushed();

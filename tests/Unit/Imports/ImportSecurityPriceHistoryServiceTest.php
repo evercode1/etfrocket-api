@@ -3,6 +3,7 @@
 namespace Tests\Unit\Imports;
 
 use App\Models\Security;
+use App\Models\SecurityDetail;
 use App\Models\SecurityDividendHistory;
 use App\Models\SecurityPriceHistory;
 use App\Services\Imports\ImportSecurityPriceHistoryService;
@@ -19,6 +20,7 @@ class ImportSecurityPriceHistoryServiceTest extends TestCase
         DB::table('security_dividend_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
     }
 
     protected function tearDown(): void
@@ -26,14 +28,19 @@ class ImportSecurityPriceHistoryServiceTest extends TestCase
         DB::table('security_dividend_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }
 
     public function test_it_imports_price_and_dividend_history_for_a_security(): void
     {
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'CHPY',
+        ]);
+        SecurityDetail::create([
+            'security_id' => $security->id,
+            'security_name' => 'CHPY_name',
         ]);
 
         $filePath = $this->makeTextFile([
@@ -104,12 +111,24 @@ class ImportSecurityPriceHistoryServiceTest extends TestCase
 
     public function test_it_replaces_existing_history_for_only_the_selected_security(): void
     {
-        $selectedSecurity = Security::factory()->create([
+        $selectedSecurity = Security::create([
             'symbol' => 'CHPY',
         ]);
 
-        $otherSecurity = Security::factory()->create([
+        SecurityDetail::create([
+            'security_id' => $selectedSecurity->id,
+            'security_name' => 'CHPY_name',
+            'dividend_fequency_id' => 2,
+        ]);
+
+        $otherSecurity = Security::create([
             'symbol' => 'SCHD',
+        ]);
+
+        SecurityDetail::create([
+            'security_id' => $otherSecurity->id,
+            'security_name' => 'SCHD_name',
+            'dividend_fequency_id' => 9,
         ]);
 
         SecurityPriceHistory::factory()->create([
@@ -210,8 +229,14 @@ class ImportSecurityPriceHistoryServiceTest extends TestCase
 
     public function test_it_imports_rows_in_chronological_order(): void
     {
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'CHPY',
+        ]);
+
+        SecurityDetail::create([
+            'security_id' => $security->id,
+            'security_name' => 'CHPY_name',
+            'dividend_fequency_id' => 2,
         ]);
 
         $filePath = $this->makeTextFile([
@@ -260,8 +285,14 @@ class ImportSecurityPriceHistoryServiceTest extends TestCase
 
     public function test_it_sorts_dividend_rows_in_chronological_order(): void
     {
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'CHPY',
+        ]);
+
+        SecurityDetail::create([
+            'security_id' => $security->id,
+            'security_name' => 'CHPY_name',
+            'dividend_fequency_id' => 2,
         ]);
 
         $filePath = $this->makeTextFile([
@@ -334,8 +365,14 @@ class ImportSecurityPriceHistoryServiceTest extends TestCase
 
     public function test_it_deletes_previous_price_and_dividend_history_records_before_importing_new_records(): void
     {
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'CHPY',
+        ]);
+
+        SecurityDetail::create([
+            'security_id' => $security->id,
+            'security_name' => 'CHPY_name',
+            'dividend_fequency_id' => 2,
         ]);
 
         SecurityPriceHistory::factory()->create([
