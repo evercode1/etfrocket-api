@@ -2,14 +2,13 @@
 
 namespace Tests\Unit\Commands;
 
-use App\Models\Etf;
-use App\Models\EtfPriceHistory;
-use Database\Seeders\EtfSeeder;
+use App\Models\Security;
+use App\Models\SecurityPriceHistory;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class ImportEtfBackfillHistoryTest extends TestCase
+class ImportSecurityBackfillHistoryTest extends TestCase
 {
     private string $testImportPath;
 
@@ -17,20 +16,17 @@ class ImportEtfBackfillHistoryTest extends TestCase
     {
         parent::setUp();
 
-        DB::table('etf_price_histories')
-            ->truncate();
+        DB::table('security_price_histories')->truncate();
 
-        DB::table('etfs')
-            ->truncate();
+        DB::table('securities')->truncate();
 
-        DB::table('statuses')
-            ->truncate();
+        DB::table('security_details')->truncate();
+
+        DB::table('statuses')->truncate();
 
         $this->seed([
 
             StatusSeeder::class,
-
-            EtfSeeder::class,
 
         ]);
 
@@ -61,21 +57,20 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
     protected function tearDown(): void
     {
-        DB::table('etf_price_histories')
-            ->truncate();
+        DB::table('security_price_histories')->truncate();
 
-        DB::table('etfs')
-            ->truncate();
+        DB::table('securities')->truncate();
 
-        DB::table('statuses')
-            ->truncate();
+        DB::table('security_details')->truncate();
+
+        DB::table('statuses')->truncate();
 
         if (
 
             file_exists(
 
                 $this->testImportPath.
-                    '/etf_price_histories.csv'
+                    '/security_price_histories.csv'
 
             )
 
@@ -84,7 +79,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
             unlink(
 
                 $this->testImportPath.
-                    '/etf_price_histories.csv'
+                    '/security_price_histories.csv'
 
             );
         }
@@ -94,21 +89,25 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
     public function test_it_imports_price_history_rows()
     {
-        $etf =
-            Etf::firstOrFail();
+
+        Security::factory()->create([
+            'symbol' => 'TEST',
+        ]);
+
+        $security = Security::firstOrFail();
 
         $csv =
 
-            "etf_id,price_date,close_price,volume,data_source_id,retrieved_at\n".
+            "security_id,price_date,close_price,volume,data_source_id,retrieved_at\n".
 
-            "{$etf->id},2026-05-26,25.44,100000,1,2026-05-26 12:00:00\n".
+            "{$security->id},2026-05-26,25.44,100000,1,2026-05-26 12:00:00\n".
 
-            "{$etf->id},2026-05-27,26.11,150000,1,2026-05-27 12:00:00\n";
+            "{$security->id},2026-05-27,26.11,150000,1,2026-05-27 12:00:00\n";
 
         file_put_contents(
 
             $this->testImportPath.
-                '/etf_price_histories.csv',
+                '/security_price_histories.csv',
 
             $csv
 
@@ -116,28 +115,28 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
         $this->artisan(
 
-            'etfs:import-backfill-history',
+            'securities:import-backfill-history',
 
             [
 
-                'table' => 'etf_price_histories',
+                'table' => 'security_price_histories',
 
             ]
 
         )->assertExitCode(0);
 
         $this->assertDatabaseCount(
-            'etf_price_histories',
+            'security_price_histories',
             2
         );
 
         $this->assertDatabaseHas(
 
-            'etf_price_histories',
+            'security_price_histories',
 
             [
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'price_date' => '2026-05-26',
 
@@ -149,11 +148,11 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
         $this->assertDatabaseHas(
 
-            'etf_price_histories',
+            'security_price_histories',
 
             [
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'price_date' => '2026-05-27',
 
@@ -166,12 +165,16 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
     public function test_it_truncates_existing_records()
     {
-        $etf =
-            Etf::firstOrFail();
 
-        EtfPriceHistory::create([
+        Security::factory()->create([
+            'symbol' => 'TEST',
+        ]);
 
-            'etf_id' => $etf->id,
+        $security = Security::firstOrFail();
+
+        SecurityPriceHistory::create([
+
+            'security_id' => $security->id,
 
             'price_date' => '2025-01-01',
 
@@ -187,14 +190,14 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
         $csv =
 
-            "etf_id,price_date,close_price,volume,data_source_id,retrieved_at\n".
+            "security_id,price_date,close_price,volume,data_source_id,retrieved_at\n".
 
-            "{$etf->id},2026-05-26,25.44,100000,1,2026-05-26 12:00:00\n";
+            "{$security->id},2026-05-26,25.44,100000,1,2026-05-26 12:00:00\n";
 
         file_put_contents(
 
             $this->testImportPath.
-                '/etf_price_histories.csv',
+                '/security_price_histories.csv',
 
             $csv
 
@@ -202,24 +205,24 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
         $this->artisan(
 
-            'etfs:import-backfill-history',
+            'securities:import-backfill-history',
 
             [
 
-                'table' => 'etf_price_histories',
+                'table' => 'security_price_histories',
 
             ]
 
         )->assertExitCode(0);
 
         $this->assertDatabaseCount(
-            'etf_price_histories',
+            'security_price_histories',
             1
         );
 
         $this->assertDatabaseMissing(
 
-            'etf_price_histories',
+            'security_price_histories',
 
             [
 
@@ -234,7 +237,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
     {
         $this->artisan(
 
-            'etfs:import-backfill-history',
+            'securities:import-backfill-history',
 
             [
 
@@ -253,24 +256,28 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
     public function test_it_processes_chunked_imports()
     {
-        $etf =
-            Etf::firstOrFail();
+
+        Security::factory()->create([
+            'symbol' => 'TEST',
+        ]);
+
+        $security = Security::firstOrFail();
 
         $csv =
 
-            "etf_id,price_date,close_price,volume,data_source_id,retrieved_at\n";
+            "security_id,price_date,close_price,volume,data_source_id,retrieved_at\n";
 
         for ($i = 1; $i <= 5; $i++) {
 
             $csv .=
 
-                "{$etf->id},2026-05-0{$i},25.{$i},100{$i},1,2026-05-0{$i} 12:00:00\n";
+                "{$security->id},2026-05-0{$i},25.{$i},100{$i},1,2026-05-0{$i} 12:00:00\n";
         }
 
         file_put_contents(
 
             $this->testImportPath.
-                '/etf_price_histories.csv',
+                '/security_price_histories.csv',
 
             $csv
 
@@ -278,11 +285,11 @@ class ImportEtfBackfillHistoryTest extends TestCase
 
         $this->artisan(
 
-            'etfs:import-backfill-history',
+            'securities:import-backfill-history',
 
             [
 
-                'table' => 'etf_price_histories',
+                'table' => 'security_price_histories',
 
                 '--chunk' => 2,
 
@@ -291,7 +298,7 @@ class ImportEtfBackfillHistoryTest extends TestCase
         )->assertExitCode(0);
 
         $this->assertDatabaseCount(
-            'etf_price_histories',
+            'security_price_histories',
             5
         );
     }

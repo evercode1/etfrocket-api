@@ -2,11 +2,10 @@
 
 namespace Tests\Unit\Commands;
 
-use App\Jobs\RunAiEtfAumExtractionJob;
-use App\Models\Etf;
-use App\Models\EtfAumHistory;
+use App\Jobs\RunAiSecurityAumExtractionJob;
+use App\Models\Security;
+use App\Models\SecurityAumHistory;
 use App\Models\Status;
-use Database\Seeders\EtfSeeder;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
 use Database\Seeders\StatusSeeder;
@@ -14,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
-class RunAiEtfAumExtractionsTest extends TestCase
+class RunAiSecurityAumExtractionsTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -26,9 +25,11 @@ class RunAiEtfAumExtractionsTest extends TestCase
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etf_aum_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+
+        DB::table('security_details')->truncate();
 
         DB::table('intervals')->truncate();
 
@@ -44,8 +45,6 @@ class RunAiEtfAumExtractionsTest extends TestCase
 
             NotificationStatusSeeder::class,
 
-            EtfSeeder::class,
-
         ]);
 
         Queue::fake();
@@ -59,9 +58,11 @@ class RunAiEtfAumExtractionsTest extends TestCase
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etf_aum_histories')->truncate();
+        DB::table('security_aum_histories')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+
+        DB::table('security_details')->truncate();
 
         DB::table('intervals')->truncate();
 
@@ -72,32 +73,40 @@ class RunAiEtfAumExtractionsTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_dispatches_jobs_for_all_etfs()
+    public function test_it_dispatches_jobs_for_all_securities()
     {
-        $etfCount =
-            Etf::count();
+
+        Security::factory()
+            ->count(10)
+            ->create();
+
+        $securityCount =
+            Security::count();
 
         $this->artisan(
-            'etfs:run-ai-aum-extraction'
+            'securities:run-ai-aum-extraction'
         )->assertExitCode(0);
 
         Queue::assertPushed(
-            RunAiEtfAumExtractionJob::class,
-            $etfCount
+            RunAiSecurityAumExtractionJob::class,
+            $securityCount
         );
     }
 
     public function test_it_dispatches_job_for_single_symbol()
     {
-        $etf =
-            Etf::where(
+
+        Security::factory()
+            ->create(['symbol' => 'CHPY']);
+
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
 
         $this->artisan(
-
-            'etfs:run-ai-aum-extraction',
+            'securities:run-ai-aum-extraction',
 
             [
 
@@ -109,28 +118,33 @@ class RunAiEtfAumExtractionsTest extends TestCase
 
         Queue::assertPushed(
 
-            RunAiEtfAumExtractionJob::class,
+            RunAiSecurityAumExtractionJob::class,
 
-            function ($job) use ($etf) {
+            function ($job) use ($security) {
 
                 return
-                    $job->etfId ===
-                    $etf->id;
+                    $job->securityId ===
+                    $security->id;
             }
 
         );
 
         Queue::assertPushed(
-            RunAiEtfAumExtractionJob::class,
+            RunAiSecurityAumExtractionJob::class,
             1
         );
     }
 
     public function test_it_respects_limit_option()
     {
+
+        Security::factory()
+            ->count(10)
+            ->create();
+
         $this->artisan(
 
-            'etfs:run-ai-aum-extraction',
+            'securities:run-ai-aum-extraction',
 
             [
 
@@ -141,25 +155,30 @@ class RunAiEtfAumExtractionsTest extends TestCase
         )->assertExitCode(0);
 
         Queue::assertPushed(
-            RunAiEtfAumExtractionJob::class,
+            RunAiSecurityAumExtractionJob::class,
             5
         );
     }
 
-    public function test_it_skips_dispatch_when_all_active_etfs_have_fresh_aum_data()
+    public function test_it_skips_dispatch_when_all_active_securities_have_fresh_aum_data()
     {
+
+        Security::factory()
+            ->count(10)
+            ->create();
+
         foreach (
 
-            Etf::where(
+            Security::where(
                 'status_id',
                 Status::ACTIVE
-            )->get() as $etf
+            )->get() as $security
 
         ) {
 
-            EtfAumHistory::create([
+            SecurityAumHistory::create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'assets_under_management' => 100000000,
 
@@ -173,7 +192,7 @@ class RunAiEtfAumExtractionsTest extends TestCase
         }
 
         $this->artisan(
-            'etfs:run-ai-aum-extraction'
+            'securities:run-ai-aum-extraction'
         )->assertExitCode(0);
 
         Queue::assertNothingPushed();
@@ -183,16 +202,16 @@ class RunAiEtfAumExtractionsTest extends TestCase
     {
         foreach (
 
-            Etf::where(
+            Security::where(
                 'status_id',
                 Status::ACTIVE
-            )->get() as $etf
+            )->get() as $security
 
         ) {
 
-            EtfAumHistory::create([
+            SecurityAumHistory::create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'assets_under_management' => 100000000,
 
@@ -206,19 +225,19 @@ class RunAiEtfAumExtractionsTest extends TestCase
         }
 
         $this->artisan(
-            'etfs:run-ai-aum-extraction'
+            'securities:run-ai-aum-extraction'
         )->assertExitCode(0);
 
         Queue::assertNothingPushed();
     }
 
-    public function test_it_returns_success_when_no_etfs_exist()
+    public function test_it_returns_success_when_no_securities_exist()
     {
-        DB::table('etfs')
+        DB::table('securities')
             ->truncate();
 
         $this->artisan(
-            'etfs:run-ai-aum-extraction'
+            'securities:run-ai-aum-extraction'
         )->assertExitCode(0);
 
         Queue::assertNothingPushed();

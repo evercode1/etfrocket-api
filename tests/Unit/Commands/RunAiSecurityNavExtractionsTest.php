@@ -2,12 +2,10 @@
 
 namespace Tests\Unit\Commands;
 
-use App\Jobs\RunAiEtfNavExtractionJob;
-use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Models\EtfNavHistory;
+use App\Jobs\RunAiSecurityNavExtractionJob;
+use App\Models\Security;
+use App\Models\SecurityNavHistory;
 use App\Models\Status;
-use Database\Seeders\EtfSeeder;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
 use Database\Seeders\StatusSeeder;
@@ -15,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
-class RunAiEtfNavExtractionsTest extends TestCase
+class RunAiSecurityNavExtractionsTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -27,9 +25,11 @@ class RunAiEtfNavExtractionsTest extends TestCase
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etf_nav_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+
+        DB::table('security_details')->truncate();
 
         DB::table('intervals')->truncate();
 
@@ -45,8 +45,6 @@ class RunAiEtfNavExtractionsTest extends TestCase
 
             NotificationStatusSeeder::class,
 
-            EtfSeeder::class,
-
         ]);
 
         Queue::fake();
@@ -60,9 +58,11 @@ class RunAiEtfNavExtractionsTest extends TestCase
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etf_nav_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+
+        DB::table('security_details')->truncate();
 
         DB::table('intervals')->truncate();
 
@@ -73,32 +73,42 @@ class RunAiEtfNavExtractionsTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_dispatches_jobs_for_all_etfs()
+    public function test_it_dispatches_jobs_for_all_securities()
     {
-        $etfCount =
-            Etf::count();
+
+        Security::factory()
+            ->count(10)
+            ->create();
+
+        $securityCount =
+            Security::count();
 
         $this->artisan(
-            'etfs:run-ai-nav-extraction'
+            'securities:run-ai-nav-extraction'
         )->assertExitCode(0);
 
         Queue::assertPushed(
-            RunAiEtfNavExtractionJob::class,
-            $etfCount
+            RunAiSecurityNavExtractionJob::class,
+            $securityCount
         );
     }
 
     public function test_it_dispatches_job_for_single_symbol()
     {
-        $etf =
-            Etf::where(
+        Security::factory()
+            ->create([
+                'symbol' => 'CHPY',
+            ]);
+
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
 
         $this->artisan(
 
-            'etfs:run-ai-nav-extraction',
+            'securities:run-ai-nav-extraction',
 
             [
 
@@ -110,28 +120,33 @@ class RunAiEtfNavExtractionsTest extends TestCase
 
         Queue::assertPushed(
 
-            RunAiEtfNavExtractionJob::class,
+            RunAiSecurityNavExtractionJob::class,
 
-            function ($job) use ($etf) {
+            function ($job) use ($security) {
 
                 return
-                    $job->etfId ===
-                    $etf->id;
+                    $job->securityId ===
+                    $security->id;
             }
 
         );
 
         Queue::assertPushed(
-            RunAiEtfNavExtractionJob::class,
+            RunAiSecurityNavExtractionJob::class,
             1
         );
     }
 
     public function test_it_respects_limit_option()
     {
+
+        Security::factory()
+            ->count(10)
+            ->create();
+
         $this->artisan(
 
-            'etfs:run-ai-nav-extraction',
+            'securities:run-ai-nav-extraction',
 
             [
 
@@ -142,16 +157,20 @@ class RunAiEtfNavExtractionsTest extends TestCase
         )->assertExitCode(0);
 
         Queue::assertPushed(
-            RunAiEtfNavExtractionJob::class,
+            RunAiSecurityNavExtractionJob::class,
             5
         );
     }
 
     public function test_force_flag_bypasses_freshness_check()
     {
-        EtfNavHistory::create([
 
-            'etf_id' => Etf::first()->id,
+        Security::factory()->count(5)
+            ->create();
+
+        SecurityNavHistory::create([
+
+            'security_id' => Security::first()->id,
 
             'nav_per_share' => 25.44,
 
@@ -163,16 +182,9 @@ class RunAiEtfNavExtractionsTest extends TestCase
 
         ]);
 
-        AiDataExtraction::factory()
-            ->create([
-
-                'created_at' => now(),
-
-            ]);
-
         $this->artisan(
 
-            'etfs:run-ai-nav-extraction',
+            'securities:run-ai-nav-extraction',
 
             [
 
@@ -185,25 +197,30 @@ class RunAiEtfNavExtractionsTest extends TestCase
         )->assertExitCode(0);
 
         Queue::assertPushed(
-            RunAiEtfNavExtractionJob::class,
+            RunAiSecurityNavExtractionJob::class,
             2
         );
     }
 
-    public function test_it_skips_dispatch_when_all_active_etfs_have_fresh_nav_data()
+    public function test_it_skips_dispatch_when_all_active_securities_have_fresh_nav_data()
     {
+
+        Security::factory()
+            ->count(5)
+            ->create();
+
         foreach (
 
-            Etf::where(
+            Security::where(
                 'status_id',
                 Status::ACTIVE
-            )->get() as $etf
+            )->get() as $security
 
         ) {
 
-            EtfNavHistory::create([
+            SecurityNavHistory::create([
 
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
 
                 'nav_per_share' => 25.44,
 
@@ -217,19 +234,19 @@ class RunAiEtfNavExtractionsTest extends TestCase
         }
 
         $this->artisan(
-            'etfs:run-ai-nav-extraction'
+            'securities:run-ai-nav-extraction'
         )->assertExitCode(0);
 
         Queue::assertNothingPushed();
     }
 
-    public function test_it_returns_success_when_no_etfs_exist()
+    public function test_it_returns_success_when_no_securities_exist()
     {
-        DB::table('etfs')
+        DB::table('securities')
             ->truncate();
 
         $this->artisan(
-            'etfs:run-ai-nav-extraction'
+            'securities:run-ai-nav-extraction'
         )->assertExitCode(0);
 
         Queue::assertNothingPushed();
