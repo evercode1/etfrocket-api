@@ -14,7 +14,7 @@ class GetEtfFiltersTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $response = $this->getJson('/api/get-etf-filters');
+        $response = $this->getJson('/api/get-security-filters');
 
         $response->assertStatus(200);
 
@@ -96,20 +96,20 @@ class GetEtfFiltersTest extends TestCase
         ]);
     }
 
-    public function test_guest_cannot_get_etf_filters(): void
+    public function test_guest_cannot_get_security_filters(): void
     {
-        $response = $this->getJson('/api/get-etf-filters');
+        $response = $this->getJson('/api/get-security-filters');
 
         $response->assertStatus(401);
     }
 
-    public function test_get_etf_filters_returns_expected_default_values(): void
+    public function test_get_security_filters_returns_expected_default_values(): void
     {
         $user = User::factory()->create();
 
         Sanctum::actingAs($user, ['*']);
 
-        $response = $this->getJson('/api/get-etf-filters');
+        $response = $this->getJson('/api/get-security-filters');
 
         $response->assertStatus(200);
 
@@ -120,13 +120,13 @@ class GetEtfFiltersTest extends TestCase
         $response->assertJsonPath('data.defaults.limit', 25);
     }
 
-    public function test_get_etf_filters_returns_display_order_values(): void
+    public function test_get_security_filters_returns_display_order_values(): void
     {
         $user = User::factory()->create();
 
         Sanctum::actingAs($user, ['*']);
 
-        $response = $this->getJson('/api/get-etf-filters');
+        $response = $this->getJson('/api/get-security-filters');
 
         $response->assertStatus(200);
 
@@ -144,13 +144,13 @@ class GetEtfFiltersTest extends TestCase
         $response->assertJsonPath('data.ranges.1y.display_order', 4);
     }
 
-    public function test_get_etf_filters_returns_expected_momentum_filter_values(): void
+    public function test_get_security_filters_returns_expected_momentum_filter_values(): void
     {
         $user = User::factory()->create();
 
         Sanctum::actingAs($user, ['*']);
 
-        $response = $this->getJson('/api/get-etf-filters');
+        $response = $this->getJson('/api/get-security-filters');
 
         $response->assertStatus(200);
 

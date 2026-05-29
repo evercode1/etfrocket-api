@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\Portfolios\Signals;
 
-use App\Models\Etf;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDetail;
+use App\Models\SecurityMetric;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -20,8 +22,9 @@ class PortfolioAumGrowthSignalTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -29,8 +32,9 @@ class PortfolioAumGrowthSignalTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -48,15 +52,20 @@ class PortfolioAumGrowthSignalTest extends TestCase
             'status_id' => Status::ACTIVE,
         ]);
 
-        $etf = Etf::factory()->create([
+        $security = Security::create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test ETF',
+
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'security_name' => 'NVII_name',
         ]);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
             'transaction_type_id' => 1,
             'shares' => 100,
             'price_per_share' => 25,
@@ -64,7 +73,7 @@ class PortfolioAumGrowthSignalTest extends TestCase
         ]);
 
         SecurityMetric::factory()->create([
-            'security_id' => $etf->id,
+            'security_id' => $security->id,
             'performance_range_type_id' => PerformanceRangeType::THIRTY_DAY,
             'start_date' => '2026-04-01',
             'end_date' => '2026-05-01',
