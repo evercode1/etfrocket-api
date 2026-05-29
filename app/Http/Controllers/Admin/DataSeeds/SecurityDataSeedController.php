@@ -10,11 +10,8 @@ class SecurityDataSeedController extends Controller
 {
     public function backfillPriceHistory(Request $request)
     {
-        $request->validate([
-            'symbol' => 'required|string|max:20',
-        ]);
 
-        $exitCode = Artisan::call('etfs:backfill-price-history', [
+        $exitCode = Artisan::call('securities:backfill-price-history', [
             'symbol' => strtoupper(trim($request->input('symbol'))),
         ]);
 
