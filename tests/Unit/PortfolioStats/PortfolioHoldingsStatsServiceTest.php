@@ -2,9 +2,10 @@
 
 namespace Tests\Unit\PortfolioStats;
 
-use App\Models\Etf;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityDetail;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\PortfolioStats\PortfolioHoldingsStatsService;
@@ -19,7 +20,8 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -27,7 +29,8 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -53,15 +56,21 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test ETF',
+
             'status_id' => Status::ACTIVE,
+
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'security_name' => 'NVII_name',
             'distribution_frequency_id' => 2,
         ]);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
-        $this->createTransaction($portfolio->id, $etf->id, 1, 5, 30);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 1, 5, 30);
 
         $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
@@ -71,9 +80,9 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
 
         $holding = $holdings->first();
 
-        $this->assertSame($etf->id, $holding['etf_id']);
+        $this->assertSame($security->id, $holding['security_id']);
         $this->assertSame('NVII', $holding['symbol']);
-        $this->assertSame('NVII Test ETF', $holding['fund_name']);
+        $this->assertSame('NVII_name', $holding['security_name']);
         $this->assertSame(2, $holding['distribution_frequency_id']);
         $this->assertSame(15.0, $holding['shares']);
         $this->assertSame(400.0, $holding['cost_basis']);
@@ -83,16 +92,15 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $nvi = Etf::factory()->create([
+        $nvi = Security::factory()->create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
+
         ]);
 
-        $jepi = Etf::factory()->create([
+        $jepi = Security::factory()->create([
             'symbol' => 'JEPI',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 4,
         ]);
 
         $this->createTransaction($portfolio->id, $nvi->id, 1, 10, 25);
@@ -113,14 +121,13 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'AMDY',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
         ]);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
-        $this->createTransaction($portfolio->id, $etf->id, 2, 4, 30);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 2, 4, 30);
 
         $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
@@ -138,14 +145,13 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'SOLD',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
         ]);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
-        $this->createTransaction($portfolio->id, $etf->id, 2, 10, 30);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 2, 10, 30);
 
         $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
@@ -158,14 +164,13 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'OVER',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
         ]);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 5, 25);
-        $this->createTransaction($portfolio->id, $etf->id, 2, 10, 30);
+        $this->createTransaction($portfolio->id, $security->id, 1, 5, 25);
+        $this->createTransaction($portfolio->id, $security->id, 2, 10, 30);
 
         $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
@@ -180,20 +185,18 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
 
         $otherPortfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
         ]);
 
-        $otherEtf = Etf::factory()->create([
+        $otherSecurity = Security::factory()->create([
             'symbol' => 'OTHER',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 4,
         ]);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
-        $this->createTransaction($otherPortfolio->id, $otherEtf->id, 1, 99, 10);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
+        $this->createTransaction($otherPortfolio->id, $otherSecurity->id, 1, 99, 10);
 
         $holdings = (new PortfolioHoldingsStatsService)->getCurrentHoldings(
             $portfolio->id
@@ -207,13 +210,12 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
         ]);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 10, 25);
+        $this->createTransaction($portfolio->id, $security->id, 1, 10, 25);
 
         $result = (new PortfolioHoldingsStatsService)->hasCurrentHoldings(
             $portfolio->id
@@ -237,22 +239,19 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $nvi = Etf::factory()->create([
+        $nvi = Security::factory()->create([
             'symbol' => 'NVII',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
         ]);
 
-        $jepi = Etf::factory()->create([
+        $jepi = Security::factory()->create([
             'symbol' => 'JEPI',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 4,
         ]);
 
-        $sold = Etf::factory()->create([
+        $sold = Security::factory()->create([
             'symbol' => 'SOLD',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
         ]);
 
         $this->createTransaction($portfolio->id, $nvi->id, 1, 10, 25);
@@ -261,7 +260,7 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
         $this->createTransaction($portfolio->id, $sold->id, 1, 10, 25);
         $this->createTransaction($portfolio->id, $sold->id, 2, 10, 30);
 
-        $ids = (new PortfolioHoldingsStatsService)->getCurrentEtfIds(
+        $ids = (new PortfolioHoldingsStatsService)->getCurrentSecurityIds(
             $portfolio->id
         );
 
@@ -278,13 +277,12 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = Etf::factory()->create([
+        $security = Security::factory()->create([
             'symbol' => 'ROUND',
             'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
         ]);
 
-        $this->createTransaction($portfolio->id, $etf->id, 1, 1.23456, 10.98765);
+        $this->createTransaction($portfolio->id, $security->id, 1, 1.23456, 10.98765);
 
         $holding = (new PortfolioHoldingsStatsService)
             ->getCurrentHoldings($portfolio->id)
@@ -306,14 +304,14 @@ class PortfolioHoldingsStatsServiceTest extends TestCase
 
     private function createTransaction(
         int $portfolioId,
-        int $etfId,
+        int $securityId,
         int $transactionTypeId,
         float $shares,
         float $pricePerShare
     ): PortfolioTransaction {
         return PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolioId,
-            'etf_id' => $etfId,
+            'security_id' => $securityId,
             'transaction_type_id' => $transactionTypeId,
             'shares' => $shares,
             'price_per_share' => $pricePerShare,

@@ -4,11 +4,11 @@ namespace Tests\Unit\Config;
 
 use Tests\TestCase;
 
-class EtfFiltersConfigTest extends TestCase
+class SecurityFiltersConfigTest extends TestCase
 {
-    public function test_etf_filters_config_has_expected_top_level_structure(): void
+    public function test_security_filters_config_has_expected_top_level_structure(): void
     {
-        $config = config('etf_filters');
+        $config = config('security_filters');
 
         $this->assertIsArray($config);
 
@@ -18,9 +18,9 @@ class EtfFiltersConfigTest extends TestCase
         $this->assertArrayHasKey('defaults', $config);
     }
 
-    public function test_etf_filters_config_has_expected_categories(): void
+    public function test_security_filters_config_has_expected_categories(): void
     {
-        $categories = config('etf_filters.categories');
+        $categories = config('security_filters.categories');
 
         $this->assertIsArray($categories);
 
@@ -32,7 +32,7 @@ class EtfFiltersConfigTest extends TestCase
 
     public function test_each_category_has_required_structure(): void
     {
-        $categories = config('etf_filters.categories');
+        $categories = config('security_filters.categories');
 
         foreach ($categories as $categoryKey => $category) {
             $this->assertArrayHasKey('label', $category, "Missing label for {$categoryKey}");
@@ -48,7 +48,7 @@ class EtfFiltersConfigTest extends TestCase
 
     public function test_each_filter_has_required_structure(): void
     {
-        $categories = config('etf_filters.categories');
+        $categories = config('security_filters.categories');
 
         foreach ($categories as $categoryKey => $category) {
             foreach ($category['filters'] as $filterKey => $filter) {
@@ -71,9 +71,9 @@ class EtfFiltersConfigTest extends TestCase
 
     public function test_filter_default_ranges_exist_in_ranges_config(): void
     {
-        $categories = config('etf_filters.categories');
+        $categories = config('security_filters.categories');
 
-        $ranges = array_keys(config('etf_filters.ranges'));
+        $ranges = array_keys(config('security_filters.ranges'));
 
         foreach ($categories as $categoryKey => $category) {
             foreach ($category['filters'] as $filterKey => $filter) {
@@ -88,7 +88,7 @@ class EtfFiltersConfigTest extends TestCase
 
     public function test_default_category_filter_scope_and_range_are_valid(): void
     {
-        $defaults = config('etf_filters.defaults');
+        $defaults = config('security_filters.defaults');
 
         $this->assertArrayHasKey('category', $defaults);
         $this->assertArrayHasKey('filter', $defaults);
@@ -96,9 +96,9 @@ class EtfFiltersConfigTest extends TestCase
         $this->assertArrayHasKey('range', $defaults);
         $this->assertArrayHasKey('limit', $defaults);
 
-        $categories = config('etf_filters.categories');
-        $scopes = config('etf_filters.scopes');
-        $ranges = config('etf_filters.ranges');
+        $categories = config('security_filters.categories');
+        $scopes = config('security_filters.scopes');
+        $ranges = config('security_filters.ranges');
 
         $this->assertArrayHasKey($defaults['category'], $categories);
         $this->assertArrayHasKey($defaults['scope'], $scopes);
@@ -114,7 +114,7 @@ class EtfFiltersConfigTest extends TestCase
 
     public function test_scopes_have_required_structure(): void
     {
-        $scopes = config('etf_filters.scopes');
+        $scopes = config('security_filters.scopes');
 
         $this->assertArrayHasKey('all', $scopes);
         $this->assertArrayHasKey('owned', $scopes);
@@ -130,7 +130,7 @@ class EtfFiltersConfigTest extends TestCase
 
     public function test_ranges_have_required_structure(): void
     {
-        $ranges = config('etf_filters.ranges');
+        $ranges = config('security_filters.ranges');
 
         $this->assertArrayHasKey('latest', $ranges);
         $this->assertArrayHasKey('30d', $ranges);
@@ -154,7 +154,7 @@ class EtfFiltersConfigTest extends TestCase
 
     public function test_category_display_orders_are_unique_and_sequential(): void
     {
-        $categories = config('etf_filters.categories');
+        $categories = config('security_filters.categories');
 
         $orders = collect($categories)
             ->pluck('display_order')

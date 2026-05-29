@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Imports;
 
-use App\Imports\EtfPriceHistoryImport;
+use App\Imports\SecurityPriceHistoryImport;
 use RuntimeException;
 use Tests\TestCase;
 
-class EtfPriceHistoryImportUnitTest extends TestCase
+class SecurityPriceHistoryImportUnitTest extends TestCase
 {
-    public function test_it_can_parse_etf_price_history_text_file(): void
+    public function test_it_can_parse_security_price_history_text_file(): void
     {
         $filePath = $this->makeTextFile([
             'Date',
@@ -36,7 +36,7 @@ class EtfPriceHistoryImportUnitTest extends TestCase
             '381,300',
         ]);
 
-        $parsed = (new EtfPriceHistoryImport)->parse($filePath);
+        $parsed = (new SecurityPriceHistoryImport)->parse($filePath);
 
         $this->assertCount(2, $parsed['prices']);
         $this->assertCount(0, $parsed['dividends']);
@@ -96,7 +96,7 @@ class EtfPriceHistoryImportUnitTest extends TestCase
             '75,400',
         ]);
 
-        $parsed = (new EtfPriceHistoryImport)->parse($filePath);
+        $parsed = (new SecurityPriceHistoryImport)->parse($filePath);
 
         $this->assertCount(2, $parsed['prices']);
         $this->assertCount(2, $parsed['dividends']);
@@ -148,7 +148,7 @@ class EtfPriceHistoryImportUnitTest extends TestCase
             '381,300',
         ]);
 
-        $parsed = (new EtfPriceHistoryImport)->parse($filePath);
+        $parsed = (new SecurityPriceHistoryImport)->parse($filePath);
 
         $this->assertCount(2, $parsed['prices']);
 
@@ -178,7 +178,7 @@ class EtfPriceHistoryImportUnitTest extends TestCase
             '211,500',
         ]);
 
-        $parsed = (new EtfPriceHistoryImport)->parse($filePath);
+        $parsed = (new SecurityPriceHistoryImport)->parse($filePath);
 
         $this->assertCount(1, $parsed['dividends']);
         $this->assertSame('0.2390', $parsed['dividends'][0]['dividend_amount']);
@@ -191,12 +191,12 @@ class EtfPriceHistoryImportUnitTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Import file not found at path [/bad/path.txt].');
 
-        (new EtfPriceHistoryImport)->parse('/bad/path.txt');
+        (new SecurityPriceHistoryImport)->parse('/bad/path.txt');
     }
 
     public function test_it_throws_exception_when_file_is_empty(): void
     {
-        $filePath = tempnam(sys_get_temp_dir(), 'empty-etf-price-history-import-');
+        $filePath = tempnam(sys_get_temp_dir(), 'empty-security-price-history-import-');
 
         file_put_contents($filePath, '');
 
@@ -204,7 +204,7 @@ class EtfPriceHistoryImportUnitTest extends TestCase
         $this->expectExceptionMessage('Import file is empty.');
 
         try {
-            (new EtfPriceHistoryImport)->parse($filePath);
+            (new SecurityPriceHistoryImport)->parse($filePath);
         } finally {
             unlink($filePath);
         }
@@ -212,7 +212,7 @@ class EtfPriceHistoryImportUnitTest extends TestCase
 
     private function makeTextFile(array $lines): string
     {
-        $filePath = tempnam(sys_get_temp_dir(), 'etf-price-history-import-');
+        $filePath = tempnam(sys_get_temp_dir(), 'security-price-history-import-');
 
         file_put_contents(
             $filePath,

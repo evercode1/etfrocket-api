@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\PortfolioStats;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityMetric;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\PortfolioStats\Signals\PortfolioNavStabilitySignalService;
@@ -21,8 +21,9 @@ class PortfolioNavStabilitySignalServiceTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -30,8 +31,9 @@ class PortfolioNavStabilitySignalServiceTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -55,9 +57,9 @@ class PortfolioNavStabilitySignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
         $data = app(PortfolioNavStabilitySignalService::class)
             ->getSignalData($portfolio->id);
@@ -71,11 +73,11 @@ class PortfolioNavStabilitySignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('STBL');
+        $security = $this->createSecurity('STBL');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
-        $this->createMetric($etf->id, [
+        $this->createMetric($security->id, [
             'nav_erosion_percentage' => '-2.0000',
         ]);
 
@@ -95,11 +97,11 @@ class PortfolioNavStabilitySignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('MIXD');
+        $security = $this->createSecurity('MIXD');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
-        $this->createMetric($etf->id, [
+        $this->createMetric($security->id, [
             'nav_erosion_percentage' => '-5.0000',
         ]);
 
@@ -117,11 +119,11 @@ class PortfolioNavStabilitySignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('RISK');
+        $security = $this->createSecurity('RISK');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
-        $this->createMetric($etf->id, [
+        $this->createMetric($security->id, [
             'nav_erosion_percentage' => '-12.0000',
         ]);
 
@@ -139,9 +141,9 @@ class PortfolioNavStabilitySignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $stable = $this->createEtf('STBL');
-        $mixed = $this->createEtf('MIXD');
-        $watch = $this->createEtf('RISK');
+        $stable = $this->createSecurity('STBL');
+        $mixed = $this->createSecurity('MIXD');
+        $watch = $this->createSecurity('RISK');
 
         $this->createBuyTransaction($portfolio->id, $stable->id, 100);
         $this->createBuyTransaction($portfolio->id, $mixed->id, 100);
@@ -165,15 +167,15 @@ class PortfolioNavStabilitySignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $held = $this->createEtf('HELD');
-        $sold = $this->createEtf('SOLD');
+        $held = $this->createSecurity('HELD');
+        $sold = $this->createSecurity('SOLD');
 
         $this->createBuyTransaction($portfolio->id, $held->id, 100);
         $this->createBuyTransaction($portfolio->id, $sold->id, 100);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $sold->id,
+            'security_id' => $sold->id,
             'transaction_type_id' => 2,
             'shares' => 100,
             'price_per_share' => 30,
@@ -187,7 +189,7 @@ class PortfolioNavStabilitySignalServiceTest extends TestCase
             ->getSignalData($portfolio->id);
 
         $this->assertSame('Stable', $data['nav_health']);
-        $this->assertSame(['HELD'], $data['affected_etfs']);
+        $this->assertSame(['HELD'], $data['affected_securities']);
     }
 
     private function createPortfolio(): Portfolio
@@ -200,23 +202,22 @@ class PortfolioNavStabilitySignalServiceTest extends TestCase
         ]);
     }
 
-    private function createEtf(string $symbol): Etf
+    private function createSecurity(string $symbol): Security
     {
-        return Etf::factory()->create([
+        return Security::factory()->create([
             'symbol' => $symbol,
-            'fund_name' => "{$symbol} Test ETF",
             'status_id' => Status::ACTIVE,
         ]);
     }
 
     private function createBuyTransaction(
         int $portfolioId,
-        int $etfId,
+        int $securityId,
         float $shares
     ): PortfolioTransaction {
         return PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolioId,
-            'etf_id' => $etfId,
+            'security_id' => $securityId,
             'transaction_type_id' => 1,
             'shares' => $shares,
             'price_per_share' => 25,
@@ -224,10 +225,10 @@ class PortfolioNavStabilitySignalServiceTest extends TestCase
         ]);
     }
 
-    private function createMetric(int $etfId, array $overrides = []): EtfMetric
+    private function createMetric(int $securityId, array $overrides = []): SecurityMetric
     {
-        return EtfMetric::factory()->create(array_merge([
-            'etf_id' => $etfId,
+        return SecurityMetric::factory()->create(array_merge([
+            'security_id' => $securityId,
             'performance_range_type_id' => PerformanceRangeType::MAX,
             'start_date' => '2026-01-01',
             'end_date' => '2026-05-01',

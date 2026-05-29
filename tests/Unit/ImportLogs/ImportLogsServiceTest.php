@@ -66,7 +66,7 @@ class ImportLogsServiceTest extends TestCase
         $log =
             ImportLogsService::log(
 
-                import_type_id: ImportType::ETF_PRICE_IMPORT,
+                import_type_id: ImportType::SECURITY_PRICE_IMPORT,
 
                 status_id: Status::COMPLETED,
 
@@ -109,7 +109,7 @@ class ImportLogsServiceTest extends TestCase
 
                 'id' => $log->id,
 
-                'import_type_id' => ImportType::ETF_PRICE_IMPORT,
+                'import_type_id' => ImportType::SECURITY_PRICE_IMPORT,
 
                 'status_id' => Status::COMPLETED,
 
@@ -160,7 +160,7 @@ class ImportLogsServiceTest extends TestCase
         $log =
             ImportLogsService::log(
 
-                import_type_id: ImportType::ETF_NAV_IMPORT,
+                import_type_id: ImportType::SECURITY_NAV_IMPORT,
 
                 status_id: Status::FAILED,
 
@@ -192,7 +192,7 @@ class ImportLogsServiceTest extends TestCase
         $log =
             ImportLogsService::log(
 
-                import_type_id: ImportType::ETF_AUM_IMPORT,
+                import_type_id: ImportType::SECURITY_AUM_IMPORT,
 
                 status_id: Status::COMPLETED
 

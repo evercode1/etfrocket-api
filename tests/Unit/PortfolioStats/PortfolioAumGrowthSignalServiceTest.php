@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\PortfolioStats;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityMetric;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\PortfolioStats\Signals\PortfolioAumGrowthSignalService;
@@ -21,8 +21,9 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -30,8 +31,9 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -51,7 +53,7 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
         $this->assertSame(0, $data['negative_flow_count']);
         $this->assertSame([], $data['strongest_inflows']);
         $this->assertSame([], $data['strongest_outflows']);
-        $this->assertSame([], $data['affected_etfs']);
+        $this->assertSame([], $data['affected_securities']);
         $this->assertSame([], $data['all_rows']);
     }
 
@@ -59,9 +61,9 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
         $data = app(PortfolioAumGrowthSignalService::class)
             ->getSignalData($portfolio->id);
@@ -73,7 +75,7 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
         $this->assertSame(0, $data['negative_flow_count']);
         $this->assertSame([], $data['strongest_inflows']);
         $this->assertSame([], $data['strongest_outflows']);
-        $this->assertSame([], $data['affected_etfs']);
+        $this->assertSame([], $data['affected_securities']);
         $this->assertSame([], $data['all_rows']);
     }
 
@@ -81,13 +83,13 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $inflowEtf = $this->createEtf('INFL');
-        $outflowEtf = $this->createEtf('OUTF');
+        $inflowSecurity = $this->createSecurity('INFL');
+        $outflowSecurity = $this->createSecurity('OUTF');
 
-        $this->createBuyTransaction($portfolio->id, $inflowEtf->id, 100);
-        $this->createBuyTransaction($portfolio->id, $outflowEtf->id, 50);
+        $this->createBuyTransaction($portfolio->id, $inflowSecurity->id, 100);
+        $this->createBuyTransaction($portfolio->id, $outflowSecurity->id, 50);
 
-        $this->createMetric($inflowEtf->id, [
+        $this->createMetric($inflowSecurity->id, [
             'start_aum' => 100000000,
             'end_aum' => 125000000,
             'aum_change' => 25000000,
@@ -97,7 +99,7 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
             'end_date' => '2026-05-01',
         ]);
 
-        $this->createMetric($outflowEtf->id, [
+        $this->createMetric($outflowSecurity->id, [
             'start_aum' => 200000000,
             'end_aum' => 180000000,
             'aum_change' => -20000000,
@@ -115,14 +117,14 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
         $this->assertSame(PerformanceRangeType::THIRTY_DAY, $data['range_type_id']);
         $this->assertSame(1, $data['positive_flow_count']);
         $this->assertSame(1, $data['negative_flow_count']);
-        $this->assertSame(['INFL', 'OUTF'], $data['affected_etfs']);
+        $this->assertSame(['INFL', 'OUTF'], $data['affected_securities']);
         $this->assertCount(2, $data['all_rows']);
 
         $inflow = $data['strongest_inflows'][0];
 
-        $this->assertSame($inflowEtf->id, $inflow['etf_id']);
+        $this->assertSame($inflowSecurity->id, $inflow['security_id']);
         $this->assertSame('INFL', $inflow['symbol']);
-        $this->assertSame('INFL Test ETF', $inflow['fund_name']);
+        $this->assertSame('INFL_name', $inflow['security_name']);
         $this->assertSame(100.0, $inflow['shares']);
         $this->assertSame(100000000, $inflow['start_aum']);
         $this->assertSame(125000000, $inflow['end_aum']);
@@ -134,7 +136,7 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
 
         $outflow = $data['strongest_outflows'][0];
 
-        $this->assertSame($outflowEtf->id, $outflow['etf_id']);
+        $this->assertSame($outflowSecurity->id, $outflow['security_id']);
         $this->assertSame('OUTF', $outflow['symbol']);
         $this->assertSame(-10.0, $outflow['aum_change_percentage']);
         $this->assertSame(-20000000, $outflow['aum_change']);
@@ -144,18 +146,18 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $smallGrowthEtf = $this->createEtf('SMOL');
-        $largeGrowthEtf = $this->createEtf('BIGG');
+        $smallGrowthSecurity = $this->createSecurity('SMOL');
+        $largeGrowthSecurity = $this->createSecurity('BIGG');
 
-        $this->createBuyTransaction($portfolio->id, $smallGrowthEtf->id, 100);
-        $this->createBuyTransaction($portfolio->id, $largeGrowthEtf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $smallGrowthSecurity->id, 100);
+        $this->createBuyTransaction($portfolio->id, $largeGrowthSecurity->id, 100);
 
-        $this->createMetric($smallGrowthEtf->id, [
+        $this->createMetric($smallGrowthSecurity->id, [
             'aum_change_percentage' => '5.0000',
             'aum_change' => 5000000,
         ]);
 
-        $this->createMetric($largeGrowthEtf->id, [
+        $this->createMetric($largeGrowthSecurity->id, [
             'aum_change_percentage' => '18.0000',
             'aum_change' => 18000000,
         ]);
@@ -172,18 +174,18 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $smallDeclineEtf = $this->createEtf('SMOL');
-        $largeDeclineEtf = $this->createEtf('BIGD');
+        $smallDeclineSecurity = $this->createSecurity('SMOL');
+        $largeDeclineSecurity = $this->createSecurity('BIGD');
 
-        $this->createBuyTransaction($portfolio->id, $smallDeclineEtf->id, 100);
-        $this->createBuyTransaction($portfolio->id, $largeDeclineEtf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $smallDeclineSecurity->id, 100);
+        $this->createBuyTransaction($portfolio->id, $largeDeclineSecurity->id, 100);
 
-        $this->createMetric($smallDeclineEtf->id, [
+        $this->createMetric($smallDeclineSecurity->id, [
             'aum_change_percentage' => '-4.0000',
             'aum_change' => -4000000,
         ]);
 
-        $this->createMetric($largeDeclineEtf->id, [
+        $this->createMetric($largeDeclineSecurity->id, [
             'aum_change_percentage' => '-22.0000',
             'aum_change' => -22000000,
         ]);
@@ -208,11 +210,11 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
                 ['symbol' => 'IN4', 'percentage' => '10.0000'],
             ] as $row
         ) {
-            $etf = $this->createEtf($row['symbol']);
+            $security = $this->createSecurity($row['symbol']);
 
-            $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+            $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
-            $this->createMetric($etf->id, [
+            $this->createMetric($security->id, [
                 'aum_change_percentage' => $row['percentage'],
                 'aum_change' => 1000000,
             ]);
@@ -226,11 +228,11 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
                 ['symbol' => 'OUT4', 'percentage' => '-10.0000'],
             ] as $row
         ) {
-            $etf = $this->createEtf($row['symbol']);
+            $security = $this->createSecurity($row['symbol']);
 
-            $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+            $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
-            $this->createMetric($etf->id, [
+            $this->createMetric($security->id, [
                 'aum_change_percentage' => $row['percentage'],
                 'aum_change' => -1000000,
             ]);
@@ -259,27 +261,27 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $heldEtf = $this->createEtf('HELD');
-        $soldEtf = $this->createEtf('SOLD');
+        $heldSecurity = $this->createSecurity('HELD');
+        $soldSecurity = $this->createSecurity('SOLD');
 
-        $this->createBuyTransaction($portfolio->id, $heldEtf->id, 100);
-        $this->createBuyTransaction($portfolio->id, $soldEtf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $heldSecurity->id, 100);
+        $this->createBuyTransaction($portfolio->id, $soldSecurity->id, 100);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $soldEtf->id,
+            'security_id' => $soldSecurity->id,
             'transaction_type_id' => 2,
             'shares' => 100,
             'price_per_share' => 30,
             'transaction_date' => '2026-02-01',
         ]);
 
-        $this->createMetric($heldEtf->id, [
+        $this->createMetric($heldSecurity->id, [
             'aum_change_percentage' => '15.0000',
             'aum_change' => 15000000,
         ]);
 
-        $this->createMetric($soldEtf->id, [
+        $this->createMetric($soldSecurity->id, [
             'aum_change_percentage' => '50.0000',
             'aum_change' => 50000000,
         ]);
@@ -289,7 +291,7 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
 
         $this->assertTrue($data['has_data']);
         $this->assertSame(1, $data['positive_flow_count']);
-        $this->assertSame(['HELD'], $data['affected_etfs']);
+        $this->assertSame(['HELD'], $data['affected_securities']);
         $this->assertSame('HELD', $data['strongest_inflows'][0]['symbol']);
     }
 
@@ -297,12 +299,12 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
-        EtfMetric::factory()->create([
-            'etf_id' => $etf->id,
+        SecurityMetric::factory()->create([
+            'security_id' => $security->id,
             'performance_range_type_id' => PerformanceRangeType::NINETY_DAY,
             'aum_change_percentage' => '100.0000',
             'aum_change' => 100000000,
@@ -320,11 +322,11 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NULL');
+        $security = $this->createSecurity('NULL');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
-        $this->createMetric($etf->id, [
+        $this->createMetric($security->id, [
             'aum_change_percentage' => null,
             'aum_change' => 1000000,
         ]);
@@ -341,11 +343,11 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('FLAT');
+        $security = $this->createSecurity('FLAT');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
-        $this->createMetric($etf->id, [
+        $this->createMetric($security->id, [
             'aum_change_percentage' => '0.0000',
             'aum_change' => 0,
         ]);
@@ -357,7 +359,7 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
         $this->assertTrue($data['has_data']);
         $this->assertSame(0, $data['positive_flow_count']);
         $this->assertSame(0, $data['negative_flow_count']);
-        $this->assertSame(['FLAT'], $data['affected_etfs']);
+        $this->assertSame(['FLAT'], $data['affected_securities']);
         $this->assertCount(1, $data['all_rows']);
         $this->assertSame(0.0, $data['all_rows'][0]['aum_change_percentage']);
     }
@@ -372,23 +374,23 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
         ]);
     }
 
-    private function createEtf(string $symbol): Etf
+    private function createSecurity(string $symbol): Security
     {
-        return Etf::factory()->create([
+        return Security::factory()->create([
             'symbol' => $symbol,
-            'fund_name' => "{$symbol} Test ETF",
+
             'status_id' => Status::ACTIVE,
         ]);
     }
 
     private function createBuyTransaction(
         int $portfolioId,
-        int $etfId,
+        int $securityId,
         float $shares
     ): PortfolioTransaction {
         return PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolioId,
-            'etf_id' => $etfId,
+            'security_id' => $securityId,
             'transaction_type_id' => 1,
             'shares' => $shares,
             'price_per_share' => 25,
@@ -396,10 +398,10 @@ class PortfolioAumGrowthSignalServiceTest extends TestCase
         ]);
     }
 
-    private function createMetric(int $etfId, array $overrides = []): EtfMetric
+    private function createMetric(int $securityId, array $overrides = []): SecurityMetric
     {
-        return EtfMetric::factory()->create(array_merge([
-            'etf_id' => $etfId,
+        return SecurityMetric::factory()->create(array_merge([
+            'security_id' => $securityId,
             'performance_range_type_id' => PerformanceRangeType::THIRTY_DAY,
             'start_date' => '2026-04-01',
             'end_date' => '2026-05-01',

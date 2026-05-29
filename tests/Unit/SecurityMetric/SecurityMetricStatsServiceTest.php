@@ -1,53 +1,55 @@
 <?php
 
-namespace Tests\Unit\EtfMetric;
+namespace Tests\Unit\SecurityMetric;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
+use App\Models\Security;
+use App\Models\SecurityMetric;
 use App\Models\Status;
-use App\Services\EtfMetrics\EtfMetricStatsService;
+use App\Services\SecurityMetrics\SecurityMetricStatsService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class EtfMetricStatsServiceTest extends TestCase
+class SecurityMetricStatsServiceTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }
 
-    public function test_it_returns_metrics_for_etfs_grouped_by_etf_id(): void
+    public function test_it_returns_metrics_for_securities_grouped_by_security_id(): void
     {
-        $firstEtf = $this->createEtf('NVII');
-        $secondEtf = $this->createEtf('JEPI');
+        $firstSecurity = $this->createSecurity('NVII');
+        $secondSecurity = $this->createSecurity('JEPI');
 
-        $this->createMetric($firstEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($firstSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
-        $this->createMetric($firstEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($firstSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.4000',
         ]);
 
-        $this->createMetric($secondEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($secondSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '1.0000',
         ]);
 
-        $metrics = (new EtfMetricStatsService)->getMetricsForEtfs(
-            collect([$firstEtf->id, $secondEtf->id]),
+        $metrics = (new SecurityMetricStatsService)->getMetricsForSecurities(
+            collect([$firstSecurity->id, $secondSecurity->id]),
             [
                 PerformanceRangeType::THIRTY_DAY,
                 PerformanceRangeType::NINETY_DAY,
@@ -56,16 +58,16 @@ class EtfMetricStatsServiceTest extends TestCase
 
         $this->assertInstanceOf(Collection::class, $metrics);
 
-        $this->assertTrue($metrics->has($firstEtf->id));
-        $this->assertTrue($metrics->has($secondEtf->id));
+        $this->assertTrue($metrics->has($firstSecurity->id));
+        $this->assertTrue($metrics->has($secondSecurity->id));
 
-        $this->assertCount(2, $metrics[$firstEtf->id]);
-        $this->assertCount(1, $metrics[$secondEtf->id]);
+        $this->assertCount(2, $metrics[$firstSecurity->id]);
+        $this->assertCount(1, $metrics[$secondSecurity->id]);
     }
 
-    public function test_get_metrics_for_etfs_returns_empty_collection_for_empty_etf_ids(): void
+    public function test_get_metrics_for_securities_returns_empty_collection_for_empty_security_ids(): void
     {
-        $metrics = (new EtfMetricStatsService)->getMetricsForEtfs(
+        $metrics = (new SecurityMetricStatsService)->getMetricsForSecurities(
             [],
             [PerformanceRangeType::THIRTY_DAY]
         );
@@ -74,14 +76,14 @@ class EtfMetricStatsServiceTest extends TestCase
         $this->assertTrue($metrics->isEmpty());
     }
 
-    public function test_get_metrics_for_etfs_returns_empty_collection_for_empty_range_ids(): void
+    public function test_get_metrics_for_securities_returns_empty_collection_for_empty_range_ids(): void
     {
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $this->createMetric($etf->id, PerformanceRangeType::THIRTY_DAY);
+        $this->createMetric($security->id, PerformanceRangeType::THIRTY_DAY);
 
-        $metrics = (new EtfMetricStatsService)->getMetricsForEtfs(
-            [$etf->id],
+        $metrics = (new SecurityMetricStatsService)->getMetricsForSecurities(
+            [$security->id],
             []
         );
 
@@ -89,31 +91,31 @@ class EtfMetricStatsServiceTest extends TestCase
         $this->assertTrue($metrics->isEmpty());
     }
 
-    public function test_it_returns_single_metric_for_etf_and_range(): void
+    public function test_it_returns_single_metric_for_security_and_range(): void
     {
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $this->createMetric($etf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($security->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
-        $metric = (new EtfMetricStatsService)->getMetricForEtf(
-            $etf->id,
+        $metric = (new SecurityMetricStatsService)->getMetricForSecurity(
+            $security->id,
             PerformanceRangeType::THIRTY_DAY
         );
 
-        $this->assertInstanceOf(EtfMetric::class, $metric);
-        $this->assertSame($etf->id, $metric->etf_id);
+        $this->assertInstanceOf(SecurityMetric::class, $metric);
+        $this->assertSame($security->id, $metric->security_id);
         $this->assertSame(PerformanceRangeType::THIRTY_DAY, $metric->performance_range_type_id);
         $this->assertSame('0.5000', (string) $metric->average_dividend);
     }
 
-    public function test_get_metric_for_etf_returns_null_when_missing(): void
+    public function test_get_metric_for_security_returns_null_when_missing(): void
     {
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $metric = (new EtfMetricStatsService)->getMetricForEtf(
-            $etf->id,
+        $metric = (new SecurityMetricStatsService)->getMetricForSecurity(
+            $security->id,
             PerformanceRangeType::THIRTY_DAY
         );
 
@@ -122,54 +124,54 @@ class EtfMetricStatsServiceTest extends TestCase
 
     public function test_it_calculates_distribution_growth_from_metrics(): void
     {
-        $firstEtf = $this->createEtf('NVII');
-        $secondEtf = $this->createEtf('XDTE');
+        $firstSecurity = $this->createSecurity('NVII');
+        $secondSecurity = $this->createSecurity('XDTE');
 
-        $this->createMetric($firstEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($firstSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.6000',
             'dividend_count' => 4,
         ]);
 
-        $this->createMetric($firstEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($firstSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
             'dividend_count' => 12,
         ]);
 
-        $this->createMetric($secondEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($secondSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '1.2000',
             'dividend_count' => 4,
         ]);
 
-        $this->createMetric($secondEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($secondSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '1.0000',
             'dividend_count' => 12,
         ]);
 
         $holdings = collect([
             [
-                'etf_id' => $firstEtf->id,
+                'security_id' => $firstSecurity->id,
                 'symbol' => 'NVII',
-                'fund_name' => 'NVII Test ETF',
+                'security_name' => 'NVII_name',
                 'shares' => 100,
             ],
             [
-                'etf_id' => $secondEtf->id,
+                'security_id' => $secondSecurity->id,
                 'symbol' => 'XDTE',
-                'fund_name' => 'XDTE Test ETF',
+                'security_name' => 'XDTE_name',
                 'shares' => 25,
             ],
         ]);
 
-        $results = (new EtfMetricStatsService)
+        $results = (new SecurityMetricStatsService)
             ->getDistributionGrowthFromMetrics($holdings);
 
         $this->assertCount(2, $results);
 
         $firstResult = $results->firstWhere('symbol', 'NVII');
 
-        $this->assertSame($firstEtf->id, $firstResult['etf_id']);
+        $this->assertSame($firstSecurity->id, $firstResult['security_id']);
         $this->assertSame('NVII', $firstResult['symbol']);
-        $this->assertSame('NVII Test ETF', $firstResult['fund_name']);
+        $this->assertSame('NVII_name', $firstResult['security_name']);
         $this->assertSame(100.0, $firstResult['shares']);
         $this->assertSame(0.6, $firstResult['recent_average_dividend']);
         $this->assertSame(0.5, $firstResult['baseline_average_dividend']);
@@ -183,39 +185,39 @@ class EtfMetricStatsServiceTest extends TestCase
 
     public function test_distribution_growth_results_are_sorted_by_income_impact_descending(): void
     {
-        $smallImpactEtf = $this->createEtf('SMOL');
-        $largeImpactEtf = $this->createEtf('BIGG');
+        $smallImpactSecurity = $this->createSecurity('SMOL');
+        $largeImpactSecurity = $this->createSecurity('BIGG');
 
-        $this->createMetric($smallImpactEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($smallImpactSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '1.1000',
         ]);
 
-        $this->createMetric($smallImpactEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($smallImpactSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '1.0000',
         ]);
 
-        $this->createMetric($largeImpactEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($largeImpactSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.6000',
         ]);
 
-        $this->createMetric($largeImpactEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($largeImpactSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
         $holdings = collect([
             [
-                'etf_id' => $smallImpactEtf->id,
+                'security_id' => $smallImpactSecurity->id,
                 'symbol' => 'SMOL',
                 'shares' => 10,
             ],
             [
-                'etf_id' => $largeImpactEtf->id,
+                'security_id' => $largeImpactSecurity->id,
                 'symbol' => 'BIGG',
                 'shares' => 500,
             ],
         ]);
 
-        $results = (new EtfMetricStatsService)
+        $results = (new SecurityMetricStatsService)
             ->getDistributionGrowthFromMetrics($holdings);
 
         $this->assertSame('BIGG', $results[0]['symbol']);
@@ -227,35 +229,35 @@ class EtfMetricStatsServiceTest extends TestCase
 
     public function test_distribution_growth_excludes_holdings_missing_required_metrics(): void
     {
-        $completeEtf = $this->createEtf('GOOD');
-        $missingBaselineEtf = $this->createEtf('MISS');
+        $completeSecurity = $this->createSecurity('GOOD');
+        $missingBaselineSecurity = $this->createSecurity('MISS');
 
-        $this->createMetric($completeEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($completeSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.6000',
         ]);
 
-        $this->createMetric($completeEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($completeSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
-        $this->createMetric($missingBaselineEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($missingBaselineSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.8000',
         ]);
 
         $holdings = collect([
             [
-                'etf_id' => $completeEtf->id,
+                'security_id' => $completeSecurity->id,
                 'symbol' => 'GOOD',
                 'shares' => 100,
             ],
             [
-                'etf_id' => $missingBaselineEtf->id,
+                'security_id' => $missingBaselineSecurity->id,
                 'symbol' => 'MISS',
                 'shares' => 100,
             ],
         ]);
 
-        $results = (new EtfMetricStatsService)
+        $results = (new SecurityMetricStatsService)
             ->getDistributionGrowthFromMetrics($holdings);
 
         $this->assertCount(1, $results);
@@ -264,25 +266,25 @@ class EtfMetricStatsServiceTest extends TestCase
 
     public function test_distribution_growth_excludes_holdings_with_zero_baseline_average_dividend(): void
     {
-        $etf = $this->createEtf('ZERO');
+        $security = $this->createSecurity('ZERO');
 
-        $this->createMetric($etf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($security->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.6000',
         ]);
 
-        $this->createMetric($etf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($security->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.0000',
         ]);
 
         $holdings = collect([
             [
-                'etf_id' => $etf->id,
+                'security_id' => $security->id,
                 'symbol' => 'ZERO',
                 'shares' => 100,
             ],
         ]);
 
-        $results = (new EtfMetricStatsService)
+        $results = (new SecurityMetricStatsService)
             ->getDistributionGrowthFromMetrics($holdings);
 
         $this->assertTrue($results->isEmpty());
@@ -290,39 +292,39 @@ class EtfMetricStatsServiceTest extends TestCase
 
     public function test_it_returns_positive_distribution_growth_only(): void
     {
-        $positiveEtf = $this->createEtf('UP');
-        $negativeEtf = $this->createEtf('DOWN');
+        $positiveSecurity = $this->createSecurity('UP');
+        $negativeSecurity = $this->createSecurity('DOWN');
 
-        $this->createMetric($positiveEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($positiveSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.6000',
         ]);
 
-        $this->createMetric($positiveEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($positiveSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
-        $this->createMetric($negativeEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($negativeSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.4000',
         ]);
 
-        $this->createMetric($negativeEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($negativeSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
         $holdings = collect([
             [
-                'etf_id' => $positiveEtf->id,
+                'security_id' => $positiveSecurity->id,
                 'symbol' => 'UP',
                 'shares' => 100,
             ],
             [
-                'etf_id' => $negativeEtf->id,
+                'security_id' => $negativeSecurity->id,
                 'symbol' => 'DOWN',
                 'shares' => 100,
             ],
         ]);
 
-        $results = (new EtfMetricStatsService)
+        $results = (new SecurityMetricStatsService)
             ->getPositiveDistributionGrowthFromMetrics($holdings);
 
         $this->assertCount(1, $results);
@@ -332,39 +334,39 @@ class EtfMetricStatsServiceTest extends TestCase
 
     public function test_it_returns_negative_distribution_growth_only(): void
     {
-        $positiveEtf = $this->createEtf('UP');
-        $negativeEtf = $this->createEtf('DOWN');
+        $positiveSecurity = $this->createSecurity('UP');
+        $negativeSecurity = $this->createSecurity('DOWN');
 
-        $this->createMetric($positiveEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($positiveSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.6000',
         ]);
 
-        $this->createMetric($positiveEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($positiveSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
-        $this->createMetric($negativeEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($negativeSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.4000',
         ]);
 
-        $this->createMetric($negativeEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($negativeSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
         $holdings = collect([
             [
-                'etf_id' => $positiveEtf->id,
+                'security_id' => $positiveSecurity->id,
                 'symbol' => 'UP',
                 'shares' => 100,
             ],
             [
-                'etf_id' => $negativeEtf->id,
+                'security_id' => $negativeSecurity->id,
                 'symbol' => 'DOWN',
                 'shares' => 100,
             ],
         ]);
 
-        $results = (new EtfMetricStatsService)
+        $results = (new SecurityMetricStatsService)
             ->getNegativeDistributionGrowthFromMetrics($holdings);
 
         $this->assertCount(1, $results);
@@ -374,23 +376,23 @@ class EtfMetricStatsServiceTest extends TestCase
 
     public function test_it_returns_no_holdings_nav_summary_when_holdings_are_empty(): void
     {
-        $summary = (new EtfMetricStatsService)->getNavMetricSummary(
+        $summary = (new SecurityMetricStatsService)->getNavMetricSummary(
             collect()
         );
 
         $this->assertSame('No Holdings', $summary['nav_health']);
         $this->assertNull($summary['worst_nav_erosion_percentage']);
-        $this->assertSame([], $summary['affected_etfs']);
+        $this->assertSame([], $summary['affected_securities']);
     }
 
     public function test_it_returns_unknown_nav_summary_when_no_nav_metrics_exist(): void
     {
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $summary = (new EtfMetricStatsService)->getNavMetricSummary(
+        $summary = (new SecurityMetricStatsService)->getNavMetricSummary(
             collect([
                 [
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
                     'symbol' => 'NVII',
                     'shares' => 100,
                 ],
@@ -399,21 +401,21 @@ class EtfMetricStatsServiceTest extends TestCase
 
         $this->assertSame('Unknown', $summary['nav_health']);
         $this->assertNull($summary['worst_nav_erosion_percentage']);
-        $this->assertSame([], $summary['affected_etfs']);
+        $this->assertSame([], $summary['affected_securities']);
     }
 
     public function test_it_returns_stable_nav_summary(): void
     {
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $this->createMetric($etf->id, PerformanceRangeType::MAX, [
+        $this->createMetric($security->id, PerformanceRangeType::MAX, [
             'nav_erosion_percentage' => '-2.0000',
         ]);
 
-        $summary = (new EtfMetricStatsService)->getNavMetricSummary(
+        $summary = (new SecurityMetricStatsService)->getNavMetricSummary(
             collect([
                 [
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
                     'symbol' => 'NVII',
                     'shares' => 100,
                 ],
@@ -422,31 +424,31 @@ class EtfMetricStatsServiceTest extends TestCase
 
         $this->assertSame('Stable', $summary['nav_health']);
         $this->assertSame(-2.0, $summary['worst_nav_erosion_percentage']);
-        $this->assertSame(['NVII'], $summary['affected_etfs']);
+        $this->assertSame(['NVII'], $summary['affected_securities']);
     }
 
     public function test_it_returns_mixed_nav_summary(): void
     {
-        $firstEtf = $this->createEtf('GOOD');
-        $secondEtf = $this->createEtf('MIXD');
+        $firstSecurity = $this->createSecurity('GOOD');
+        $secondSecurity = $this->createSecurity('MIXD');
 
-        $this->createMetric($firstEtf->id, PerformanceRangeType::MAX, [
+        $this->createMetric($firstSecurity->id, PerformanceRangeType::MAX, [
             'nav_erosion_percentage' => '-1.0000',
         ]);
 
-        $this->createMetric($secondEtf->id, PerformanceRangeType::MAX, [
+        $this->createMetric($secondSecurity->id, PerformanceRangeType::MAX, [
             'nav_erosion_percentage' => '-5.0000',
         ]);
 
-        $summary = (new EtfMetricStatsService)->getNavMetricSummary(
+        $summary = (new SecurityMetricStatsService)->getNavMetricSummary(
             collect([
                 [
-                    'etf_id' => $firstEtf->id,
+                    'security_id' => $firstSecurity->id,
                     'symbol' => 'GOOD',
                     'shares' => 100,
                 ],
                 [
-                    'etf_id' => $secondEtf->id,
+                    'security_id' => $secondSecurity->id,
                     'symbol' => 'MIXD',
                     'shares' => 100,
                 ],
@@ -455,31 +457,31 @@ class EtfMetricStatsServiceTest extends TestCase
 
         $this->assertSame('Mixed', $summary['nav_health']);
         $this->assertSame(-5.0, $summary['worst_nav_erosion_percentage']);
-        $this->assertSame(['MIXD'], $summary['affected_etfs']);
+        $this->assertSame(['MIXD'], $summary['affected_securities']);
     }
 
     public function test_it_returns_watch_nav_summary(): void
     {
-        $firstEtf = $this->createEtf('GOOD');
-        $secondEtf = $this->createEtf('BAD');
+        $firstSecurity = $this->createSecurity('GOOD');
+        $secondSecurity = $this->createSecurity('BAD');
 
-        $this->createMetric($firstEtf->id, PerformanceRangeType::MAX, [
+        $this->createMetric($firstSecurity->id, PerformanceRangeType::MAX, [
             'nav_erosion_percentage' => '-1.0000',
         ]);
 
-        $this->createMetric($secondEtf->id, PerformanceRangeType::MAX, [
+        $this->createMetric($secondSecurity->id, PerformanceRangeType::MAX, [
             'nav_erosion_percentage' => '-12.0000',
         ]);
 
-        $summary = (new EtfMetricStatsService)->getNavMetricSummary(
+        $summary = (new SecurityMetricStatsService)->getNavMetricSummary(
             collect([
                 [
-                    'etf_id' => $firstEtf->id,
+                    'security_id' => $firstSecurity->id,
                     'symbol' => 'GOOD',
                     'shares' => 100,
                 ],
                 [
-                    'etf_id' => $secondEtf->id,
+                    'security_id' => $secondSecurity->id,
                     'symbol' => 'BAD',
                     'shares' => 100,
                 ],
@@ -488,25 +490,25 @@ class EtfMetricStatsServiceTest extends TestCase
 
         $this->assertSame('Watch', $summary['nav_health']);
         $this->assertSame(-12.0, $summary['worst_nav_erosion_percentage']);
-        $this->assertSame(['BAD'], $summary['affected_etfs']);
+        $this->assertSame(['BAD'], $summary['affected_securities']);
     }
 
-    private function createEtf(string $symbol): Etf
+    private function createSecurity(string $symbol): Security
     {
-        return Etf::factory()->create([
+        return Security::factory()->create([
             'symbol' => $symbol,
-            'fund_name' => "{$symbol} Test ETF",
+
             'status_id' => Status::ACTIVE,
         ]);
     }
 
     private function createMetric(
-        int $etfId,
+        int $securityId,
         int $performanceRangeTypeId,
         array $overrides = []
-    ): EtfMetric {
-        return EtfMetric::factory()->create(array_merge([
-            'etf_id' => $etfId,
+    ): SecurityMetric {
+        return SecurityMetric::factory()->create(array_merge([
+            'security_id' => $securityId,
             'performance_range_type_id' => $performanceRangeTypeId,
             'start_date' => '2026-01-01',
             'end_date' => '2026-05-01',

@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\PortfolioStats;
 
-use App\Models\Etf;
-use App\Models\EtfMetric;
 use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
+use App\Models\Security;
+use App\Models\SecurityMetric;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\PortfolioStats\Signals\PortfolioDistributionGrowthSignalService;
@@ -21,8 +21,9 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
 
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -30,8 +31,9 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
     {
         DB::table('portfolio_transactions')->truncate();
         DB::table('portfolios')->truncate();
-        DB::table('etf_metrics')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_metrics')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -48,7 +50,7 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
         $this->assertFalse($data['has_data']);
         $this->assertSame(0, $data['growth_count']);
         $this->assertSame(0.0, $data['portfolio_income_impact']);
-        $this->assertSame([], $data['affected_etfs']);
+        $this->assertSame([], $data['affected_securities']);
         $this->assertSame([], $data['top_contributors']);
         $this->assertSame([], $data['all_rows']);
     }
@@ -57,16 +59,16 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('NVII');
+        $security = $this->createSecurity('NVII');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
-        $this->createMetric($etf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($security->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.6000',
             'dividend_count' => 4,
         ]);
 
-        $this->createMetric($etf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($security->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
             'dividend_count' => 12,
         ]);
@@ -78,16 +80,16 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
         $this->assertTrue($data['has_data']);
         $this->assertSame(1, $data['growth_count']);
         $this->assertSame(10.0, $data['portfolio_income_impact']);
-        $this->assertSame(['NVII'], $data['affected_etfs']);
+        $this->assertSame(['NVII'], $data['affected_securities']);
 
         $this->assertCount(1, $data['top_contributors']);
         $this->assertCount(1, $data['all_rows']);
 
         $row = $data['top_contributors'][0];
 
-        $this->assertSame($etf->id, $row['etf_id']);
+        $this->assertSame($security->id, $row['security_id']);
         $this->assertSame('NVII', $row['symbol']);
-        $this->assertSame('NVII Test ETF', $row['fund_name']);
+        $this->assertSame('NVII_name', $row['security_name']);
         $this->assertSame(100.0, $row['shares']);
         $this->assertSame(0.6, $row['recent_average_dividend']);
         $this->assertSame(0.5, $row['baseline_average_dividend']);
@@ -101,25 +103,25 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $upEtf = $this->createEtf('UP');
-        $downEtf = $this->createEtf('DOWN');
+        $upSecurity = $this->createSecurity('UP');
+        $downSecurity = $this->createSecurity('DOWN');
 
-        $this->createBuyTransaction($portfolio->id, $upEtf->id, 100);
-        $this->createBuyTransaction($portfolio->id, $downEtf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $upSecurity->id, 100);
+        $this->createBuyTransaction($portfolio->id, $downSecurity->id, 100);
 
-        $this->createMetric($upEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($upSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.6000',
         ]);
 
-        $this->createMetric($upEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($upSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
-        $this->createMetric($downEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($downSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.4000',
         ]);
 
-        $this->createMetric($downEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($downSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
@@ -129,7 +131,7 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
         $this->assertTrue($data['has_holdings']);
         $this->assertTrue($data['has_data']);
         $this->assertSame(1, $data['growth_count']);
-        $this->assertSame(['UP'], $data['affected_etfs']);
+        $this->assertSame(['UP'], $data['affected_securities']);
         $this->assertSame('UP', $data['top_contributors'][0]['symbol']);
     }
 
@@ -137,11 +139,11 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('MISS');
+        $security = $this->createSecurity('MISS');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
-        $this->createMetric($etf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($security->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.6000',
         ]);
 
@@ -152,7 +154,7 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
         $this->assertFalse($data['has_data']);
         $this->assertSame(0, $data['growth_count']);
         $this->assertSame(0.0, $data['portfolio_income_impact']);
-        $this->assertSame([], $data['affected_etfs']);
+        $this->assertSame([], $data['affected_securities']);
         $this->assertSame([], $data['top_contributors']);
         $this->assertSame([], $data['all_rows']);
     }
@@ -161,27 +163,27 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $heldEtf = $this->createEtf('HELD');
-        $soldEtf = $this->createEtf('SOLD');
+        $heldSecurity = $this->createSecurity('HELD');
+        $soldSecurity = $this->createSecurity('SOLD');
 
-        $this->createBuyTransaction($portfolio->id, $heldEtf->id, 100);
-        $this->createBuyTransaction($portfolio->id, $soldEtf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $heldSecurity->id, 100);
+        $this->createBuyTransaction($portfolio->id, $soldSecurity->id, 100);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $soldEtf->id,
+            'security_id' => $soldSecurity->id,
             'transaction_type_id' => 2,
             'shares' => 100,
             'price_per_share' => 30,
             'transaction_date' => '2026-02-01',
         ]);
 
-        foreach ([$heldEtf, $soldEtf] as $etf) {
-            $this->createMetric($etf->id, PerformanceRangeType::THIRTY_DAY, [
+        foreach ([$heldSecurity, $soldSecurity] as $security) {
+            $this->createMetric($security->id, PerformanceRangeType::THIRTY_DAY, [
                 'average_dividend' => '0.6000',
             ]);
 
-            $this->createMetric($etf->id, PerformanceRangeType::NINETY_DAY, [
+            $this->createMetric($security->id, PerformanceRangeType::NINETY_DAY, [
                 'average_dividend' => '0.5000',
             ]);
         }
@@ -190,7 +192,7 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
             ->getSignalData($portfolio->id);
 
         $this->assertSame(1, $data['growth_count']);
-        $this->assertSame(['HELD'], $data['affected_etfs']);
+        $this->assertSame(['HELD'], $data['affected_securities']);
         $this->assertSame('HELD', $data['top_contributors'][0]['symbol']);
     }
 
@@ -198,15 +200,15 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $firstEtf = $this->createEtf('ONE');
-        $secondEtf = $this->createEtf('TWO');
-        $thirdEtf = $this->createEtf('THREE');
-        $fourthEtf = $this->createEtf('FOUR');
+        $firstSecurity = $this->createSecurity('ONE');
+        $secondSecurity = $this->createSecurity('TWO');
+        $thirdSecurity = $this->createSecurity('THREE');
+        $fourthSecurity = $this->createSecurity('FOUR');
 
-        $this->createGrowthHolding($portfolio->id, $firstEtf, 1000);
-        $this->createGrowthHolding($portfolio->id, $secondEtf, 500);
-        $this->createGrowthHolding($portfolio->id, $thirdEtf, 250);
-        $this->createGrowthHolding($portfolio->id, $fourthEtf, 100);
+        $this->createGrowthHolding($portfolio->id, $firstSecurity, 1000);
+        $this->createGrowthHolding($portfolio->id, $secondSecurity, 500);
+        $this->createGrowthHolding($portfolio->id, $thirdSecurity, 250);
+        $this->createGrowthHolding($portfolio->id, $fourthSecurity, 100);
 
         $data = app(PortfolioDistributionGrowthSignalService::class)
             ->getSignalData($portfolio->id);
@@ -231,7 +233,7 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
         $this->assertFalse($data['has_data']);
         $this->assertSame(0, $data['decline_count']);
         $this->assertSame(0.0, $data['portfolio_income_impact']);
-        $this->assertSame([], $data['affected_etfs']);
+        $this->assertSame([], $data['affected_securities']);
         $this->assertSame([], $data['top_contributors']);
         $this->assertSame([], $data['all_rows']);
     }
@@ -240,15 +242,15 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $etf = $this->createEtf('DECL');
+        $security = $this->createSecurity('DECL');
 
-        $this->createBuyTransaction($portfolio->id, $etf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $security->id, 100);
 
-        $this->createMetric($etf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($security->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.4000',
         ]);
 
-        $this->createMetric($etf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($security->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
@@ -259,7 +261,7 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
         $this->assertTrue($data['has_data']);
         $this->assertSame(1, $data['decline_count']);
         $this->assertSame(-10.0, $data['portfolio_income_impact']);
-        $this->assertSame(['DECL'], $data['affected_etfs']);
+        $this->assertSame(['DECL'], $data['affected_securities']);
 
         $row = $data['top_contributors'][0];
 
@@ -272,25 +274,25 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $upEtf = $this->createEtf('UP');
-        $downEtf = $this->createEtf('DOWN');
+        $upSecurity = $this->createSecurity('UP');
+        $downSecurity = $this->createSecurity('DOWN');
 
-        $this->createBuyTransaction($portfolio->id, $upEtf->id, 100);
-        $this->createBuyTransaction($portfolio->id, $downEtf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $upSecurity->id, 100);
+        $this->createBuyTransaction($portfolio->id, $downSecurity->id, 100);
 
-        $this->createMetric($upEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($upSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.6000',
         ]);
 
-        $this->createMetric($upEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($upSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
-        $this->createMetric($downEtf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($downSecurity->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.4000',
         ]);
 
-        $this->createMetric($downEtf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($downSecurity->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
 
@@ -298,7 +300,7 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
             ->getDistributionDeclineSignalData($portfolio->id);
 
         $this->assertSame(1, $data['decline_count']);
-        $this->assertSame(['DOWN'], $data['affected_etfs']);
+        $this->assertSame(['DOWN'], $data['affected_securities']);
         $this->assertSame('DOWN', $data['top_contributors'][0]['symbol']);
     }
 
@@ -306,17 +308,17 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
     {
         $portfolio = $this->createPortfolio();
 
-        $stableEtf = $this->createEtf('STBL');
-        $watchEtf = $this->createEtf('RISK');
+        $stableSecurity = $this->createSecurity('STBL');
+        $watchSecurity = $this->createSecurity('RISK');
 
-        $this->createBuyTransaction($portfolio->id, $stableEtf->id, 100);
-        $this->createBuyTransaction($portfolio->id, $watchEtf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $stableSecurity->id, 100);
+        $this->createBuyTransaction($portfolio->id, $watchSecurity->id, 100);
 
-        $this->createMetric($stableEtf->id, PerformanceRangeType::MAX, [
+        $this->createMetric($stableSecurity->id, PerformanceRangeType::MAX, [
             'nav_erosion_percentage' => '-1.0000',
         ]);
 
-        $this->createMetric($watchEtf->id, PerformanceRangeType::MAX, [
+        $this->createMetric($watchSecurity->id, PerformanceRangeType::MAX, [
             'nav_erosion_percentage' => '-12.0000',
         ]);
 
@@ -325,33 +327,33 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
 
         $this->assertSame('Watch', $summary['nav_health']);
         $this->assertSame(-12.0, $summary['worst_nav_erosion_percentage']);
-        $this->assertSame(['RISK'], $summary['affected_etfs']);
+        $this->assertSame(['RISK'], $summary['affected_securities']);
     }
 
     public function test_nav_metric_summary_excludes_fully_sold_positions(): void
     {
         $portfolio = $this->createPortfolio();
 
-        $heldEtf = $this->createEtf('HELD');
-        $soldEtf = $this->createEtf('SOLD');
+        $heldSecurity = $this->createSecurity('HELD');
+        $soldSecurity = $this->createSecurity('SOLD');
 
-        $this->createBuyTransaction($portfolio->id, $heldEtf->id, 100);
-        $this->createBuyTransaction($portfolio->id, $soldEtf->id, 100);
+        $this->createBuyTransaction($portfolio->id, $heldSecurity->id, 100);
+        $this->createBuyTransaction($portfolio->id, $soldSecurity->id, 100);
 
         PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolio->id,
-            'etf_id' => $soldEtf->id,
+            'security_id' => $soldSecurity->id,
             'transaction_type_id' => 2,
             'shares' => 100,
             'price_per_share' => 30,
             'transaction_date' => '2026-02-01',
         ]);
 
-        $this->createMetric($heldEtf->id, PerformanceRangeType::MAX, [
+        $this->createMetric($heldSecurity->id, PerformanceRangeType::MAX, [
             'nav_erosion_percentage' => '-1.0000',
         ]);
 
-        $this->createMetric($soldEtf->id, PerformanceRangeType::MAX, [
+        $this->createMetric($soldSecurity->id, PerformanceRangeType::MAX, [
             'nav_erosion_percentage' => '-12.0000',
         ]);
 
@@ -360,7 +362,7 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
 
         $this->assertSame('Stable', $summary['nav_health']);
         $this->assertSame(-1.0, $summary['worst_nav_erosion_percentage']);
-        $this->assertSame(['HELD'], $summary['affected_etfs']);
+        $this->assertSame(['HELD'], $summary['affected_securities']);
     }
 
     private function createPortfolio(): Portfolio
@@ -373,23 +375,24 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
         ]);
     }
 
-    private function createEtf(string $symbol): Etf
+    private function createSecurity(string $symbol): Security
     {
-        return Etf::factory()->create([
+        return Security::factory()->create([
             'symbol' => $symbol,
-            'fund_name' => "{$symbol} Test ETF",
+
             'status_id' => Status::ACTIVE,
         ]);
+
     }
 
     private function createBuyTransaction(
         int $portfolioId,
-        int $etfId,
+        int $securityId,
         float $shares
     ): PortfolioTransaction {
         return PortfolioTransaction::factory()->create([
             'portfolio_id' => $portfolioId,
-            'etf_id' => $etfId,
+            'security_id' => $securityId,
             'transaction_type_id' => 1,
             'shares' => $shares,
             'price_per_share' => 25,
@@ -399,27 +402,27 @@ class PortfolioDistributionGrowthSignalServiceTest extends TestCase
 
     private function createGrowthHolding(
         int $portfolioId,
-        Etf $etf,
+        Security $security,
         float $shares
     ): void {
-        $this->createBuyTransaction($portfolioId, $etf->id, $shares);
+        $this->createBuyTransaction($portfolioId, $security->id, $shares);
 
-        $this->createMetric($etf->id, PerformanceRangeType::THIRTY_DAY, [
+        $this->createMetric($security->id, PerformanceRangeType::THIRTY_DAY, [
             'average_dividend' => '0.6000',
         ]);
 
-        $this->createMetric($etf->id, PerformanceRangeType::NINETY_DAY, [
+        $this->createMetric($security->id, PerformanceRangeType::NINETY_DAY, [
             'average_dividend' => '0.5000',
         ]);
     }
 
     private function createMetric(
-        int $etfId,
+        int $securityId,
         int $performanceRangeTypeId,
         array $overrides = []
-    ): EtfMetric {
-        return EtfMetric::factory()->create(array_merge([
-            'etf_id' => $etfId,
+    ): SecurityMetric {
+        return SecurityMetric::factory()->create(array_merge([
+            'security_id' => $securityId,
             'performance_range_type_id' => $performanceRangeTypeId,
             'start_date' => '2026-01-01',
             'end_date' => '2026-05-01',

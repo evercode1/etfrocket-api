@@ -88,7 +88,7 @@ class DividendSignalsQueryTest extends TestCase
         $distributionGrowthSignal = $signals[0];
 
         $this->assertSame('Distribution Growth', $distributionGrowthSignal['title']);
-        $this->assertSame(['NVII'], $distributionGrowthSignal['affected_etfs']);
+        $this->assertSame(['NVII'], $distributionGrowthSignal['affected_securities']);
         $this->assertStringContainsString('NVII', $distributionGrowthSignal['message']);
         $this->assertStringContainsString('25', $distributionGrowthSignal['observation']);
         $this->assertContains('Higher options premium', $distributionGrowthSignal['possible_causes']);
@@ -127,7 +127,7 @@ class DividendSignalsQueryTest extends TestCase
         $distributionGrowthSignal = $signals[0];
 
         $this->assertSame('Distribution Growth', $distributionGrowthSignal['title']);
-        $this->assertSame([], $distributionGrowthSignal['affected_etfs']);
+        $this->assertSame([], $distributionGrowthSignal['affected_securities']);
         $this->assertSame(
             'No recent distribution growth was detected across current holdings.',
             $distributionGrowthSignal['message']
@@ -159,7 +159,7 @@ class DividendSignalsQueryTest extends TestCase
         $weeklyCadenceSignal = $signals[1];
 
         $this->assertSame('Weekly Cadence Watch', $weeklyCadenceSignal['title']);
-        $this->assertSame(['XDTE'], $weeklyCadenceSignal['affected_etfs']);
+        $this->assertSame(['XDTE'], $weeklyCadenceSignal['affected_securities']);
         $this->assertSame(
             'Some weekly payer events are expected but not yet declared. Amounts remain TBD until confirmed.',
             $weeklyCadenceSignal['message']
@@ -191,7 +191,7 @@ class DividendSignalsQueryTest extends TestCase
         $weeklyCadenceSignal = $signals[1];
 
         $this->assertSame('Weekly Cadence Watch', $weeklyCadenceSignal['title']);
-        $this->assertSame(['QDTE'], $weeklyCadenceSignal['affected_etfs']);
+        $this->assertSame(['QDTE'], $weeklyCadenceSignal['affected_securities']);
         $this->assertSame(
             'Weekly dividend holdings have declared upcoming dividend events or lack enough history for cadence estimates.',
             $weeklyCadenceSignal['message']
@@ -223,7 +223,7 @@ class DividendSignalsQueryTest extends TestCase
         $weeklyCadenceSignal = $signals[1];
 
         $this->assertSame('Weekly Cadence Watch', $weeklyCadenceSignal['title']);
-        $this->assertSame([], $weeklyCadenceSignal['affected_etfs']);
+        $this->assertSame([], $weeklyCadenceSignal['affected_securities']);
         $this->assertSame(
             'No weekly dividend holdings were detected in this portfolio.',
             $weeklyCadenceSignal['message']
@@ -263,7 +263,7 @@ class DividendSignalsQueryTest extends TestCase
         $incomeStabilitySignal = $signals[2];
 
         $this->assertSame('Income Stability', $incomeStabilitySignal['title']);
-        $this->assertSame(['Portfolio'], $incomeStabilitySignal['affected_etfs']);
+        $this->assertSame(['Portfolio'], $incomeStabilitySignal['affected_securities']);
         $this->assertSame(
             'Portfolio income variance remains within healthy expected ranges.',
             $incomeStabilitySignal['message']

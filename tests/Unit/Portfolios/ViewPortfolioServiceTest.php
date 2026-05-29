@@ -28,6 +28,7 @@ class ViewPortfolioServiceTest extends TestCase
         DB::table('security_dividend_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -39,6 +40,7 @@ class ViewPortfolioServiceTest extends TestCase
         DB::table('security_dividend_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -57,9 +59,7 @@ class ViewPortfolioServiceTest extends TestCase
 
         $security = Security::factory()->create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test Security',
-            'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
+
         ]);
 
         PortfolioTransaction::factory()->create([
@@ -132,16 +132,12 @@ class ViewPortfolioServiceTest extends TestCase
 
         $firstSecurity = Security::factory()->create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test Security',
-            'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
+
         ]);
 
         $secondSecurity = Security::factory()->create([
             'symbol' => 'AMDY',
-            'fund_name' => 'AMDY Test Security',
-            'status_id' => Status::ACTIVE,
-            'distribution_frequency_id' => 2,
+
         ]);
 
         PortfolioTransaction::factory()->create([
