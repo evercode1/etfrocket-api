@@ -5,7 +5,6 @@ namespace Tests\Unit\AiExtraction;
 use App\Models\AiDataExtraction;
 use App\Models\Security;
 use App\Services\AI\Extractions\AiSecurityDividendExtractionService;
-use Database\Seeders\SecuritySeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -22,9 +21,7 @@ class AiSecurityDividendExtractionServiceTest extends TestCase
 
         DB::table('securities')->truncate();
 
-        $this->seed(
-            SecuritySeeder::class
-        );
+        DB::table('security_details')->truncate();
 
         $this->service =
             app(
@@ -38,11 +35,20 @@ class AiSecurityDividendExtractionServiceTest extends TestCase
 
         DB::table('securities')->truncate();
 
+        DB::table('security_details')->truncate();
+
         parent::tearDown();
     }
 
     public function test_it_extracts_security_dividend_data()
     {
+
+        Security::factory()->create([
+
+            'symbol' => 'CHPY',
+
+        ]);
+
         $security =
             Security::where(
                 'symbol',
@@ -108,6 +114,13 @@ class AiSecurityDividendExtractionServiceTest extends TestCase
 
     public function test_it_throws_exception_on_failed_response()
     {
+
+        Security::factory()->create([
+
+            'symbol' => 'CHPY',
+
+        ]);
+
         $security =
             Security::firstOrFail();
 

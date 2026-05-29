@@ -3,34 +3,29 @@
 namespace Tests\Unit\AiExtraction;
 
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Services\AI\Extractions\AiEtfPriceExtractionService;
-use Database\Seeders\EtfSeeder;
+use App\Models\Security;
+use App\Services\AI\Extractions\AiSecurityPriceExtractionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
-class AiEtfPriceExtractionServiceTest extends TestCase
+class AiSecurityPriceExtractionServiceTest extends TestCase
 {
-    private AiEtfPriceExtractionService $service;
+    private AiSecurityPriceExtractionService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('ai_data_extractions')
-            ->truncate();
+        DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')
-            ->truncate();
+        DB::table('securities')->truncate();
 
-        $this->seed(
-            EtfSeeder::class
-        );
+        DB::table('security_details')->truncate();
 
         $this->service =
             app(
-                AiEtfPriceExtractionService::class
+                AiSecurityPriceExtractionService::class
             );
     }
 
@@ -39,16 +34,22 @@ class AiEtfPriceExtractionServiceTest extends TestCase
         DB::table('ai_data_extractions')
             ->truncate();
 
-        DB::table('etfs')
+        DB::table('securities')
             ->truncate();
 
         parent::tearDown();
     }
 
-    public function test_it_extracts_etf_price_data()
+    public function test_it_extracts_security_price_data()
     {
-        $etf =
-            Etf::where(
+
+        Security::factory()->create([
+            'symbol' => 'CHPY',
+
+        ]);
+
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
@@ -93,7 +94,7 @@ class AiEtfPriceExtractionServiceTest extends TestCase
         $extraction =
             $this->service
                 ->extract(
-                    $etf
+                    $security
                 );
 
         $this->assertInstanceOf(
@@ -102,8 +103,8 @@ class AiEtfPriceExtractionServiceTest extends TestCase
         );
 
         $this->assertEquals(
-            $etf->id,
-            $extraction->etf_id
+            $security->id,
+            $extraction->security_id
         );
 
         $this->assertEquals(
@@ -119,8 +120,13 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
     public function test_it_stores_price_date()
     {
-        $etf =
-            Etf::where(
+
+        Security::factory()->create([
+            'symbol' => 'CHPY',
+
+        ]);
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
@@ -167,7 +173,7 @@ class AiEtfPriceExtractionServiceTest extends TestCase
         $extraction =
             $this->service
                 ->extract(
-                    $etf
+                    $security
                 );
 
         $this->assertEquals(
@@ -179,8 +185,14 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
     public function test_it_stores_volume()
     {
-        $etf =
-            Etf::where(
+
+        Security::factory()->create([
+            'symbol' => 'CHPY',
+
+        ]);
+
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
@@ -225,7 +237,7 @@ class AiEtfPriceExtractionServiceTest extends TestCase
         $extraction =
             $this->service
                 ->extract(
-                    $etf
+                    $security
                 );
 
         $this->assertEquals(
@@ -237,8 +249,14 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
     public function test_it_stores_record_in_database()
     {
-        $etf =
-            Etf::where(
+
+        Security::factory()->create([
+            'symbol' => 'CHPY',
+
+        ]);
+
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
@@ -282,7 +300,7 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
         $this->service
             ->extract(
-                $etf
+                $security
             );
 
         $this->assertDatabaseCount(
@@ -293,8 +311,14 @@ class AiEtfPriceExtractionServiceTest extends TestCase
 
     public function test_it_throws_exception_on_failed_response()
     {
-        $etf =
-            Etf::where(
+
+        Security::factory()->create([
+            'symbol' => 'CHPY',
+
+        ]);
+
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
@@ -318,19 +342,25 @@ class AiEtfPriceExtractionServiceTest extends TestCase
         );
 
         $this->expectExceptionMessage(
-            'AI ETF price extraction failed.'
+            'AI security price extraction failed.'
         );
 
         $this->service
             ->extract(
-                $etf
+                $security
             );
     }
 
     public function test_it_throws_exception_on_invalid_json()
     {
-        $etf =
-            Etf::where(
+
+        Security::factory()->create([
+            'symbol' => 'CHPY',
+
+        ]);
+
+        $security =
+            Security::where(
                 'symbol',
                 'CHPY'
             )->firstOrFail();
@@ -366,12 +396,12 @@ class AiEtfPriceExtractionServiceTest extends TestCase
         );
 
         $this->expectExceptionMessage(
-            'AI ETF price extraction returned invalid JSON.'
+            'AI security price extraction returned invalid JSON.'
         );
 
         $this->service
             ->extract(
-                $etf
+                $security
             );
     }
 }

@@ -3,16 +3,15 @@
 namespace Tests\Unit\AiExtraction;
 
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Services\AI\Extractions\AiEtfAumExtractionService;
-use Database\Seeders\EtfSeeder;
+use App\Models\Security;
+use App\Services\AI\Extractions\AiSecurityAumExtractionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
-class AiEtfAumExtractionServiceTest extends TestCase
+class AiSecurityAumExtractionServiceTest extends TestCase
 {
-    private AiEtfAumExtractionService $service;
+    private AiSecurityAumExtractionService $service;
 
     protected function setUp(): void
     {
@@ -20,15 +19,13 @@ class AiEtfAumExtractionServiceTest extends TestCase
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
-        $this->seed(
-            EtfSeeder::class
-        );
+        DB::table('security_details')->truncate();
 
         $this->service =
             app(
-                AiEtfAumExtractionService::class
+                AiSecurityAumExtractionService::class
             );
     }
 
@@ -36,15 +33,20 @@ class AiEtfAumExtractionServiceTest extends TestCase
     {
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }
 
     public function test_it_extracts_etf_aum_data()
     {
-        $etf =
-            Etf::firstOrFail();
+        $security = Security::factory()->create([
+
+            'symbol' => 'NVII',
+
+        ]);
 
         Http::fake([
 
@@ -60,7 +62,7 @@ class AiEtfAumExtractionServiceTest extends TestCase
 
                                 'text' => json_encode([
 
-                                    'symbol' => $etf->symbol,
+                                    'symbol' => $security->symbol,
 
                                     'assets_under_management' => 1250000000,
 
@@ -83,7 +85,7 @@ class AiEtfAumExtractionServiceTest extends TestCase
         $extraction =
             $this->service
                 ->extract(
-                    $etf
+                    $security
                 );
 
         $this->assertInstanceOf(
@@ -100,8 +102,11 @@ class AiEtfAumExtractionServiceTest extends TestCase
 
     public function test_it_throws_exception_on_invalid_json()
     {
-        $etf =
-            Etf::firstOrFail();
+        $security = Security::factory()->create([
+
+            'symbol' => 'NVII',
+
+        ]);
 
         Http::fake([
 
@@ -135,7 +140,7 @@ class AiEtfAumExtractionServiceTest extends TestCase
 
         $this->service
             ->extract(
-                $etf
+                $security
             );
     }
 }

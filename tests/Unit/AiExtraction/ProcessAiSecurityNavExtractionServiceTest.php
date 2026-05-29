@@ -4,63 +4,69 @@ namespace Tests\Unit\AiExtraction;
 
 use App\Models\AiDataExtraction;
 use App\Models\DataSource;
-use App\Models\Etf;
-use App\Services\AI\Extractions\ProcessAiEtfNavExtractionService;
-use Database\Seeders\EtfSeeder;
+use App\Models\Security;
+use App\Services\AI\Extractions\ProcessAiSecurityNavExtractionService;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class ProcessAiEtfNavExtractionServiceTest extends TestCase
+class ProcessAiSecurityNavExtractionServiceTest extends TestCase
 {
-    private ProcessAiEtfNavExtractionService $service;
+    private ProcessAiSecurityNavExtractionService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_nav_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
-        $this->seed(
-            EtfSeeder::class
+        DB::table('security_details')->truncate();
+
+        $this->service = app(
+
+            ProcessAiSecurityNavExtractionService::class
         );
-
-        $this->service =
-            app(
-                ProcessAiEtfNavExtractionService::class
-            );
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_nav_histories')->truncate();
+        DB::table('security_nav_histories')->truncate();
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }
 
     public function test_it_processes_nav_extraction()
     {
-        $etf =
-            Etf::firstOrFail();
+
+        Security::factory()
+            ->create([
+
+                'symbol' => 'CHPY',
+            ]);
+
+        $security =
+            Security::firstOrFail();
 
         $extraction =
             AiDataExtraction::factory()
                 ->create([
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'data_source_id' => DataSource::MANUAL_ENTRY,
 
                     'extracted_data' => [
 
-                        'symbol' => $etf->symbol,
+                        'symbol' => $security->symbol,
 
                         'nav_per_share' => 25.55,
 
@@ -81,7 +87,7 @@ class ProcessAiEtfNavExtractionServiceTest extends TestCase
         );
 
         $this->assertDatabaseHas(
-            'etf_nav_histories',
+            'security_nav_histories',
             [
 
                 'nav_per_share' => 25.55,
@@ -92,14 +98,20 @@ class ProcessAiEtfNavExtractionServiceTest extends TestCase
 
     public function test_it_fails_if_symbol_is_missing()
     {
-        $etf =
-            Etf::firstOrFail();
+
+        Security::factory()
+            ->create([
+
+                'symbol' => 'CHPY',
+            ]);
+        $security =
+            Security::firstOrFail();
 
         $extraction =
             AiDataExtraction::factory()
                 ->create([
 
-                    'etf_id' => $etf->id,
+                    'security_id' => $security->id,
 
                     'extracted_data' => [
 

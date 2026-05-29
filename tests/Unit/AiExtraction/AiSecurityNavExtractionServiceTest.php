@@ -3,16 +3,15 @@
 namespace Tests\Unit\AiExtraction;
 
 use App\Models\AiDataExtraction;
-use App\Models\Etf;
-use App\Services\AI\Extractions\AiEtfNavExtractionService;
-use Database\Seeders\EtfSeeder;
+use App\Models\Security;
+use App\Services\AI\Extractions\AiSecurityNavExtractionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
-class AiEtfNavExtractionServiceTest extends TestCase
+class AiSecurityNavExtractionServiceTest extends TestCase
 {
-    private AiEtfNavExtractionService $service;
+    private AiSecurityNavExtractionService $service;
 
     protected function setUp(): void
     {
@@ -20,31 +19,38 @@ class AiEtfNavExtractionServiceTest extends TestCase
 
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
 
-        $this->seed(
-            EtfSeeder::class
-        );
+        DB::table('security_details')->truncate();
 
-        $this->service =
-            app(
-                AiEtfNavExtractionService::class
-            );
+        $this->service = app(AiSecurityNavExtractionService::class);
     }
 
     protected function tearDown(): void
     {
         DB::table('ai_data_extractions')->truncate();
 
-        DB::table('etfs')->truncate();
+        DB::table('securities')->truncate();
+
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }
 
-    public function test_it_extracts_etf_nav_data()
+    public function test_it_extracts_security_nav_data()
     {
-        $etf =
-            Etf::firstOrFail();
+
+        Security::factory()->create([
+            'symbol' => 'CHPY',
+
+        ]);
+
+        Security::factory()->create([
+            'symbol' => 'NVII',
+
+        ]);
+
+        $security = Security::firstOrFail();
 
         Http::fake([
 
@@ -60,7 +66,7 @@ class AiEtfNavExtractionServiceTest extends TestCase
 
                                 'text' => json_encode([
 
-                                    'symbol' => $etf->symbol,
+                                    'symbol' => $security->symbol,
 
                                     'nav_per_share' => 25.44,
 
@@ -83,7 +89,7 @@ class AiEtfNavExtractionServiceTest extends TestCase
         $extraction =
             $this->service
                 ->extract(
-                    $etf
+                    $security
                 );
 
         $this->assertInstanceOf(
@@ -100,8 +106,17 @@ class AiEtfNavExtractionServiceTest extends TestCase
 
     public function test_it_throws_exception_on_failed_response()
     {
-        $etf =
-            Etf::firstOrFail();
+
+        Security::factory()->create([
+            'symbol' => 'CHPY',
+
+        ]);
+
+        Security::factory()->create([
+            'symbol' => 'NVII',
+
+        ]);
+        $security = Security::firstOrFail();
 
         Http::fake([
 
@@ -115,7 +130,7 @@ class AiEtfNavExtractionServiceTest extends TestCase
 
         $this->service
             ->extract(
-                $etf
+                $security
             );
     }
 }
