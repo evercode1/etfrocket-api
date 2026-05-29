@@ -6,6 +6,7 @@ use App\Models\PerformanceRangeType;
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
 use App\Models\Security;
+use App\Models\SecurityDetail;
 use App\Models\SecurityDividendHistory;
 use App\Models\SecurityMetric;
 use App\Models\SecurityPriceHistory;
@@ -27,6 +28,7 @@ class PortfolioCardSummariesQueryTest extends TestCase
         DB::table('security_dividend_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
     }
 
@@ -38,6 +40,7 @@ class PortfolioCardSummariesQueryTest extends TestCase
         DB::table('security_dividend_histories')->truncate();
         DB::table('security_price_histories')->truncate();
         DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
         DB::table('users')->truncate();
 
         parent::tearDown();
@@ -54,10 +57,15 @@ class PortfolioCardSummariesQueryTest extends TestCase
             'is_default' => 1,
         ]);
 
-        $security = Security::factory()->create([
+        $security = Security::create([
             'symbol' => 'NVII',
-            'fund_name' => 'NVII Test Security',
+
             'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'security_name' => 'NVII_name',
             'distribution_frequency_id' => 2,
         ]);
 

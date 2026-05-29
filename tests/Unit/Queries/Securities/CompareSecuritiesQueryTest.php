@@ -1,45 +1,60 @@
 <?php
 
-namespace Tests\Unit\Queries\Etfs;
+namespace Tests\Unit\Queries\Securities;
 
-use App\Models\Etf;
-use App\Queries\Etfs\CompareEtfsQuery;
+use App\Models\Security;
+use App\Models\SecurityDetail;
+use App\Models\Status;
+use App\Queries\Securities\CompareSecuritiesQuery;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-class CompareEtfsQueryTest extends TestCase
+class CompareSecuritiesQueryTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         Carbon::setTestNow();
 
         parent::tearDown();
     }
 
-    public function test_it_returns_comparison_series_for_selected_etfs(): void
+    public function test_it_returns_comparison_series_for_selected_securities(): void
     {
         Carbon::setTestNow('2026-05-15');
 
-        $schd = Etf::factory()->create([
+        $schd = Security::create([
             'symbol' => 'SCHD',
-            'fund_name' => 'Schwab U.S. Dividend Equity ETF',
+            'status_id' => Status::ACTIVE,
+
         ]);
 
-        $vym = Etf::factory()->create([
+        SecurityDetail::factory()->create([
+            'security_id' => $schd->id,
+            'security_name' => 'SCHD_name',
+        ]);
+
+        $vym = Security::create([
             'symbol' => 'VYM',
-            'fund_name' => 'Vanguard High Dividend Yield ETF',
+            'status_id' => Status::ACTIVE,
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $vym->id,
+            'security_name' => 'VYM_name',
         ]);
 
         $this->createPriceHistory($schd->id, '2026-05-13', 78.12);
@@ -48,12 +63,12 @@ class CompareEtfsQueryTest extends TestCase
         $this->createPriceHistory($vym->id, '2026-05-13', 119.25);
         $this->createPriceHistory($vym->id, '2026-05-14', 120.10);
 
-        $results = (new CompareEtfsQuery)->getData([
+        $results = (new CompareSecuritiesQuery)->getData([
             'metric' => 'price',
             'range' => '30d',
             'days' => 30,
-            'etf_ids' => [$schd->id, $vym->id],
-            'table' => 'etf_price_histories',
+            'security_ids' => [$schd->id, $vym->id],
+            'table' => 'security_price_histories',
             'date_column' => 'price_date',
             'value_column' => 'close_price',
         ]);
@@ -63,9 +78,9 @@ class CompareEtfsQueryTest extends TestCase
 
         $this->assertCount(2, $results['series']);
 
-        $this->assertSame($schd->id, $results['series'][0]['etf_id']);
+        $this->assertSame($schd->id, $results['series'][0]['security_id']);
         $this->assertSame('SCHD', $results['series'][0]['symbol']);
-        $this->assertSame('Schwab U.S. Dividend Equity ETF', $results['series'][0]['fund_name']);
+        $this->assertSame('SCHD_name', $results['series'][0]['security_name']);
 
         $this->assertCount(2, $results['series'][0]['points']);
         $this->assertSame('2026-05-13', $results['series'][0]['points'][0]['date']);
@@ -73,8 +88,9 @@ class CompareEtfsQueryTest extends TestCase
         $this->assertSame('2026-05-14', $results['series'][0]['points'][1]['date']);
         $this->assertEquals(78.44, $results['series'][0]['points'][1]['value']);
 
-        $this->assertSame($vym->id, $results['series'][1]['etf_id']);
+        $this->assertSame($vym->id, $results['series'][1]['security_id']);
         $this->assertSame('VYM', $results['series'][1]['symbol']);
+        $this->assertSame('VYM_name', $results['series'][1]['security_name']);
 
         $this->assertCount(2, $results['series'][1]['points']);
         $this->assertSame('2026-05-13', $results['series'][1]['points'][0]['date']);
@@ -87,20 +103,25 @@ class CompareEtfsQueryTest extends TestCase
     {
         Carbon::setTestNow('2026-05-15');
 
-        $etf = Etf::factory()->create([
+        $security = Security::create([
             'symbol' => 'SCHD',
         ]);
 
-        $this->createPriceHistory($etf->id, '2026-04-01', 75.00);
-        $this->createPriceHistory($etf->id, '2026-05-01', 77.00);
-        $this->createPriceHistory($etf->id, '2026-05-14', 78.00);
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'security_name' => 'SCHD_name',
+        ]);
 
-        $results = (new CompareEtfsQuery)->getData([
+        $this->createPriceHistory($security->id, '2026-04-01', 75.00);
+        $this->createPriceHistory($security->id, '2026-05-01', 77.00);
+        $this->createPriceHistory($security->id, '2026-05-14', 78.00);
+
+        $results = (new CompareSecuritiesQuery)->getData([
             'metric' => 'price',
             'range' => '30d',
             'days' => 30,
-            'etf_ids' => [$etf->id],
-            'table' => 'etf_price_histories',
+            'security_ids' => [$security->id],
+            'table' => 'security_price_histories',
             'date_column' => 'price_date',
             'value_column' => 'close_price',
         ]);
@@ -116,20 +137,25 @@ class CompareEtfsQueryTest extends TestCase
     {
         Carbon::setTestNow('2026-05-15');
 
-        $etf = Etf::factory()->create([
+        $security = Security::create([
             'symbol' => 'SCHD',
         ]);
 
-        $this->createPriceHistory($etf->id, '2026-05-14', 78.00);
-        $this->createPriceHistory($etf->id, '2026-05-12', 76.00);
-        $this->createPriceHistory($etf->id, '2026-05-13', 77.00);
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'security_name' => 'SCHD_name',
+        ]);
 
-        $results = (new CompareEtfsQuery)->getData([
+        $this->createPriceHistory($security->id, '2026-05-14', 78.00);
+        $this->createPriceHistory($security->id, '2026-05-12', 76.00);
+        $this->createPriceHistory($security->id, '2026-05-13', 77.00);
+
+        $results = (new CompareSecuritiesQuery)->getData([
             'metric' => 'price',
             'range' => '30d',
             'days' => 30,
-            'etf_ids' => [$etf->id],
-            'table' => 'etf_price_histories',
+            'security_ids' => [$security->id],
+            'table' => 'security_price_histories',
             'date_column' => 'price_date',
             'value_column' => 'close_price',
         ]);
@@ -143,18 +169,29 @@ class CompareEtfsQueryTest extends TestCase
     {
         Carbon::setTestNow('2026-05-15');
 
-        $firstCreated = Etf::factory()->create(['symbol' => 'AAA']);
-        $secondCreated = Etf::factory()->create(['symbol' => 'BBB']);
+        $firstCreated = Security::create(['symbol' => 'AAA']);
+
+        $secondCreated = Security::create(['symbol' => 'BBB']);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $firstCreated->id,
+            'security_name' => 'AAA_name',
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $secondCreated->id,
+            'security_name' => 'BBB_name',
+        ]);
 
         $this->createPriceHistory($firstCreated->id, '2026-05-14', 10.00);
         $this->createPriceHistory($secondCreated->id, '2026-05-14', 20.00);
 
-        $results = (new CompareEtfsQuery)->getData([
+        $results = (new CompareSecuritiesQuery)->getData([
             'metric' => 'price',
             'range' => '30d',
             'days' => 30,
-            'etf_ids' => [$secondCreated->id, $firstCreated->id],
-            'table' => 'etf_price_histories',
+            'security_ids' => [$secondCreated->id, $firstCreated->id],
+            'table' => 'security_price_histories',
             'date_column' => 'price_date',
             'value_column' => 'close_price',
         ]);
@@ -163,22 +200,27 @@ class CompareEtfsQueryTest extends TestCase
         $this->assertSame('AAA', $results['series'][1]['symbol']);
     }
 
-    public function test_it_skips_requested_etf_ids_that_do_not_exist(): void
+    public function test_it_skips_requested_security_ids_that_do_not_exist(): void
     {
         Carbon::setTestNow('2026-05-15');
 
-        $etf = Etf::factory()->create([
+        $security = Security::create([
             'symbol' => 'SCHD',
         ]);
 
-        $this->createPriceHistory($etf->id, '2026-05-14', 78.00);
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'security_name' => 'SCHD_name',
+        ]);
 
-        $results = (new CompareEtfsQuery)->getData([
+        $this->createPriceHistory($security->id, '2026-05-14', 78.00);
+
+        $results = (new CompareSecuritiesQuery)->getData([
             'metric' => 'price',
             'range' => '30d',
             'days' => 30,
-            'etf_ids' => [$etf->id, 999999],
-            'table' => 'etf_price_histories',
+            'security_ids' => [$security->id, 999999],
+            'table' => 'security_price_histories',
             'date_column' => 'price_date',
             'value_column' => 'close_price',
         ]);
@@ -187,20 +229,25 @@ class CompareEtfsQueryTest extends TestCase
         $this->assertSame('SCHD', $results['series'][0]['symbol']);
     }
 
-    public function test_it_returns_empty_points_for_existing_etf_with_no_history(): void
+    public function test_it_returns_empty_points_for_existing_security_with_no_history(): void
     {
         Carbon::setTestNow('2026-05-15');
 
-        $etf = Etf::factory()->create([
+        $security = Security::create([
             'symbol' => 'NOHIST',
         ]);
 
-        $results = (new CompareEtfsQuery)->getData([
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+            'security_name' => 'NOHIST_name',
+        ]);
+
+        $results = (new CompareSecuritiesQuery)->getData([
             'metric' => 'price',
             'range' => '30d',
             'days' => 30,
-            'etf_ids' => [$etf->id],
-            'table' => 'etf_price_histories',
+            'security_ids' => [$security->id],
+            'table' => 'security_price_histories',
             'date_column' => 'price_date',
             'value_column' => 'close_price',
         ]);
@@ -210,10 +257,10 @@ class CompareEtfsQueryTest extends TestCase
         $this->assertSame([], $results['series'][0]['points']);
     }
 
-    private function createPriceHistory(int $etfId, string $date, ?float $closePrice): void
+    private function createPriceHistory(int $securityId, string $date, ?float $closePrice): void
     {
-        DB::table('etf_price_histories')->insert([
-            'etf_id' => $etfId,
+        DB::table('security_price_histories')->insert([
+            'security_id' => $securityId,
             'price_date' => $date,
             'close_price' => $closePrice,
             'created_at' => Carbon::now(),

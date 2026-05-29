@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Queries\BackTesting;
 
-use App\Models\Etf;
-use App\Models\EtfPriceHistory;
+use App\Models\Security;
+use App\Models\SecurityPriceHistory;
 use App\Queries\BackTesting\GetBackTestPriceHistoryQuery;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -14,25 +14,27 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
     {
         parent::setUp();
 
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('etf_price_histories')->truncate();
-        DB::table('etfs')->truncate();
+        DB::table('security_price_histories')->truncate();
+        DB::table('securities')->truncate();
+        DB::table('security_details')->truncate();
 
         parent::tearDown();
     }
 
     public function test_it_returns_price_history_in_date_order()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-03',
 
@@ -40,9 +42,9 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -50,9 +52,9 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-02',
 
@@ -64,7 +66,7 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
             ->getData(
 
-                etfId: $etf->id,
+                securityId: $security->id,
 
                 startDate: '2024-01-01',
 
@@ -100,11 +102,11 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
     public function test_it_filters_by_date_range()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -112,9 +114,9 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-02-01',
 
@@ -126,7 +128,7 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
             ->getData(
 
-                etfId: $etf->id,
+                securityId: $security->id,
 
                 startDate: '2024-02-01',
 
@@ -150,15 +152,15 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
         );
     }
 
-    public function test_it_only_returns_rows_for_requested_etf()
+    public function test_it_only_returns_rows_for_requested_security()
     {
-        $chpy = $this->createEtf('CHPY');
+        $chpy = $this->createSecurity('CHPY');
 
-        $amdy = $this->createEtf('AMDY');
+        $amdy = $this->createSecurity('AMDY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $chpy->id,
+            'security_id' => $chpy->id,
 
             'price_date' => '2024-01-01',
 
@@ -166,9 +168,9 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
         ]);
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $amdy->id,
+            'security_id' => $amdy->id,
 
             'price_date' => '2024-01-01',
 
@@ -180,7 +182,7 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
             ->getData(
 
-                etfId: $chpy->id,
+                securityId: $chpy->id,
 
                 startDate: '2024-01-01',
 
@@ -201,13 +203,13 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
     public function test_it_returns_empty_array_when_no_rows_exist()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
         $rows = (new GetBackTestPriceHistoryQuery)
 
             ->getData(
 
-                etfId: $etf->id,
+                securityId: $security->id,
 
                 startDate: '2024-01-01',
 
@@ -223,11 +225,11 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
     public function test_it_returns_float_prices()
     {
-        $etf = $this->createEtf('CHPY');
+        $security = $this->createSecurity('CHPY');
 
-        EtfPriceHistory::factory()->create([
+        SecurityPriceHistory::factory()->create([
 
-            'etf_id' => $etf->id,
+            'security_id' => $security->id,
 
             'price_date' => '2024-01-01',
 
@@ -239,7 +241,7 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
 
             ->getData(
 
-                etfId: $etf->id,
+                securityId: $security->id,
 
                 startDate: '2024-01-01',
 
@@ -257,15 +259,13 @@ class GetBackTestPriceHistoryQueryTest extends TestCase
         );
     }
 
-    private function createEtf(
+    private function createSecurity(
         string $symbol
-    ): Etf {
+    ): Security {
 
-        return Etf::factory()->create([
+        return Security::factory()->create([
 
             'symbol' => $symbol,
-
-            'fund_name' => "{$symbol} Test ETF",
 
         ]);
     }
