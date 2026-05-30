@@ -5,120 +5,133 @@ namespace App\Queries\Securities;
 use App\Models\Security;
 use App\Models\SecurityDividendHistory;
 use App\Models\SecurityPriceHistory;
+use Illuminate\Support\Facades\Cache;
 
 class SecuritiesHoverCardQuery
 {
     public function getData(string $symbol): array
     {
-        $security = Security::query()
+        $symbol = strtoupper($symbol);
 
-            ->select([
+        return Cache::remember(
 
-                'securities.id',
+            "security_hover_card_{$symbol}",
 
-                'securities.symbol',
+            now()->addMinutes(60),
 
-                'security_types.security_type_name',
+            function () use ($symbol) {
 
-                'security_details.security_name',
+                $security = Security::query()
 
-                'distribution_frequencies.distribution_frequency_name',
+                    ->select([
 
-                'etf_issuers.etf_issuer_name',
+                        'securities.id',
 
-            ])
+                        'securities.symbol',
 
-            ->join(
-                'security_details',
-                'securities.id',
-                '=',
-                'security_details.security_id'
-            )
+                        'security_types.security_type_name',
 
-            ->leftJoin(
-                'security_types',
-                'securities.security_type_id',
-                '=',
-                'security_types.id'
-            )
+                        'security_details.security_name',
 
-            ->leftJoin(
-                'distribution_frequencies',
-                'security_details.distribution_frequency_id',
-                '=',
-                'distribution_frequencies.id'
-            )
+                        'distribution_frequencies.distribution_frequency_name',
 
-            ->leftJoin(
-                'etf_issuers',
-                'security_details.etf_issuer_id',
-                '=',
-                'etf_issuers.id'
-            )
+                        'etf_issuers.etf_issuer_name',
 
-            ->where(
-                'securities.symbol',
-                strtoupper($symbol)
-            )
+                    ])
 
-            ->firstOrFail();
+                    ->join(
+                        'security_details',
+                        'securities.id',
+                        '=',
+                        'security_details.security_id'
+                    )
 
-        $latestPrice = SecurityPriceHistory::query()
+                    ->leftJoin(
+                        'security_types',
+                        'securities.security_type_id',
+                        '=',
+                        'security_types.id'
+                    )
 
-            ->where(
-                'security_id',
-                $security->id
-            )
+                    ->leftJoin(
+                        'distribution_frequencies',
+                        'security_details.distribution_frequency_id',
+                        '=',
+                        'distribution_frequencies.id'
+                    )
 
-            ->orderByDesc(
-                'price_date'
-            )
+                    ->leftJoin(
+                        'etf_issuers',
+                        'security_details.etf_issuer_id',
+                        '=',
+                        'etf_issuers.id'
+                    )
 
-            ->first();
+                    ->where(
+                        'securities.symbol',
+                        $symbol
+                    )
 
-        $latestDividend = SecurityDividendHistory::query()
+                    ->firstOrFail();
 
-            ->where(
-                'security_id',
-                $security->id
-            )
+                $latestPrice = SecurityPriceHistory::query()
 
-            ->orderByDesc(
-                'ex_dividend_date'
-            )
+                    ->where(
+                        'security_id',
+                        $security->id
+                    )
 
-            ->first();
+                    ->orderByDesc(
+                        'price_date'
+                    )
 
-        return [
+                    ->first();
 
-            'symbol' => $security->symbol,
+                $latestDividend = SecurityDividendHistory::query()
 
-            'security_name' => $security->security_name,
+                    ->where(
+                        'security_id',
+                        $security->id
+                    )
 
-            'security_type_name' => $security->security_type_name,
+                    ->orderByDesc(
+                        'ex_dividend_date'
+                    )
 
-            'issuer_name' => $security->etf_issuer_name,
+                    ->first();
 
-            'distribution_frequency_name' => $security->distribution_frequency_name,
+                return [
 
-            'last_close_price' => $latestPrice?->close_price,
+                    'symbol' => $security->symbol,
 
-            'last_close_date' => $latestPrice
-                ? $latestPrice->price_date->toDateString()
-                : null,
+                    'security_name' => $security->security_name,
 
-            'last_dividend_amount' => $latestDividend?->dividend_amount,
+                    'security_type_name' => $security->security_type_name,
 
-            'last_ex_dividend_date' => $latestDividend
+                    'issuer_name' => $security->etf_issuer_name,
 
-                ? $latestDividend->ex_dividend_date->toDateString()
-                : null,
+                    'distribution_frequency_name' => $security->distribution_frequency_name,
 
-            'yahoo_finance_url' => sprintf(
-                'https://finance.yahoo.com/quote/%s/',
-                $security->symbol
-            ),
+                    'last_close_price' => $latestPrice?->close_price,
 
-        ];
+                    'last_close_date' => $latestPrice
+                        ? $latestPrice->price_date->toDateString()
+                        : null,
+
+                    'last_dividend_amount' => $latestDividend?->dividend_amount,
+
+                    'last_ex_dividend_date' => $latestDividend
+                        ? $latestDividend->ex_dividend_date->toDateString()
+                        : null,
+
+                    'yahoo_finance_url' => sprintf(
+                        'https://finance.yahoo.com/quote/%s/',
+                        $security->symbol
+                    ),
+
+                ];
+            }
+
+        );
     }
 }
