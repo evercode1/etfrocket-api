@@ -3,6 +3,7 @@
 use App\Http\Controllers\User\Securities\SecuritiesFilterController;
 use App\Http\Controllers\User\Securities\SecuritiesHoverCardController;
 use App\Http\Controllers\User\Securities\SecuritiesListController;
+use App\Http\Controllers\User\Securities\SecurityDetailsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,4 +26,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/list-securities-owned-by-user/{portfolioId}', [SecuritiesListController::class, 'listSecuritiesOwnedByUser']);
 
     Route::get('/security-hover-card/{symbol}', [SecuritiesHoverCardController::class, 'securityHoverCard']);
+
+    Route::get('/security-details/{symbol}', [SecurityDetailsController::class, 'show']);
 });
