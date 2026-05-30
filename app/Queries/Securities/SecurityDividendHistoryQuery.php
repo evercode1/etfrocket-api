@@ -37,6 +37,7 @@ class SecurityDividendHistoryQuery
                     ->orderByDesc(
                         'security_dividend_histories.ex_dividend_date'
                     )
+                    ->limit(10)
                     ->get()
                     ->map(function ($row) {
 

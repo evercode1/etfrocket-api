@@ -6,7 +6,6 @@ use App\Queries\Comparisons\SymbolAumHistoryChartQuery;
 use App\Queries\Comparisons\SymbolDividendHistoryChartQuery;
 use App\Queries\Comparisons\SymbolNavHistoryChartQuery;
 use App\Queries\Comparisons\SymbolPriceHistoryChartQuery;
-use Illuminate\Support\Facades\Cache;
 
 class SecurityChartQuery
 {
@@ -27,125 +26,111 @@ class SecurityChartQuery
         string $startDate
     ): array {
 
-        return Cache::remember(
-
-            "security_chart_{$securityId}_{$startDate}",
-
-            now()->addHours(6),
-
-            function () use (
-                $securityId,
+        $priceRows = $this->priceHistoryChartQuery
+            ->getData(
+                [$securityId],
                 $startDate
-            ) {
+            );
 
-                $priceRows = $this->priceHistoryChartQuery
-                    ->getData(
-                        [$securityId],
-                        $startDate
-                    );
+        $navRows = $this->navHistoryChartQuery
+            ->getData(
+                [$securityId],
+                $startDate
+            );
 
-                $navRows = $this->navHistoryChartQuery
-                    ->getData(
-                        [$securityId],
-                        $startDate
-                    );
+        $aumRows = $this->aumHistoryChartQuery
+            ->getData(
+                [$securityId],
+                $startDate
+            );
 
-                $aumRows = $this->aumHistoryChartQuery
-                    ->getData(
-                        [$securityId],
-                        $startDate
-                    );
+        $dividendRows = $this->dividendHistoryChartQuery
+            ->getData(
+                [$securityId],
+                $startDate
+            );
 
-                $dividendRows = $this->dividendHistoryChartQuery
-                    ->getData(
-                        [$securityId],
-                        $startDate
-                    );
+        $chartRows = [];
 
-                $chartRows = [];
+        foreach ($priceRows as $row) {
 
-                foreach ($priceRows as $row) {
+            $date = $row['date'];
 
-                    $date = $row['date'];
+            $chartRows[$date] = [
 
-                    $chartRows[$date] = [
+                'date' => $date,
 
-                        'date' => $date,
+                'price' => collect($row)
+                    ->except('date')
+                    ->first(),
 
-                        'price' => collect($row)
-                            ->except('date')
-                            ->first(),
+                'nav' => null,
 
-                        'nav' => null,
+                'aum' => null,
 
-                        'aum' => null,
+                'dividend' => null,
 
-                        'dividend' => null,
+            ];
+        }
 
-                    ];
-                }
+        foreach ($navRows as $row) {
 
-                foreach ($navRows as $row) {
+            $date = $row['date'];
 
-                    $date = $row['date'];
+            $chartRows[$date] ??= [
+                'date' => $date,
+                'price' => null,
+                'nav' => null,
+                'aum' => null,
+                'dividend' => null,
+            ];
 
-                    $chartRows[$date] ??= [
-                        'date' => $date,
-                        'price' => null,
-                        'nav' => null,
-                        'aum' => null,
-                        'dividend' => null,
-                    ];
+            $chartRows[$date]['nav'] =
+                collect($row)
+                    ->except('date')
+                    ->first();
+        }
 
-                    $chartRows[$date]['nav'] =
-                        collect($row)
-                            ->except('date')
-                            ->first();
-                }
+        foreach ($aumRows as $row) {
 
-                foreach ($aumRows as $row) {
+            $date = $row['date'];
 
-                    $date = $row['date'];
+            $chartRows[$date] ??= [
+                'date' => $date,
+                'price' => null,
+                'nav' => null,
+                'aum' => null,
+                'dividend' => null,
+            ];
 
-                    $chartRows[$date] ??= [
-                        'date' => $date,
-                        'price' => null,
-                        'nav' => null,
-                        'aum' => null,
-                        'dividend' => null,
-                    ];
+            $chartRows[$date]['aum'] =
+                collect($row)
+                    ->except('date')
+                    ->first();
+        }
 
-                    $chartRows[$date]['aum'] =
-                        collect($row)
-                            ->except('date')
-                            ->first();
-                }
+        foreach ($dividendRows as $row) {
 
-                foreach ($dividendRows as $row) {
+            $date = $row['date'];
 
-                    $date = $row['date'];
+            $chartRows[$date] ??= [
+                'date' => $date,
+                'price' => null,
+                'nav' => null,
+                'aum' => null,
+                'dividend' => null,
+            ];
 
-                    $chartRows[$date] ??= [
-                        'date' => $date,
-                        'price' => null,
-                        'nav' => null,
-                        'aum' => null,
-                        'dividend' => null,
-                    ];
+            $chartRows[$date]['dividend'] =
+                collect($row)
+                    ->except('date')
+                    ->first();
+        }
 
-                    $chartRows[$date]['dividend'] =
-                        collect($row)
-                            ->except('date')
-                            ->first();
-                }
+        ksort($chartRows);
 
-                ksort($chartRows);
-
-                return array_values(
-                    $chartRows
-                );
-            }
-
+        return array_values(
+            $chartRows
         );
     }
 }
