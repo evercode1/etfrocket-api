@@ -38,9 +38,9 @@ class SecurityTypeSeeder extends Seeder
             $securityTypes as $securityType
         ) {
 
-            SecurityType::create(
-                $securityType
-            );
+            SecurityType::create([
+                'security_type_name' => $securityType,
+            ]);
         }
     }
 }
