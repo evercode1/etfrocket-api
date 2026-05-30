@@ -9,6 +9,7 @@ class MissionControlQuery
 {
     public function getData(?int $portfolio_id = null): array
     {
+
         $user = Auth::user();
 
         $portfolios = (new PortfolioListQuery)

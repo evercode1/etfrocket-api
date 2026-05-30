@@ -4,7 +4,7 @@ namespace App\Queries\Dividends;
 
 use App\Models\Portfolio;
 use App\Models\PortfolioTransaction;
-use App\Services\PortfolioStats\PortfolioHistoricalStatsService;
+use App\Services\PortfolioStats\PortfolioHistoricalStatsCollectionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 class DividendHistoryQuery
 {
     public function __construct(
-        private PortfolioHistoricalStatsService $historicalStatsService
+        private PortfolioHistoricalStatsCollectionService $historicalStatsService
     ) {}
 
     public function getData(
@@ -21,9 +21,17 @@ class DividendHistoryQuery
         int $userId,
         int $portfolioId
     ): array {
+
         Portfolio::where('id', $portfolioId)
             ->where('user_id', $userId)
             ->firstOrFail();
+
+        $transactions = PortfolioTransaction::where(
+            'portfolio_id',
+            $portfolioId
+        )
+            ->orderBy('transaction_date')
+            ->get();
 
         $portfolioSecurityIds = PortfolioTransaction::query()
             ->where('portfolio_id', $portfolioId)
@@ -88,10 +96,10 @@ class DividendHistoryQuery
             ->orderByDesc('security_dividend_histories.ex_dividend_date')
             ->orderBy('securities.symbol')
             ->get()
-            ->map(function ($row) use ($portfolioId) {
+            ->map(function ($row) use ($transactions) {
                 $sharesOwned = $this->historicalStatsService
                     ->getSharesOwnedAsOfDate(
-                        $portfolioId,
+                        $transactions,
                         (int) $row->security_id,
                         $row->ex_dividend_date
                     );

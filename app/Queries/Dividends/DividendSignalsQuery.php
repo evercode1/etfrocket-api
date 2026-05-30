@@ -169,7 +169,19 @@ class DividendSignalsQuery
 
     private function getIncomeStabilitySignal(Collection $holdings): array
     {
-        $monthlyIncomeRows = $this->getRecentMonthlyIncomeRows($holdings);
+        $dividends = $this->loadDividendHistory(
+
+            $holdings
+
+        );
+
+        $monthlyIncomeRows = $this->getRecentMonthlyIncomeRows(
+
+            $holdings,
+
+            $dividends
+
+        );
 
         if (count($monthlyIncomeRows) < 2) {
             return [
@@ -233,20 +245,40 @@ class DividendSignalsQuery
         ];
     }
 
-    private function getRecentMonthlyIncomeRows(Collection $holdings): array
-    {
+    private function getRecentMonthlyIncomeRows(
+        Collection $holdings,
+        Collection $dividends
+    ): array {
         $currentMonth = Carbon::today()->startOfMonth();
 
         return collect(range(0, 2))
-            ->map(function (int $monthOffset) use ($holdings, $currentMonth) {
-                $month = $currentMonth->copy()->subMonths($monthOffset);
+            ->map(function (
+                int $monthOffset
+            ) use (
+                $holdings,
+                $dividends,
+                $currentMonth
+            ) {
+
+                $month = $currentMonth
+                    ->copy()
+                    ->subMonths($monthOffset);
 
                 return [
+
                     'month' => $month->format('Y-m'),
-                    'income' => $this->dividendStatsService->getMonthlyDividendIncome(
-                        $holdings,
-                        $month
-                    ),
+
+                    'income' => $this->dividendStatsService
+                        ->getMonthlyDividendIncome(
+
+                            $holdings,
+
+                            $month,
+
+                            $dividends
+
+                        ),
+
                 ];
             })
             ->filter(function (array $row) {
@@ -254,5 +286,21 @@ class DividendSignalsQuery
             })
             ->values()
             ->toArray();
+    }
+
+    private function loadDividendHistory(
+
+        Collection $holdings
+
+    ): Collection {
+
+        return SecurityDividendHistory::whereIn(
+
+            'security_id',
+
+            $holdings->pluck('security_id')
+
+        )->get();
+
     }
 }

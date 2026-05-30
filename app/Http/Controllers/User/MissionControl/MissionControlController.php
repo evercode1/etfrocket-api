@@ -13,6 +13,7 @@ class MissionControlController extends Controller
 {
     public function index(Request $request)
     {
+
         try {
 
             $mission_control = (new MissionControlQuery)->getData($request->input('portfolio_id'));

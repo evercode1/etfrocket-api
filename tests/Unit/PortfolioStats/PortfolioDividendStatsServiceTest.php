@@ -47,9 +47,16 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
     public function test_it_returns_zero_monthly_income_for_empty_holdings(): void
     {
-        $income = (new PortfolioDividendStatsService)->getMonthlyDividendIncome(
+        $service = new PortfolioDividendStatsService;
+
+        $income = $service->getMonthlyDividendIncome(
+
             collect(),
-            Carbon::parse('2026-05-01')
+
+            Carbon::parse('2026-05-01'),
+
+            collect()
+
         );
 
         $this->assertSame(0.0, $income);
@@ -71,9 +78,12 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $income = (new PortfolioDividendStatsService)->getMonthlyDividendIncome(
+        $service = new PortfolioDividendStatsService;
+
+        $income = $service->getMonthlyDividendIncome(
             $holdings,
-            Carbon::parse('2026-05-01')
+            Carbon::parse('2026-05-01'),
+            $service->loadDividendHistory($holdings)
         );
 
         // Weekly Security: 10 shares * (.50 + .40) = 9.00
@@ -96,9 +106,12 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $income = (new PortfolioDividendStatsService)->getMonthlyDividendIncome(
+        $service = new PortfolioDividendStatsService;
+
+        $income = $service->getMonthlyDividendIncome(
             $holdings,
-            Carbon::parse('2026-05-01')
+            Carbon::parse('2026-05-01'),
+            $service->loadDividendHistory($holdings)
         );
 
         $this->assertSame(5.0, $income);
@@ -331,9 +344,12 @@ class PortfolioDividendStatsServiceTest extends TestCase
 
         $holdings = $this->getHoldings($portfolio->id);
 
-        $income = (new PortfolioDividendStatsService)->getMonthlyDividendIncome(
+        $service = new PortfolioDividendStatsService;
+
+        $income = $service->getMonthlyDividendIncome(
             $holdings,
-            Carbon::parse('2026-05-01')
+            Carbon::parse('2026-05-01'),
+            $service->loadDividendHistory($holdings)
         );
 
         $this->assertSame(6.0, $income);
