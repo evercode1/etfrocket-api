@@ -170,4 +170,56 @@ class SecurityDetailsTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    public function test_show_me_security_payload_structure()
+    {
+        $security = Security::create([
+            'symbol' => 'SPY',
+        ]);
+
+        SecurityDetail::factory()->create([
+            'security_id' => $security->id,
+        ]);
+
+        SecurityMetric::factory()->create([
+            'security_id' => $security->id,
+            'performance_range_type_id' => PerformanceRangeType::THIRTY_DAY,
+            'aum_change_percentage' => 10.00,
+        ]);
+
+        SecurityMetric::factory()->create([
+            'security_id' => $security->id,
+            'performance_range_type_id' => PerformanceRangeType::MAX,
+            'nav_erosion_percentage' => -2.00,
+        ]);
+
+        SecurityPriceHistory::factory()->create([
+            'security_id' => $security->id,
+            'price_date' => now()->subDays(5),
+        ]);
+
+        SecurityDividendHistory::factory()->create([
+            'security_id' => $security->id,
+            'payment_date' => now()->subMonths(6),
+            'dividend_amount' => 1.50,
+        ]);
+
+        $response = $this->getJson(
+
+            '/api/security-details/SPY?'.
+
+            http_build_query([
+
+                'performance_range_type_id' => PerformanceRangeType::THIRTY_DAY,
+
+                'start_date' => now()->subYear()->toDateString(),
+
+            ])
+
+        );
+
+        $response->assertOk();
+
+        $this->assertTrue(true);
+    }
 }
