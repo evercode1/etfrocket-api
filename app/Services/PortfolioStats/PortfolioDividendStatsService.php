@@ -8,155 +8,510 @@ use Illuminate\Support\Collection;
 
 class PortfolioDividendStatsService
 {
-    public function getMonthlyDividendIncome(Collection $holdings, Carbon $month): float
-    {
-        $monthStart = $month->copy()->startOfMonth()->toDateString();
-        $monthEnd = $month->copy()->endOfMonth()->toDateString();
+    public function loadDividendHistory(
+        Collection $holdings
+    ): Collection {
+
+        return SecurityDividendHistory::whereIn(
+
+            'security_id',
+
+            $holdings
+                ->pluck('security_id')
+                ->toArray()
+
+        )->get();
+    }
+
+    public function getMonthlyDividendIncome(
+
+        Collection $holdings,
+
+        Carbon $month,
+
+        Collection $dividends
+
+    ): float {
+
+        $monthStart =
+
+            $month
+                ->copy()
+                ->startOfMonth()
+                ->toDateString();
+
+        $monthEnd =
+
+            $month
+                ->copy()
+                ->endOfMonth()
+                ->toDateString();
 
         $income = 0;
 
         foreach ($holdings as $holding) {
-            $dividendTotal = SecurityDividendHistory::where('security_id', $holding['security_id'])
-                ->whereBetween('ex_dividend_date', [$monthStart, $monthEnd])
-                ->sum('dividend_amount');
 
-            $income += (float) $holding['shares'] * (float) $dividendTotal;
-        }
+            $dividendTotal =
 
-        return round($income, 4);
-    }
+                $dividends
 
-    public function getAverageRecentMonthlyIncome(
-        Collection $holdings,
-        int $months = 3
-    ): float {
-        if ($holdings->isEmpty()) {
-            return 0;
-        }
+                    ->where(
 
-        $latestDividendDate = $this->getLatestDividendDate($holdings);
+                        'security_id',
 
-        if (! $latestDividendDate) {
-            return 0;
-        }
+                        $holding['security_id']
 
-        $latestMonth = Carbon::parse($latestDividendDate)->startOfMonth();
+                    )
 
-        $monthlyIncomeRows = collect(range(0, $months - 1))
-            ->map(function (int $monthOffset) use ($holdings, $latestMonth) {
-                $month = $latestMonth->copy()->subMonths($monthOffset);
+                    ->filter(
 
-                return $this->getMonthlyDividendIncome($holdings, $month);
-            })
-            ->filter(fn (float $income) => $income > 0)
-            ->values();
+                        fn ($dividend) => $dividend->ex_dividend_date >=
+                        $monthStart
 
-        if ($monthlyIncomeRows->isEmpty()) {
-            return 0;
-        }
+                        &&
 
-        return round((float) $monthlyIncomeRows->avg(), 4);
-    }
+                        $dividend->ex_dividend_date <=
+                        $monthEnd
 
-    public function getProjectedMonthlyIncome(Collection $holdings): float
-    {
-        return $this->getAverageRecentMonthlyIncome($holdings, 3);
-    }
+                    )
 
-    public function getDividendGrowthPercentage(Collection $holdings): ?float
-    {
-        if ($holdings->isEmpty()) {
-            return null;
-        }
+                    ->sum(
+                        'dividend_amount'
+                    );
 
-        $latestCompleteMonth = Carbon::now()
-            ->subMonth()
-            ->startOfMonth();
+            $income +=
 
-        $previousCompleteMonth = $latestCompleteMonth
-            ->copy()
-            ->subMonth();
+                (float) $holding['shares']
 
-        $latestCompleteMonthIncome = $this->getMonthlyDividendIncome(
-            $holdings,
-            $latestCompleteMonth
-        );
+                *
 
-        $previousCompleteMonthIncome = $this->getMonthlyDividendIncome(
-            $holdings,
-            $previousCompleteMonth
-        );
-
-        if ($previousCompleteMonthIncome <= 0) {
-            return null;
-        }
-
-        if ($latestCompleteMonthIncome <= 0) {
-            return null;
+                (float) $dividendTotal;
         }
 
         return round(
-            (($latestCompleteMonthIncome - $previousCompleteMonthIncome) / $previousCompleteMonthIncome) * 100,
+            $income,
             4
         );
     }
 
-    public function getForwardYieldPercentage(
-        Collection $holdings,
-        float $projectedMonthlyIncome
-    ): ?float {
-        $costBasis = $holdings->sum('cost_basis');
+    public function getAverageRecentMonthlyIncome(
 
-        if ($costBasis <= 0) {
-            return null;
+        Collection $holdings,
+
+        int $months = 3,
+
+        ?Collection $dividends = null
+
+    ): float {
+
+        if ($holdings->isEmpty()) {
+
+            return 0;
         }
 
-        return round((($projectedMonthlyIncome * 12) / $costBasis) * 100, 4);
+        $dividends ??=
+
+            $this->loadDividendHistory(
+                $holdings
+            );
+
+        $latestDividendDate =
+
+            $this->getLatestDividendDate(
+                $holdings,
+                $dividends
+            );
+
+        if (! $latestDividendDate) {
+
+            return 0;
+        }
+
+        $latestMonth =
+
+            Carbon::parse(
+                $latestDividendDate
+            )
+                ->startOfMonth();
+
+        $monthlyIncomeRows =
+
+            collect(
+                range(
+                    0,
+                    $months - 1
+                )
+            )
+                ->map(
+
+                    function (
+
+                        int $monthOffset
+
+                    ) use (
+
+                        $holdings,
+
+                        $latestMonth,
+
+                        $dividends
+
+                    ) {
+
+                        $month =
+
+                            $latestMonth
+                                ->copy()
+                                ->subMonths(
+                                    $monthOffset
+                                );
+
+                        return
+
+                            $this->getMonthlyDividendIncome(
+
+                                $holdings,
+
+                                $month,
+
+                                $dividends
+
+                            );
+                    }
+
+                )
+                ->filter(
+
+                    fn (
+
+                        float $income
+
+                    ) => $income > 0
+
+                )
+                ->values();
+
+        if (
+
+            $monthlyIncomeRows->isEmpty()
+
+        ) {
+
+            return 0;
+        }
+
+        return round(
+
+            (float)
+
+            $monthlyIncomeRows->avg(),
+
+            4
+
+        );
     }
 
-    public function getLatestDividendDate(Collection $holdings): ?string
-    {
-        $securityIds = $holdings->pluck('security_id')->toArray();
+    public function getProjectedMonthlyIncome(
 
-        if (empty($securityIds)) {
+        Collection $holdings,
+
+        ?Collection $dividends = null
+
+    ): float {
+
+        if ($holdings->isEmpty()) {
+
+            return 0;
+        }
+
+        $dividends ??=
+
+            $this->loadDividendHistory(
+                $holdings
+            );
+
+        return $this->getAverageRecentMonthlyIncome(
+
+            $holdings,
+
+            3,
+
+            $dividends
+
+        );
+    }
+
+    public function getDividendGrowthPercentage(
+
+        Collection $holdings,
+
+        ?Collection $dividends = null
+
+    ): ?float {
+
+        if ($holdings->isEmpty()) {
+
             return null;
         }
 
-        return SecurityDividendHistory::whereIn('security_id', $securityIds)
-            ->max('ex_dividend_date');
+        $dividends ??=
+
+            $this->loadDividendHistory(
+                $holdings
+            );
+
+        $latestCompleteMonth =
+
+            Carbon::now()
+                ->subMonth()
+                ->startOfMonth();
+
+        $previousCompleteMonth =
+
+            $latestCompleteMonth
+                ->copy()
+                ->subMonth();
+
+        $latestCompleteMonthIncome =
+
+            $this->getMonthlyDividendIncome(
+
+                $holdings,
+
+                $latestCompleteMonth,
+
+                $dividends
+
+            );
+
+        $previousCompleteMonthIncome =
+
+            $this->getMonthlyDividendIncome(
+
+                $holdings,
+
+                $previousCompleteMonth,
+
+                $dividends
+
+            );
+
+        if (
+
+            $previousCompleteMonthIncome <= 0
+
+        ) {
+
+            return null;
+        }
+
+        if (
+
+            $latestCompleteMonthIncome <= 0
+
+        ) {
+
+            return null;
+        }
+
+        return round(
+
+            (
+
+                (
+
+                    $latestCompleteMonthIncome -
+
+                    $previousCompleteMonthIncome
+
+                )
+
+                /
+
+                $previousCompleteMonthIncome
+
+            ) * 100,
+
+            4
+
+        );
+    }
+
+    public function getForwardYieldPercentage(
+
+        Collection $holdings,
+
+        float $projectedMonthlyIncome
+
+    ): ?float {
+
+        $costBasis =
+
+            $holdings->sum(
+                'cost_basis'
+            );
+
+        if ($costBasis <= 0) {
+
+            return null;
+        }
+
+        return round(
+
+            (
+
+                (
+
+                    $projectedMonthlyIncome * 12
+
+                )
+
+                /
+
+                $costBasis
+
+            ) * 100,
+
+            4
+
+        );
+    }
+
+    public function getLatestDividendDate(
+
+        Collection $holdings,
+
+        ?Collection $dividends = null
+
+    ): ?string {
+
+        $dividends ??=
+
+            $this->loadDividendHistory(
+                $holdings
+            );
+
+        $latestDate =
+
+            $dividends
+                ->max(
+                    'ex_dividend_date'
+                );
+
+        if (! $latestDate) {
+
+            return null;
+        }
+
+        return Carbon::parse(
+            $latestDate
+        )->toDateString();
     }
 
     public function getProjectedIncomeTimeline(
+
         Collection $holdings,
+
         int $months = 5,
-        float $annualGrowthRate = 0.08
+
+        float $annualGrowthRate = 0.08,
+
+        ?Collection $dividends = null
+
     ): array {
-        $projectedMonthlyIncome = $this->getProjectedMonthlyIncome($holdings);
 
-        $monthlyGrowthRate = $annualGrowthRate / 12;
+        $dividends ??=
 
-        $currentMonth = Carbon::now()->startOfMonth();
+            $this->loadDividendHistory(
+                $holdings
+            );
 
-        return collect(range(0, $months - 1))
-            ->map(function (int $monthOffset) use (
-                $projectedMonthlyIncome,
-                $monthlyGrowthRate,
-                $currentMonth
-            ) {
-                $month = $currentMonth->copy()->addMonths($monthOffset);
+        $projectedMonthlyIncome =
 
-                $growthMultiplier = pow(
-                    1 + $monthlyGrowthRate,
-                    $monthOffset
-                );
+            $this->getProjectedMonthlyIncome(
 
-                $projectedIncome = $projectedMonthlyIncome * $growthMultiplier;
+                $holdings,
 
-                return [
-                    'month' => $month->format('M'),
-                    'income' => round($projectedIncome, 2),
-                ];
-            })
+                $dividends
+
+            );
+
+        $monthlyGrowthRate =
+
+            $annualGrowthRate / 12;
+
+        $currentMonth =
+
+            Carbon::now()
+                ->startOfMonth();
+
+        return collect(
+
+            range(
+                0,
+                $months - 1
+            )
+
+        )
+
+            ->map(
+
+                function (
+
+                    int $monthOffset
+
+                ) use (
+
+                    $projectedMonthlyIncome,
+
+                    $monthlyGrowthRate,
+
+                    $currentMonth
+
+                ) {
+
+                    $month =
+
+                        $currentMonth
+                            ->copy()
+                            ->addMonths(
+                                $monthOffset
+                            );
+
+                    $growthMultiplier =
+
+                        pow(
+
+                            1 +
+
+                            $monthlyGrowthRate,
+
+                            $monthOffset
+
+                        );
+
+                    $projectedIncome =
+
+                        $projectedMonthlyIncome *
+
+                        $growthMultiplier;
+
+                    return [
+
+                        'month' => $month->format(
+                            'M'
+                        ),
+
+                        'income' => round(
+                            $projectedIncome,
+                            2
+                        ),
+
+                    ];
+                }
+
+            )
+
             ->toArray();
     }
 }
