@@ -79,9 +79,56 @@ class AiSecurityDividendExtractionService
 
         if (! $latestDividend) {
 
-            throw new \RuntimeException(
-                'No dividend data returned.'
+            Log::info(
+
+                'NO DIVIDEND DATA AVAILABLE',
+
+                [
+
+                    'symbol' => $security->symbol,
+
+                ]
+
             );
+
+            return AiDataExtraction::create([
+
+                'security_id' => $security->id,
+
+                'data_source_id' => DataSource::TWELVE_DATA_API, // Twelve Data
+
+                'source_url' => $url,
+
+                'raw_payload' => json_encode(
+                    $data
+                ),
+
+                'prompt' => 'Twelve Data dividend extraction for '.
+                    $security->symbol,
+
+                'extracted_data' => [
+
+                    'symbol' => strtoupper(
+
+                        $security->symbol
+
+                    ),
+
+                    'dividend_amount' => null,
+
+                    'ex_dividend_date' => null,
+
+                    'payment_date' => null,
+
+                ],
+
+                'is_validated' => false,
+
+                'validation_notes' => 'No dividend data available from Twelve Data.',
+
+                'processed_at' => now(),
+
+            ]);
         }
 
         $extractedData = [
@@ -100,8 +147,24 @@ class AiSecurityDividendExtractionService
             'ex_dividend_date' => $latestDividend['ex_date']
                     ?? null,
 
-            'payment_date' => $latestDividend['payment_date']
-                    ?? null,
+            'payment_date' => ! empty($latestDividend['payment_date'])
+
+                    ? $latestDividend['payment_date']
+
+                    : (
+
+                        ! empty($latestDividend['ex_date'])
+
+                        ? now()
+                            ->parse(
+                                $latestDividend['ex_date']
+                            )
+                            ->addDay()
+                            ->toDateString()
+
+                        : null
+
+                    ),
 
         ];
 

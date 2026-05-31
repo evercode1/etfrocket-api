@@ -2,25 +2,22 @@
 
 namespace App\Models;
 
-use Database\Factories\SecurityDetailFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SecurityDetail extends Model
+class SecurityUpdateType extends Model
 {
-    /** @use HasFactory<SecurityDetailFactory> */
     use HasFactory;
+
+    const DIVIDEND = 1;
+
+    const AUM = 2;
+
+    const NAV = 3;
 
     protected $fillable = [
 
-        'security_id',
-        'security_name',
-        'etf_issuer_id',
-        'etf_strategy_type_id',
-        'distribution_frequency_id',
-        'expense_ratio',
-        'website_url',
-        'notes',
+        'security_update_type_name',
 
     ];
 
@@ -33,5 +30,13 @@ class SecurityDetail extends Model
             'updated_at' => 'date:Y-m-d',
 
         ];
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(
+            SecurityUpdateSchedule::class,
+            'security_update_type_id'
+        );
     }
 }

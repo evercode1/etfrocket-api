@@ -38,6 +38,8 @@ class ImportTypesSeederController extends Controller
 
             'Data Integrity Audit',
 
+            'Scheduled Security Updates',
+
         ];
 
         foreach ($values as $value) {

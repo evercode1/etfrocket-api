@@ -39,10 +39,6 @@ class SecurityDetailFactory extends Factory
 
             'expense_ratio' => null,
 
-            'run_day' => rand(1, 7),
-
-            'run_hour' => rand(0, 23),
-
         ];
     }
 }

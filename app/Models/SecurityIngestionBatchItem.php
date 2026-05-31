@@ -19,6 +19,10 @@ class SecurityIngestionBatchItem extends Model
 
         'status_id',
 
+        'security_update_schedule_id',
+
+        'security_update_type_id',
+
         'attempts',
 
         'runtime_ms',

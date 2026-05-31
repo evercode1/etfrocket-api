@@ -36,10 +36,6 @@ return new class extends Migration
             |--------------------------------------------------------------------------
             */
 
-            $table->unsignedTinyInteger('run_day')->default(1);
-
-            $table->unsignedTinyInteger('run_hour')->default(0);
-
             $table->string('website_url')->nullable();
 
             $table->text('notes')->nullable();
@@ -59,10 +55,6 @@ return new class extends Migration
             $table->index('etf_strategy_type_id');
 
             $table->index('distribution_frequency_id');
-
-            $table->index('run_day');
-
-            $table->index('run_hour');
         });
     }
 
