@@ -35,6 +35,14 @@ class ProcessAiSecurityPriceExtractionServiceTest extends TestCase
             app(
                 ProcessAiSecurityPriceExtractionService::class
             );
+
+        config()->set(
+
+            'services.twelve_data.api_key',
+
+            'test-api-key'
+
+        );
     }
 
     protected function tearDown(): void

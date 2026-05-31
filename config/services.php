@@ -40,4 +40,10 @@ return [
         ],
     ],
 
+    'twelve_data' => [
+
+        'api_key' => env('TWELVE_DATA_API_KEY'),
+
+    ],
+
 ];

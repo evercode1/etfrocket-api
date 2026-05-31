@@ -3,8 +3,8 @@
 namespace App\Services\AI\Extractions;
 
 use App\Models\AiDataExtraction;
+use App\Models\DataSource;
 use App\Models\Security;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -14,128 +14,116 @@ class AiSecurityDividendExtractionService
         Security $security
     ): AiDataExtraction {
 
-        $prompt =
-            $this->buildPrompt(
-                $security
-            );
+        $apiKey = config(
+            'services.twelve_data.api_key'
+        );
+
+        Log::info(
+            'EXTRACT DIVIDEND METHOD HIT',
+            [
+                'symbol' => $security->symbol,
+            ]
+        );
+
+        $url =
+            'https://api.twelvedata.com/dividends?'.
+
+            'symbol='.
+                $security->symbol.
+
+            '&apikey='.
+                $apiKey;
+
+        Log::info('DIVIDEND URL', [
+
+            'url' => $url,
+
+        ]);
 
         $response =
 
-            Http::withToken(
-                config(
-                    'services.openai.api_key'
-                )
-            )
-                ->timeout(60)
-                ->post(
-
-                    'https://api.openai.com/v1/responses',
-
-                    [
-
-                        'model' => config(
-
-                            'services.openai.model',
-
-                            'gpt-4.1-mini'
-
-                        ),
-
-                        'input' => [
-
-                            [
-
-                                'role' => 'system',
-
-                                'content' => 'You extract ETF dividend data and return only valid JSON matching the required schema.',
-
-                            ],
-
-                            [
-
-                                'role' => 'user',
-
-                                'content' => $prompt,
-
-                            ],
-
-                        ],
-
-                        'text' => [
-
-                            'format' => [
-
-                                'type' => 'json_schema',
-
-                                'name' => 'etf_dividend_extraction',
-
-                                'schema' => $this->schema(),
-
-                                'strict' => true,
-
-                            ],
-
-                        ],
-
-                    ]
-
-                );
+            Http::timeout(60)
+                ->get($url);
 
         if (! $response->successful()) {
 
             Log::error(
-
-                'OpenAI ETF dividend extraction failed.',
-
+                'Twelve Data dividend extraction failed.',
                 [
-
                     'security_id' => $security->id,
-
                     'symbol' => $security->symbol,
-
-                    'response' => $response->json(),
-
+                    'response' => $response->body(),
                 ]
-
             );
 
             throw new \RuntimeException(
-                'AI Security dividend extraction failed.'
+                'Dividend extraction failed.'
             );
         }
 
-        $content =
+        $data =
+            $response->json();
 
-            $response->json(
-                'output.0.content.0.text'
-            );
+        Log::info(
+            'TWELVE DATA DIVIDEND RESPONSE',
+            [
+                'symbol' => $security->symbol,
+                'response' => $data,
+            ]
+        );
 
-        $extractedData =
+        $latestDividend =
+            $data['dividends'][0]
+                ?? $data['data'][0]
+                ?? null;
 
-            json_decode(
-                $content,
-                true
-            );
-
-        if (! is_array($extractedData)) {
+        if (! $latestDividend) {
 
             throw new \RuntimeException(
-                'AI ETF dividend extraction returned invalid JSON.'
+                'No dividend data returned.'
             );
         }
+
+        $extractedData = [
+
+            'symbol' => strtoupper(
+                $security->symbol
+            ),
+
+            'dividend_amount' => isset(
+                $latestDividend['amount']
+            )
+                    ? (float)
+                        $latestDividend['amount']
+                    : null,
+
+            'ex_dividend_date' => $latestDividend['ex_date']
+                    ?? null,
+
+            'payment_date' => $latestDividend['payment_date']
+                    ?? null,
+
+        ];
+
+        Log::info(
+            'TWELVE DATA DIVIDEND EXTRACTION',
+            $extractedData
+        );
 
         return AiDataExtraction::create([
 
             'security_id' => $security->id,
 
-            'data_source_id' => $security->data_source_id
-                ?? null,
+            'data_source_id' => DataSource::TWELVE_DATA_API, // Twelve Data
 
-            'source_url' => $security->website_url,
+            'source_url' => $url,
 
-            'raw_payload' => $response->body(),
+            'raw_payload' => json_encode(
+                $data
+            ),
 
-            'prompt' => $prompt,
+            'prompt' => 'Twelve Data dividend extraction for '.
+                $security->symbol,
 
             'extracted_data' => $extractedData,
 
@@ -146,121 +134,5 @@ class AiSecurityDividendExtractionService
             'processed_at' => now(),
 
         ]);
-    }
-
-    private function buildPrompt(
-        Security $security
-    ): string {
-
-        $currentDate =
-
-            Carbon::now()->format(
-                'Y-m-d'
-            );
-
-        return "
-
-You are extracting ETF dividend data for Etf Rocket.
-
-Today's date: {$currentDate}
-
-ETF Symbol:
-{$security->symbol}
-
-ETF Name:
-{$security->security_name}
-
-Official Website:
-{$security->website_url}
-
-Extract ONLY:
-
-- dividend_amount
-- ex_dividend_date
-- payment_date
-
-Rules:
-
-- Use the MOST RECENT announced or paid dividend.
-- Do not use dividend yield.
-- Do not guess.
-- Dates must be YYYY-MM-DD.
-- Numbers must be raw numeric values.
-- Return ONLY valid JSON matching the schema.
-- Use the MOST RECENT confirmed dividend with a published dividend_amount.
-- Only return dividends where dividend_amount is officially available.
-- Do not return placeholder announcements or future ex-dividend dates without confirmed payout amounts.
-- If no confirmed dividend_amount exists, do not include the dividend in results.
-
-";
-    }
-
-    private function schema(): array
-    {
-        return [
-
-            'type' => 'object',
-
-            'additionalProperties' => false,
-
-            'required' => [
-
-                'symbol',
-
-                'dividend_amount',
-
-                'ex_dividend_date',
-
-                'payment_date',
-
-            ],
-
-            'properties' => [
-
-                'symbol' => [
-
-                    'type' => 'string',
-
-                ],
-
-                'dividend_amount' => [
-
-                    'type' => [
-
-                        'number',
-
-                        'null',
-
-                    ],
-
-                ],
-
-                'ex_dividend_date' => [
-
-                    'type' => [
-
-                        'string',
-
-                        'null',
-
-                    ],
-
-                ],
-
-                'payment_date' => [
-
-                    'type' => [
-
-                        'string',
-
-                        'null',
-
-                    ],
-
-                ],
-
-            ],
-
-        ];
     }
 }

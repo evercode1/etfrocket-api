@@ -35,6 +35,8 @@ class DataSource extends Model
 
     const AI_SCRAPER = 12;
 
+    const TWELVE_DATA_API = 13;
+
     protected $fillable = [
 
         'data_source_name',

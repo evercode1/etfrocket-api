@@ -20,48 +20,6 @@ class SecurityDetailFactory extends Factory
 
             'security_name' => $this->faker->company(),
 
-            'exchange' => $this->faker->randomElement([
-
-                'NYSE',
-
-                'NASDAQ',
-
-                'CBOE',
-
-            ]),
-
-            'sector' => $this->faker->randomElement([
-
-                'Technology',
-
-                'Financial',
-
-                'Healthcare',
-
-                'Energy',
-
-                'Consumer Staples',
-
-            ]),
-
-            'industry' => $this->faker->randomElement([
-
-                'Software',
-
-                'Semiconductors',
-
-                'Banks',
-
-                'Biotech',
-
-                'Oil & Gas',
-
-            ]),
-
-            'inception_date' => $this->faker->date(),
-
-            'source' => 'official_issuer_page',
-
             'website_url' => $this->faker->url(),
 
             'notes' => $this->faker->optional()
@@ -80,6 +38,10 @@ class SecurityDetailFactory extends Factory
             'distribution_frequency_id' => null,
 
             'expense_ratio' => null,
+
+            'run_day' => rand(1, 7),
+
+            'run_hour' => rand(0, 23),
 
         ];
     }

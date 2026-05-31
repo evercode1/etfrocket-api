@@ -48,8 +48,6 @@ class SecurityFactory extends Factory
 
                         .'.com',
 
-                        'source' => $security->symbol.'_source',
-
                         'notes' => $security->symbol.'_notes',
 
                     ]);

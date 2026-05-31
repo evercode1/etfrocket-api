@@ -36,15 +36,9 @@ return new class extends Migration
             |--------------------------------------------------------------------------
             */
 
-            $table->string('exchange')->nullable();
+            $table->unsignedTinyInteger('run_day')->default(1);
 
-            $table->string('sector')->nullable();
-
-            $table->string('industry')->nullable();
-
-            $table->date('inception_date')->nullable();
-
-            $table->string('source')->nullable();
+            $table->unsignedTinyInteger('run_hour')->default(0);
 
             $table->string('website_url')->nullable();
 
@@ -66,11 +60,9 @@ return new class extends Migration
 
             $table->index('distribution_frequency_id');
 
-            $table->index('exchange');
+            $table->index('run_day');
 
-            $table->index('sector');
-
-            $table->index('industry');
+            $table->index('run_hour');
         });
     }
 

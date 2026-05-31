@@ -69,6 +69,10 @@ class DataSourceSeeder extends Seeder
                 'data_source_name' => 'Seeking Alpha',
                 'website_url' => 'https://seekingalpha.com',
             ],
+            [
+                'data_source_name' => 'Twelve Data API',
+                'website_url' => 'https://twelvedata.com',
+            ],
 
         ];
 
