@@ -80,6 +80,11 @@ class DataSourcesSeederController extends Controller
                 'website_url' => 'https://twelvedata.com',
             ],
 
+            [
+                'data_source_name' => 'Web Scraper',
+                'website_url' => null,
+            ],
+
         ];
 
         foreach ($sources as $source) {

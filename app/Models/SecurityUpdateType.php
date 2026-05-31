@@ -11,9 +11,7 @@ class SecurityUpdateType extends Model
 
     const DIVIDEND = 1;
 
-    const AUM = 2;
-
-    const NAV = 3;
+    const FUND_DATA = 2;
 
     protected $fillable = [
 

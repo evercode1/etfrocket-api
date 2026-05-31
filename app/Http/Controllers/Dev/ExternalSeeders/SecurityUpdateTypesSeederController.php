@@ -14,8 +14,7 @@ class SecurityUpdateTypesSeederController extends Controller
         $securityUpdateTypes = [
 
             'Dividend',
-            'Aum',
-            'Nav',
+            'Fund Data',
 
         ];
 

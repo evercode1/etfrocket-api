@@ -29,8 +29,8 @@ class SecurityUpdateSchedulesSeederController extends Controller
 
             foreach ([
                 SecurityUpdateType::DIVIDEND,
-                SecurityUpdateType::AUM,
-                SecurityUpdateType::NAV,
+                SecurityUpdateType::FUND_DATA,
+
             ] as $updateTypeId) {
 
                 $slot =
@@ -39,26 +39,19 @@ class SecurityUpdateSchedulesSeederController extends Controller
 
                 $records[] = [
 
-                    'security_id' =>
-                        $security->id,
+                    'security_id' => $security->id,
 
-                    'security_update_type_id' =>
-                        $updateTypeId,
+                    'security_update_type_id' => $updateTypeId,
 
-                    'run_day' =>
-                        ($slot % 7) + 1,
+                    'run_day' => ($slot % 7) + 1,
 
-                    'run_hour' =>
-                        intdiv($slot, 7) % 24,
+                    'run_hour' => intdiv($slot, 7) % 24,
 
-                    'status_id' =>
-                        Status::ACTIVE,
+                    'status_id' => Status::ACTIVE,
 
-                    'created_at' =>
-                        $now,
+                    'created_at' => $now,
 
-                    'updated_at' =>
-                        $now,
+                    'updated_at' => $now,
                 ];
             }
         }

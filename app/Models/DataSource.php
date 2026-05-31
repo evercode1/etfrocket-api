@@ -37,6 +37,8 @@ class DataSource extends Model
 
     const TWELVE_DATA_API = 13;
 
+    const WEB_SCRAPER = 14;
+
     protected $fillable = [
 
         'data_source_name',

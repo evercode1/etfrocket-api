@@ -7,12 +7,10 @@ use App\Models\SecurityIngestionBatchItem;
 use App\Models\SecurityUpdateSchedule;
 use App\Models\SecurityUpdateType;
 use App\Models\Status;
-use App\Services\AI\Extractions\AiSecurityAumExtractionService;
 use App\Services\AI\Extractions\AiSecurityDividendExtractionService;
-use App\Services\AI\Extractions\AiSecurityNavExtractionService;
-use App\Services\AI\Extractions\ProcessAiSecurityAumExtractionService;
+use App\Services\AI\Extractions\AiSecurityFundDataExtractionService;
 use App\Services\AI\Extractions\ProcessAiSecurityDividendExtractionService;
-use App\Services\AI\Extractions\ProcessAiSecurityNavExtractionService;
+use App\Services\AI\Extractions\ProcessAiSecurityFundDataExtractionService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -36,11 +34,8 @@ class RunScheduledSecurityUpdateJob implements ShouldQueue
         AiSecurityDividendExtractionService $dividendExtractionService,
         ProcessAiSecurityDividendExtractionService $processDividendService,
 
-        AiSecurityAumExtractionService $aumExtractionService,
-        ProcessAiSecurityAumExtractionService $processAumService,
-
-        AiSecurityNavExtractionService $navExtractionService,
-        ProcessAiSecurityNavExtractionService $processNavService
+        AiSecurityFundDataExtractionService $fundDataExtractionService,
+        ProcessAiSecurityFundDataExtractionService $processFundDataService,
 
     ): void {
 
@@ -118,32 +113,16 @@ class RunScheduledSecurityUpdateJob implements ShouldQueue
 
                     break;
 
-                case SecurityUpdateType::AUM:
+                case SecurityUpdateType::FUND_DATA:
 
                     $extraction =
 
-                        $aumExtractionService
+                        $fundDataExtractionService
                             ->extract(
                                 $security
                             );
 
-                    $processAumService
-                        ->process(
-                            $extraction
-                        );
-
-                    break;
-
-                case SecurityUpdateType::NAV:
-
-                    $extraction =
-
-                        $navExtractionService
-                            ->extract(
-                                $security
-                            );
-
-                    $processNavService
+                    $processFundDataService
                         ->process(
                             $extraction
                         );

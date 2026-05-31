@@ -73,6 +73,10 @@ class DataSourceSeeder extends Seeder
                 'data_source_name' => 'Twelve Data API',
                 'website_url' => 'https://twelvedata.com',
             ],
+            [
+                'data_source_name' => 'Web Scraper',
+                'website_url' => null,
+            ],
 
         ];
 

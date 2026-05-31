@@ -9,12 +9,10 @@ use App\Models\SecurityIngestionBatchItem;
 use App\Models\SecurityUpdateSchedule;
 use App\Models\SecurityUpdateType;
 use App\Models\Status;
-use App\Services\AI\Extractions\AiSecurityAumExtractionService;
 use App\Services\AI\Extractions\AiSecurityDividendExtractionService;
-use App\Services\AI\Extractions\AiSecurityNavExtractionService;
-use App\Services\AI\Extractions\ProcessAiSecurityAumExtractionService;
+use App\Services\AI\Extractions\AiSecurityFundDataExtractionService;
 use App\Services\AI\Extractions\ProcessAiSecurityDividendExtractionService;
-use App\Services\AI\Extractions\ProcessAiSecurityNavExtractionService;
+use App\Services\AI\Extractions\ProcessAiSecurityFundDataExtractionService;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -172,20 +170,12 @@ class RunScheduledSecurityUpdateJobTest extends TestCase
             $processService,
 
             $this->createMock(
-                AiSecurityAumExtractionService::class
+                AiSecurityFundDataExtractionService::class
             ),
 
             $this->createMock(
-                ProcessAiSecurityAumExtractionService::class
+                ProcessAiSecurityFundDataExtractionService::class
             ),
-
-            $this->createMock(
-                AiSecurityNavExtractionService::class
-            ),
-
-            $this->createMock(
-                ProcessAiSecurityNavExtractionService::class
-            )
 
         );
 
