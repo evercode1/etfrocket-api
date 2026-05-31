@@ -6,6 +6,7 @@ use App\Models\AiDataExtraction;
 use App\Models\DataSource;
 use App\Models\EtfIssuer;
 use App\Models\Security;
+use App\Services\Scrapers\RexSharesScraperService;
 use App\Services\Scrapers\RoundhillScraperService;
 use App\Services\Scrapers\YieldMaxScraperService;
 
@@ -13,7 +14,8 @@ class AiSecurityFundDataExtractionService
 {
     public function __construct(
         private YieldMaxScraperService $yieldMaxScraperService,
-        private RoundhillScraperService $roundhillScraperService
+        private RoundhillScraperService $roundhillScraperService,
+        private RexSharesScraperService $rexSharesScraperService,
     ) {}
 
     public function extract(
@@ -43,6 +45,12 @@ class AiSecurityFundDataExtractionService
                         $security
                     ),
                 EtfIssuer::ROUNDHILL => $this->roundhillScraperService
+                    ->extract(
+
+                        $security
+
+                    ),
+                EtfIssuer::REX => $this->rexSharesScraperService
                     ->extract(
 
                         $security

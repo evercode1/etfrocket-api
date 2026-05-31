@@ -3,10 +3,12 @@
 namespace Tests\Unit\AiExtraction;
 
 use App\Models\AiDataExtraction;
+use App\Models\DataSource;
 use App\Models\EtfIssuer;
 use App\Models\Security;
 use App\Models\SecurityDetail;
 use App\Services\AI\Extractions\AiSecurityFundDataExtractionService;
+use App\Services\Scrapers\RexSharesScraperService;
 use App\Services\Scrapers\YieldMaxScraperService;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -221,5 +223,90 @@ class AiSecurityFundDataExtractionServiceTest extends TestCase
             ->extract(
                 $security
             );
+    }
+
+    public function test_it_extracts_rex_fund_data(): void
+    {
+        $security =
+            Security::factory()
+                ->create([
+
+                    'symbol' => 'NVII',
+
+                ]);
+
+        $security->detail->update([
+
+            'etf_issuer_id' => EtfIssuer::REX,
+
+        ]);
+
+        $expectedData = [
+
+            'symbol' => 'NVII',
+
+            'assets_under_management' => 101193600,
+
+            'aum_date' => '2026-05-28',
+
+            'nav_per_share' => 26.57,
+
+            'nav_date' => '2026-05-28',
+
+            'shares_outstanding' => 3810000,
+
+        ];
+
+        $this->mock(
+            RexSharesScraperService::class,
+            function ($mock) use (
+                $security,
+                $expectedData
+            ) {
+
+                $mock->shouldReceive(
+                    'extract'
+                )
+                    ->once()
+                    ->with(
+                        $security
+                    )
+                    ->andReturn(
+                        $expectedData
+                    );
+            }
+        );
+
+        $extraction =
+
+            app(
+                AiSecurityFundDataExtractionService::class
+            )->extract(
+                $security
+            );
+
+        $this->assertInstanceOf(
+            AiDataExtraction::class,
+            $extraction
+        );
+
+        $this->assertEquals(
+            $security->id,
+            $extraction->security_id
+        );
+
+        $this->assertEquals(
+            DataSource::WEB_SCRAPER,
+            $extraction->data_source_id
+        );
+
+        $this->assertEquals(
+            $expectedData,
+            $extraction->extracted_data
+        );
+
+        $this->assertFalse(
+            $extraction->is_validated
+        );
     }
 }
