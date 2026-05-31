@@ -17,8 +17,8 @@ class SecurityUpdateTypeSeeder extends Seeder
         $values = [
 
             'Dividend',
-            'Aum',
-            'Nav',
+            'Fund Data',
+
         ];
 
         foreach ($values as $value) {
