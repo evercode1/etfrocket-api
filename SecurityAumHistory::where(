@@ -1,0 +1,16 @@
+[90m= [39m[34;4mApp\Models\AiDataExtraction[39;24m {#8942
+    [34mid[39m: [35m5[39m,
+    [34msecurity_id[39m: [35m7[39m,
+    [34mdata_source_id[39m: [35m14[39m,
+    [34msource_url[39m: [32m"[39m[32mFund data scraper for AMDW[39m[32m"[39m,
+    [34mraw_payload[39m: [32m"[39m[32m{[39m\"[32msymbol[39m\"[32m:[39m\"[32mAMDW[39m\"[32m,[39m\"[32massets_under_management[39m\"[32m:90879048,[39m\"[32maum_date[39m\"[32m:[39m\"[32m2026-05-29[39m\"[32m,[39m\"[32mnav_per_share[39m\"[32m:109.49,[39m\"[32mnav_date[39m\"[32m:[39m\"[32m2026-05-29[39m\"[32m,[39m\"[32mshares_outstanding[39m\"[32m:830000}[39m[32m"[39m,
+    [34mprompt[39m: [32m"[39m[32mFund data scraper extraction for AMDW[39m[32m"[39m,
+    [34mextracted_data[39m: [32m"[39m[32m{[39m\"[32msymbol[39m\"[32m: [39m\"[32mAMDW[39m\"[32m, [39m\"[32maum_date[39m\"[32m: [39m\"[32m2026-05-29[39m\"[32m, [39m\"[32mnav_date[39m\"[32m: [39m\"[32m2026-05-29[39m\"[32m, [39m\"[32mnav_per_share[39m\"[32m: 109.49, [39m\"[32mshares_outstanding[39m\"[32m: 830000, [39m\"[32massets_under_management[39m\"[32m: 90879048}[39m[32m"[39m,
+    [34mis_validated[39m: [35m1[39m,
+    [34mvalidation_notes[39m: [32m"[39m[32mFund data extraction processed successfully.[39m[32m"[39m,
+    [34mprocessed_at[39m: [32m"[39m[32m2026-05-31 22:27:51[39m[32m"[39m,
+    [34mfailed_at[39m: [36mnull[39m,
+    [34mfailure_reason[39m: [36mnull[39m,
+    [34mcreated_at[39m: [32m"[39m[32m2026-05-31 22:27:03[39m[32m"[39m,
+    [34mupdated_at[39m: [32m"[39m[32m2026-05-31 22:27:51[39m[32m"[39m,
+  }

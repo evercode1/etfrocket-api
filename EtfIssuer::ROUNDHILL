@@ -1,0 +1,13 @@
+[90m= [39m[34;4mApp\Models\SecurityDetail[39;24m {#8787
+    [34mid[39m: [35m7[39m,
+    [34msecurity_id[39m: [35m7[39m,
+    [34msecurity_name[39m: [32m"[39m[32mRoundhill AMD WeeklyPay ETF[39m[32m"[39m,
+    [34metf_issuer_id[39m: [35m2[39m,
+    [34metf_strategy_type_id[39m: [35m6[39m,
+    [34mdistribution_frequency_id[39m: [35m2[39m,
+    [34mexpense_ratio[39m: [32m"[39m[32m0.9900[39m[32m"[39m,
+    [34mwebsite_url[39m: [32m"[39m[32mhttps://www.roundhillinvestments.com/etf/amdw/[39m[32m"[39m,
+    [34mnotes[39m: [36mnull[39m,
+    [34mcreated_at[39m: [32m"[39m[32m2026-05-31 21:21:17[39m[32m"[39m,
+    [34mupdated_at[39m: [32m"[39m[32m2026-05-31 21:21:17[39m[32m"[39m,
+  }
