@@ -18,8 +18,6 @@ class SecurityDetailsSeederController extends Controller
         $details = [
             [
                 'security_id' => 1,
-                'run_day' => 1,
-                'run_hour' => 0,
                 'security_name' => 'Roundhill AAPL WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -30,8 +28,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 2,
-                'run_day' => 2,
-                'run_hour' => 1,
                 'security_name' => 'Kurv Apple Covered Call ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 1,
@@ -42,8 +38,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 3,
-                'run_day' => 3,
-                'run_hour' => 2,
                 'security_name' => 'YieldMax ABNB Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -54,8 +48,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 4,
-                'run_day' => 4,
-                'run_hour' => 3,
                 'security_name' => 'REX AI Equity Premium Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -66,8 +58,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 5,
-                'run_day' => 5,
-                'run_hour' => 4,
                 'security_name' => 'YieldMax AI Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -78,8 +68,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 6,
-                'run_day' => 6,
-                'run_hour' => 5,
                 'security_name' => 'Global X Alternative Income ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 16,
@@ -90,8 +78,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 7,
-                'run_day' => 7,
-                'run_hour' => 6,
                 'security_name' => 'Roundhill AMD WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -102,8 +88,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 8,
-                'run_day' => 1,
-                'run_hour' => 7,
                 'security_name' => 'YieldMax AMD Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 2,
@@ -114,8 +98,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 9,
-                'run_day' => 2,
-                'run_hour' => 8,
                 'security_name' => 'Kurv Amazon Covered Call ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 1,
@@ -126,8 +108,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 10,
-                'run_day' => 3,
-                'run_hour' => 9,
                 'security_name' => 'Roundhill AMZN WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -138,8 +118,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 11,
-                'run_day' => 4,
-                'run_hour' => 10,
                 'security_name' => 'YieldMax AMZN Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -150,8 +128,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 12,
-                'run_day' => 5,
-                'run_hour' => 11,
                 'security_name' => 'YieldMax AAPL Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -162,8 +138,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 13,
-                'run_day' => 6,
-                'run_hour' => 12,
                 'security_name' => 'Roundhill ARM WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -174,8 +148,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 14,
-                'run_day' => 7,
-                'run_hour' => 13,
                 'security_name' => 'Roundhill AVGO WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -186,8 +158,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 15,
-                'run_day' => 1,
-                'run_hour' => 14,
                 'security_name' => 'YieldMax BABA Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -198,8 +168,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 16,
-                'run_day' => 2,
-                'run_hour' => 15,
                 'security_name' => 'Roundhill BABA WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -210,8 +178,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 17,
-                'run_day' => 3,
-                'run_hour' => 16,
                 'security_name' => 'Nicholas Black Swan Hedged Equity ETF',
                 'etf_issuer_id' => 11,
                 'etf_strategy_type_id' => 19,
@@ -222,8 +188,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 18,
-                'run_day' => 4,
-                'run_hour' => 17,
                 'security_name' => 'YieldMax Big Tech Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -234,8 +198,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 19,
-                'run_day' => 5,
-                'run_hour' => 18,
                 'security_name' => 'Nicholas Crypto Income ETF',
                 'etf_issuer_id' => 11,
                 'etf_strategy_type_id' => 6,
@@ -246,8 +208,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 20,
-                'run_day' => 6,
-                'run_hour' => 19,
                 'security_name' => 'NEOS Enhanced Income Aggregate Bond ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 23,
@@ -258,8 +218,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 21,
-                'run_day' => 7,
-                'run_hour' => 20,
                 'security_name' => 'YieldMax BRK.B Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -270,8 +228,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 22,
-                'run_day' => 1,
-                'run_hour' => 21,
                 'security_name' => 'Roundhill BRK.B WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -282,8 +238,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 23,
-                'run_day' => 2,
-                'run_hour' => 22,
                 'security_name' => 'NEOS Bitcoin High Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 6,
@@ -294,8 +248,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 24,
-                'run_day' => 3,
-                'run_hour' => 23,
                 'security_name' => 'REX Crypto Equity Premium Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -306,8 +258,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 25,
-                'run_day' => 4,
-                'run_hour' => 0,
                 'security_name' => 'YieldMax Semiconductor Portfolio Option Income ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -318,8 +268,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 26,
-                'run_day' => 5,
-                'run_hour' => 1,
                 'security_name' => 'Global X 1-3 Month T-Bill ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 9,
@@ -330,8 +278,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 27,
-                'run_day' => 6,
-                'run_hour' => 2,
                 'security_name' => 'REX COIN Weekly Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -342,8 +288,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 28,
-                'run_day' => 7,
-                'run_hour' => 3,
                 'security_name' => 'Roundhill COIN WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -354,8 +298,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 29,
-                'run_day' => 1,
-                'run_hour' => 4,
                 'security_name' => 'YieldMax COIN Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -366,8 +308,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 30,
-                'run_day' => 2,
-                'run_hour' => 5,
                 'security_name' => 'Roundhill COST WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -378,8 +318,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 31,
-                'run_day' => 3,
-                'run_hour' => 6,
                 'security_name' => 'YieldMax CRCL Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -390,8 +328,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 32,
-                'run_day' => 4,
-                'run_hour' => 7,
                 'security_name' => 'YieldMax Short TSLA Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -402,8 +338,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 33,
-                'run_day' => 5,
-                'run_hour' => 8,
                 'security_name' => 'NEOS Enhanced Income Cash Alternative ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 21,
@@ -414,8 +348,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 34,
-                'run_day' => 6,
-                'run_hour' => 9,
                 'security_name' => 'YieldMax CVNA Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -426,8 +358,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 35,
-                'run_day' => 7,
-                'run_hour' => 10,
                 'security_name' => 'REX CRWD Weekly Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -438,8 +368,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 36,
-                'run_day' => 1,
-                'run_hour' => 11,
                 'security_name' => 'YieldMax TSLA TSLL Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -450,8 +378,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 37,
-                'run_day' => 2,
-                'run_hour' => 12,
                 'security_name' => 'YieldMax Short NVDA Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -462,8 +388,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 38,
-                'run_day' => 3,
-                'run_hour' => 13,
                 'security_name' => 'YieldMax DIS Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -474,8 +398,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 39,
-                'run_day' => 4,
-                'run_hour' => 14,
                 'security_name' => 'Global X SuperDividend U.S. ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 10,
@@ -486,8 +408,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 40,
-                'run_day' => 5,
-                'run_hour' => 15,
                 'security_name' => 'Global X Dow 30 Covered Call ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 1,
@@ -498,8 +418,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 41,
-                'run_day' => 6,
-                'run_hour' => 16,
                 'security_name' => 'YieldMax DKNG Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -510,8 +428,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 42,
-                'run_day' => 7,
-                'run_hour' => 17,
                 'security_name' => 'Global X S&P 500 Quality Dividend Covered Call ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 1,
@@ -522,8 +438,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 43,
-                'run_day' => 1,
-                'run_hour' => 18,
                 'security_name' => 'Global X S&P 500 Covered Call & Growth ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 1,
@@ -534,8 +448,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 44,
-                'run_day' => 2,
-                'run_hour' => 19,
                 'security_name' => 'Global X MSCI SuperDividend EAFE ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 10,
@@ -546,8 +458,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 45,
-                'run_day' => 3,
-                'run_hour' => 20,
                 'security_name' => 'YieldMax META Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -558,8 +468,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 46,
-                'run_day' => 4,
-                'run_hour' => 21,
                 'security_name' => 'YieldMax Dorsey Wright Featured 5 Income ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -570,8 +478,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 47,
-                'run_day' => 5,
-                'run_hour' => 22,
                 'security_name' => 'REX FANG & Innovation Equity Premium Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -582,8 +488,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 48,
-                'run_day' => 6,
-                'run_hour' => 23,
                 'security_name' => 'YieldMax Short COIN Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -594,8 +498,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 49,
-                'run_day' => 7,
-                'run_hour' => 0,
                 'security_name' => 'Nicholas Fixed Income Alternative ETF',
                 'etf_issuer_id' => 11,
                 'etf_strategy_type_id' => 16,
@@ -606,8 +508,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 50,
-                'run_day' => 1,
-                'run_hour' => 1,
                 'security_name' => 'YieldMax Dorsey Wright Hybrid 5 Income ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -618,8 +518,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 51,
-                'run_day' => 2,
-                'run_hour' => 2,
                 'security_name' => 'Roundhill Gold Miners WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -630,8 +528,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 52,
-                'run_day' => 3,
-                'run_hour' => 3,
                 'security_name' => 'YieldMax Gold Miners Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -642,8 +538,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 53,
-                'run_day' => 4,
-                'run_hour' => 4,
                 'security_name' => 'Nicholas Global Income Alternative ETF',
                 'etf_issuer_id' => 11,
                 'etf_strategy_type_id' => 16,
@@ -654,8 +548,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 54,
-                'run_day' => 5,
-                'run_hour' => 5,
                 'security_name' => 'REX Golden Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -666,8 +558,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 55,
-                'run_day' => 6,
-                'run_hour' => 6,
                 'security_name' => 'Nicholas Gold Income ETF',
                 'etf_issuer_id' => 11,
                 'etf_strategy_type_id' => 25,
@@ -678,8 +568,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 56,
-                'run_day' => 7,
-                'run_hour' => 7,
                 'security_name' => 'Roundhill Gold WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -690,8 +578,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 57,
-                'run_day' => 1,
-                'run_hour' => 8,
                 'security_name' => 'Defiance Gold Enhanced Option Income ETF',
                 'etf_issuer_id' => 6,
                 'etf_strategy_type_id' => 6,
@@ -702,8 +588,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 58,
-                'run_day' => 2,
-                'run_hour' => 9,
                 'security_name' => 'YieldMax GME Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -714,8 +598,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 59,
-                'run_day' => 3,
-                'run_hour' => 10,
                 'security_name' => 'Kurv Alphabet Covered Call ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 1,
@@ -726,8 +608,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 60,
-                'run_day' => 4,
-                'run_hour' => 11,
                 'security_name' => 'Roundhill GOOGL WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -738,8 +618,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 61,
-                'run_day' => 5,
-                'run_hour' => 12,
                 'security_name' => 'YieldMax GOOGL Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 2,
@@ -750,8 +628,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 62,
-                'run_day' => 6,
-                'run_hour' => 13,
                 'security_name' => 'YieldMax PLTR Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -762,8 +638,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 63,
-                'run_day' => 7,
-                'run_hour' => 14,
                 'security_name' => 'YieldMax HIMS Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -774,8 +648,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 64,
-                'run_day' => 1,
-                'run_hour' => 15,
                 'security_name' => 'REX HOOD Weekly Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -786,8 +658,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 65,
-                'run_day' => 2,
-                'run_hour' => 16,
                 'security_name' => 'Roundhill HOOD WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -798,8 +668,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 66,
-                'run_day' => 3,
-                'run_hour' => 17,
                 'security_name' => 'YieldMax HOOD Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -810,8 +678,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 67,
-                'run_day' => 4,
-                'run_hour' => 18,
                 'security_name' => 'NEOS Enhanced Income High Yield Bond ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 20,
@@ -822,8 +688,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 68,
-                'run_day' => 5,
-                'run_hour' => 19,
                 'security_name' => 'NEOS Gold Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 6,
@@ -834,8 +698,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 69,
-                'run_day' => 6,
-                'run_hour' => 20,
                 'security_name' => 'NEOS Russell 2000 High Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 6,
@@ -846,8 +708,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 70,
-                'run_day' => 7,
-                'run_hour' => 21,
                 'security_name' => 'Defiance Russell 2000 Enhanced Option Income ETF',
                 'etf_issuer_id' => 6,
                 'etf_strategy_type_id' => 6,
@@ -858,8 +718,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 71,
-                'run_day' => 1,
-                'run_hour' => 22,
                 'security_name' => 'NEOS Real Estate High Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 6,
@@ -870,8 +728,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 72,
-                'run_day' => 2,
-                'run_hour' => 23,
                 'security_name' => 'JPMorgan Equity Premium Income ETF',
                 'etf_issuer_id' => 4,
                 'etf_strategy_type_id' => 6,
@@ -882,8 +738,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 73,
-                'run_day' => 3,
-                'run_hour' => 0,
                 'security_name' => 'YieldMax JPM Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -894,8 +748,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 74,
-                'run_day' => 4,
-                'run_hour' => 1,
                 'security_name' => 'YieldMax JPM Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -906,8 +758,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 75,
-                'run_day' => 5,
-                'run_hour' => 2,
                 'security_name' => 'Kurv Copper Covered Call ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 1,
@@ -918,8 +768,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 76,
-                'run_day' => 6,
-                'run_hour' => 3,
                 'security_name' => 'Kurv Gold Covered Call ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 1,
@@ -930,8 +778,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 77,
-                'run_day' => 7,
-                'run_hour' => 4,
                 'security_name' => 'Kurv Nasdaq-100 Covered Call ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 1,
@@ -942,8 +788,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 78,
-                'run_day' => 1,
-                'run_hour' => 5,
                 'security_name' => 'Kurv Silver Covered Call ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 1,
@@ -954,8 +798,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 79,
-                'run_day' => 2,
-                'run_hour' => 6,
                 'security_name' => 'Kurv Yield Premium Strategy ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 6,
@@ -966,8 +808,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 80,
-                'run_day' => 3,
-                'run_hour' => 7,
                 'security_name' => 'YieldMax Crypto Industry & Tech Portfolio Option Income ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -978,8 +818,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 81,
-                'run_day' => 4,
-                'run_hour' => 8,
                 'security_name' => 'REX LLY Weekly Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -990,8 +828,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 82,
-                'run_day' => 5,
-                'run_hour' => 9,
                 'security_name' => 'Kurv Liquidity Premium Strategy ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 21,
@@ -1002,8 +838,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 83,
-                'run_day' => 6,
-                'run_hour' => 10,
                 'security_name' => 'YieldMax MARA Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1014,8 +848,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 84,
-                'run_day' => 7,
-                'run_hour' => 11,
                 'security_name' => 'Roundhill META WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1026,8 +858,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 85,
-                'run_day' => 1,
-                'run_hour' => 12,
                 'security_name' => 'YieldMax MRNA Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1038,8 +868,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 86,
-                'run_day' => 2,
-                'run_hour' => 13,
                 'security_name' => 'NEOS MLP & Energy Infrastructure Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 22,
@@ -1050,8 +878,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 87,
-                'run_day' => 3,
-                'run_hour' => 14,
                 'security_name' => 'YieldMax MRNA Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1062,8 +888,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 88,
-                'run_day' => 4,
-                'run_hour' => 15,
                 'security_name' => 'YieldMax MSFT Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1074,8 +898,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 89,
-                'run_day' => 5,
-                'run_hour' => 16,
                 'security_name' => 'Roundhill MSFT WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1086,8 +908,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 90,
-                'run_day' => 6,
-                'run_hour' => 17,
                 'security_name' => 'Kurv Microsoft Covered Call ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 1,
@@ -1098,8 +918,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 91,
-                'run_day' => 7,
-                'run_hour' => 18,
                 'security_name' => 'REX MSTR Weekly Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -1110,8 +928,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 92,
-                'run_day' => 1,
-                'run_hour' => 19,
                 'security_name' => 'YieldMax MSTR Performance & Distribution Target 25 ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1122,8 +938,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 93,
-                'run_day' => 2,
-                'run_hour' => 20,
                 'security_name' => 'Defiance Daily Target 2X Long MSTR ETF',
                 'etf_issuer_id' => 6,
                 'etf_strategy_type_id' => 18,
@@ -1134,8 +948,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 94,
-                'run_day' => 3,
-                'run_hour' => 21,
                 'security_name' => 'Roundhill MSTR WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1146,9 +958,7 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 95,
-                'run_day' => 4,
-                'run_hour' => 22,
-                'security_name' => 'YieldMax MSTR Option Income Strategy ETF',
+                '               security_name' => 'YieldMax MSTR Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
                 'distribution_frequency_id' => 2,
@@ -1158,8 +968,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 96,
-                'run_day' => 5,
-                'run_hour' => 23,
                 'security_name' => 'NEOS Enhanced Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 6,
@@ -1170,8 +978,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 97,
-                'run_day' => 6,
-                'run_hour' => 0,
                 'security_name' => 'Kurv Netflix Covered Call ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 1,
@@ -1182,8 +988,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 98,
-                'run_day' => 7,
-                'run_hour' => 1,
                 'security_name' => 'Roundhill NFLX WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1194,8 +998,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 99,
-                'run_day' => 1,
-                'run_hour' => 2,
                 'security_name' => 'YieldMax NFLX Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1206,8 +1008,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 100,
-                'run_day' => 2,
-                'run_hour' => 3,
                 'security_name' => 'Nicholas Overnight Risk Managed ETF',
                 'etf_issuer_id' => 11,
                 'etf_strategy_type_id' => 27,
@@ -1218,8 +1018,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 101,
-                'run_day' => 3,
-                'run_hour' => 4,
                 'security_name' => 'NEOS Nasdaq 100 High Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 6,
@@ -1230,8 +1028,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 102,
-                'run_day' => 4,
-                'run_hour' => 5,
                 'security_name' => 'NEOS Enhanced Income 1-3 Month T-Bill ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 9,
@@ -1242,8 +1038,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 103,
-                'run_day' => 5,
-                'run_hour' => 6,
                 'security_name' => 'Nicholas Uranium & Nuclear Energy Income ETF',
                 'etf_issuer_id' => 11,
                 'etf_strategy_type_id' => 22,
@@ -1254,8 +1048,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 104,
-                'run_day' => 6,
-                'run_hour' => 7,
                 'security_name' => 'Roundhill NVDA WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1266,8 +1058,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 105,
-                'run_day' => 7,
-                'run_hour' => 8,
                 'security_name' => 'YieldMax NVDA Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1278,8 +1068,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 106,
-                'run_day' => 1,
-                'run_hour' => 9,
                 'security_name' => 'REX NVDA Growth & Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 3,
@@ -1290,8 +1078,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 107,
-                'run_day' => 2,
-                'run_hour' => 10,
                 'security_name' => 'YieldMax NVDA Performance & Distribution Target 25 ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1302,8 +1088,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 108,
-                'run_day' => 3,
-                'run_hour' => 11,
                 'security_name' => 'YieldMax Innovation Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1314,8 +1098,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 109,
-                'run_day' => 4,
-                'run_hour' => 12,
                 'security_name' => 'REX PLTR Weekly Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -1326,8 +1108,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 110,
-                'run_day' => 5,
-                'run_hour' => 13,
                 'security_name' => 'Roundhill PLTR WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1338,8 +1118,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 111,
-                'run_day' => 6,
-                'run_hour' => 14,
                 'security_name' => 'YieldMax PLTR Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1350,8 +1128,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 112,
-                'run_day' => 7,
-                'run_hour' => 15,
                 'security_name' => 'YieldMax PYPL Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1362,8 +1138,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 113,
-                'run_day' => 1,
-                'run_hour' => 16,
                 'security_name' => 'Global X Nasdaq 100 Collar 95-110 ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 17,
@@ -1374,8 +1148,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 114,
-                'run_day' => 2,
-                'run_hour' => 17,
                 'security_name' => 'Global X S&P 500 Quality Dividend ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 10,
@@ -1386,8 +1158,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 115,
-                'run_day' => 3,
-                'run_hour' => 18,
                 'security_name' => 'Roundhill Innovation-100 0DTE Covered Call Strategy ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1398,8 +1168,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 116,
-                'run_day' => 4,
-                'run_hour' => 19,
                 'security_name' => 'YieldMax Nasdaq 100 0DTE Covered Call Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1410,8 +1178,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 117,
-                'run_day' => 5,
-                'run_hour' => 20,
                 'security_name' => 'Defiance Nasdaq 100 Covered Call ETF',
                 'etf_issuer_id' => 6,
                 'etf_strategy_type_id' => 1,
@@ -1422,8 +1188,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 118,
-                'run_day' => 6,
-                'run_hour' => 21,
                 'security_name' => 'NEOS Nasdaq 100 Hedged Equity Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 19,
@@ -1434,8 +1198,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 119,
-                'run_day' => 7,
-                'run_hour' => 22,
                 'security_name' => 'NEOS Nasdaq-100 High Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 6,
@@ -1446,8 +1208,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 120,
-                'run_day' => 1,
-                'run_hour' => 23,
                 'security_name' => 'Defiance Nasdaq 100 Target Income ETF',
                 'etf_issuer_id' => 6,
                 'etf_strategy_type_id' => 6,
@@ -1458,8 +1218,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 121,
-                'run_day' => 2,
-                'run_hour' => 0,
                 'security_name' => 'Defiance Nasdaq 100 Enhanced Option Income ETF',
                 'etf_issuer_id' => 6,
                 'etf_strategy_type_id' => 6,
@@ -1470,8 +1228,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 122,
-                'run_day' => 3,
-                'run_hour' => 1,
                 'security_name' => 'Global X Nasdaq 100 Covered Call ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 1,
@@ -1482,8 +1238,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 123,
-                'run_day' => 4,
-                'run_hour' => 2,
                 'security_name' => 'Global X Nasdaq 100 Covered Call & Growth ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 1,
@@ -1494,8 +1248,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 124,
-                'run_day' => 5,
-                'run_hour' => 3,
                 'security_name' => 'YieldMax RBLX Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1506,8 +1258,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 125,
-                'run_day' => 6,
-                'run_hour' => 4,
                 'security_name' => 'Roundhill Russell 2000 0DTE Covered Call Strategy ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1518,8 +1268,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 126,
-                'run_day' => 7,
-                'run_hour' => 5,
                 'security_name' => 'YieldMax Russell 2000 0DTE Covered Call Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1530,8 +1278,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 127,
-                'run_day' => 1,
-                'run_hour' => 6,
                 'security_name' => 'YieldMax RDDT Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1542,8 +1288,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 128,
-                'run_day' => 2,
-                'run_hour' => 7,
                 'security_name' => 'YieldMax Target 12 Real Estate Option Income ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1554,8 +1298,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 129,
-                'run_day' => 3,
-                'run_hour' => 8,
                 'security_name' => 'Global X Russell 2000 Covered Call ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 1,
@@ -1566,8 +1308,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 130,
-                'run_day' => 4,
-                'run_hour' => 9,
                 'security_name' => 'Global X Russell 2000 Covered Call & Growth ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 1,
@@ -1578,8 +1318,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 131,
-                'run_day' => 5,
-                'run_hour' => 10,
                 'security_name' => 'Global X MSCI SuperDividend Emerging Markets ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 10,
@@ -1590,8 +1328,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 132,
-                'run_day' => 6,
-                'run_hour' => 11,
                 'security_name' => 'Global X SuperDividend ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 10,
@@ -1602,8 +1338,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 133,
-                'run_day' => 7,
-                'run_hour' => 12,
                 'security_name' => 'YieldMax S&P 500 0DTE Covered Call Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1614,8 +1348,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 134,
-                'run_day' => 1,
-                'run_hour' => 13,
                 'security_name' => 'Nicholas Silver Income ETF',
                 'etf_issuer_id' => 11,
                 'etf_strategy_type_id' => 25,
@@ -1626,8 +1358,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 135,
-                'run_day' => 2,
-                'run_hour' => 14,
                 'security_name' => 'YieldMax SMCI Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1638,9 +1368,7 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 136,
-                'run_day' => 3,
-                'run_hour' => 15,
-                'security_name' => 'YieldMax SNOW Option Income Strategy ETF',
+                'security_name' => 'YieldMax SNOY Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
                 'distribution_frequency_id' => 2,
@@ -1650,9 +1378,7 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 137,
-                'run_day' => 4,
-                'run_hour' => 16,
-                'security_name' => 'YieldMax SOXL Option Income Strategy ETF',
+                'security_name' => 'YieldMax SOXY Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
                 'distribution_frequency_id' => 2,
@@ -1662,8 +1388,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 138,
-                'run_day' => 5,
-                'run_hour' => 17,
                 'security_name' => 'NEOS S&P 500 Hedged Equity Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 19,
@@ -1674,8 +1398,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 139,
-                'run_day' => 6,
-                'run_hour' => 18,
                 'security_name' => 'NEOS S&P 500 High Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 6,
@@ -1686,8 +1408,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 140,
-                'run_day' => 7,
-                'run_hour' => 19,
                 'security_name' => 'Defiance S&P 500 Target Income ETF',
                 'etf_issuer_id' => 6,
                 'etf_strategy_type_id' => 6,
@@ -1698,8 +1418,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 141,
-                'run_day' => 1,
-                'run_hour' => 20,
                 'security_name' => 'Global X SuperDividend REIT ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 10,
@@ -1710,8 +1428,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 142,
-                'run_day' => 2,
-                'run_hour' => 21,
                 'security_name' => 'TappAlpha Innovation 100 Growth & Daily Income ETF',
                 'etf_issuer_id' => 12,
                 'etf_strategy_type_id' => 6,
@@ -1722,8 +1438,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 143,
-                'run_day' => 3,
-                'run_hour' => 22,
                 'security_name' => 'TDAQ Lift ETF',
                 'etf_issuer_id' => 12,
                 'etf_strategy_type_id' => 18,
@@ -1734,8 +1448,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 144,
-                'run_day' => 4,
-                'run_hour' => 23,
                 'security_name' => 'YieldMax Test ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1746,8 +1458,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 145,
-                'run_day' => 5,
-                'run_hour' => 0,
                 'security_name' => 'NEOS Enhanced Income 20+ Year Treasury Bond ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 9,
@@ -1758,8 +1468,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 146,
-                'run_day' => 6,
-                'run_hour' => 1,
                 'security_name' => 'Roundhill Top 10 WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1770,8 +1478,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 147,
-                'run_day' => 7,
-                'run_hour' => 2,
                 'security_name' => 'Roundhill T-Bill & Option Income ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1782,8 +1488,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 148,
-                'run_day' => 1,
-                'run_hour' => 3,
                 'security_name' => 'REX TSLA Weekly Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -1794,8 +1498,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 149,
-                'run_day' => 2,
-                'run_hour' => 4,
                 'security_name' => 'Kurv Tesla Covered Call ETF',
                 'etf_issuer_id' => 10,
                 'etf_strategy_type_id' => 1,
@@ -1806,8 +1508,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 150,
-                'run_day' => 3,
-                'run_hour' => 5,
                 'security_name' => 'Roundhill TSLA WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1818,8 +1518,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 151,
-                'run_day' => 4,
-                'run_hour' => 6,
                 'security_name' => 'YieldMax TSLA Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1830,8 +1528,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 152,
-                'run_day' => 5,
-                'run_hour' => 7,
                 'security_name' => 'YieldMax TSM Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1842,8 +1538,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 153,
-                'run_day' => 6,
-                'run_hour' => 8,
                 'security_name' => 'TappAlpha S&P 500 Growth & Daily Income ETF',
                 'etf_issuer_id' => 12,
                 'etf_strategy_type_id' => 6,
@@ -1854,8 +1548,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 154,
-                'run_day' => 7,
-                'run_hour' => 9,
                 'security_name' => 'Roundhill TSM WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1866,8 +1558,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 155,
-                'run_day' => 1,
-                'run_hour' => 10,
                 'security_name' => 'TSPY Lift ETF',
                 'etf_issuer_id' => 12,
                 'etf_strategy_type_id' => 18,
@@ -1878,8 +1568,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 156,
-                'run_day' => 2,
-                'run_hour' => 11,
                 'security_name' => 'Roundhill UBER WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1890,8 +1578,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 157,
-                'run_day' => 3,
-                'run_hour' => 12,
                 'security_name' => 'REX Ultra Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -1902,8 +1588,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 158,
-                'run_day' => 4,
-                'run_hour' => 13,
                 'security_name' => 'YieldMax Ultra Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1914,8 +1598,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 159,
-                'run_day' => 5,
-                'run_hour' => 14,
                 'security_name' => 'Roundhill UNH WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1926,8 +1608,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 160,
-                'run_day' => 6,
-                'run_hour' => 15,
                 'security_name' => 'Defiance Oil Enhanced Option Income ETF',
                 'etf_issuer_id' => 6,
                 'etf_strategy_type_id' => 6,
@@ -1938,8 +1618,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 161,
-                'run_day' => 7,
-                'run_hour' => 16,
                 'security_name' => 'Defiance S&P 500 Enhanced Option Income ETF',
                 'etf_issuer_id' => 6,
                 'etf_strategy_type_id' => 6,
@@ -1950,8 +1628,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 162,
-                'run_day' => 1,
-                'run_hour' => 17,
                 'security_name' => 'Roundhill WeeklyPay ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -1962,8 +1638,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 163,
-                'run_day' => 2,
-                'run_hour' => 18,
                 'security_name' => 'Nicholas Defense & Aerospace Income ETF',
                 'etf_issuer_id' => 11,
                 'etf_strategy_type_id' => 26,
@@ -1974,8 +1648,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 164,
-                'run_day' => 3,
-                'run_hour' => 19,
                 'security_name' => 'REX Walmart Weekly Income ETF',
                 'etf_issuer_id' => 3,
                 'etf_strategy_type_id' => 6,
@@ -1986,8 +1658,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 165,
-                'run_day' => 4,
-                'run_hour' => 20,
                 'security_name' => 'YieldMax MSTR Short Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -1998,8 +1668,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 166,
-                'run_day' => 5,
-                'run_hour' => 21,
                 'security_name' => 'NEOS Bitcoin High Income ETF',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 6,
@@ -2010,8 +1678,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 167,
-                'run_day' => 6,
-                'run_hour' => 22,
                 'security_name' => 'Global X S&P 500 Collar 95-110 ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 17,
@@ -2022,8 +1688,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 168,
-                'run_day' => 7,
-                'run_hour' => 23,
                 'security_name' => 'Roundhill S&P 500 0DTE Covered Call Strategy ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -2034,8 +1698,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 169,
-                'run_day' => 1,
-                'run_hour' => 0,
                 'security_name' => 'YieldMax XOM Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -2046,8 +1708,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 170,
-                'run_day' => 2,
-                'run_hour' => 1,
                 'security_name' => 'Roundhill X-Pay Income ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -2058,8 +1718,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 171,
-                'run_day' => 3,
-                'run_hour' => 2,
                 'security_name' => 'NEOS Nasdaq 100 High Income ETF - Tax Efficient',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 6,
@@ -2070,8 +1728,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 172,
-                'run_day' => 4,
-                'run_hour' => 3,
                 'security_name' => 'NEOS S&P 500 High Income ETF - Tax Efficient',
                 'etf_issuer_id' => 9,
                 'etf_strategy_type_id' => 6,
@@ -2082,8 +1738,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 173,
-                'run_day' => 5,
-                'run_hour' => 4,
                 'security_name' => 'Global X S&P 500 Covered Call ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 1,
@@ -2094,8 +1748,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 174,
-                'run_day' => 6,
-                'run_hour' => 5,
                 'security_name' => 'Global X S&P 500 Covered Call & Growth ETF',
                 'etf_issuer_id' => 5,
                 'etf_strategy_type_id' => 1,
@@ -2106,8 +1758,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 175,
-                'run_day' => 7,
-                'run_hour' => 6,
                 'security_name' => 'YieldMax XYZ Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -2118,8 +1768,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 176,
-                'run_day' => 1,
-                'run_hour' => 7,
                 'security_name' => 'YieldMax Bitcoin Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -2130,8 +1778,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 177,
-                'run_day' => 2,
-                'run_hour' => 8,
                 'security_name' => 'Defiance Bitcoin Enhanced Option Income ETF',
                 'etf_issuer_id' => 6,
                 'etf_strategy_type_id' => 6,
@@ -2142,8 +1788,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 178,
-                'run_day' => 3,
-                'run_hour' => 9,
                 'security_name' => 'Roundhill Bitcoin Covered Call Strategy ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -2154,8 +1798,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 179,
-                'run_day' => 4,
-                'run_hour' => 10,
                 'security_name' => 'Roundhill Ether Covered Call Strategy ETF',
                 'etf_issuer_id' => 2,
                 'etf_strategy_type_id' => 6,
@@ -2166,8 +1808,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 180,
-                'run_day' => 5,
-                'run_hour' => 11,
                 'security_name' => 'YieldMax Magnificent 7 Fund of Option Income ETFs',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -2178,8 +1818,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 181,
-                'run_day' => 6,
-                'run_hour' => 12,
                 'security_name' => 'YieldMax Universe Fund of Option Income ETFs',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
@@ -2190,8 +1828,6 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 182,
-                'run_day' => 7,
-                'run_hour' => 13,
                 'security_name' => 'YieldMax QQQ Option Income Strategy ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,

@@ -22,6 +22,10 @@ return new class extends Migration
 
                 $table->unsignedBigInteger('status_id')->nullable();
 
+                $table->unsignedBigInteger('security_update_schedule_id')->nullable();
+
+                $table->unsignedBigInteger('security_update_type_id')->nullable();
+
                 $table->integer('attempts')->default(0);
 
                 $table->integer('runtime_ms')->nullable();
@@ -43,6 +47,10 @@ return new class extends Migration
                 $table->index(['security_ingestion_batch_id']);
 
                 $table->index(['security_id']);
+
+                $table->index(['security_update_schedule_id']);
+
+                $table->index(['security_update_type_id']);
 
                 $table->index(['is_processed']);
 

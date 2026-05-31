@@ -37,6 +37,8 @@ class MakeSeedsController extends Controller
             'SecurityAumHistories',
             'SecurityDetails',
             'SecurityTypes',
+            'SecurityUpdateSchedules',
+            'SecurityUpdateTypes',
             'SignalTypes',
             'Statuses',
             'SupportTopics',

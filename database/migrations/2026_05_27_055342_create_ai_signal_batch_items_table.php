@@ -16,51 +16,51 @@ return new class extends Migration
 
                 $table->id();
 
-                $table->foreignId(
-                    'ai_signal_batch_id'
-                );
+                $table->unsignedBigInteger('ai_signal_batch_id');
 
-                $table->foreignId(
-                    'signal_type_id'
-                );
+                $table->unsignedBigInteger('signal_type_id');
 
-                $table->foreignId(
-                    'import_type_id'
-                );
+                $table->unsignedBigInteger('import_type_id');
 
-                $table->foreignId(
-                    'status_id'
-                );
+                $table->unsignedBigInteger('status_id');
 
-                $table->integer(
-                    'attempts'
-                )->default(0);
+                $table->integer('attempts')->default(0);
 
-                $table->integer(
-                    'runtime_ms'
-                )->nullable();
+                $table->integer('runtime_ms')->nullable();
 
-                $table->boolean(
-                    'is_processed'
-                )->default(false);
+                $table->boolean('is_processed')->default(false);
 
-                $table->boolean(
-                    'is_success'
-                )->default(false);
+                $table->boolean('is_success')->default(false);
 
-                $table->longText(
-                    'error_message'
-                )->nullable();
+                $table->longText('error_message')->nullable();
 
-                $table->timestamp(
-                    'started_at'
-                )->nullable();
+                $table->timestamp('started_at')->nullable();
 
-                $table->timestamp(
-                    'completed_at'
-                )->nullable();
+                $table->timestamp('completed_at')->nullable();
 
                 $table->timestamps();
+
+                // indexes
+
+                $table->index(
+                    'ai_signal_batch_id',
+                    'asbi_batch_idx'
+                );
+
+                $table->index(
+                    'signal_type_id',
+                    'asbi_signal_type_idx'
+                );
+
+                $table->index(
+                    'import_type_id',
+                    'asbi_import_type_idx'
+                );
+
+                $table->index(
+                    'status_id',
+                    'asbi_status_idx'
+                );
             }
 
         );

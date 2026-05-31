@@ -38,6 +38,8 @@ class ImportTypeSeeder extends Seeder
 
             'Data Integrity Audit',
 
+            'Scheduled Security Updates',
+
         ];
 
         foreach ($values as $value) {

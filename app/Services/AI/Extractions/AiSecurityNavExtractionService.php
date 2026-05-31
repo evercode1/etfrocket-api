@@ -3,8 +3,8 @@
 namespace App\Services\AI\Extractions;
 
 use App\Models\AiDataExtraction;
+use App\Models\DataSource;
 use App\Models\Security;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -14,128 +14,151 @@ class AiSecurityNavExtractionService
         Security $security
     ): AiDataExtraction {
 
-        $prompt =
-            $this->buildPrompt(
-                $security
-            );
+        $apiKey = config(
+            'services.twelve_data.api_key'
+        );
+
+        Log::info(
+            'EXTRACT NAV METHOD HIT',
+            [
+                'symbol' => $security->symbol,
+            ]
+        );
+
+        $url =
+            'https://api.twelvedata.com/quote?'.
+
+            'symbol='.
+                $security->symbol.
+
+            '&apikey='.
+                $apiKey;
+
+        Log::info('NAV URL', [
+
+            'url' => $url,
+
+        ]);
 
         $response =
 
-            Http::withToken(
-                config(
-                    'services.openai.api_key'
-                )
-            )
-                ->timeout(60)
-                ->post(
-
-                    'https://api.openai.com/v1/responses',
-
-                    [
-
-                        'model' => config(
-
-                            'services.openai.model',
-
-                            'gpt-4.1-mini'
-
-                        ),
-
-                        'input' => [
-
-                            [
-
-                                'role' => 'system',
-
-                                'content' => 'You extract Security NAV data and return only valid JSON matching the required schema.',
-
-                            ],
-
-                            [
-
-                                'role' => 'user',
-
-                                'content' => $prompt,
-
-                            ],
-
-                        ],
-
-                        'text' => [
-
-                            'format' => [
-
-                                'type' => 'json_schema',
-
-                                'name' => 'etf_nav_extraction',
-
-                                'schema' => $this->schema(),
-
-                                'strict' => true,
-
-                            ],
-
-                        ],
-
-                    ]
-
-                );
+            Http::timeout(60)
+                ->get($url);
 
         if (! $response->successful()) {
 
             Log::error(
+                'Twelve Data NAV extraction failed.',
+                [
+                    'security_id' => $security->id,
+                    'symbol' => $security->symbol,
+                    'response' => $response->body(),
+                ]
+            );
 
-                'OpenAI Security NAV extraction failed.',
+            throw new \RuntimeException(
+                'NAV extraction failed.'
+            );
+        }
+
+        $data =
+            $response->json();
+
+        Log::info(
+            'TWELVE DATA NAV RESPONSE',
+            [
+                'symbol' => $security->symbol,
+                'response' => $data,
+            ]
+        );
+
+        if (
+
+            empty($data['close'])
+
+        ) {
+
+            Log::info(
+
+                'NO NAV DATA AVAILABLE',
 
                 [
 
-                    'security_id' => $security->id,
-
                     'symbol' => $security->symbol,
-
-                    'response' => $response->json(),
 
                 ]
 
             );
 
-            throw new \RuntimeException(
-                'AI Security NAV extraction failed.'
-            );
+            return AiDataExtraction::create([
+
+                'security_id' => $security->id,
+
+                'data_source_id' => DataSource::TWELVE_DATA_API,
+
+                'source_url' => $url,
+
+                'raw_payload' => json_encode(
+                    $data
+                ),
+
+                'prompt' => 'Twelve Data NAV extraction for '.
+                    $security->symbol,
+
+                'extracted_data' => [
+
+                    'symbol' => strtoupper(
+                        $security->symbol
+                    ),
+
+                    'nav_per_share' => null,
+
+                    'nav_date' => null,
+
+                ],
+
+                'is_validated' => false,
+
+                'validation_notes' => 'No NAV data available from Twelve Data.',
+
+                'processed_at' => now(),
+
+            ]);
         }
 
-        $content =
+        $extractedData = [
 
-            $response->json(
-                'output.0.content.0.text'
-            );
+            'symbol' => strtoupper(
+                $security->symbol
+            ),
 
-        $extractedData =
+            'nav_per_share' => (float)
+                $data['close'],
 
-            json_decode(
-                $content,
-                true
-            );
+            'nav_date' => $data['datetime']
+                ?? now()->toDateString(),
 
-        if (! is_array($extractedData)) {
+        ];
 
-            throw new \RuntimeException(
-                'AI Security NAV extraction returned invalid JSON.'
-            );
-        }
+        Log::info(
+            'TWELVE DATA NAV EXTRACTION',
+            $extractedData
+        );
 
         return AiDataExtraction::create([
 
             'security_id' => $security->id,
 
-            'data_source_id' => $security->data_source_id
-                ?? null,
+            'data_source_id' => DataSource::TWELVE_DATA_API,
 
-            'source_url' => $security->website_url,
+            'source_url' => $url,
 
-            'raw_payload' => $response->body(),
+            'raw_payload' => json_encode(
+                $data
+            ),
 
-            'prompt' => $prompt,
+            'prompt' => 'Twelve Data NAV extraction for '.
+                $security->symbol,
 
             'extracted_data' => $extractedData,
 
@@ -146,101 +169,5 @@ class AiSecurityNavExtractionService
             'processed_at' => now(),
 
         ]);
-    }
-
-    private function buildPrompt(
-        Security $security
-    ): string {
-
-        $currentDate =
-
-            Carbon::now()->format(
-                'Y-m-d'
-            );
-
-        return "
-
-You are extracting ETF NAV data for Etf Rocket.
-
-Today's date: {$currentDate}
-
-Security Symbol:
-{$security->symbol}
-
-Security Name:
-{$security->security_name}
-
-Official Website:
-{$security->website_url}
-
-Extract ONLY:
-
-- nav_per_share
-- nav_date
-
-Rules:
-
-- Use the MOST RECENT officially published NAV.
-- Do not guess.
-- Dates must be YYYY-MM-DD.
-- Numbers must be raw numeric values.
-- Return ONLY valid JSON matching the schema.
-
-";
-    }
-
-    private function schema(): array
-    {
-        return [
-
-            'type' => 'object',
-
-            'additionalProperties' => false,
-
-            'required' => [
-
-                'symbol',
-
-                'nav_per_share',
-
-                'nav_date',
-
-            ],
-
-            'properties' => [
-
-                'symbol' => [
-
-                    'type' => 'string',
-
-                ],
-
-                'nav_per_share' => [
-
-                    'type' => [
-
-                        'number',
-
-                        'null',
-
-                    ],
-
-                ],
-
-                'nav_date' => [
-
-                    'type' => [
-
-                        'string',
-
-                        'null',
-
-                    ],
-
-                ],
-
-            ],
-
-        ];
     }
 }

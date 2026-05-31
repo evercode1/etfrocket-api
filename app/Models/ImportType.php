@@ -6,27 +6,29 @@ use Illuminate\Database\Eloquent\Model;
 
 class ImportType extends Model
 {
-    public const AI_DATA_EXTRACTION = 1;
+    const AI_DATA_EXTRACTION = 1;
 
-    public const MARKET_SNAPSHOT = 2;
+    const MARKET_SNAPSHOT = 2;
 
-    public const MARKET_CONDITIONS = 3;
+    const MARKET_CONDITIONS = 3;
 
-    public const MARKET_EVENTS = 4;
+    const MARKET_EVENTS = 4;
 
-    public const CALCULATE_SECURITY_METRICS = 5;
+    const CALCULATE_SECURITY_METRICS = 5;
 
-    public const SECURITY_PRICE_IMPORT = 6;
+    const SECURITY_PRICE_IMPORT = 6;
 
-    public const SECURITY_NAV_IMPORT = 7;
+    const SECURITY_NAV_IMPORT = 7;
 
-    public const SECURITY_AUM_IMPORT = 8;
+    const SECURITY_AUM_IMPORT = 8;
 
-    public const SECURITY_DIVIDEND_IMPORT = 9;
+    const SECURITY_DIVIDEND_IMPORT = 9;
 
-    public const PORTFOLIO_IMPORT = 10;
+    const PORTFOLIO_IMPORT = 10;
 
-    public const DATA_INTEGRITY_AUDIT = 11;
+    const DATA_INTEGRITY_AUDIT = 11;
+
+    const SCHEDULED_SECURITY_UPDATES = 12;
 
     protected $fillable = [
 
