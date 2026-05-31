@@ -27,6 +27,11 @@ class AiSecurityPriceExtractionServiceTest extends TestCase
             app(
                 AiSecurityPriceExtractionService::class
             );
+
+        config()->set(
+            'services.twelve_data.api_key',
+            'test-api-key'
+        );
     }
 
     protected function tearDown(): void
@@ -55,40 +60,12 @@ class AiSecurityPriceExtractionServiceTest extends TestCase
             )->firstOrFail();
 
         Http::fake([
-
-            'https://api.openai.com/v1/responses' => Http::response([
-
-                'output' => [
-
-                    [
-
-                        'content' => [
-
-                            [
-
-                                'text' => json_encode([
-
-                                    'symbol' => 'CHPY',
-
-                                    'close_price' => 24.51,
-
-                                    'price_date' => now()
-                                        ->toDateString(),
-
-                                    'volume' => 125000,
-
-                                ]),
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ],
-
+            'api.twelvedata.com/*' => Http::response([
+                'symbol' => 'CHPY',
+                'close' => '24.51',
+                'datetime' => now()->toDateString(),
+                'volume' => '125000',
             ], 200),
-
         ]);
 
         $extraction =
@@ -135,39 +112,12 @@ class AiSecurityPriceExtractionServiceTest extends TestCase
             now()->toDateString();
 
         Http::fake([
-
-            'https://api.openai.com/v1/responses' => Http::response([
-
-                'output' => [
-
-                    [
-
-                        'content' => [
-
-                            [
-
-                                'text' => json_encode([
-
-                                    'symbol' => 'CHPY',
-
-                                    'close_price' => 21.12,
-
-                                    'price_date' => $date,
-
-                                    'volume' => 150000,
-
-                                ]),
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ],
-
+            'api.twelvedata.com/*' => Http::response([
+                'symbol' => 'CHPY',
+                'close' => '24.51',
+                'datetime' => now()->toDateString(),
+                'volume' => '125000',
             ], 200),
-
         ]);
 
         $extraction =
@@ -198,40 +148,12 @@ class AiSecurityPriceExtractionServiceTest extends TestCase
             )->firstOrFail();
 
         Http::fake([
-
-            'https://api.openai.com/v1/responses' => Http::response([
-
-                'output' => [
-
-                    [
-
-                        'content' => [
-
-                            [
-
-                                'text' => json_encode([
-
-                                    'symbol' => 'CHPY',
-
-                                    'close_price' => 22.33,
-
-                                    'price_date' => now()
-                                        ->toDateString(),
-
-                                    'volume' => 987654,
-
-                                ]),
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ],
-
+            'api.twelvedata.com/*' => Http::response([
+                'symbol' => 'CHPY',
+                'close' => '24.51',
+                'datetime' => now()->toDateString(),
+                'volume' => '125000',
             ], 200),
-
         ]);
 
         $extraction =
@@ -241,9 +163,8 @@ class AiSecurityPriceExtractionServiceTest extends TestCase
                 );
 
         $this->assertEquals(
-            987654,
-            $extraction
-                ->extracted_data['volume']
+            125000,
+            $extraction->extracted_data['volume']
         );
     }
 
@@ -262,40 +183,12 @@ class AiSecurityPriceExtractionServiceTest extends TestCase
             )->firstOrFail();
 
         Http::fake([
-
-            'https://api.openai.com/v1/responses' => Http::response([
-
-                'output' => [
-
-                    [
-
-                        'content' => [
-
-                            [
-
-                                'text' => json_encode([
-
-                                    'symbol' => 'CHPY',
-
-                                    'close_price' => 20.99,
-
-                                    'price_date' => now()
-                                        ->toDateString(),
-
-                                    'volume' => 1000,
-
-                                ]),
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ],
-
+            'api.twelvedata.com/*' => Http::response([
+                'symbol' => 'CHPY',
+                'close' => '24.51',
+                'datetime' => now()->toDateString(),
+                'volume' => '125000',
             ], 200),
-
         ]);
 
         $this->service
@@ -325,7 +218,7 @@ class AiSecurityPriceExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' => Http::response([
+            'api.twelvedata.com/*' => Http::response([
 
                 'error' => [
 
@@ -342,61 +235,9 @@ class AiSecurityPriceExtractionServiceTest extends TestCase
         );
 
         $this->expectExceptionMessage(
-            'AI security price extraction failed.'
-        );
 
-        $this->service
-            ->extract(
-                $security
-            );
-    }
+            'Twelve Data request failed.'
 
-    public function test_it_throws_exception_on_invalid_json()
-    {
-
-        Security::factory()->create([
-            'symbol' => 'CHPY',
-
-        ]);
-
-        $security =
-            Security::where(
-                'symbol',
-                'CHPY'
-            )->firstOrFail();
-
-        Http::fake([
-
-            'https://api.openai.com/v1/responses' => Http::response([
-
-                'output' => [
-
-                    [
-
-                        'content' => [
-
-                            [
-
-                                'text' => 'INVALID_JSON',
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ],
-
-            ], 200),
-
-        ]);
-
-        $this->expectException(
-            \RuntimeException::class
-        );
-
-        $this->expectExceptionMessage(
-            'AI security price extraction returned invalid JSON.'
         );
 
         $this->service

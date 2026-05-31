@@ -67,7 +67,6 @@ class SecuritySummaryQueryTest extends TestCase
             'etf_issuer_id' => EtfIssuer::YIELDMAX,
             'distribution_frequency_id' => DistributionFrequency::WEEKLY,
             'expense_ratio' => 0.99,
-            'sector' => 'Technology',
             'website_url' => 'https://yieldmaxetfs.com',
         ]);
 
@@ -108,11 +107,6 @@ class SecuritySummaryQueryTest extends TestCase
         $this->assertSame(
             '0.9900',
             (string) $result['expense_ratio']
-        );
-
-        $this->assertSame(
-            'Technology',
-            $result['sector']
         );
 
         $this->assertSame(

@@ -19,11 +19,8 @@ class SecurityDetail extends Model
         'etf_strategy_type_id',
         'distribution_frequency_id',
         'expense_ratio',
-        'exchange',
-        'sector',
-        'industry',
-        'inception_date',
-        'source',
+        'run_day',
+        'run_hour',
         'website_url',
         'notes',
 

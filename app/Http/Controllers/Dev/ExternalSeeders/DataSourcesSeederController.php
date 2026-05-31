@@ -75,6 +75,11 @@ class DataSourcesSeederController extends Controller
                 'website_url' => null,
             ],
 
+            [
+                'data_source_name' => 'Twelve Data API',
+                'website_url' => 'https://twelvedata.com',
+            ],
+
         ];
 
         foreach ($sources as $source) {

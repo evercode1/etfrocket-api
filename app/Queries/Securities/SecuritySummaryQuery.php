@@ -33,8 +33,6 @@ class SecuritySummaryQuery
 
                         'security_details.expense_ratio',
 
-                        'security_details.sector',
-
                         'security_details.website_url',
 
                         'distribution_frequencies.distribution_frequency_name',
@@ -93,8 +91,6 @@ class SecuritySummaryQuery
                     'distribution_frequency_name' => $security->distribution_frequency_name,
 
                     'expense_ratio' => $security->expense_ratio,
-
-                    'sector' => $security->sector,
 
                     'website_url' => $security->website_url,
 

@@ -55,36 +55,26 @@ class AiSecurityDividendExtractionServiceTest extends TestCase
                 'CHPY'
             )->firstOrFail();
 
+        config()->set(
+            'services.twelve_data.api_key',
+            'test-api-key'
+        );
+
         Http::fake([
 
-            'https://api.openai.com/v1/responses' => Http::response([
+            'api.twelvedata.com/*' => Http::response([
 
-                'output' => [
+                'meta' => [
+                    'symbol' => 'CHPY',
+                ],
+
+                'dividends' => [
 
                     [
 
-                        'content' => [
+                        'ex_date' => now()->toDateString(),
 
-                            [
-
-                                'text' => json_encode([
-
-                                    'symbol' => 'CHPY',
-
-                                    'dividend_amount' => 0.35,
-
-                                    'ex_dividend_date' => now()
-                                        ->toDateString(),
-
-                                    'payment_date' => now()
-                                        ->addDays(7)
-                                        ->toDateString(),
-
-                                ]),
-
-                            ],
-
-                        ],
+                        'amount' => 0.35,
 
                     ],
 

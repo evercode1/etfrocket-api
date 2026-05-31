@@ -81,14 +81,6 @@ class RunAiSecurityPriceExtractionJob implements ShouldQueue
 
             ]);
 
-            Log::info('BATCH ITEM MARKED PROCESSING', [
-
-                'batch_id' => $this->batchId,
-
-                'security_id' => $this->securityId,
-
-            ]);
-
             /*
             |--------------------------------------------------------------------------
             | Security Lookup
@@ -100,6 +92,12 @@ class RunAiSecurityPriceExtractionJob implements ShouldQueue
                 Security::findOrFail(
                     $this->securityId
                 );
+
+            Log::info('EXTRACT METHOD HIT', [
+
+                'symbol' => $security->symbol,
+
+            ]);
 
             /*
             |--------------------------------------------------------------------------
