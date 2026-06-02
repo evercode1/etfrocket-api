@@ -50,8 +50,6 @@ MARKDOWN,
 
                 'market_status' => 'OPEN',
 
-                'volatility' => 'declining',
-
                 'breadth' => 'improving',
 
             ],

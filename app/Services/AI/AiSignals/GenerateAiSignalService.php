@@ -4,6 +4,9 @@ namespace App\Services\AI\AiSignals;
 
 use App\Models\AiMarketSignal;
 use App\Models\SignalType;
+use App\Services\AI\AiSignals\Payloads\EtfWatchlistPayloadService;
+use App\Services\AI\AiSignals\Payloads\MarketConditionsPayloadService;
+use App\Services\AI\AiSignals\Payloads\MarketSnapshotPayloadService;
 use App\Services\AI\MarketAnalytics\MarketMoodService;
 use Exception;
 
@@ -24,10 +27,19 @@ class GenerateAiSignalService
                 $signal_type_id
             );
 
+        $payload =
+            $this->getPayload(
+                $signal_type_id
+            );
+
         $generatedMarkdown =
             $this->generateAiSignalContentService
                 ->generate(
-                    $signal_type_id
+
+                    $signal_type_id,
+
+                    $payload
+
                 );
 
         $moodData = $this->getMarketMood();
@@ -56,10 +68,16 @@ class GenerateAiSignalService
                     'template_used' => basename($template),
 
                     'market_status' => app(
+
                         IsMarketOpenService::class
+
                     )->isOpen()
+
                         ? 'OPEN'
+
                         : 'CLOSED',
+
+                    'signal_payload' => $payload,
 
                 ],
 
@@ -97,6 +115,10 @@ class GenerateAiSignalService
                 'Services/AI/AiSignals/Templates/market_events.md'
             ),
 
+            SignalType::ETF_WATCHLIST => app_path(
+                'Services/AI/AiSignals/Templates/etf_watchlist.md'
+            ),
+
             default => throw new Exception(
                 'Invalid signal type.'
             ),
@@ -115,6 +137,8 @@ class GenerateAiSignalService
 
             SignalType::MARKET_EVENTS => 'AI Market Events',
 
+            SignalType::ETF_WATCHLIST => 'AI ETF Watchlist',
+
             default => 'AI Signal',
         };
     }
@@ -131,6 +155,8 @@ class GenerateAiSignalService
 
             SignalType::MARKET_EVENTS => 'Upcoming catalysts and macro events impacting financial markets.',
 
+            SignalType::ETF_WATCHLIST => 'AI-generated ETF rankings highlighting performance, momentum, investor flows, and fund quality.',
+
             default => 'AI-generated signal.',
         };
     }
@@ -143,5 +169,30 @@ class GenerateAiSignalService
             MarketMoodService::class
 
         )->determine();
+    }
+
+    private function getPayload(
+        int $signal_type_id
+    ): array {
+        return match ($signal_type_id) {
+
+            SignalType::MARKET_SNAPSHOT => app(
+                MarketSnapshotPayloadService::class
+            )->getData(),
+
+            SignalType::MARKET_CONDITIONS => app(
+                MarketConditionsPayloadService::class
+            )->getData(),
+
+            SignalType::MARKET_EVENTS => [],
+
+            SignalType::ETF_WATCHLIST => app(
+
+                EtfWatchlistPayloadService::class
+
+            )->getData(),
+
+            default => [],
+        };
     }
 }

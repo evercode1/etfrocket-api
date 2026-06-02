@@ -343,4 +343,61 @@ class GenerateAiSignalContentServiceTest extends TestCase
             999
         );
     }
+
+    public function test_it_removes_markdown_code_fences_from_ai_response()
+    {
+        Http::fake([
+
+            '*' => Http::response([
+
+                'output' => [
+
+                    [
+
+                        'content' => [
+
+                            [
+
+                                'text' => "```markdown\n# Market Snapshot\n\nThis is a test report.\n```",
+
+                            ],
+
+                        ],
+
+                    ],
+
+                ],
+
+            ], 200),
+
+        ]);
+
+        $service = new GenerateAiSignalContentService(
+            new IsMarketOpenService
+        );
+
+        $content = $service->generate(
+            SignalType::MARKET_SNAPSHOT
+        );
+
+        $this->assertStringStartsWith(
+            '# Market Snapshot',
+            $content
+        );
+
+        $this->assertStringNotContainsString(
+            '```',
+            $content
+        );
+
+        $this->assertStringNotContainsString(
+            '```markdown',
+            $content
+        );
+
+        $this->assertStringContainsString(
+            'This is a test report.',
+            $content
+        );
+    }
 }

@@ -43,7 +43,6 @@ Explain:
 
 - why these events matter
 - potential market sensitivity
-- possible volatility impact
 - sectors likely affected
 
 ## ETF Impact

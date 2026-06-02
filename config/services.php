@@ -42,6 +42,14 @@ return [
 
     'twelve_data' => [
 
+        'base_url' => env(
+
+            'TWELVE_DATA_BASE_URL',
+
+            'https://api.twelvedata.com'
+
+        ),
+
         'api_key' => env('TWELVE_DATA_API_KEY'),
 
     ],

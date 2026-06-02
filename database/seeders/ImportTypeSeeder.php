@@ -40,6 +40,8 @@ class ImportTypeSeeder extends Seeder
 
             'Scheduled Security Updates',
 
+            'ETF Watchlist',
+
         ];
 
         foreach ($values as $value) {

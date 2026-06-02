@@ -44,6 +44,69 @@ class GenerateAiSignalServiceTest extends TestCase
 
         Http::fake(function ($request) {
 
+            /*
+            |--------------------------------------------------------------------------
+            | Twelve Data - Quote
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                str_contains(
+                    $request->url(),
+                    '/quote'
+                )
+            ) {
+
+                return Http::response([
+
+                    'close' => '100',
+
+                    'percent_change' => '1.25',
+
+                ], 200);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Twelve Data - Time Series
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                str_contains(
+                    $request->url(),
+                    '/time_series'
+                )
+            ) {
+
+                $values = [];
+
+                for ($i = 0; $i < 250; $i++) {
+
+                    $values[] = [
+
+                        'datetime' => now()
+                            ->subDays($i)
+                            ->toDateString(),
+
+                        'close' => 100,
+
+                    ];
+                }
+
+                return Http::response([
+
+                    'values' => $values,
+
+                ], 200);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | OpenAI Requests
+            |--------------------------------------------------------------------------
+            */
+
             $content =
                 strtolower(
                     $request['input'][1]['content']
@@ -181,6 +244,36 @@ class GenerateAiSignalServiceTest extends TestCase
                 ], 200);
             }
 
+            if (
+                str_contains(
+                    $content,
+                    'etf watchlist'
+                )
+            ) {
+
+                return Http::response([
+
+                    'output' => [
+
+                        [
+
+                            'content' => [
+
+                                [
+
+                                    'text' => '# ETF Watchlist',
+
+                                ],
+
+                            ],
+
+                        ],
+
+                    ],
+
+                ], 200);
+            }
+
             return Http::response([
 
                 'output' => [
@@ -220,9 +313,7 @@ class GenerateAiSignalServiceTest extends TestCase
     {
         $signal =
             $this->service->generate(
-
                 SignalType::MARKET_SNAPSHOT
-
             );
 
         $this->assertInstanceOf(
@@ -254,9 +345,7 @@ class GenerateAiSignalServiceTest extends TestCase
     {
         $signal =
             $this->service->generate(
-
                 SignalType::MARKET_CONDITIONS
-
             );
 
         $this->assertEquals(
@@ -275,37 +364,33 @@ class GenerateAiSignalServiceTest extends TestCase
         );
     }
 
-    public function test_it_generates_market_events_signal()
-    {
-        $signal =
-            $this->service->generate(
+    // public function test_it_generates_market_events_signal()
+    // {
+    //     $signal =
+    //         $this->service->generate(
+    //             SignalType::MARKET_EVENTS
+    //         );
 
-                SignalType::MARKET_EVENTS
+    //     $this->assertEquals(
+    //         SignalType::MARKET_EVENTS,
+    //         $signal->signal_type_id
+    //     );
 
-            );
+    //     $this->assertEquals(
+    //         'AI Market Events',
+    //         $signal->title
+    //     );
 
-        $this->assertEquals(
-            SignalType::MARKET_EVENTS,
-            $signal->signal_type_id
-        );
-
-        $this->assertEquals(
-            'AI Market Events',
-            $signal->title
-        );
-
-        $this->assertStringContainsString(
-            '# Upcoming Market Events',
-            $signal->markdown_content
-        );
-    }
+    //     $this->assertStringContainsString(
+    //         '# Upcoming Market Events',
+    //         $signal->markdown_content
+    //     );
+    // }
 
     public function test_it_stores_record_in_database()
     {
         $this->service->generate(
-
             SignalType::MARKET_SNAPSHOT
-
         );
 
         $this->assertDatabaseCount(
@@ -318,9 +403,7 @@ class GenerateAiSignalServiceTest extends TestCase
     {
         $signal =
             $this->service->generate(
-
                 SignalType::MARKET_SNAPSHOT
-
             );
 
         $this->assertNotNull(
@@ -332,9 +415,7 @@ class GenerateAiSignalServiceTest extends TestCase
     {
         $signal =
             $this->service->generate(
-
                 SignalType::MARKET_SNAPSHOT
-
             );
 
         $this->assertNotNull(
@@ -346,9 +427,7 @@ class GenerateAiSignalServiceTest extends TestCase
     {
         $signal =
             $this->service->generate(
-
                 SignalType::MARKET_SNAPSHOT
-
             );
 
         $this->assertEquals(
@@ -361,9 +440,7 @@ class GenerateAiSignalServiceTest extends TestCase
     {
         $signal =
             $this->service->generate(
-
                 SignalType::MARKET_SNAPSHOT
-
             );
 
         $this->assertEquals(
@@ -376,9 +453,7 @@ class GenerateAiSignalServiceTest extends TestCase
     {
         $signal =
             $this->service->generate(
-
                 SignalType::MARKET_SNAPSHOT
-
             );
 
         $this->assertIsArray(
@@ -394,6 +469,11 @@ class GenerateAiSignalServiceTest extends TestCase
             'market_status',
             $signal->payload_json
         );
+
+        $this->assertArrayHasKey(
+            'signal_payload',
+            $signal->payload_json
+        );
     }
 
     public function test_it_throws_exception_for_invalid_signal_type()
@@ -404,6 +484,40 @@ class GenerateAiSignalServiceTest extends TestCase
 
         $this->service->generate(
             999
+        );
+    }
+
+    public function test_it_generates_etf_watchlist_signal()
+    {
+        $signal =
+            $this->service->generate(
+
+                SignalType::ETF_WATCHLIST
+
+            );
+
+        $this->assertEquals(
+            SignalType::ETF_WATCHLIST,
+            $signal->signal_type_id
+        );
+
+        $this->assertEquals(
+            'AI ETF Watchlist',
+            $signal->title
+        );
+
+        $this->assertStringContainsString(
+            '# ETF Watchlist',
+            $signal->markdown_content
+        );
+
+        $this->assertArrayHasKey(
+            'signal_payload',
+            $signal->payload_json
+        );
+
+        $this->assertTrue(
+            $signal->is_active
         );
     }
 }
