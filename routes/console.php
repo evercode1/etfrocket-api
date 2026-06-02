@@ -12,6 +12,10 @@ Schedule::command('securities:calculate-metrics')
     ->dailyAt('02:00')
     ->withoutOverlapping();
 
+Schedule::command('app:cleanup-ai-pipeline-data')
+    ->dailyAt('05:15')
+    ->withoutOverlapping();
+
 Schedule::command('app:trim-cron-logs')
     ->weekly()
     ->weeklyOn(
@@ -33,3 +37,5 @@ Schedule::command('app:trim-import-logs')
 
     )
     ->withoutOverlapping();
+
+// need run price, divideed, and fund data extractions
