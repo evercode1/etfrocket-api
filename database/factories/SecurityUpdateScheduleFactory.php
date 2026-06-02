@@ -42,14 +42,14 @@ class SecurityUpdateScheduleFactory extends Factory
     public function aum(): static
     {
         return $this->state([
-            'security_update_type_id' => SecurityUpdateType::AUM,
+            'security_update_type_id' => SecurityUpdateType::FUND_DATA,
         ]);
     }
 
     public function nav(): static
     {
         return $this->state([
-            'security_update_type_id' => SecurityUpdateType::NAV,
+            'security_update_type_id' => SecurityUpdateType::FUND_DATA,
         ]);
     }
 
