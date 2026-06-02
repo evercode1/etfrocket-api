@@ -6,8 +6,13 @@ use App\Models\AiDataExtraction;
 use App\Models\DataSource;
 use App\Models\EtfIssuer;
 use App\Models\Security;
+use App\Services\Scrapers\GlobalXScraperService;
+use App\Services\Scrapers\KurvScraperService;
+use App\Services\Scrapers\NeosScraperService;
+use App\Services\Scrapers\NicholasXScraperService;
 use App\Services\Scrapers\RexSharesScraperService;
 use App\Services\Scrapers\RoundhillScraperService;
+use App\Services\Scrapers\TappAlphaScraperService;
 use App\Services\Scrapers\YieldMaxScraperService;
 
 class AiSecurityFundDataExtractionService
@@ -16,6 +21,11 @@ class AiSecurityFundDataExtractionService
         private YieldMaxScraperService $yieldMaxScraperService,
         private RoundhillScraperService $roundhillScraperService,
         private RexSharesScraperService $rexSharesScraperService,
+        private GlobalXScraperService $globalXScraperService,
+        private NeosScraperService $neosScraperService,
+        private TappAlphaScraperService $tappAlphaScraperService,
+        private NicholasXScraperService $nicholasXScraperService,
+        private KurvScraperService $kurvScraperService,
     ) {}
 
     public function extract(
@@ -51,6 +61,40 @@ class AiSecurityFundDataExtractionService
 
                     ),
                 EtfIssuer::REX => $this->rexSharesScraperService
+                    ->extract(
+
+                        $security
+
+                    ),
+
+                EtfIssuer::GLOBAL_X => $this->globalXScraperService
+                    ->extract(
+
+                        $security
+
+                    ),
+
+                EtfIssuer::NEOS => $this->neosScraperService
+                    ->extract(
+
+                        $security
+
+                    ),
+
+                EtfIssuer::TAPPALPHA => $this->tappAlphaScraperService
+                    ->extract(
+
+                        $security
+
+                    ),
+                EtfIssuer::NICHOLASX => $this->nicholasXScraperService
+                    ->extract(
+
+                        $security
+
+                    ),
+
+                EtfIssuer::KURV => $this->kurvScraperService
                     ->extract(
 
                         $security

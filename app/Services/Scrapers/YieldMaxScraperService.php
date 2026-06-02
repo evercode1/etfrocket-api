@@ -13,7 +13,7 @@ class YieldMaxScraperService
         Security $security
     ): array {
 
-        $symbol = strtolower(
+        $symbol = strtoupper(
             $security->symbol
         );
 
