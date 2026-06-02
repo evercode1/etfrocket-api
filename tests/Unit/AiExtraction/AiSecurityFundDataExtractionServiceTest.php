@@ -13,6 +13,7 @@ use App\Services\Scrapers\KurvScraperService;
 use App\Services\Scrapers\NeosScraperService;
 use App\Services\Scrapers\NicholasXScraperService;
 use App\Services\Scrapers\RexSharesScraperService;
+use App\Services\Scrapers\RoundhillScraperService;
 use App\Services\Scrapers\TappAlphaScraperService;
 use App\Services\Scrapers\YieldMaxScraperService;
 use Illuminate\Support\Facades\DB;
@@ -689,6 +690,91 @@ class AiSecurityFundDataExtractionServiceTest extends TestCase
 
         $this->mock(
             KurvScraperService::class,
+            function ($mock) use (
+                $security,
+                $expectedData
+            ) {
+
+                $mock->shouldReceive(
+                    'extract'
+                )
+                    ->once()
+                    ->with(
+                        $security
+                    )
+                    ->andReturn(
+                        $expectedData
+                    );
+            }
+        );
+
+        $extraction =
+
+            app(
+                AiSecurityFundDataExtractionService::class
+            )->extract(
+                $security
+            );
+
+        $this->assertInstanceOf(
+            AiDataExtraction::class,
+            $extraction
+        );
+
+        $this->assertEquals(
+            $security->id,
+            $extraction->security_id
+        );
+
+        $this->assertEquals(
+            DataSource::WEB_SCRAPER,
+            $extraction->data_source_id
+        );
+
+        $this->assertEquals(
+            $expectedData,
+            $extraction->extracted_data
+        );
+
+        $this->assertFalse(
+            $extraction->is_validated
+        );
+    }
+
+    public function test_it_extracts_roundhill_fund_data(): void
+    {
+        $security =
+            Security::factory()
+                ->create([
+
+                    'symbol' => 'MAGS',
+
+                ]);
+
+        $security->detail->update([
+
+            'etf_issuer_id' => EtfIssuer::ROUNDHILL,
+
+        ]);
+
+        $expectedData = [
+
+            'symbol' => 'MAGS',
+
+            'assets_under_management' => 2145678900,
+
+            'aum_date' => '2026-05-29',
+
+            'nav_per_share' => 58.42,
+
+            'nav_date' => '2026-05-29',
+
+            'shares_outstanding' => 36728000,
+
+        ];
+
+        $this->mock(
+            RoundhillScraperService::class,
             function ($mock) use (
                 $security,
                 $expectedData
