@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User\AiSignals;
 
 use App\Http\Controllers\Controller;
+use App\Models\AiMarketSignal;
 use App\Queries\AiSignals\GetLatestAiSignalsQuery;
 use App\Services\AI\AiSignals\IsMarketOpenService;
 use Illuminate\Http\JsonResponse;
@@ -59,6 +60,39 @@ class AiSignalsController extends Controller
                 'message' => 'Failed to fetch AI signals.',
 
             ], 500);
+        }
+    }
+
+    public function show(
+        int $id
+    ) {
+        try {
+
+            $signal = AiMarketSignal::with(
+                'signalType'
+            )
+
+                ->findOrFail(
+                    $id
+                );
+
+            return response()->json([
+
+                'success' => true,
+
+                'data' => $signal,
+
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' => $e->getMessage(),
+
+            ], 404);
         }
     }
 }

@@ -17,6 +17,8 @@ class SignalType extends Model
 
     const MARKET_EVENTS = 3;
 
+    const ETF_WATCHLIST = 4;
+
     protected $fillable = [
 
         'signal_type_name',

@@ -177,7 +177,7 @@ class GenerateAiSignalsHandler
 
                 SignalType::MARKET_CONDITIONS => ImportType::MARKET_CONDITIONS,
 
-                SignalType::MARKET_EVENTS => ImportType::MARKET_EVENTS,
+                SignalType::ETF_WATCHLIST => ImportType::ETF_WATCHLIST,
 
             ];
 
@@ -255,6 +255,7 @@ class GenerateAiSignalsHandler
                     $force
 
                 );
+
             }
 
             return [

@@ -132,50 +132,6 @@ class GenerateAiSignalContentServiceTest extends TestCase
         );
     }
 
-    public function test_it_generates_market_events_content()
-    {
-        Http::fake([
-
-            'https://api.openai.com/*' => Http::response([
-
-                'output' => [
-
-                    [
-
-                        'content' => [
-
-                            [
-
-                                'text' => '# Upcoming Market Events',
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ],
-
-            ], 200),
-
-        ]);
-
-        $content =
-            $this->service->generate(
-
-                SignalType::MARKET_EVENTS
-
-            );
-
-        $this->assertStringContainsString(
-
-            '# Upcoming Market Events',
-
-            $content
-
-        );
-    }
-
     public function test_it_sends_request_to_openai()
     {
         Http::fake([
@@ -341,6 +297,63 @@ class GenerateAiSignalContentServiceTest extends TestCase
 
         $this->service->generate(
             999
+        );
+    }
+
+    public function test_it_removes_markdown_code_fences_from_ai_response()
+    {
+        Http::fake([
+
+            '*' => Http::response([
+
+                'output' => [
+
+                    [
+
+                        'content' => [
+
+                            [
+
+                                'text' => "```markdown\n# Market Snapshot\n\nThis is a test report.\n```",
+
+                            ],
+
+                        ],
+
+                    ],
+
+                ],
+
+            ], 200),
+
+        ]);
+
+        $service = new GenerateAiSignalContentService(
+            new IsMarketOpenService
+        );
+
+        $content = $service->generate(
+            SignalType::MARKET_SNAPSHOT
+        );
+
+        $this->assertStringStartsWith(
+            '# Market Snapshot',
+            $content
+        );
+
+        $this->assertStringNotContainsString(
+            '```',
+            $content
+        );
+
+        $this->assertStringNotContainsString(
+            '```markdown',
+            $content
+        );
+
+        $this->assertStringContainsString(
+            'This is a test report.',
+            $content
         );
     }
 }

@@ -102,7 +102,7 @@ Do not include additional text.',
 
                                     'role' => 'user',
 
-                                    'content' => 'Analyze the current Nasdaq market environment, momentum, volatility, and macro sentiment and classify the current market mood.',
+                                    'content' => 'Analyze the current Nasdaq market environment, momentum, and macro sentiment and classify the current market mood.',
 
                                 ],
 

@@ -20,6 +20,8 @@ class SignalTypesSeederController extends Controller
 
             'market events',
 
+            'etf watchlist',
+
         ];
 
         foreach ($values as $value) {

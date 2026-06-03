@@ -15,7 +15,8 @@ class GenerateAiSignalContentService
     ) {}
 
     public function generate(
-        int $signal_type_id
+        int $signal_type_id,
+        array $payload = []
     ): string {
 
         $template =
@@ -28,6 +29,17 @@ class GenerateAiSignalContentService
                 ->isOpen()
             ? 'OPEN'
             : 'CLOSED';
+
+        $prompt =
+            $this->buildPrompt(
+
+                marketStatus: $marketStatus,
+
+                template: $template,
+
+                payload: $payload
+
+            );
 
         $response =
             Http::withToken(
@@ -61,13 +73,7 @@ class GenerateAiSignalContentService
 
                                 'role' => 'user',
 
-                                'content' => "Current Market Status: {$marketStatus}".
-
-                                    PHP_EOL.
-
-                                    PHP_EOL.
-
-                                    $template,
+                                'content' => $prompt,
 
                             ],
 
@@ -83,12 +89,11 @@ class GenerateAiSignalContentService
             throw new Exception(
                 'AI signal generation failed: '.
 
-                    $response->status().
+                $response->status().
 
-                    ' - '.
+                ' - '.
 
-                    $response->body()
-
+                $response->body()
             );
         }
 
@@ -96,6 +101,26 @@ class GenerateAiSignalContentService
             $response->json(
                 'output.0.content.0.text'
             );
+
+        $content = preg_replace(
+
+            '/^```(?:markdown)?\s*/i',
+
+            '',
+
+            $content
+
+        );
+
+        $content = preg_replace(
+
+            '/\s*```$/',
+
+            '',
+
+            $content
+
+        );
 
         if (
             empty($content)
@@ -107,6 +132,81 @@ class GenerateAiSignalContentService
         }
 
         return trim($content);
+    }
+
+    /**
+     * Build the prompt sent to OpenAI.
+     *
+     * Templates remain responsible for structure,
+     * tone, and formatting.
+     *
+     * Payloads provide the factual market data
+     * the AI should use when generating analysis.
+     */
+    private function buildPrompt(
+        string $marketStatus,
+        string $template,
+        array $payload
+    ): string {
+
+        $prompt =
+
+            "Current Market Status: {$marketStatus}"
+
+            .PHP_EOL
+
+            .PHP_EOL
+
+            .$template;
+
+        if (
+            empty($payload)
+        ) {
+
+            return $prompt;
+        }
+
+        return
+
+            $prompt
+
+            .PHP_EOL
+
+            .PHP_EOL
+
+            .'IMPORTANT:'
+
+            .PHP_EOL
+
+            .'- Use ONLY the supplied market data.'
+
+            .PHP_EOL
+
+            .'- Do not invent values.'
+
+            .PHP_EOL
+
+            .'- Do not reference data that is not provided.'
+
+            .PHP_EOL
+
+            .'- If data is missing, omit discussion of that metric.'
+
+            .PHP_EOL
+
+            .PHP_EOL
+
+            .'MARKET DATA'
+
+            .PHP_EOL
+
+            .json_encode(
+
+                $payload,
+
+                JSON_PRETTY_PRINT
+
+            );
     }
 
     private function getTemplateContent(
@@ -126,6 +226,10 @@ class GenerateAiSignalContentService
 
                 SignalType::MARKET_EVENTS => app_path(
                     'Services/AI/AiSignals/Templates/market_events.md'
+                ),
+
+                SignalType::ETF_WATCHLIST => app_path(
+                    'Services/AI/AiSignals/Templates/etf_watchlist.md'
                 ),
 
                 default => throw new Exception(

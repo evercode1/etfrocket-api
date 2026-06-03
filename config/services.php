@@ -42,7 +42,29 @@ return [
 
     'twelve_data' => [
 
+        'base_url' => env(
+
+            'TWELVE_DATA_BASE_URL',
+
+            'https://api.twelvedata.com'
+
+        ),
+
         'api_key' => env('TWELVE_DATA_API_KEY'),
+
+    ],
+
+    'fred' => [
+
+        'base_url' => env(
+
+            'FRED_BASE_URL',
+
+            'https://api.stlouisfed.org/fred'
+
+        ),
+
+        'api_key' => env('FRED_API_KEY'),
 
     ],
 

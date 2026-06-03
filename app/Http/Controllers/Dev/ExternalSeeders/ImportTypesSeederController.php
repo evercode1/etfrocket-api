@@ -40,6 +40,8 @@ class ImportTypesSeederController extends Controller
 
             'Scheduled Security Updates',
 
+            'ETF Watchlist',
+
         ];
 
         foreach ($values as $value) {

@@ -79,6 +79,13 @@ class GetAiSignalsTest extends TestCase
 
             ]);
 
+        AiMarketSignal::factory()
+            ->create([
+
+                'signal_type_id' => SignalType::ETF_WATCHLIST,
+
+            ]);
+
         $response =
             $this->getJson(
                 '/api/get-ai-signals'
@@ -110,7 +117,7 @@ class GetAiSignalsTest extends TestCase
 
         $this->assertCount(
 
-            3,
+            4,
 
             $response->json(
                 'data'
@@ -304,6 +311,59 @@ class GetAiSignalsTest extends TestCase
             $response->json(
                 'data.0.is_active'
             )
+
+        );
+    }
+
+    public function test_it_returns_etf_watchlist_signal()
+    {
+        AiMarketSignal::factory()
+            ->create([
+
+                'signal_type_id' => SignalType::ETF_WATCHLIST,
+
+                'title' => 'AI ETF Watchlist',
+
+            ]);
+
+        $response =
+            $this->getJson(
+                '/api/get-ai-signals'
+            );
+
+        $response->assertStatus(200);
+
+        $this->assertCount(
+
+            1,
+
+            collect(
+                $response->json(
+                    'data'
+                )
+            )
+
+                ->where(
+                    'signal_type_id',
+                    SignalType::ETF_WATCHLIST
+                )
+
+        );
+
+        $this->assertEquals(
+
+            'AI ETF Watchlist',
+
+            collect(
+                $response->json(
+                    'data'
+                )
+            )
+
+                ->firstWhere(
+                    'signal_type_id',
+                    SignalType::ETF_WATCHLIST
+                )['title']
 
         );
     }

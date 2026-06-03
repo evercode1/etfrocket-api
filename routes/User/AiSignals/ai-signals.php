@@ -15,4 +15,5 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/get-ai-signals', [AiSignalsController::class, 'index']);
+    Route::get('/show-ai-signal/{id}', [AiSignalsController::class, 'show']);
 });

@@ -24,6 +24,8 @@ class SignalTypeSeeder extends Seeder
 
             'market events',
 
+            'etf watchlist',
+
         ];
 
         foreach ($values as $value) {

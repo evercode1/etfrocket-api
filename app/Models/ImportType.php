@@ -30,6 +30,8 @@ class ImportType extends Model
 
     const SCHEDULED_SECURITY_UPDATES = 12;
 
+    const ETF_WATCHLIST = 13;
+
     protected $fillable = [
 
         'import_type_name',

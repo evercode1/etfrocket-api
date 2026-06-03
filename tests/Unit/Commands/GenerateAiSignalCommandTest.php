@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Commands;
 
+use App\Jobs\GenerateAiSignalJob;
+use App\Models\AiSignalBatch;
 use App\Models\CronLog;
 use App\Models\SignalType;
 use Database\Seeders\IntervalSeeder;
@@ -9,43 +11,32 @@ use Database\Seeders\NotificationStatusSeeder;
 use Database\Seeders\SignalTypeSeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class GenerateAiSignalCommandTest extends TestCase
 {
     protected function setUp(): void
     {
-
         parent::setUp();
 
-        DB::table('ai_market_signals')
+        Queue::fake();
 
-            ->truncate();
+        DB::table('ai_signal_batch_items')->truncate();
 
-        DB::table('cron_logs')
+        DB::table('ai_signal_batches')->truncate();
 
-            ->truncate();
+        DB::table('ai_market_signals')->truncate();
 
-        DB::table('signal_types')
+        DB::table('cron_logs')->truncate();
 
-            ->truncate();
+        DB::table('signal_types')->truncate();
 
-        DB::table('intervals')
+        DB::table('intervals')->truncate();
 
-            ->truncate();
+        DB::table('statuses')->truncate();
 
-        DB::table('statuses')
-
-            ->truncate();
-
-        DB::table('notification_statuses')
-
-            ->truncate();
-
-        DB::table('cron_logs')
-
-            ->truncate();
+        DB::table('notification_statuses')->truncate();
 
         $this->seed([
 
@@ -58,238 +49,54 @@ class GenerateAiSignalCommandTest extends TestCase
             SignalTypeSeeder::class,
 
         ]);
-
-        Http::fake(function ($request) {
-
-            $content =
-
-                strtolower(
-
-                    $request['input'][1]['content']
-
-                );
-
-            /*
-
-            |--------------------------------------------------------------------------
-
-            | Market Mood Prompt
-
-            |--------------------------------------------------------------------------
-
-            */
-
-            if (
-
-                str_contains(
-
-                    $content,
-
-                    'classify the current market mood'
-
-                )
-
-            ) {
-
-                return Http::response([
-
-                    'output' => [
-
-                        [
-
-                            'content' => [
-
-                                [
-
-                                    'text' => 'Bullish',
-
-                                ],
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ], 200);
-            }
-
-            /*
-
-            |--------------------------------------------------------------------------
-
-            | Signal Content Prompts
-
-            |--------------------------------------------------------------------------
-
-            */
-
-            if (
-
-                str_contains(
-
-                    $content,
-
-                    'market snapshot'
-
-                )
-
-            ) {
-
-                return Http::response([
-
-                    'output' => [
-
-                        [
-
-                            'content' => [
-
-                                [
-
-                                    'text' => '# Market Snapshot',
-
-                                ],
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ], 200);
-            }
-
-            if (
-
-                str_contains(
-
-                    $content,
-
-                    'market conditions'
-
-                )
-
-            ) {
-
-                return Http::response([
-
-                    'output' => [
-
-                        [
-
-                            'content' => [
-
-                                [
-
-                                    'text' => '# Market Conditions',
-
-                                ],
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ], 200);
-            }
-
-            if (
-
-                str_contains(
-
-                    $content,
-
-                    'market events'
-
-                )
-
-            ) {
-
-                return Http::response([
-
-                    'output' => [
-
-                        [
-
-                            'content' => [
-
-                                [
-
-                                    'text' => '# Upcoming Market Events',
-
-                                ],
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ], 200);
-            }
-
-            return Http::response([
-
-                'output' => [
-
-                    [
-
-                        'content' => [
-
-                            [
-
-                                'text' => '# AI Signal',
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ],
-
-            ], 200);
-        });
     }
 
     protected function tearDown(): void
     {
+        DB::table('ai_signal_batch_items')->truncate();
 
-        DB::table('ai_market_signals')
+        DB::table('ai_signal_batches')->truncate();
 
-            ->truncate();
+        DB::table('ai_market_signals')->truncate();
 
-        DB::table('cron_logs')
+        DB::table('cron_logs')->truncate();
 
-            ->truncate();
+        DB::table('signal_types')->truncate();
 
-        DB::table('signal_types')
+        DB::table('intervals')->truncate();
 
-            ->truncate();
+        DB::table('statuses')->truncate();
 
-        DB::table('intervals')
-
-            ->truncate();
-
-        DB::table('statuses')
-
-            ->truncate();
-
-        DB::table('notification_statuses')
-
-            ->truncate();
-
-        DB::table('cron_logs')
-
-            ->truncate();
+        DB::table('notification_statuses')->truncate();
 
         parent::tearDown();
     }
 
-    public function test_it_generates_all_ai_signals()
+    public function test_it_dispatches_all_ai_signal_jobs(): void
     {
+        $this->artisan(
 
+            'ai:generate-signals',
+
+            [
+
+                '--force' => true,
+
+            ]
+
+        )->assertExitCode(0);
+
+        Queue::assertPushed(
+
+            GenerateAiSignalJob::class,
+
+            3
+
+        );
+    }
+
+    public function test_it_creates_ai_signal_batch(): void
+    {
         $this->artisan(
 
             'ai:generate-signals',
@@ -304,7 +111,54 @@ class GenerateAiSignalCommandTest extends TestCase
 
         $this->assertDatabaseCount(
 
-            'ai_market_signals',
+            'ai_signal_batches',
+
+            1
+
+        );
+
+        $batch =
+
+            AiSignalBatch::first();
+
+        $this->assertNotNull(
+
+            $batch
+
+        );
+
+        $this->assertEquals(
+
+            3,
+
+            $batch->total_signals
+
+        );
+
+        $this->assertNotNull(
+
+            $batch->batch_uuid
+
+        );
+    }
+
+    public function test_it_creates_batch_items_for_all_signal_types(): void
+    {
+        $this->artisan(
+
+            'ai:generate-signals',
+
+            [
+
+                '--force' => true,
+
+            ]
+
+        )->assertExitCode(0);
+
+        $this->assertDatabaseCount(
+
+            'ai_signal_batch_items',
 
             3
 
@@ -312,7 +166,7 @@ class GenerateAiSignalCommandTest extends TestCase
 
         $this->assertDatabaseHas(
 
-            'ai_market_signals',
+            'ai_signal_batch_items',
 
             [
 
@@ -324,7 +178,7 @@ class GenerateAiSignalCommandTest extends TestCase
 
         $this->assertDatabaseHas(
 
-            'ai_market_signals',
+            'ai_signal_batch_items',
 
             [
 
@@ -336,20 +190,19 @@ class GenerateAiSignalCommandTest extends TestCase
 
         $this->assertDatabaseHas(
 
-            'ai_market_signals',
+            'ai_signal_batch_items',
 
             [
 
-                'signal_type_id' => SignalType::MARKET_EVENTS,
+                'signal_type_id' => SignalType::ETF_WATCHLIST,
 
             ]
 
         );
     }
 
-    public function test_it_creates_cron_log_record()
+    public function test_it_creates_cron_log_record(): void
     {
-
         $this->artisan(
 
             'ai:generate-signals',
@@ -387,135 +240,8 @@ class GenerateAiSignalCommandTest extends TestCase
         );
     }
 
-    public function test_it_stores_markdown_content()
+    public function test_it_creates_successful_cron_log(): void
     {
-
-        $this->artisan(
-
-            'ai:generate-signals',
-
-            [
-
-                '--force' => true,
-
-            ]
-
-        )->assertExitCode(0);
-
-        $signal =
-
-            DB::table(
-
-                'ai_market_signals'
-
-            )->first();
-
-        $this->assertNotNull(
-
-            $signal
-
-        );
-
-        $this->assertStringContainsString(
-
-            '#',
-
-            $signal->markdown_content
-
-        );
-    }
-
-    public function test_it_sets_generated_at()
-    {
-
-        $this->artisan(
-
-            'ai:generate-signals',
-
-            [
-
-                '--force' => true,
-
-            ]
-
-        )->assertExitCode(0);
-
-        $signal =
-
-            DB::table(
-
-                'ai_market_signals'
-
-            )->first();
-
-        $this->assertNotNull(
-
-            $signal->generated_at
-
-        );
-    }
-
-    public function test_it_sets_expires_at()
-    {
-
-        $this->artisan(
-
-            'ai:generate-signals',
-
-            [
-
-                '--force' => true,
-
-            ]
-
-        )->assertExitCode(0);
-
-        $signal =
-
-            DB::table(
-
-                'ai_market_signals'
-
-            )->first();
-
-        $this->assertNotNull(
-
-            $signal->expires_at
-
-        );
-    }
-
-    public function test_it_sets_signal_as_active()
-    {
-
-        $this->artisan(
-
-            'ai:generate-signals',
-
-            [
-
-                '--force' => true,
-
-            ]
-
-        )->assertExitCode(0);
-
-        $this->assertDatabaseHas(
-
-            'ai_market_signals',
-
-            [
-
-                'is_active' => 1,
-
-            ]
-
-        );
-    }
-
-    public function test_it_creates_successful_cron_log()
-    {
-
         $this->artisan(
 
             'ai:generate-signals',
