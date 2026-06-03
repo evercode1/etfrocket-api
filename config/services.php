@@ -54,4 +54,18 @@ return [
 
     ],
 
+    'fred' => [
+
+        'base_url' => env(
+
+            'FRED_BASE_URL',
+
+            'https://api.stlouisfed.org/fred'
+
+        ),
+
+        'api_key' => env('FRED_API_KEY'),
+
+    ],
+
 ];

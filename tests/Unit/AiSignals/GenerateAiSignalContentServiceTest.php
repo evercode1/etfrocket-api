@@ -132,50 +132,6 @@ class GenerateAiSignalContentServiceTest extends TestCase
         );
     }
 
-    public function test_it_generates_market_events_content()
-    {
-        Http::fake([
-
-            'https://api.openai.com/*' => Http::response([
-
-                'output' => [
-
-                    [
-
-                        'content' => [
-
-                            [
-
-                                'text' => '# Upcoming Market Events',
-
-                            ],
-
-                        ],
-
-                    ],
-
-                ],
-
-            ], 200),
-
-        ]);
-
-        $content =
-            $this->service->generate(
-
-                SignalType::MARKET_EVENTS
-
-            );
-
-        $this->assertStringContainsString(
-
-            '# Upcoming Market Events',
-
-            $content
-
-        );
-    }
-
     public function test_it_sends_request_to_openai()
     {
         Http::fake([

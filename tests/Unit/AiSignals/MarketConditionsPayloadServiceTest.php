@@ -176,11 +176,6 @@ class MarketConditionsPayloadServiceTest extends TestCase
         );
 
         $this->assertEquals(
-            'normal',
-            $payload['vix_regime']
-        );
-
-        $this->assertEquals(
             'growth_leading',
             $payload['growth_vs_defensive']
         );

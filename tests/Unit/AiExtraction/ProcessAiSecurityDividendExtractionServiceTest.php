@@ -6,7 +6,6 @@ use App\Models\AiDataExtraction;
 use App\Models\DataSource;
 use App\Models\Security;
 use App\Services\AI\Extractions\ProcessAiSecurityDividendExtractionService;
-use Database\Seeders\SecuritySeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -24,9 +23,7 @@ class ProcessAiSecurityDividendExtractionServiceTest extends TestCase
 
         DB::table('securities')->truncate();
 
-        $this->seed(
-            SecuritySeeder::class
-        );
+        DB::table('security_details')->truncate();
 
         $this->service =
             app(
@@ -42,13 +39,22 @@ class ProcessAiSecurityDividendExtractionServiceTest extends TestCase
 
         DB::table('securities')->truncate();
 
+        DB::table('security_details')->truncate();
+
         parent::tearDown();
     }
 
     public function test_it_processes_dividend_extraction()
     {
+
         $security =
-            Security::firstOrFail();
+            Security::factory()->create([
+
+                'symbol' => 'CHPY',
+            ]);
+
+        $security =
+            Security::findOrFail($security->id);
 
         $extraction =
             AiDataExtraction::factory()
@@ -95,7 +101,10 @@ class ProcessAiSecurityDividendExtractionServiceTest extends TestCase
     public function test_it_fails_if_symbol_does_not_match()
     {
         $security =
-            Security::firstOrFail();
+            Security::factory()->create([
+
+                'symbol' => 'CHPY',
+            ]);
 
         $extraction =
             AiDataExtraction::factory()

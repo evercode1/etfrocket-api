@@ -364,29 +364,6 @@ class GenerateAiSignalServiceTest extends TestCase
         );
     }
 
-    // public function test_it_generates_market_events_signal()
-    // {
-    //     $signal =
-    //         $this->service->generate(
-    //             SignalType::MARKET_EVENTS
-    //         );
-
-    //     $this->assertEquals(
-    //         SignalType::MARKET_EVENTS,
-    //         $signal->signal_type_id
-    //     );
-
-    //     $this->assertEquals(
-    //         'AI Market Events',
-    //         $signal->title
-    //     );
-
-    //     $this->assertStringContainsString(
-    //         '# Upcoming Market Events',
-    //         $signal->markdown_content
-    //     );
-    // }
-
     public function test_it_stores_record_in_database()
     {
         $this->service->generate(

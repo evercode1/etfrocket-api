@@ -116,7 +116,7 @@ class AiSecurityDividendExtractionServiceTest extends TestCase
 
         Http::fake([
 
-            'https://api.openai.com/v1/responses' => Http::response([], 500),
+            'api.twelvedata.com/*' => Http::response([], 500),
 
         ]);
 
