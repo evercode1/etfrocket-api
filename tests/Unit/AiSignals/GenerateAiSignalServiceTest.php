@@ -497,4 +497,36 @@ class GenerateAiSignalServiceTest extends TestCase
             $signal->is_active
         );
     }
+
+    public function test_it_appends_disclaimer_to_signal()
+    {
+        $signal =
+            $this->service->generate(
+                SignalType::MARKET_SNAPSHOT
+            );
+
+        $this->assertStringContainsString(
+
+            'Important Disclosure',
+
+            $signal->markdown_content
+
+        );
+
+        $this->assertStringContainsString(
+
+            'This report is provided solely for informational and educational purposes',
+
+            $signal->markdown_content
+
+        );
+
+        $this->assertStringContainsString(
+
+            '# Market Snapshot',
+
+            $signal->markdown_content
+
+        );
+    }
 }
