@@ -81,4 +81,12 @@ class EtfStrategyType extends Model
 
         ];
     }
+
+    public static function getSelects()
+    {
+
+        return self::orderBy('etf_strategy_type_name', 'asc')
+
+            ->pluck('etf_strategy_type_name', 'id');
+    }
 }

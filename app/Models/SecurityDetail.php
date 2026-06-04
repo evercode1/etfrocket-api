@@ -34,4 +34,35 @@ class SecurityDetail extends Model
 
         ];
     }
+
+    public function security()
+    {
+        return $this->belongsTo(
+            Security::class
+        );
+    }
+
+    public function issuer()
+    {
+        return $this->belongsTo(
+            EtfIssuer::class,
+            'etf_issuer_id'
+        );
+    }
+
+    public function strategyType()
+    {
+        return $this->belongsTo(
+            EtfStrategyType::class,
+            'etf_strategy_type_id'
+        );
+    }
+
+    public function distributionFrequency()
+    {
+        return $this->belongsTo(
+            DistributionFrequency::class,
+            'distribution_frequency_id'
+        );
+    }
 }

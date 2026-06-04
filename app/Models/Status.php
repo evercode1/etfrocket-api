@@ -43,6 +43,8 @@ class Status extends Model
 
     const PROCESSING = 17;
 
+    const RETIRED = 18;
+
     protected $fillable = [
 
         'status_name',
@@ -58,6 +60,14 @@ class Status extends Model
             'updated_at' => 'date:Y-m-d',
 
         ];
+    }
+
+    public static function getSelects()
+    {
+
+        return self::orderBy('status_name', 'asc')
+
+            ->pluck('status_name', 'id');
     }
 
     public static function getStatusId(string $name)

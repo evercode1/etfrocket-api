@@ -30,6 +30,14 @@ class SecurityUpdateType extends Model
         ];
     }
 
+    public static function getSelects()
+    {
+
+        return self::orderBy('security_update_type_name', 'asc')
+
+            ->pluck('security_update_type_name', 'id');
+    }
+
     public function schedules()
     {
         return $this->hasMany(

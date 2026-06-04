@@ -42,6 +42,20 @@ class GenerateAiSignalService
 
                 );
 
+        $disclaimer =
+
+    $disclaimer = file_get_contents(
+        app_path(
+            'Services/AI/AiSignals/Templates/disclaimer.md'
+        )
+    );
+
+        $generatedMarkdown .=
+
+            "\n\n".
+
+            $disclaimer;
+
         $moodData = $this->getMarketMood();
 
         $signal =

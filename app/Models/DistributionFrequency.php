@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Database\Factories\EtfFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DistributionFrequency extends Model
 {
-    /** @use HasFactory<EtfFactory> */
+    /** @use HasFactory<DistributionFrequencyFactory> */
     use HasFactory;
 
     const DAILY = 1;
@@ -44,5 +43,13 @@ class DistributionFrequency extends Model
             'updated_at' => 'date:Y-m-d',
 
         ];
+    }
+
+    public static function getSelects()
+    {
+
+        return self::orderBy('distribution_frequency_name', 'asc')
+
+            ->pluck('distribution_frequency_name', 'id');
     }
 }

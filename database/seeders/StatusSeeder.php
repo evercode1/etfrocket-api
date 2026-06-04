@@ -30,6 +30,7 @@ class StatusSeeder extends Seeder
             'Success',
             'Failed',
             'Processing',
+            'Retired',
 
         ];
 

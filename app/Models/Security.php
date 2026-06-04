@@ -31,16 +31,37 @@ class Security extends Model
         ];
     }
 
-    public function detail(): HasOne
-    {
-        return $this->hasOne(SecurityDetail::class, 'security_id', 'id');
-    }
-
     public static function getSelects()
     {
 
         return self::orderBy('symbol', 'asc')
 
             ->pluck('symbol', 'id');
+    }
+
+    public function detail(): HasOne
+    {
+        return $this->hasOne(SecurityDetail::class, 'security_id', 'id');
+    }
+
+    public function securityType()
+    {
+        return $this->belongsTo(
+            SecurityType::class
+        );
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(
+            Status::class
+        );
+    }
+
+    public function updateSchedules()
+    {
+        return $this->hasMany(
+            SecurityUpdateSchedule::class
+        );
     }
 }
