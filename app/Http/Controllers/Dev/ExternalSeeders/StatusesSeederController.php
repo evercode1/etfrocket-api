@@ -30,6 +30,7 @@ class StatusesSeederController extends Controller
             'Success',
             'Failed',
             'Processing',
+            'Retired',
 
         ];
 

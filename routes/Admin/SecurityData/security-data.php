@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\ExternalData\ExternalDataController;
+use App\Http\Controllers\Admin\Securities\SecuritiesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,8 +13,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['middleware' => ['allowExternalData']], function () {
+Route::group(['middleware' => ['auth', 'isAdmin']], function () {
 
-    Route::post('/security-data', [ExternalDataController::class, 'updateSecurityData']);
+    Route::get('/admin/list-securities-data', [SecuritiesController::class, 'index']);
+
+    Route::get('/admin/security-data-selects', [SecuritiesController::class, 'securitySelects']);
+
+    Route::get('/admin/security-data-show/{id}', [SecuritiesController::class, 'show']);
+
+    Route::post('/admin/security-data-store', [SecuritiesController::class, 'store']);
+
+    Route::put('/admin/security-data-update/{id}', [SecuritiesController::class, 'update']);
+
+    Route::put('/admin/security-data-retire/{id}', [SecuritiesController::class, 'retire']);
 
 });

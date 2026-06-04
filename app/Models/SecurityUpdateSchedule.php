@@ -49,4 +49,15 @@ class SecurityUpdateSchedule extends Model
             'security_update_type_id'
         );
     }
+
+    public function status()
+    {
+
+        return $this->belongsTo(
+
+            Status::class
+
+        );
+
+    }
 }

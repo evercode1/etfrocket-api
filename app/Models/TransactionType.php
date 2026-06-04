@@ -31,4 +31,12 @@ class TransactionType extends Model
         ];
 
     }
+
+    public static function getSelects()
+    {
+
+        return self::orderBy('transaction_type_name', 'asc')
+
+            ->pluck('transaction_type_name', 'id');
+    }
 }
