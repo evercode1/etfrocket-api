@@ -16,11 +16,12 @@ use App\Queries\Admin\Securities\ShowSecurityDataQuery;
 use App\Services\Admin\Securities\CreateSecurityService;
 use App\Services\Admin\Securities\RetireSecurityService;
 use App\Services\Admin\Securities\UpdateSecurityService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class SecuritiesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
 
@@ -32,7 +33,7 @@ class SecuritiesController extends Controller
 
                     ListSecuritiesDataQuery::class
 
-                )->getData(),
+                )->getData($request),
 
             ], 200);
 

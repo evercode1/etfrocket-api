@@ -11,6 +11,7 @@ use App\Models\SecurityType;
 use App\Models\SecurityUpdateSchedule;
 use App\Models\Status;
 use App\Queries\Admin\Securities\ListSecuritiesDataQuery;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -112,9 +113,13 @@ class ListSecuritiesDataQueryTest extends TestCase
         ]);
 
         $results =
-    app(
-        ListSecuritiesDataQuery::class
-    )->getData();
+            app(
+                ListSecuritiesDataQuery::class
+            )->getData(
+
+                new Request
+
+            );
 
         $this->assertEquals(
             1,
@@ -130,42 +135,42 @@ class ListSecuritiesDataQueryTest extends TestCase
 
         $this->assertEquals(
             'CHPY',
-            $record->symbol
+            $record['symbol']
         );
 
         $this->assertEquals(
             'YieldMax Semiconductor Portfolio Option Income ETF',
-            $record->security_name
+            $record['security_name']
         );
 
         $this->assertEquals(
-            $issuer->id,
-            $record->etf_issuer_id
+            'YieldMax',
+            $record['issuer']
         );
 
         $this->assertEquals(
-            $strategy->id,
-            $record->etf_strategy_type_id
+            'Covered Call',
+            $record['strategy']
         );
 
         $this->assertEquals(
-            $distribution->id,
-            $record->distribution_frequency_id
+            'Monthly',
+            $record['distribution_frequency']
         );
 
-        $this->assertCount(
+        $this->assertEquals(
             1,
-            $record->updateSchedules
+            $record['schedule_count']
         );
 
         $this->assertEquals(
             'ETF',
-            $record->securityType->security_type_name
+            $record['security_type']
         );
 
         $this->assertEquals(
             'Active',
-            $record->status->status_name
+            $record['status']
         );
     }
 
@@ -196,11 +201,15 @@ class ListSecuritiesDataQueryTest extends TestCase
         $results =
             app(
                 ListSecuritiesDataQuery::class
-            )->getData();
+            )->getData(
+
+                new Request
+
+            );
 
         $this->assertEquals(
             'AAAA',
-            $results->first()->symbol
+            $results->items()[0]['symbol']
         );
     }
 }
