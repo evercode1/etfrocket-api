@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['middleware' => ['auth', 'isAdmin']], function () {
+Route::group(['middleware' => ['auth:sanctum', 'isAdmin']], function () {
 
     Route::get('/admin/list-securities-data', [SecuritiesController::class, 'index']);
 

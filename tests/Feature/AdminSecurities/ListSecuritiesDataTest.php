@@ -12,6 +12,7 @@ use App\Models\SecurityUpdateSchedule;
 use App\Models\SecurityUpdateType;
 use App\Models\Status;
 use App\Models\User;
+use Database\Seeders\StatusSeeder;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -41,6 +42,12 @@ class ListSecuritiesDataTest extends TestCase
         DB::table('statuses')->truncate();
 
         DB::table('users')->truncate();
+
+        $this->seed(
+
+            StatusSeeder::class
+
+        );
     }
 
     protected function tearDown(): void
@@ -82,13 +89,6 @@ class ListSecuritiesDataTest extends TestCase
             ['*']
         );
 
-        $status =
-            Status::create([
-
-                'status_name' => 'Active',
-
-            ]);
-
         $securityType =
             SecurityType::create([
 
@@ -101,7 +101,7 @@ class ListSecuritiesDataTest extends TestCase
 
                 'etf_issuer_name' => 'YieldMax',
 
-                'status_id' => $status->id,
+                'status_id' => Status::ACTIVE,
 
             ]);
 
@@ -133,7 +133,7 @@ class ListSecuritiesDataTest extends TestCase
 
                 'security_type_id' => $securityType->id,
 
-                'status_id' => $status->id,
+                'status_id' => Status::ACTIVE,
 
             ]);
 
@@ -167,7 +167,7 @@ class ListSecuritiesDataTest extends TestCase
 
             'run_hour' => 4,
 
-            'status_id' => $status->id,
+            'status_id' => Status::ACTIVE,
 
         ]);
 
@@ -214,6 +214,15 @@ class ListSecuritiesDataTest extends TestCase
             ->assertJsonPath(
                 'data.data.0.schedule_count',
                 1
+            )
+
+            ->assertJsonPath(
+                'meta.total_active',
+                1
+            )
+            ->assertJsonPath(
+                'meta.total_retired',
+                0
             );
     }
 
@@ -241,13 +250,6 @@ class ListSecuritiesDataTest extends TestCase
             ['*']
         );
 
-        $status =
-            Status::create([
-
-                'status_name' => 'Active',
-
-            ]);
-
         $securityType =
             SecurityType::create([
 
@@ -260,7 +262,7 @@ class ListSecuritiesDataTest extends TestCase
 
                 'etf_issuer_name' => 'YieldMax',
 
-                'status_id' => $status->id,
+                'status_id' => Status::ACTIVE,
 
             ]);
 
@@ -292,7 +294,7 @@ class ListSecuritiesDataTest extends TestCase
 
                 'security_type_id' => $securityType->id,
 
-                'status_id' => $status->id,
+                'status_id' => Status::ACTIVE,
 
             ]);
 
@@ -326,7 +328,7 @@ class ListSecuritiesDataTest extends TestCase
 
             'run_hour' => 4,
 
-            'status_id' => $status->id,
+            'status_id' => Status::ACTIVE,
 
         ]);
 
@@ -352,6 +354,14 @@ class ListSecuritiesDataTest extends TestCase
                     'per_page',
 
                     'total',
+
+                ],
+
+                'meta' => [
+
+                    'total_active',
+
+                    'total_retired',
 
                 ],
 
@@ -399,11 +409,6 @@ class ListSecuritiesDataTest extends TestCase
             ['*']
         );
 
-        $status =
-            Status::create([
-                'status_name' => 'Active',
-            ]);
-
         $securityType =
             SecurityType::create([
                 'security_type_name' => 'ETF',
@@ -417,7 +422,7 @@ class ListSecuritiesDataTest extends TestCase
 
                 'security_type_id' => $securityType->id,
 
-                'status_id' => $status->id,
+                'status_id' => Status::ACTIVE,
 
             ]);
         }
@@ -452,6 +457,9 @@ class ListSecuritiesDataTest extends TestCase
 
     public function test_it_can_search_by_symbol(): void
     {
+
+        Security::truncate();
+        SecurityDetail::truncate();
         $admin =
             User::factory()->create([
 
@@ -464,11 +472,6 @@ class ListSecuritiesDataTest extends TestCase
             ['*']
         );
 
-        $status =
-            Status::create([
-                'status_name' => 'Active',
-            ]);
-
         $securityType =
             SecurityType::create([
                 'security_type_name' => 'ETF',
@@ -480,7 +483,7 @@ class ListSecuritiesDataTest extends TestCase
 
             'security_type_id' => $securityType->id,
 
-            'status_id' => $status->id,
+            'status_id' => Status::ACTIVE,
 
         ]);
 
@@ -490,7 +493,7 @@ class ListSecuritiesDataTest extends TestCase
 
             'security_type_id' => $securityType->id,
 
-            'status_id' => $status->id,
+            'status_id' => Status::ACTIVE,
 
         ]);
 
