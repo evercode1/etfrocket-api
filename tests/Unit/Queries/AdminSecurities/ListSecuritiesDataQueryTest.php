@@ -121,17 +121,21 @@ class ListSecuritiesDataQueryTest extends TestCase
 
             );
 
+        $paginator =
+            $results['data'];
+
         $this->assertEquals(
             1,
-            $results->total()
+            $paginator->total()
         );
 
         $this->assertCount(
             1,
-            $results->items()
+            $paginator->items()
         );
 
-        $record = $results->items()[0];
+        $record =
+            $paginator->items()[0];
 
         $this->assertEquals(
             'CHPY',
@@ -172,6 +176,30 @@ class ListSecuritiesDataQueryTest extends TestCase
             'Active',
             $record['status']
         );
+
+        $this->assertArrayHasKey(
+
+            'meta',
+
+            $results
+
+        );
+
+        $this->assertArrayHasKey(
+
+            'total_active',
+
+            $results['meta']
+
+        );
+
+        $this->assertArrayHasKey(
+
+            'total_retired',
+
+            $results['meta']
+
+        );
     }
 
     public function test_it_orders_by_symbol()
@@ -207,9 +235,12 @@ class ListSecuritiesDataQueryTest extends TestCase
 
             );
 
+        $paginator =
+            $results['data'];
+
         $this->assertEquals(
             'AAAA',
-            $results->items()[0]['symbol']
+            $paginator->items()[0]['symbol']
         );
     }
 }

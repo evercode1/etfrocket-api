@@ -25,15 +25,25 @@ class SecuritiesController extends Controller
     {
         try {
 
+            $result =
+
+            app(
+
+                ListSecuritiesDataQuery::class
+
+            )->getData(
+
+                $request
+
+            );
+
             return response()->json([
 
                 'success' => true,
 
-                'data' => app(
+                'data' => $result['data'],
 
-                    ListSecuritiesDataQuery::class
-
-                )->getData($request),
+                'meta' => $result['meta'],
 
             ], 200);
 
