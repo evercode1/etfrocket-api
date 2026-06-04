@@ -54,4 +54,12 @@ class EtfIssuer extends Model
 
         ];
     }
+
+    public static function getSelects()
+    {
+
+        return self::orderBy('etf_issuer_name', 'asc')
+
+            ->pluck('etf_issuer_name', 'id');
+    }
 }
