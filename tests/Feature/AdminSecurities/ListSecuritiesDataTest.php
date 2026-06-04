@@ -192,12 +192,28 @@ class ListSecuritiesDataTest extends TestCase
                 'YieldMax Semiconductor Portfolio Option Income ETF'
             )
             ->assertJsonPath(
-                'data.data.0.security_type.security_type_name',
+                'data.data.0.security_type',
                 'ETF'
             )
             ->assertJsonPath(
-                'data.data.0.status.status_name',
+                'data.data.0.status',
                 'Active'
+            )
+            ->assertJsonPath(
+                'data.data.0.issuer',
+                'YieldMax'
+            )
+            ->assertJsonPath(
+                'data.data.0.strategy',
+                'Option Income'
+            )
+            ->assertJsonPath(
+                'data.data.0.distribution_frequency',
+                'Monthly'
+            )
+            ->assertJsonPath(
+                'data.data.0.schedule_count',
+                1
             );
     }
 
@@ -367,5 +383,142 @@ class ListSecuritiesDataTest extends TestCase
                 'code' => 401,
                 'message' => 'Unauthorized',
             ]);
+    }
+
+    public function test_it_honors_per_page_parameter(): void
+    {
+        $admin =
+            User::factory()->create([
+
+                'is_admin' => 1,
+
+            ]);
+
+        Sanctum::actingAs(
+            $admin,
+            ['*']
+        );
+
+        $status =
+            Status::create([
+                'status_name' => 'Active',
+            ]);
+
+        $securityType =
+            SecurityType::create([
+                'security_type_name' => 'ETF',
+            ]);
+
+        for ($i = 1; $i <= 30; $i++) {
+
+            Security::create([
+
+                'symbol' => 'ETF'.$i,
+
+                'security_type_id' => $securityType->id,
+
+                'status_id' => $status->id,
+
+            ]);
+        }
+
+        $response =
+            $this->getJson(
+
+                '/api/admin/list-securities-data?per_page=10'
+
+            );
+
+        $response
+
+            ->assertOk()
+
+            ->assertJsonPath(
+
+                'data.per_page',
+
+                10
+
+            )
+
+            ->assertJsonCount(
+
+                10,
+
+                'data.data'
+
+            );
+    }
+
+    public function test_it_can_search_by_symbol(): void
+    {
+        $admin =
+            User::factory()->create([
+
+                'is_admin' => 1,
+
+            ]);
+
+        Sanctum::actingAs(
+            $admin,
+            ['*']
+        );
+
+        $status =
+            Status::create([
+                'status_name' => 'Active',
+            ]);
+
+        $securityType =
+            SecurityType::create([
+                'security_type_name' => 'ETF',
+            ]);
+
+        Security::create([
+
+            'symbol' => 'CHPY',
+
+            'security_type_id' => $securityType->id,
+
+            'status_id' => $status->id,
+
+        ]);
+
+        Security::create([
+
+            'symbol' => 'NVII',
+
+            'security_type_id' => $securityType->id,
+
+            'status_id' => $status->id,
+
+        ]);
+
+        $response =
+            $this->getJson(
+
+                '/api/admin/list-securities-data?search=CHPY'
+
+            );
+
+        $response
+
+            ->assertOk()
+
+            ->assertJsonCount(
+
+                1,
+
+                'data.data'
+
+            )
+
+            ->assertJsonPath(
+
+                'data.data.0.symbol',
+
+                'CHPY'
+
+            );
     }
 }
