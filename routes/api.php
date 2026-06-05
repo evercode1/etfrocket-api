@@ -43,6 +43,17 @@ IncludeRoutes::file('routes/Admin/Monitoring/monitoring.php');
 
 /*
 |--------------------------------------------------------------------------
+| Admin Selects ROUTES
+|--------------------------------------------------------------------------
+|
+| routes for admin select functionalities, requires authentication
+|
+*/
+
+IncludeRoutes::file('routes/Admin/Selects/admin-selects.php');
+
+/*
+|--------------------------------------------------------------------------
 | Admin Support ROUTES
 |--------------------------------------------------------------------------
 |
