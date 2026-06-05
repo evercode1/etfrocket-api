@@ -130,7 +130,7 @@ return [
 
         'allow_update' => true,
 
-        'allow_delete' => false,
+        'allow_delete' => true,
 
     ],
 
