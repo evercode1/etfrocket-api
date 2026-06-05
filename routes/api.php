@@ -21,6 +21,17 @@ IncludeRoutes::file('routes/Admin/admin.php');
 
 /*
 |--------------------------------------------------------------------------
+| Admin Etf Issuer ROUTES
+|--------------------------------------------------------------------------
+|
+| routes for etf issuer functionalities, requires authentication
+|
+*/
+
+IncludeRoutes::file('routes/Admin/EtfIssuers/etf-issuers.php');
+
+/*
+|--------------------------------------------------------------------------
 | Monitoring ROUTES
 |--------------------------------------------------------------------------
 |

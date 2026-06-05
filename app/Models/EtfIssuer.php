@@ -62,4 +62,17 @@ class EtfIssuer extends Model
 
             ->pluck('etf_issuer_name', 'id');
     }
+
+    public function status()
+    {
+
+        return $this->belongsTo(
+
+            Status::class,
+
+            'status_id'
+
+        );
+
+    }
 }
