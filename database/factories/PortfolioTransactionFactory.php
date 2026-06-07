@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\PortfolioTransaction;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Arr;
 
 /**
  * @extends Factory<PortfolioTransaction>
@@ -18,7 +19,7 @@ class PortfolioTransactionFactory extends Factory
      */
     public function definition(): array
     {
-        $securityId = rand(1, 4);
+        $securityId = Arr::random([8, 25, 106, 119]);
 
         return [
 
