@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\AI\AiSignals\IsMarketOpenService;
 use App\Services\Crons\CronService;
 use Illuminate\Console\Command;
 
@@ -26,8 +27,15 @@ class GenerateAiSignalCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
+
+        if (! app(IsMarketOpenService::class)->isOpen()) {
+
+            $this->info('Market is closed. Exiting.');
+
+            return self::SUCCESS;
+        }
 
         $interval = 'Hourly';
 
@@ -56,5 +64,7 @@ class GenerateAiSignalCommand extends Command
             $payload
 
         );
+
+        return self::SUCCESS;
     }
 }

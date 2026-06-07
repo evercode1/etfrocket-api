@@ -1,12 +1,10 @@
 <?php
 
+use App\Http\Controllers\Public\HealthCheck\HealthCheckController;
 use App\Utilities\IncludeRoutes;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/health/check', function () {
-
-    return response()->json(['status' => 'OK', 'code' => 200, 'message' => 'healthy']);
-});
+Route::get('/health/check', [HealthCheckController::class, 'check']);
 
 /*
 |--------------------------------------------------------------------------

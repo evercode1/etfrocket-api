@@ -6,6 +6,7 @@ use App\Jobs\GenerateAiSignalJob;
 use App\Models\AiSignalBatch;
 use App\Models\CronLog;
 use App\Models\SignalType;
+use Carbon\Carbon;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
 use Database\Seeders\SignalTypeSeeder;
@@ -19,6 +20,26 @@ class GenerateAiSignalCommandTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Carbon::setTestNow(
+
+            Carbon::create(
+
+                2026,
+
+                6,
+
+                3, // Wednesday
+
+                19,
+
+                0,
+
+                0
+
+            )
+
+        );
 
         Queue::fake();
 
@@ -68,6 +89,8 @@ class GenerateAiSignalCommandTest extends TestCase
         DB::table('statuses')->truncate();
 
         DB::table('notification_statuses')->truncate();
+
+        Carbon::setTestNow();
 
         parent::tearDown();
     }

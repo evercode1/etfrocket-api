@@ -21,8 +21,16 @@ class RunAiSecurityPriceExtractions extends Command
 
         'Run AI security price extraction and process extracted security price data.';
 
-    public function handle(): void
+    public function handle(): int
     {
+
+        if (now()->isWeekend()) {
+
+            $this->info('Weekend detected. Exiting.');
+
+            return self::SUCCESS;
+
+        }
 
         $interval = 'Daily';
 
@@ -63,5 +71,7 @@ class RunAiSecurityPriceExtractions extends Command
             $payload
 
         );
+
+        return self::SUCCESS;
     }
 }

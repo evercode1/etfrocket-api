@@ -25,6 +25,8 @@ class IsMarketOpenService
 
         '2026-05-25', // Memorial Day
 
+        '2026-06-19', // Juneteenth
+
         '2026-07-03', // Independence Day Observed
 
         '2026-09-07', // Labor Day
@@ -45,6 +47,8 @@ class IsMarketOpenService
 
         '2027-05-31', // Memorial Day
 
+        '2027-06-18', // Juneteenth Observed
+
         '2027-07-05', // Independence Day Observed
 
         '2027-09-06', // Labor Day
@@ -62,6 +66,8 @@ class IsMarketOpenService
         '2028-04-14', // Good Friday
 
         '2028-05-29', // Memorial Day
+
+        '2028-06-19', // Juneteenth
 
         '2028-07-04', // Independence Day
 
