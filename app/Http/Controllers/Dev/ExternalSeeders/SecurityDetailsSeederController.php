@@ -738,12 +738,12 @@ class SecurityDetailsSeederController extends Controller
             ],
             [
                 'security_id' => 73,
-                'security_name' => 'YieldMax JPM Option Income Strategy ETF',
+                'security_name' => 'JPMorgan Managed Futures Plus ETF',
                 'etf_issuer_id' => 1,
                 'etf_strategy_type_id' => 6,
                 'distribution_frequency_id' => 2,
                 'expense_ratio' => 1.14,
-                'website_url' => 'https://yieldmaxetfs.com/our-etfs/jpmo/',
+                'website_url' => 'https://am.jpmorgan.com/us/en/asset-management/adv/products/jpmorgan-managed-futures-plus-etf-etf-shares-46654q526',
                 'notes' => null,
             ],
             [

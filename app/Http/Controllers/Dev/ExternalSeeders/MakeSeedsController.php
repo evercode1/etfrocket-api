@@ -34,7 +34,6 @@ class MakeSeedsController extends Controller
             'PerformanceRangeTypes',
             'Portfolios',
             'Securities',
-            'SecurityAumHistories',
             'SecurityDetails',
             'SecurityTypes',
             'SecurityUpdateSchedules',
