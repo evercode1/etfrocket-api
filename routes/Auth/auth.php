@@ -13,7 +13,7 @@ Route::get('/request-verification-token', [UserVerificationController::class, 'r
 
 // Auth
 
-Route::post('/register', [AuthController::class, 'register']);
+// Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/login-check', [AuthController::class, 'loginCheck']);
