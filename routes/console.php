@@ -37,5 +37,3 @@ Schedule::command('app:trim-import-logs')
 
     )
     ->withoutOverlapping();
-
-// need run price, divideed, and fund data extractions

@@ -21,8 +21,16 @@ class RunAiSecurityDividendExtractions extends Command
 
         'Run AI security dividend extraction and process extracted security dividend data.';
 
-    public function handle(): void
+    public function handle(): int
     {
+
+        if (now()->isWeekend()) {
+
+            $this->info('Weekend detected. Exiting.');
+
+            return self::SUCCESS;
+
+        }
         $interval = 'Daily';
 
         $payload = [
@@ -56,5 +64,7 @@ class RunAiSecurityDividendExtractions extends Command
             $payload
 
         );
+
+        return self::SUCCESS;
     }
 }

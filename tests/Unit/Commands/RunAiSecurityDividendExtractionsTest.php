@@ -7,6 +7,7 @@ use App\Models\AiDataExtraction;
 use App\Models\Security;
 use App\Models\SecurityDividendHistory;
 use App\Models\Status;
+use Carbon\Carbon;
 use Database\Seeders\IntervalSeeder;
 use Database\Seeders\NotificationStatusSeeder;
 use Database\Seeders\SecuritySeeder;
@@ -20,6 +21,26 @@ class RunAiSecurityDividendExtractionsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Carbon::setTestNow(
+
+            Carbon::create(
+
+                2026,
+
+                6,
+
+                3, // Wednesday
+
+                19,
+
+                0,
+
+                0
+
+            )
+
+        );
 
         DB::table('jobs')->truncate();
 
@@ -69,6 +90,8 @@ class RunAiSecurityDividendExtractionsTest extends TestCase
         DB::table('statuses')->truncate();
 
         DB::table('notification_statuses')->truncate();
+
+        Carbon::setTestNow();
 
         parent::tearDown();
     }
