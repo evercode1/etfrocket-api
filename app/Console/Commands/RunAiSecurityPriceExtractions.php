@@ -24,7 +24,9 @@ class RunAiSecurityPriceExtractions extends Command
     public function handle(): int
     {
 
-        if (now()->isWeekend()) {
+        if (! $this->option('force')
+
+            && now()->isWeekend()) {
 
             $this->info('Weekend detected. Exiting.');
 
