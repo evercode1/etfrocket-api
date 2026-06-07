@@ -30,7 +30,7 @@ class GenerateAiSignalCommand extends Command
     public function handle(): int
     {
 
-        if (! app(IsMarketOpenService::class)->isOpen()) {
+        if (! app(IsMarketOpenService::class)->isOpen() && ! $this->option('force')) {
 
             $this->info('Market is closed. Exiting.');
 
