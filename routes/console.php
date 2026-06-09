@@ -26,11 +26,11 @@ Schedule::command('ai:generate-signals')
 |
 */
 
-Schedule::command('securities:run-ai-price-extractions')
+Schedule::command('securities:run-ai-price-extraction')
     ->dailyAt('23:00')
     ->withoutOverlapping();
 
-Schedule::command('securities:run-ai-dividend-extractions')
+Schedule::command('securities:run-ai-dividend-extraction')
     ->dailyAt('23:30')
     ->withoutOverlapping();
 
