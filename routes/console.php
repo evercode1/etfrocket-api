@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('ai:generate-signals')
     ->hourly()
+    ->timezone('UTC')
     ->withoutOverlapping();
 
 /*
@@ -22,16 +23,13 @@ Schedule::command('ai:generate-signals')
 |--------------------------------------------------------------------------
 |
 | Market closes at 4:00 PM ET.
-| 7:00 PM ET = 23:00 UTC during DST.
+| 5:00 PM ET = 21:00 UTC during DST.
 |
 */
 
 Schedule::command('securities:run-ai-price-extraction')
-    ->dailyAt('23:00')
-    ->withoutOverlapping();
-
-Schedule::command('securities:run-ai-dividend-extraction')
-    ->dailyAt('23:30')
+    ->dailyAt('21:00')
+    ->timezone('UTC')
     ->withoutOverlapping();
 
 /*
@@ -45,6 +43,7 @@ Schedule::command('securities:run-ai-dividend-extraction')
 
 Schedule::command('securities:calculate-metrics')
     ->dailyAt('02:00')
+    ->timezone('UTC')
     ->withoutOverlapping();
 
 /*
@@ -54,7 +53,8 @@ Schedule::command('securities:calculate-metrics')
 */
 
 Schedule::command('securities:run-scheduled-updates')
-    ->dailyAt('03:00')
+    ->hourly()
+    ->timezone('UTC')
     ->withoutOverlapping();
 
 /*
@@ -65,12 +65,15 @@ Schedule::command('securities:run-scheduled-updates')
 
 Schedule::command('app:cleanup-ai-pipeline-data')
     ->dailyAt('05:15')
+    ->timezone('UTC')
     ->withoutOverlapping();
 
 Schedule::command('app:trim-cron-logs')
     ->weeklyOn(0, '04:00')
+    ->timezone('UTC')
     ->withoutOverlapping();
 
 Schedule::command('app:trim-import-logs')
     ->weeklyOn(0, '05:00')
+    ->timezone('UTC')
     ->withoutOverlapping();
