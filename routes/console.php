@@ -53,7 +53,7 @@ Schedule::command('securities:calculate-metrics')
 |--------------------------------------------------------------------------
 */
 
-Schedule::command('app:run-scheduled-updates')
+Schedule::command('securities:run-scheduled-updates')
     ->dailyAt('03:00')
     ->withoutOverlapping();
 
