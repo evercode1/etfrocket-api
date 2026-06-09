@@ -47,17 +47,22 @@ class AiSecurityDividendExtractionService
 
         if (! $response->successful()) {
 
+            $message = sprintf(
+                'Dividend extraction failed. HTTP %s. Response: %s',
+                $response->status(),
+                $response->body()
+            );
+
             Log::error(
-                'Twelve Data dividend extraction failed.',
+                $message,
                 [
                     'security_id' => $security->id,
                     'symbol' => $security->symbol,
-                    'response' => $response->body(),
                 ]
             );
 
             throw new \RuntimeException(
-                'Dividend extraction failed.'
+                $message
             );
         }
 
