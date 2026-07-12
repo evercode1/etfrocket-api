@@ -320,42 +320,31 @@ class CompareSymbolsTest extends TestCase
         );
     }
 
-    public function test_it_returns_income_chart_rows()
+    public function test_it_returns_dividend_chart_rows()
     {
         $user = User::factory()->create();
 
         Sanctum::actingAs($user, ['*']);
 
         $security = Security::factory()->create([
-
             'symbol' => 'CHPY',
-
         ]);
 
         SecurityDividendHistory::factory()->create([
-
             'security_id' => $security->id,
-
             'ex_dividend_date' => now(),
-
             'dividend_amount' => 1.50,
-
         ]);
 
         $response = $this->getJson(
-
-            '/api/compare-symbols?symbols[]=CHPY&metric=income'
-
+            '/api/compare-symbols?symbols[]=CHPY&metric=dividend'
         );
 
         $response->assertStatus(200);
 
         $response->assertJsonPath(
-
             'data.chart_rows.0.CHPY',
-
             1.50
-
         );
     }
 

@@ -10,6 +10,7 @@ use App\Queries\Comparisons\SymbolAumHistoryChartQuery;
 use App\Queries\Comparisons\SymbolDividendHistoryChartQuery;
 use App\Queries\Comparisons\SymbolNavHistoryChartQuery;
 use App\Queries\Comparisons\SymbolPriceHistoryChartQuery;
+use App\Queries\Comparisons\SymbolTotalReturnHistoryChartQuery;
 
 class CompareSymbolsService
 {
@@ -21,7 +22,9 @@ class CompareSymbolsService
 
         private SymbolNavHistoryChartQuery $navHistoryChartQuery,
 
-        private SymbolAumHistoryChartQuery $aumHistoryChartQuery
+        private SymbolAumHistoryChartQuery $aumHistoryChartQuery,
+
+        private SymbolTotalReturnHistoryChartQuery $totalReturnHistoryChartQuery,
 
     ) {}
 
@@ -157,9 +160,9 @@ class CompareSymbolsService
 
                     [
 
-                        'label' => 'Monthly Income',
+                        'label' => 'Dividend Amount',
 
-                        'value' => 'income',
+                        'value' => 'dividend',
 
                     ],
 
@@ -246,36 +249,34 @@ class CompareSymbolsService
 
         return match ($metric) {
 
-            'income' => $this->dividendHistoryChartQuery->getData(
-
+            'dividend' => $this->dividendHistoryChartQuery->getData(
                 securityIds: $securityIds,
-
                 startDate: $startDate
+            ),
 
+            'return' => $this->totalReturnHistoryChartQuery->getData(
+                securityIds: $securityIds,
+                startDate: $startDate
             ),
 
             'nav' => $this->navHistoryChartQuery->getData(
-
                 securityIds: $securityIds,
-
                 startDate: $startDate
-
             ),
 
             'aum' => $this->aumHistoryChartQuery->getData(
-
                 securityIds: $securityIds,
-
                 startDate: $startDate
+            ),
 
+            'price' => $this->priceHistoryChartQuery->getData(
+                securityIds: $securityIds,
+                startDate: $startDate
             ),
 
             default => $this->priceHistoryChartQuery->getData(
-
                 securityIds: $securityIds,
-
                 startDate: $startDate
-
             ),
         };
     }
