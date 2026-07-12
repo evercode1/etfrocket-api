@@ -13,7 +13,9 @@ use App\Queries\Comparisons\SymbolAumHistoryChartQuery;
 use App\Queries\Comparisons\SymbolDividendHistoryChartQuery;
 use App\Queries\Comparisons\SymbolNavHistoryChartQuery;
 use App\Queries\Comparisons\SymbolPriceHistoryChartQuery;
+use App\Queries\Comparisons\SymbolTotalReturnHistoryChartQuery;
 use App\Services\Comparisons\CompareSymbolsService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -41,7 +43,9 @@ class CompareSymbolsServiceTest extends TestCase
 
             new SymbolNavHistoryChartQuery,
 
-            new SymbolAumHistoryChartQuery
+            new SymbolAumHistoryChartQuery,
+
+            new SymbolTotalReturnHistoryChartQuery
 
         );
     }
@@ -395,26 +399,19 @@ class CompareSymbolsServiceTest extends TestCase
         );
     }
 
-    public function test_it_generates_income_chart_rows()
+    public function test_it_generates_dividend_chart_rows()
     {
         $security = $this->createSecurity('CHPY');
 
         SecurityDividendHistory::factory()->create([
-
             'security_id' => $security->id,
-
             'ex_dividend_date' => now(),
-
             'dividend_amount' => 1.50,
-
         ]);
 
         $data = $this->service->getData(
-
             symbols: ['CHPY'],
-
-            metric: 'income'
-
+            metric: 'dividend'
         );
 
         $this->assertCount(
@@ -492,6 +489,87 @@ class CompareSymbolsServiceTest extends TestCase
             100000000,
             $data['chart_rows'][0]['CHPY']
         );
+    }
+
+    public function test_it_generates_total_return_chart_rows()
+    {
+        Carbon::setTestNow('2026-07-12 12:00:00');
+
+        try {
+            $security = $this->createSecurity('CHPY');
+
+            SecurityPriceHistory::factory()->create([
+                'security_id' => $security->id,
+                'price_date' => '2026-07-01',
+                'close_price' => 100.00,
+            ]);
+
+            SecurityPriceHistory::factory()->create([
+                'security_id' => $security->id,
+                'price_date' => '2026-07-02',
+                'close_price' => 90.00,
+            ]);
+
+            SecurityPriceHistory::factory()->create([
+                'security_id' => $security->id,
+                'price_date' => '2026-07-03',
+                'close_price' => 110.00,
+            ]);
+
+            SecurityDividendHistory::factory()->create([
+                'security_id' => $security->id,
+                'ex_dividend_date' => '2026-07-02',
+                'dividend_amount' => 10.00,
+            ]);
+
+            $data = $this->service->getData(
+                symbols: ['CHPY'],
+                metric: 'return',
+                range: '90d'
+            );
+
+            $this->assertEquals(
+                'return',
+                $data['summary']['selected_metric']
+            );
+
+            $this->assertCount(
+                3,
+                $data['chart_rows']
+            );
+
+            $this->assertSame(
+                '2026-07-01',
+                $data['chart_rows'][0]['date']
+            );
+
+            $this->assertSame(
+                0.0,
+                $data['chart_rows'][0]['CHPY']
+            );
+
+            $this->assertSame(
+                '2026-07-02',
+                $data['chart_rows'][1]['date']
+            );
+
+            $this->assertSame(
+                0.0,
+                $data['chart_rows'][1]['CHPY']
+            );
+
+            $this->assertSame(
+                '2026-07-03',
+                $data['chart_rows'][2]['date']
+            );
+
+            $this->assertSame(
+                20.0,
+                $data['chart_rows'][2]['CHPY']
+            );
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     private function createSecurity(string $symbol): Security
