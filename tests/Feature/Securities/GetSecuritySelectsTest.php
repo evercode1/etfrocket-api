@@ -14,14 +14,14 @@ class GetSecuritySelectsTest extends TestCase
     {
         parent::setUp();
 
-        DB::table('securities')->truncate();
         DB::table('security_details')->truncate();
+        DB::table('securities')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('securities')->truncate();
         DB::table('security_details')->truncate();
+        DB::table('securities')->truncate();
 
         parent::tearDown();
     }
@@ -45,32 +45,23 @@ class GetSecuritySelectsTest extends TestCase
         $response = $this->getJson('/api/get-security-selects');
 
         $response->assertOk()
-            ->assertJson([
+            ->assertExactJson([
                 'success' => true,
                 'data' => [
-                    (string) $first->id => $first->symbol,
-                    (string) $second->id => $second->symbol,
-                    (string) $third->id => $third->symbol,
+                    [
+                        'id' => $first->id,
+                        'symbol' => $first->symbol,
+                    ],
+                    [
+                        'id' => $second->id,
+                        'symbol' => $second->symbol,
+                    ],
+                    [
+                        'id' => $third->id,
+                        'symbol' => $third->symbol,
+                    ],
                 ],
             ]);
-
-        $data = $response->json('data');
-
-        $this->assertSame(
-
-            [
-
-                $first->id,
-
-                $second->id,
-
-                $third->id,
-
-            ],
-
-            array_keys($data)
-
-        );
     }
 
     public function test_it_returns_empty_data_when_no_securities_exist(): void
@@ -80,7 +71,7 @@ class GetSecuritySelectsTest extends TestCase
         $response = $this->getJson('/api/get-security-selects');
 
         $response->assertOk()
-            ->assertJson([
+            ->assertExactJson([
                 'success' => true,
                 'data' => [],
             ]);
