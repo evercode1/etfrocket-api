@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\Securities\PriceHistoryController;
 use App\Http\Controllers\Admin\Securities\SecuritiesController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,5 +27,9 @@ Route::group(['middleware' => ['auth:sanctum', 'isAdmin']], function () {
     Route::put('/admin/security-data-update/{id}', [SecuritiesController::class, 'update']);
 
     Route::put('/admin/security-data-retire/{id}', [SecuritiesController::class, 'retire']);
+
+    // Price history routes
+
+    Route::put('/admin/data/price-history', [PriceHistoryController::class, 'update']);
 
 });
