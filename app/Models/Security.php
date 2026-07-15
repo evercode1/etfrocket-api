@@ -34,9 +34,26 @@ class Security extends Model
     public static function getSelects()
     {
 
-        return self::orderBy('symbol', 'asc')
+        return self::query()
 
-            ->pluck('symbol', 'id');
+            ->orderBy('symbol', 'asc')
+
+            ->get(['id', 'symbol'])
+
+            ->map(function ($security) {
+
+                return [
+
+                    'id' => $security->id,
+
+                    'symbol' => $security->symbol,
+
+                ];
+
+            })
+
+            ->values();
+
     }
 
     public function detail(): HasOne
