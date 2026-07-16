@@ -64,6 +64,8 @@ class RankSecurityByMetricQuery
                 $performanceRangeTypeId
             )
 
+            ->where('securities.status_id', 4)
+
             ->whereNotNull($metricColumn)
 
             ->orderBy(
