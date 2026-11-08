@@ -4,10 +4,14 @@ namespace Tests\Feature\Aum;
 
 use App\Http\Controllers\Public\Aum\AumHistoryController;
 use App\Models\DataSource;
+use App\Models\EtfIssuer;
+use App\Models\SecurityDetail;
+use App\Models\SecurityUpdateSchedule;
 use App\Models\Security;
 use App\Models\SecurityAumHistory;
 use App\Models\SecurityNavHistory;
 use App\Models\Status;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -34,8 +38,11 @@ class AumHistoryTest extends TestCase
         DB::table('security_nav_histories')->truncate();
         DB::table('securities')->truncate();
         DB::table('security_details')->truncate();
+        DB::table('security_update_schedules')->truncate();
 
-        foreach (['HIST', 'GONE', 'NOPE'] as $symbol) {
+        Carbon::setTestNow();
+
+        foreach (['HIST', 'GONE', 'NOPE', 'SOON', 'UNCV'] as $symbol) {
             Cache::forget(AumHistoryController::cacheKey($symbol));
         }
     }
@@ -109,5 +116,58 @@ class AumHistoryTest extends TestCase
 
         $this->getJson('/api/aum-history/GONE')->assertNotFound();
         $this->getJson('/api/aum-history/NOPE')->assertNotFound();
+    }
+
+    private function makeCovered(Security $security): void
+    {
+        SecurityDetail::where('security_id', $security->id)
+            ->update(['etf_issuer_id' => EtfIssuer::YIELDMAX]);
+
+        SecurityUpdateSchedule::factory()->aum()->create([
+            'security_id' => $security->id,
+        ]);
+    }
+
+    public function test_covered_etf_without_data_is_pending(): void
+    {
+        $security = Security::factory()->create(['symbol' => 'SOON']);
+
+        $this->makeCovered($security);
+
+        $this->getJson('/api/aum-history/SOON')
+            ->assertOk()
+            ->assertJsonPath('data.coverage_status', 'pending')
+            ->assertJsonPath('data.security.symbol', 'SOON')
+            ->assertJsonPath('data.latest', null)
+            ->assertJsonCount(0, 'data.history');
+    }
+
+    public function test_active_etf_without_coverage_or_data_returns_404(): void
+    {
+        Security::factory()->create(['symbol' => 'UNCV']);
+
+        $this->getJson('/api/aum-history/UNCV')->assertNotFound();
+    }
+
+    public function test_coverage_status_is_current_or_stale_by_latest_date(): void
+    {
+        Carbon::setTestNow('2026-05-11 12:00:00');
+
+        $security = Security::factory()->create(['symbol' => 'HIST']);
+
+        $this->fundData($security, '2026-05-04', 10_000_000, 10.0);
+
+        // 7 days old: still current.
+        $this->getJson('/api/aum-history/HIST')
+            ->assertOk()
+            ->assertJsonPath('data.coverage_status', 'current');
+
+        Cache::forget(AumHistoryController::cacheKey('HIST'));
+        Carbon::setTestNow('2026-05-12 12:00:00');
+
+        // 8 days old: stale.
+        $this->getJson('/api/aum-history/HIST')
+            ->assertOk()
+            ->assertJsonPath('data.coverage_status', 'stale');
     }
 }

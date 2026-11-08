@@ -4,6 +4,7 @@ namespace App\Queries\Aum;
 
 use App\Models\Security;
 use App\Models\Status;
+use App\Services\Aum\FundDataCoverage;
 use Illuminate\Support\Facades\DB;
 
 /*
@@ -15,7 +16,9 @@ use Illuminate\Support\Facades\DB;
 | same date, plus derived shares outstanding (AUM / NAV) and estimated
 | daily net flow ((shares - previous shares) * NAV).
 |
-| Returns null when the symbol is unknown or not active.
+| Returns null when the symbol is unknown, not active, or not covered
+| (no scraper/schedule and no AUM data). Covered ETFs without data yet
+| return coverage_status "pending" and an empty history.
 |
 */
 
@@ -85,7 +88,19 @@ class AumHistoryQuery
 
         $latest = end($history) ?: null;
 
+        $coverageStatus = FundDataCoverage::status(
+            FundDataCoverage::isCovered($security),
+            $latest['date'] ?? null
+        );
+
+        if ($coverageStatus === FundDataCoverage::NOT_COVERED) {
+
+            return null;
+        }
+
         return [
+            'coverage_status' => $coverageStatus,
+            'stale_after_days' => FundDataCoverage::STALE_AFTER_DAYS,
             'security' => [
                 'id' => $security->id,
                 'symbol' => $security->symbol,

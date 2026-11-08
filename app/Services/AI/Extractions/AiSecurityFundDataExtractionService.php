@@ -17,16 +17,35 @@ use App\Services\Scrapers\YieldMaxScraperService;
 
 class AiSecurityFundDataExtractionService
 {
-    public function __construct(
-        private YieldMaxScraperService $yieldMaxScraperService,
-        private RoundhillScraperService $roundhillScraperService,
-        private RexSharesScraperService $rexSharesScraperService,
-        private GlobalXScraperService $globalXScraperService,
-        private NeosScraperService $neosScraperService,
-        private TappAlphaScraperService $tappAlphaScraperService,
-        private NicholasXScraperService $nicholasXScraperService,
-        private KurvScraperService $kurvScraperService,
-    ) {}
+    /*
+    |--------------------------------------------------------------------------
+    | Issuer -> scraper map
+    |--------------------------------------------------------------------------
+    |
+    | Single source of truth for which ETF issuers have a fund data scraper.
+    | Also used to decide public coverage (FundDataCoverage) and which
+    | schedules the daily runner dispatches.
+    |
+    */
+
+    public const SCRAPERS = [
+        EtfIssuer::YIELDMAX => YieldMaxScraperService::class,
+        EtfIssuer::ROUNDHILL => RoundhillScraperService::class,
+        EtfIssuer::REX => RexSharesScraperService::class,
+        EtfIssuer::GLOBAL_X => GlobalXScraperService::class,
+        EtfIssuer::NEOS => NeosScraperService::class,
+        EtfIssuer::TAPPALPHA => TappAlphaScraperService::class,
+        EtfIssuer::NICHOLASX => NicholasXScraperService::class,
+        EtfIssuer::KURV => KurvScraperService::class,
+    ];
+
+    /**
+     * @return int[]
+     */
+    public static function supportedIssuerIds(): array
+    {
+        return array_keys(self::SCRAPERS);
+    }
 
     public function extract(
         Security $security
@@ -42,74 +61,25 @@ class AiSecurityFundDataExtractionService
             );
         }
 
-        $extractedData =
+        $scraperClass =
+            self::SCRAPERS[$securityDetail->etf_issuer_id] ?? null;
 
-            match (
+        if (! $scraperClass) {
+
+            throw new \RuntimeException(
+
+                'No fund data scraper configured for ETF issuer ID: '.
 
                 $securityDetail->etf_issuer_id
 
-            ) {
+            );
+        }
 
-                EtfIssuer::YIELDMAX => $this->yieldMaxScraperService
-                    ->extract(
-                        $security
-                    ),
-                EtfIssuer::ROUNDHILL => $this->roundhillScraperService
-                    ->extract(
-
-                        $security
-
-                    ),
-                EtfIssuer::REX => $this->rexSharesScraperService
-                    ->extract(
-
-                        $security
-
-                    ),
-
-                EtfIssuer::GLOBAL_X => $this->globalXScraperService
-                    ->extract(
-
-                        $security
-
-                    ),
-
-                EtfIssuer::NEOS => $this->neosScraperService
-                    ->extract(
-
-                        $security
-
-                    ),
-
-                EtfIssuer::TAPPALPHA => $this->tappAlphaScraperService
-                    ->extract(
-
-                        $security
-
-                    ),
-                EtfIssuer::NICHOLASX => $this->nicholasXScraperService
-                    ->extract(
-
-                        $security
-
-                    ),
-
-                EtfIssuer::KURV => $this->kurvScraperService
-                    ->extract(
-
-                        $security
-
-                    ),
-
-                default => throw new \RuntimeException(
-
-                    'No fund data scraper configured for ETF issuer ID: '.
-
-                    $securityDetail->etf_issuer_id
-
-                ),
-
-            };
+        $extractedData =
+            app($scraperClass)
+                ->extract(
+                    $security
+                );
 
         return AiDataExtraction::create([
 

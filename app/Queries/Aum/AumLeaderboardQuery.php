@@ -5,6 +5,7 @@ namespace App\Queries\Aum;
 use App\Models\Security;
 use App\Models\SecurityAumHistory;
 use App\Models\Status;
+use App\Services\Aum\FundDataCoverage;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -41,6 +42,8 @@ class AumLeaderboardQuery
                 'as_of' => null,
                 'periods' => self::PERIODS,
                 'totals' => null,
+                'pending_count' => $this->pendingCount(),
+                'stale_after_days' => FundDataCoverage::STALE_AFTER_DAYS,
                 'securities' => [],
             ];
         }
@@ -105,6 +108,7 @@ class AumLeaderboardQuery
                 'strategy_name' => $security->detail?->strategyType?->etf_strategy_type_name,
                 'aum' => (int) $end['value'],
                 'aum_date' => $end['date'],
+                'is_stale' => FundDataCoverage::isStale($end['date']),
                 'nav' => $endNavValue,
                 'inception_date' => $inceptionDates[$security->id] ?? null,
                 'changes' => $changes,
@@ -128,8 +132,24 @@ class AumLeaderboardQuery
                 $periodStarts
             ),
             'totals' => $this->totals($rows),
+            'pending_count' => $this->pendingCount(),
+            'stale_after_days' => FundDataCoverage::STALE_AFTER_DAYS,
             'securities' => $rows,
         ];
+    }
+
+    /**
+     * Covered ETFs that have no AUM data yet (not ranked).
+     */
+    private function pendingCount(): int
+    {
+        return FundDataCoverage::coveredSecurities()
+            ->whereNotExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('security_aum_histories')
+                    ->whereColumn('security_aum_histories.security_id', 'securities.id');
+            })
+            ->count();
     }
 
     private function securities()

@@ -134,6 +134,13 @@ Dropping frozen tables. Revisit only if the data is confirmed unwanted.
 - Prints a summary and suggests running `securities:calculate-metrics` afterward.
 - Feature test: generates rows for a seeded security; refuses under `APP_ENV=production`.
 
+## Coverage model (implemented on `aum-pivot`)
+
+- Covered = active security + issuer in `AiSecurityFundDataExtractionService::SCRAPERS` + active FUND_DATA schedule (`App\Services\Aum\FundDataCoverage`).
+- Public status: `current` (AUM within 7 days), `stale` (older), `pending` (covered, no data yet), `not_covered`.
+- `RunScheduledUpdatesHandler` skips schedules whose issuer has no scraper (locally: 10 Defiance, 1 JPMorgan, MSTY with no detail row), so they no longer fail daily. Schedule rows are untouched.
+- MSTY has no `security_details` row locally; check production.
+
 ## Other notes
 - Registration is currently disabled: `Route::post('/register', ...)` is commented out in `routes/Auth/auth.php`, so `Tests\Feature\Auth\RegisterTest` fails (2 tests, pre-existing). Needs re-enabling before the watchlist signup.
 - The public header has a "Get Started" link to `/auth/register`, which currently hits the disabled endpoint.

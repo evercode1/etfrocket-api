@@ -4,6 +4,9 @@ namespace Tests\Feature\Aum;
 
 use App\Http\Controllers\Public\Aum\AumLeaderboardController;
 use App\Models\DataSource;
+use App\Models\EtfIssuer;
+use App\Models\SecurityDetail;
+use App\Models\SecurityUpdateSchedule;
 use App\Models\Security;
 use App\Models\SecurityAumHistory;
 use App\Models\SecurityNavHistory;
@@ -43,6 +46,7 @@ class AumLeaderboardTest extends TestCase
         DB::table('security_nav_histories')->truncate();
         DB::table('securities')->truncate();
         DB::table('security_details')->truncate();
+        DB::table('security_update_schedules')->truncate();
     }
 
     private function fundData(Security $security, string $date, int $aum, float $nav): void
@@ -132,5 +136,33 @@ class AumLeaderboardTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.as_of', null)
             ->assertJsonCount(0, 'data.securities');
+    }
+
+    public function test_it_flags_stale_rows_and_counts_covered_etfs_awaiting_data(): void
+    {
+        $fresh = Security::factory()->create(['symbol' => 'FRSH']);
+        $stale = Security::factory()->create(['symbol' => 'OLDD']);
+        $soon = Security::factory()->create(['symbol' => 'SOON']);
+
+        $this->fundData($fresh, '2026-04-30', 2_000_000, 10.0);
+        $this->fundData($stale, '2026-04-20', 1_000_000, 10.0);
+
+        SecurityDetail::where('security_id', $soon->id)
+            ->update(['etf_issuer_id' => EtfIssuer::YIELDMAX]);
+
+        SecurityUpdateSchedule::factory()->aum()->create([
+            'security_id' => $soon->id,
+        ]);
+
+        // Test "now" is 2026-05-01: Apr 30 is current, Apr 20 is stale.
+        $this->getJson('/api/aum-leaderboard')
+            ->assertOk()
+            ->assertJsonPath('data.pending_count', 1)
+            ->assertJsonPath('data.stale_after_days', 7)
+            ->assertJsonCount(2, 'data.securities')
+            ->assertJsonPath('data.securities.0.symbol', 'FRSH')
+            ->assertJsonPath('data.securities.0.is_stale', false)
+            ->assertJsonPath('data.securities.1.symbol', 'OLDD')
+            ->assertJsonPath('data.securities.1.is_stale', true);
     }
 }
