@@ -55,6 +55,7 @@ The app is being narrowed to a free ETF AUM tracker (see `docs/aum-pivot-plan.md
 
 No longer scheduled (commands still exist): `ai:generate-signals` (OpenAI), `securities:run-ai-price-extraction` (Twelve Data), `securities:calculate-metrics` (fed only retired features). When changing the schedule, update `PipelineHealthQuery::EXPECTED_CRONS`; a test enforces they match.
 
+- Fund data batches are created by `App\Services\Crons\FundDataBatchDispatcher` (one `SecurityIngestionBatch` + an item and a `RunScheduledSecurityUpdateJob` per schedule). It's shared by the hourly run and **manual runs** started from the admin Pipeline Health page (`ManualFundDataRunService`, `POST /admin/pipeline-health/runs` with scope `problems` | `issuer` | `all`). Manual runs are identified by the `processing_notes` prefix "Manual fund data run", which `FinalizeScheduledUpdatesBatchJob` preserves. They first create a FUND_DATA schedule (least-busy `run_hour`, via `FundDataScheduleProvisioner`) for active ETFs whose issuer has a scraper but that have no FUND_DATA schedule.
 - Each command delegates to `CronService::runAndLogCron(...)`, which resolves a handler from `app/Services/Crons/Handlers/<Name>Handler.php` by class name, records a `CronLog`, and sends failure notifications. New crons follow the same Command → Handler pattern.
 - Heavy work fans out to queued batch jobs in `app/Jobs` (`Run*Job` per security plus a `Finalize*BatchJob`), so a queue worker must be running for these to complete outside tests.
 - `app/Services/AI/`:

@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\ImportType;
 use App\Models\SecurityIngestionBatch;
 use App\Models\Status;
+use App\Services\Admin\Monitoring\ManualFundDataRunService;
 use App\Services\ImportLogs\ImportLogsService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -69,6 +70,13 @@ class FinalizeScheduledUpdatesBatchJob implements ShouldQueue
             ? 'Scheduled security update batch completed with failures.'
 
             : 'Scheduled security update batch completed successfully.';
+
+        // Manual runs (admin Pipeline Health) are identified by their notes
+        // prefix; keep the original description and append the outcome.
+        if (str_starts_with((string) $batch->processing_notes, ManualFundDataRunService::NOTES_PREFIX)) {
+
+            $processingNotes = rtrim($batch->processing_notes).' '.$processingNotes;
+        }
 
         ImportLogsService::log(
 

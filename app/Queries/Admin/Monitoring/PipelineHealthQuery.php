@@ -75,11 +75,18 @@ class PipelineHealthQuery
 
         $attempts = FundDataCoverage::latestScrapeAttempts($covered->keys()->all());
 
-        $coverage = $this->coverage($covered, $latestDates, $attempts, $now);
+        // Have a scraper but no FUND_DATA schedule: never scraped. A manual
+        // run creates their schedules (ManualFundDataRunService).
+        $unscheduled = FundDataCoverage::unscheduledSecurities()
+            ->with('detail.issuer')
+            ->get();
+
+        $coverage = $this->coverage($covered, $latestDates, $attempts, $now)
+            + ['unscheduled' => $unscheduled->count()];
 
         $issuers = $this->issuers($covered, $latestDates, $attempts, $now);
 
-        $problems = $this->problems($covered, $latestDates, $attempts);
+        $problems = $this->problems($covered, $latestDates, $attempts, $unscheduled);
 
         $crons = $this->crons($now);
 
@@ -190,9 +197,25 @@ class PipelineHealthQuery
         return $rows;
     }
 
-    private function problems($covered, array $latestDates, array $attempts): array
+    private function problems($covered, array $latestDates, array $attempts, $unscheduled): array
     {
         $rows = [];
+
+        foreach ($unscheduled as $security) {
+
+            $rows[] = [
+                'security_id' => $security->id,
+                'symbol' => $security->symbol,
+                'name' => $security->detail?->security_name,
+                'issuer_name' => $security->detail?->issuer?->etf_issuer_name,
+                'status' => 'unscheduled',
+                'latest_aum_date' => $latestDates[$security->id] ?? null,
+                'latest_attempt_failed' => false,
+                'last_success_at' => null,
+                'last_failure_at' => null,
+                'last_error' => null,
+            ];
+        }
 
         foreach ($covered as $id => $security) {
 
@@ -229,8 +252,9 @@ class PipelineHealthQuery
 
         $order = [
             FundDataCoverage::STALE => 0,
-            FundDataCoverage::PENDING => 1,
-            FundDataCoverage::CURRENT => 2,
+            'unscheduled' => 1,
+            FundDataCoverage::PENDING => 2,
+            FundDataCoverage::CURRENT => 3,
         ];
 
         usort($rows, fn ($a, $b) => [$order[$a['status']], $a['latest_aum_date'] ?? '', $a['symbol']]
@@ -351,6 +375,11 @@ class PipelineHealthQuery
         if ($coverage['stale'] > 0) {
 
             $reasons[] = "{$coverage['stale']} ETF(s) have stale data.";
+        }
+
+        if (($coverage['unscheduled'] ?? 0) > 0) {
+
+            $reasons[] = "{$coverage['unscheduled']} ETF(s) have a scraper but no update schedule, so they are never scraped. Run an AUM update to schedule and scrape them.";
         }
 
         return [

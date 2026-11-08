@@ -68,6 +68,32 @@ class FundDataCoverage
             });
     }
 
+    /**
+     * Active securities whose issuer has a scraper but which have no
+     * FUND_DATA schedule at all, so the daily run never picks them up.
+     * (A schedule that exists but was deactivated is left alone.)
+     */
+    public static function unscheduledSecurities(): Builder
+    {
+        return Security::query()
+            ->where('securities.status_id', Status::ACTIVE)
+            ->whereExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('security_details')
+                    ->whereColumn('security_details.security_id', 'securities.id')
+                    ->whereIn(
+                        'security_details.etf_issuer_id',
+                        AiSecurityFundDataExtractionService::supportedIssuerIds()
+                    );
+            })
+            ->whereNotExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('security_update_schedules')
+                    ->whereColumn('security_update_schedules.security_id', 'securities.id')
+                    ->where('security_update_schedules.security_update_type_id', SecurityUpdateType::FUND_DATA);
+            });
+    }
+
     public static function isCovered(Security $security): bool
     {
         return self::coveredSecurities()
