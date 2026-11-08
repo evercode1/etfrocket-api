@@ -4,33 +4,15 @@ use Illuminate\Support\Facades\Schedule;
 
 /*
 |--------------------------------------------------------------------------
-| Intraday AI Signals
+| Paid data sources (disabled)
 |--------------------------------------------------------------------------
 |
-| Runs every hour. Command itself checks market hours using
-| IsMarketOpenService and exits when market is closed.
+| ai:generate-signals (OpenAI) and securities:run-ai-price-extraction
+| (Twelve Data) are no longer scheduled. The app now focuses on AUM data
+| from the free issuer scrapers (securities:run-scheduled-updates).
+| See docs/aum-pivot-plan.md.
 |
 */
-
-Schedule::command('ai:generate-signals')
-    ->hourly()
-    ->timezone('UTC')
-    ->withoutOverlapping();
-
-/*
-|--------------------------------------------------------------------------
-| Nightly Data Collection
-|--------------------------------------------------------------------------
-|
-| Market closes at 4:00 PM ET.
-| 5:00 PM ET = 21:00 UTC during DST.
-|
-*/
-
-Schedule::command('securities:run-ai-price-extraction')
-    ->dailyAt('21:00')
-    ->timezone('UTC')
-    ->withoutOverlapping();
 
 /*
 |--------------------------------------------------------------------------
