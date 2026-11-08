@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateSecurityRequest;
 use App\Models\DistributionFrequency;
 use App\Models\EtfIssuer;
 use App\Models\EtfStrategyType;
+use App\Models\Security;
 use App\Models\SecurityType;
 use App\Models\SecurityUpdateType;
 use App\Models\Status;
@@ -15,6 +16,7 @@ use App\Queries\Admin\Securities\ListSecuritiesDataQuery;
 use App\Queries\Admin\Securities\ShowSecurityDataQuery;
 use App\Services\Admin\Securities\CreateSecurityService;
 use App\Services\Admin\Securities\RetireSecurityService;
+use App\Services\Admin\Securities\RunFundDataUpdateService;
 use App\Services\Admin\Securities\UpdateSecurityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -311,5 +313,58 @@ class SecuritiesController extends Controller
 
             ], 500);
         }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Run a fund data (AUM / NAV) update for one security now
+    |--------------------------------------------------------------------------
+    |
+    | Returns 200 with data.succeeded = false when the scrape itself fails
+    | (that is a normal outcome to show the admin); 422 when the security
+    | has no scraper; 404 when it does not exist.
+    |
+    */
+
+    public function runFundDataUpdate(
+        int $id,
+        RunFundDataUpdateService $service
+    ) {
+        $security = Security::with('detail')->find($id);
+
+        if (! $security) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Security not found.',
+            ], 404);
+        }
+
+        try {
+
+            $result = $service->run($security);
+        } catch (\DomainException $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Exception $e) {
+
+            Log::error('Failed to run fund data update', [
+                'security_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Oops, something went wrong. Please try again later.',
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $result,
+        ], 200);
     }
 }

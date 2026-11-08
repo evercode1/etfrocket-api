@@ -73,7 +73,7 @@ class PipelineHealthQuery
 
         $latestDates = FundDataCoverage::latestAumDates();
 
-        $attempts = $this->latestAttempts($covered->keys()->all());
+        $attempts = FundDataCoverage::latestScrapeAttempts($covered->keys()->all());
 
         $coverage = $this->coverage($covered, $latestDates, $attempts, $now);
 
@@ -93,55 +93,6 @@ class PipelineHealthQuery
             'problems' => $problems,
             'crons' => $crons,
         ];
-    }
-
-    /**
-     * Last success and last final failure per security (FUND_DATA only).
-     *
-     * @return array<int, array{last_success_at: ?string, last_failure_at: ?string, last_error: ?string}>
-     */
-    private function latestAttempts(array $securityIds): array
-    {
-        if (empty($securityIds)) {
-
-            return [];
-        }
-
-        $base = fn () => DB::table('security_ingestion_batch_items')
-            ->where('security_update_type_id', SecurityUpdateType::FUND_DATA)
-            ->whereIn('security_id', $securityIds);
-
-        $successes = $base()
-            ->where('is_success', true)
-            ->groupBy('security_id')
-            ->selectRaw('security_id, MAX(completed_at) AS last_at')
-            ->pluck('last_at', 'security_id');
-
-        $latestFailureIds = $base()
-            ->where('status_id', Status::FAILED)
-            ->groupBy('security_id')
-            ->selectRaw('MAX(id) AS id')
-            ->pluck('id');
-
-        $failures = DB::table('security_ingestion_batch_items')
-            ->whereIn('id', $latestFailureIds)
-            ->get(['security_id', 'completed_at', 'error_message'])
-            ->keyBy('security_id');
-
-        $result = [];
-
-        foreach ($securityIds as $id) {
-
-            $failure = $failures->get($id);
-
-            $result[$id] = [
-                'last_success_at' => $successes[$id] ?? null,
-                'last_failure_at' => $failure?->completed_at,
-                'last_error' => $failure?->error_message,
-            ];
-        }
-
-        return $result;
     }
 
     private function coverage($covered, array $latestDates, array $attempts, CarbonImmutable $now): array
@@ -225,7 +176,7 @@ class PipelineHealthQuery
                 'success_rate' => $attemptCount > 0 ? round($successes / $attemptCount * 100, 1) : null,
                 'last_success_at' => $stat->last_success_at ?? null,
                 'failing_now' => $securities->filter(
-                    fn (Security $security) => $this->latestAttemptFailed($attempts[$security->id] ?? [])
+                    fn (Security $security) => FundDataCoverage::latestAttemptFailed($attempts[$security->id] ?? [])
                 )->count(),
                 'stale' => $statuses->filter(fn ($s) => $s === FundDataCoverage::STALE)->count(),
                 'pending' => $statuses->filter(fn ($s) => $s === FundDataCoverage::PENDING)->count(),
@@ -237,16 +188,6 @@ class PipelineHealthQuery
             <=> [-$b['failing_now'] / max(1, $b['covered']), ($b['success_rate'] ?? 101), -$b['stale']]);
 
         return $rows;
-    }
-
-    private function latestAttemptFailed(array $attempt): bool
-    {
-        $lastFailure = $attempt['last_failure_at'] ?? null;
-
-        $lastSuccess = $attempt['last_success_at'] ?? null;
-
-        return (bool) $lastFailure
-            && (! $lastSuccess || $lastFailure > $lastSuccess);
     }
 
     private function problems($covered, array $latestDates, array $attempts): array
@@ -265,7 +206,7 @@ class PipelineHealthQuery
 
             $lastSuccess = $attempt['last_success_at'] ?? null;
 
-            $latestAttemptFailed = $this->latestAttemptFailed($attempt);
+            $latestAttemptFailed = FundDataCoverage::latestAttemptFailed($attempt);
 
             if ($status === FundDataCoverage::CURRENT && ! $latestAttemptFailed) {
 

@@ -4,6 +4,7 @@ namespace App\Queries\Admin\Securities;
 
 use App\Models\Security;
 use App\Models\Status;
+use App\Services\Aum\FundDataCoverage;
 use Illuminate\Http\Request;
 
 class ListSecuritiesDataQuery
@@ -67,6 +68,49 @@ class ListSecuritiesDataQuery
             );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Fund data coverage (shared with Pipeline Health)
+        |--------------------------------------------------------------------------
+        |
+        | coverage filter: current | stale | pending | not_covered | failing
+        | (failing = the latest scrape attempt failed).
+        |
+        */
+
+        $latestDates = FundDataCoverage::latestAumDates();
+
+        $coveredIds = FundDataCoverage::coveredSecurities()
+            ->pluck('securities.id')
+            ->flip();
+
+        $attempts = FundDataCoverage::latestScrapeAttempts(
+            Security::query()->pluck('id')->all()
+        );
+
+        $coverageOf = fn (int $id) => FundDataCoverage::status(
+            isset($coveredIds[$id]),
+            $latestDates[$id] ?? null
+        );
+
+        $failingOf = fn (int $id) => FundDataCoverage::latestAttemptFailed(
+            $attempts[$id] ?? []
+        );
+
+        if ($request->filled('coverage')) {
+
+            $coverage = $request->input('coverage');
+
+            $matchingIds = collect(array_keys($attempts))
+                ->filter(fn (int $id) => $coverage === 'failing'
+                    ? $failingOf($id)
+                    : $coverageOf($id) === $coverage)
+                ->values()
+                ->all();
+
+            $query->whereIn('securities.id', $matchingIds ?: [0]);
+        }
+
         $paginator =
             $query
                 ->orderBy(
@@ -78,7 +122,7 @@ class ListSecuritiesDataQuery
                         25
                     )
                 )
-                ->through(function (Security $security) {
+                ->through(function (Security $security) use ($latestDates, $attempts, $coverageOf, $failingOf) {
                     return [
                         'id' => $security->id,
 
@@ -113,6 +157,17 @@ class ListSecuritiesDataQuery
 
                         'schedule_count' => $security
                             ->update_schedules_count,
+                        'coverage_status' => $coverageOf($security->id),
+                        'latest_aum_date' => $latestDates[$security->id] ?? null,
+                        'has_scraper' => FundDataCoverage::hasScraper($security),
+                        'last_scrape' => [
+                            'failed' => $failingOf($security->id),
+                            'last_success_at' => $attempts[$security->id]['last_success_at'] ?? null,
+                            'last_failure_at' => $attempts[$security->id]['last_failure_at'] ?? null,
+                            'last_error' => $failingOf($security->id)
+                                ? ($attempts[$security->id]['last_error'] ?? null)
+                                : null,
+                        ],
                     ];
                 });
 
