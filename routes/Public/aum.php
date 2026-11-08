@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Public\Aum\AumHistoryController;
 use App\Http\Controllers\Public\Aum\AumLeaderboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,5 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['throttle:60,1']], function () {
 
     Route::get('/aum-leaderboard', [AumLeaderboardController::class, 'index']);
+
+    Route::get('/aum-history/{symbol}', [AumHistoryController::class, 'show'])
+        ->where('symbol', '[A-Za-z0-9.\-]{1,12}');
 
 });
