@@ -75,6 +75,50 @@ class HelpArticlesTest extends TestCase
             ->assertJsonPath('categories.0.slug', 'portfolios');
     }
 
+    public function test_it_orders_articles_by_category_then_creation_order(): void
+    {
+        $second = HelpArticleCategory::factory()->create([
+            'category_name' => 'Troubleshooting',
+            'slug' => 'troubleshooting',
+            'sort_order' => 2,
+            'is_active' => 1,
+        ]);
+
+        $first = HelpArticleCategory::factory()->create([
+            'category_name' => 'Getting Started',
+            'slug' => 'getting-started',
+            'sort_order' => 1,
+            'is_active' => 1,
+        ]);
+
+        // Created newest-last; newer articles must not jump ahead of category order.
+        foreach ([
+            [$second, 'Troubleshooting A'],
+            [$first, 'Getting Started A'],
+            [$first, 'Getting Started B'],
+            [$second, 'Troubleshooting B'],
+        ] as $index => [$category, $title]) {
+            HelpArticle::factory()->create([
+                'help_article_category_id' => $category->id,
+                'title' => $title,
+                'slug' => str($title)->slug(),
+                'is_published' => 1,
+                'created_at' => now()->addMinutes($index),
+            ]);
+        }
+
+        $titles = collect($this->getJson('/api/help-articles')->assertOk()->json('articles.data'))
+            ->pluck('title')
+            ->all();
+
+        $this->assertSame([
+            'Getting Started A',
+            'Getting Started B',
+            'Troubleshooting A',
+            'Troubleshooting B',
+        ], $titles);
+    }
+
     public function test_it_filters_help_articles_by_category_slug(): void
     {
         $portfolioCategory = HelpArticleCategory::factory()->create([

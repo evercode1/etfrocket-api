@@ -85,7 +85,12 @@ class UserHelpArticleController extends Controller
                 'help_article_categories.category_name',
                 'help_article_categories.slug as category_slug',
             ])
-            ->orderBy('help_articles.created_at', 'desc')
+            // Category order first (Getting Started before troubleshooting),
+            // then the order articles were written within each category.
+            // Articles without a category go last.
+            ->orderByRaw('help_article_categories.sort_order IS NULL')
+            ->orderBy('help_article_categories.sort_order')
+            ->orderBy('help_articles.id')
             ->paginate(12);
 
         /*
