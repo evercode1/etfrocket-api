@@ -4,6 +4,7 @@ namespace App\Services\Scrapers;
 
 use App\Models\Security;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -217,16 +218,54 @@ class NicholasXScraperService
 
         );
 
-        if (! $postId) {
+        if ($postId) {
 
-            throw new \RuntimeException(
-                'No NicholasX post ID configured for symbol: '.
-
-                $symbol
-
-            );
+            return (int) $postId;
         }
 
-        return (int) $postId;
+        // Not configured (e.g. a newly launched fund): read the WordPress
+        // page ID from the fund's public page and cache it. Failures are
+        // not cached, so the next run tries again.
+        return Cache::remember(
+            'scrapers:nicholasx:post-id:'.strtoupper($symbol),
+            now()->addDays(30),
+            fn () => $this->discoverPostId($symbol)
+        );
+    }
+
+    /**
+     * nicholasx.com/{symbol}/ links its own page ID, e.g.
+     * <link rel="shortlink" href="https://nicholasx.com/?p=3000"> and
+     * <link rel="alternate" href=".../wp-json/wp/v2/pages/3000">.
+     */
+    private function discoverPostId(
+        string $symbol
+    ): int {
+
+        $response = Http::timeout(30)
+            ->get(
+                'https://nicholasx.com/'.strtolower($symbol).'/'
+            );
+
+        if (
+            $response->successful()
+            && preg_match(
+                '#wp-json/wp/v2/pages/(\d+)|[?&]p=(\d+)#',
+                $response->body(),
+                $matches
+            )
+        ) {
+
+            return (int) ($matches[1] ?: $matches[2]);
+        }
+
+        throw new \RuntimeException(
+            'No NicholasX post ID configured for symbol: '.
+
+            $symbol.
+
+            ', and it could not be found on the fund page.'
+
+        );
     }
 }
