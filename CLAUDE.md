@@ -62,6 +62,7 @@ No longer scheduled (commands still exist): `ai:generate-signals` (OpenAI), `sec
   - `AiSignals/` builds payloads and fills the markdown prompt templates in `AiSignals/Templates/*.md`.
 - `app/Services/Scrapers/` has one scraper per ETF issuer (YieldMax, Roundhill, Kurv, Neos, GlobalX, RexShares, TappAlpha, NicholasX). Per-issuer settings such as page IDs are in `config/scrapers.php`.
 - Historical prices: `securities:backfill-price-history {symbol?}` imports from the per-symbol files in `app/Imports/PriceData/*.txt`.
+- TappAlpha history: `securities:backfill-tappalpha-history {--symbol=} {--dry-run}` copies each fund's daily AUM/NAV history from TappAlpha's public fund data API (the same API `TappAlphaScraperService` uses). It only inserts missing dates and never overwrites, so it is safe to run in production and to re-run.
 
 ### Domain config
 

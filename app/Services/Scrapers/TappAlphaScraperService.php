@@ -40,31 +40,7 @@ class TappAlphaScraperService
     {
         $symbol = strtoupper($security->symbol);
 
-        $response = Http::timeout(30)
-            ->acceptJson()
-            ->get(
-                config('scrapers.tappalpha.api_url'),
-                [
-                    'ticker' => $symbol,
-                    'view' => 'all',
-                ]
-            );
-
-        if (! $response->successful()) {
-
-            throw new \RuntimeException(
-                'Unable to retrieve TappAlpha fund data.'
-            );
-        }
-
-        $payload = $response->json();
-
-        if (! is_array($payload) || ($payload['mode'] ?? null) === 'placeholder') {
-
-            throw new \RuntimeException(
-                'TappAlpha fund data is not available for '.$symbol.'.'
-            );
-        }
+        $payload = $this->fetchFundData($symbol);
 
         $latest = $payload['latest'] ?? null;
 
@@ -100,6 +76,45 @@ class TappAlphaScraperService
             'nav_date' => $date,
             'shares_outstanding' => $shares === null ? null : (int) $shares,
         ];
+    }
+
+    /**
+     * The full fund data payload ("latest", daily "chart" history, ...).
+     * Shared with the TappAlpha history backfill command.
+     *
+     * @throws \RuntimeException when unavailable or placeholder data
+     */
+    public function fetchFundData(string $symbol): array
+    {
+        $symbol = strtoupper($symbol);
+
+        $response = Http::timeout(30)
+            ->acceptJson()
+            ->get(
+                config('scrapers.tappalpha.api_url'),
+                [
+                    'ticker' => $symbol,
+                    'view' => 'all',
+                ]
+            );
+
+        if (! $response->successful()) {
+
+            throw new \RuntimeException(
+                'Unable to retrieve TappAlpha fund data.'
+            );
+        }
+
+        $payload = $response->json();
+
+        if (! is_array($payload) || ($payload['mode'] ?? null) === 'placeholder') {
+
+            throw new \RuntimeException(
+                'TappAlpha fund data is not available for '.$symbol.'.'
+            );
+        }
+
+        return $payload;
     }
 
     private function positive(mixed $value): ?float
