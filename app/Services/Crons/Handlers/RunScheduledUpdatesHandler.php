@@ -6,8 +6,10 @@ use App\Jobs\RunScheduledSecurityUpdateJob;
 use App\Models\ImportType;
 use App\Models\SecurityIngestionBatch;
 use App\Models\SecurityIngestionBatchItem;
+use App\Models\SecurityDetail;
 use App\Models\SecurityUpdateSchedule;
 use App\Models\SecurityUpdateType;
+use App\Services\AI\Extractions\AiSecurityFundDataExtractionService;
 use App\Models\Status;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -30,7 +32,8 @@ class RunScheduledUpdatesHandler
             | Fund data only, every day
             |--------------------------------------------------------------------------
             |
-            | Only FUND_DATA schedules (free issuer scrapers: AUM + NAV) run.
+            | Only FUND_DATA schedules (free issuer scrapers: AUM + NAV) run,
+            | and only for issuers that have a scraper.
             | DIVIDEND schedules depend on the paid Twelve Data API and are
             | intentionally skipped; their rows are left untouched.
             |
@@ -65,6 +68,18 @@ class RunScheduledUpdatesHandler
                     ->where(
                         'security_update_type_id',
                         SecurityUpdateType::FUND_DATA
+                    )
+
+                    // Skip securities whose issuer has no scraper; they would
+                    // fail every run. Their schedule rows are left untouched.
+                    ->whereIn(
+                        'security_id',
+                        SecurityDetail::query()
+                            ->select('security_id')
+                            ->whereIn(
+                                'etf_issuer_id',
+                                AiSecurityFundDataExtractionService::supportedIssuerIds()
+                            )
                     )
 
                     ->where(

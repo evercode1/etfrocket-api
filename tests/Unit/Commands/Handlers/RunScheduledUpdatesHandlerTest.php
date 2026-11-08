@@ -3,6 +3,8 @@
 namespace Tests\Unit\Crons\Handlers;
 
 use App\Jobs\RunScheduledSecurityUpdateJob;
+use App\Models\EtfIssuer;
+use App\Models\SecurityDetail;
 use App\Models\SecurityIngestionBatch;
 use App\Models\SecurityIngestionBatchItem;
 use App\Models\SecurityUpdateSchedule;
@@ -105,6 +107,8 @@ class RunScheduledUpdatesHandlerTest extends TestCase
                 'status_id' => Status::ACTIVE,
             ]);
 
+        $this->assignSupportedIssuer();
+
         $result =
 
             $this->handler
@@ -178,6 +182,8 @@ class RunScheduledUpdatesHandlerTest extends TestCase
                 'status_id' => Status::ACTIVE,
             ]);
 
+        $this->assignSupportedIssuer();
+
         $this->handler
             ->handleRunScheduledUpdates([
 
@@ -229,6 +235,8 @@ class RunScheduledUpdatesHandlerTest extends TestCase
             now()->startOfWeek()->addDays(2)->setTime(2, 0)
         );
 
+        $this->assignSupportedIssuer();
+
         $this->handler
             ->handleRunScheduledUpdates();
 
@@ -241,6 +249,8 @@ class RunScheduledUpdatesHandlerTest extends TestCase
     public function test_it_returns_success_when_no_schedules_exist()
     {
         Queue::fake();
+
+        $this->assignSupportedIssuer();
 
         $result =
 
@@ -289,6 +299,8 @@ class RunScheduledUpdatesHandlerTest extends TestCase
             ->create([
                 'status_id' => Status::INACTIVE,
             ]);
+
+        $this->assignSupportedIssuer();
 
         $result =
 
@@ -343,6 +355,8 @@ class RunScheduledUpdatesHandlerTest extends TestCase
 
             ->create();
 
+        $this->assignSupportedIssuer();
+
         $this->handler
             ->handleRunScheduledUpdates([
 
@@ -354,6 +368,55 @@ class RunScheduledUpdatesHandlerTest extends TestCase
             'security_ingestion_batch_items',
             1
         );
+
+        Queue::assertPushed(
+            RunScheduledSecurityUpdateJob::class,
+            1
+        );
+    }
+
+    private function assignSupportedIssuer(): void
+    {
+        SecurityDetail::query()->update([
+            'etf_issuer_id' => EtfIssuer::YIELDMAX,
+        ]);
+    }
+
+    public function test_it_skips_securities_whose_issuer_has_no_scraper()
+    {
+        Queue::fake();
+
+        $supported = SecurityUpdateSchedule::factory()
+            ->aum()
+            ->scheduledFor(1, 2)
+            ->create();
+
+        $unsupported = SecurityUpdateSchedule::factory()
+            ->aum()
+            ->scheduledFor(1, 2)
+            ->create();
+
+        SecurityDetail::where('security_id', $supported->security_id)
+            ->update(['etf_issuer_id' => EtfIssuer::YIELDMAX]);
+
+        SecurityDetail::where('security_id', $unsupported->security_id)
+            ->update(['etf_issuer_id' => EtfIssuer::DEFIANCE]);
+
+        $this->handler
+            ->handleRunScheduledUpdates([
+
+                'hour' => 2,
+
+            ]);
+
+        $this->assertDatabaseCount(
+            'security_ingestion_batch_items',
+            1
+        );
+
+        $this->assertDatabaseHas('security_ingestion_batch_items', [
+            'security_id' => $supported->security_id,
+        ]);
 
         Queue::assertPushed(
             RunScheduledSecurityUpdateJob::class,
