@@ -4,47 +4,25 @@ use Illuminate\Support\Facades\Schedule;
 
 /*
 |--------------------------------------------------------------------------
-| Intraday AI Signals
+| Disabled commands
 |--------------------------------------------------------------------------
 |
-| Runs every hour. Command itself checks market hours using
-| IsMarketOpenService and exits when market is closed.
+| No longer scheduled since the app now focuses on AUM data from the free
+| issuer scrapers (securities:run-scheduled-updates):
+|
+|   ai:generate-signals                  OpenAI (paid)
+|   securities:run-ai-price-extraction   Twelve Data (paid)
+|   securities:calculate-metrics         only fed the retired comparison /
+|                                        portfolio features; the AUM pages
+|                                        compute from AUM history directly
+|
+| The commands still exist and can be run manually. See
+| docs/aum-pivot-plan.md.
+|
+| When adding or removing a scheduled command here, update
+| PipelineHealthQuery::EXPECTED_CRONS (a test enforces this).
 |
 */
-
-Schedule::command('ai:generate-signals')
-    ->hourly()
-    ->timezone('UTC')
-    ->withoutOverlapping();
-
-/*
-|--------------------------------------------------------------------------
-| Nightly Data Collection
-|--------------------------------------------------------------------------
-|
-| Market closes at 4:00 PM ET.
-| 5:00 PM ET = 21:00 UTC during DST.
-|
-*/
-
-Schedule::command('securities:run-ai-price-extraction')
-    ->dailyAt('21:00')
-    ->timezone('UTC')
-    ->withoutOverlapping();
-
-/*
-|--------------------------------------------------------------------------
-| Metrics Calculation
-|--------------------------------------------------------------------------
-|
-| Allow extractions to finish first.
-|
-*/
-
-Schedule::command('securities:calculate-metrics')
-    ->dailyAt('02:00')
-    ->timezone('UTC')
-    ->withoutOverlapping();
 
 /*
 |--------------------------------------------------------------------------

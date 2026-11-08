@@ -11,8 +11,6 @@ class RunScheduledUpdates extends Command
 
         'securities:run-scheduled-updates
 
-        {--day= : Override current day}
-
         {--hour= : Override current hour}
 
         {--limit= : Limit schedules processed}
@@ -21,17 +19,13 @@ class RunScheduledUpdates extends Command
 
     protected $description =
 
-        'Runs scheduled security updates (Dividend, AUM, NAV) based on security update schedules.';
+        'Runs daily fund data updates (AUM, NAV) via issuer scrapers, based on each schedule\'s run hour.';
 
     public function handle(): void
     {
         $interval = 'Hourly';
 
         $payload = [
-
-            'day' => $this->option(
-                'day'
-            ),
 
             'hour' => $this->option(
                 'hour'

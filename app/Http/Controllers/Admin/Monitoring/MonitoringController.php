@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Monitoring;
 
 use App\Http\Controllers\Controller;
 use App\Queries\Admin\Monitoring\CronReportQuery;
+use App\Queries\Admin\Monitoring\PipelineHealthQuery;
 use App\Queries\ImportLogs\ListImportLogsQuery;
 use App\Queries\ImportLogs\ShowImportLogQuery;
 use Illuminate\Http\JsonResponse;
@@ -11,6 +12,31 @@ use Illuminate\Support\Facades\Log;
 
 class MonitoringController extends Controller
 {
+    public function pipelineHealth(
+        PipelineHealthQuery $query
+    ): JsonResponse {
+
+        try {
+
+            $data = $query->getData();
+        } catch (\Exception $e) {
+
+            Log::error('Failed to fetch pipeline health', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch pipeline health.',
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+        ], 200);
+    }
+
     public function cronReports(
         CronReportQuery $query
     ): JsonResponse {

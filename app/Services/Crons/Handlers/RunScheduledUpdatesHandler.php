@@ -6,7 +6,10 @@ use App\Jobs\RunScheduledSecurityUpdateJob;
 use App\Models\ImportType;
 use App\Models\SecurityIngestionBatch;
 use App\Models\SecurityIngestionBatchItem;
+use App\Models\SecurityDetail;
 use App\Models\SecurityUpdateSchedule;
+use App\Models\SecurityUpdateType;
+use App\Services\AI\Extractions\AiSecurityFundDataExtractionService;
 use App\Models\Status;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -23,9 +26,23 @@ class RunScheduledUpdatesHandler
             Log::info(
                 'SCHEDULED UPDATE HANDLER STARTED'
             );
-            $runDay =
-    $payload['day']
-    ?? now()->dayOfWeek;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Fund data only, every day
+            |--------------------------------------------------------------------------
+            |
+            | Only FUND_DATA schedules (free issuer scrapers: AUM + NAV) run,
+            | and only for issuers that have a scraper.
+            | DIVIDEND schedules depend on the paid Twelve Data API and are
+            | intentionally skipped; their rows are left untouched.
+            |
+            | Fund data runs daily at each schedule's run_hour. run_day is
+            | ignored (it is stored as 1-7 while Carbon's dayOfWeek is 0-6,
+            | so day-7 schedules previously never ran). Re-runs on the same
+            | data date are idempotent (updateOrCreate on security + date).
+            |
+            */
 
             $runHour =
                 $payload['hour']
@@ -49,8 +66,20 @@ class RunScheduledUpdatesHandler
                     )
 
                     ->where(
-                        'run_day',
-                        $runDay
+                        'security_update_type_id',
+                        SecurityUpdateType::FUND_DATA
+                    )
+
+                    // Skip securities whose issuer has no scraper; they would
+                    // fail every run. Their schedule rows are left untouched.
+                    ->whereIn(
+                        'security_id',
+                        SecurityDetail::query()
+                            ->select('security_id')
+                            ->whereIn(
+                                'etf_issuer_id',
+                                AiSecurityFundDataExtractionService::supportedIssuerIds()
+                            )
                     )
 
                     ->where(
@@ -88,8 +117,6 @@ class RunScheduledUpdatesHandler
                 'SCHEDULE QUERY COMPLETE',
 
                 [
-
-                    'run_day' => $runDay,
 
                     'run_hour' => $runHour,
 
@@ -136,9 +163,9 @@ class RunScheduledUpdatesHandler
 
                     'passed_data_integrity_check' => false,
 
-                    'processing_notes' => 'Scheduled security updates queued. '.
+                    'processing_notes' => 'Scheduled fund data updates queued. '.
 
-                        "Run day {$runDay}, run hour {$runHour}. ".
+                        "Run hour {$runHour}. ".
 
                         "Total updates: {$schedules->count()}",
 
