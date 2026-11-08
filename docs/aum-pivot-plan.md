@@ -1,6 +1,9 @@
 # AUM Pivot Plan
 
-Status: **planning — no implementation started** (2026-11-08)
+Status: **in progress** (updated 2026-11-08)
+
+- Phase 1 committed to `dev` (`123e67d`), awaiting merge to `main` for deploy.
+- On `aum-pivot`: seed command (`dev:seed-fund-data`) done; public `GET /api/aum-leaderboard` + `/aum` page first draft.
 Repos: `etfrocket-api` (this repo) and `etfrocket-web` (`../etfrocket-web`)
 
 ## Why
@@ -51,7 +54,8 @@ securities:run-scheduled-updates  (hourly cron, routes/console.php)
 
 - Despite the "Ai" names, the fund-data path does **not** call OpenAI.
 - Scrapers return AUM, NAV, shares outstanding and dates, but only AUM and NAV are persisted. Shares outstanding can be derived (AUM / NAV), so **estimated flows** (Δshares × NAV) need no schema change.
-- `securities:calculate-metrics` (daily 02:00, free) already computes start/end AUM, AUM change and % change per `PerformanceRangeType` (5D, 30D, 90D, YTD, 1Y, MAX) into `security_metrics`. Usable for a leaderboard.
+- `securities:calculate-metrics` (daily 02:00, free) computes start/end AUM, AUM change and % change per `PerformanceRangeType` into `security_metrics`, **but `CalculateSecurityMetricService` skips a security entirely when price data is missing for the range**. With price extraction stopped, AUM metrics for short ranges will stop updating. The public leaderboard therefore reads `security_aum_histories` / `security_nav_histories` directly (`App\Queries\Aum\AumLeaderboardQuery`). Phase 2 should strip the price/dividend parts out of the metrics service or retire it.
+- Some securities belong to issuers without scrapers (Defiance, JPMorgan, Amplify, Simplify). They get no AUM data in production and are omitted from the leaderboard automatically (no AUM rows).
 - `SymbolAumHistoryChartQuery` already shapes AUM history for charts.
 
 ### Existing bug: one-seventh of securities are never updated
@@ -129,6 +133,10 @@ Dropping frozen tables. Revisit only if the data is confirmed unwanted.
 - `--fresh` truncates those two tables first (local only, still behind the production guard).
 - Prints a summary and suggests running `securities:calculate-metrics` afterward.
 - Feature test: generates rows for a seeded security; refuses under `APP_ENV=production`.
+
+## Other notes
+- Registration is currently disabled: `Route::post('/register', ...)` is commented out in `routes/Auth/auth.php`, so `Tests\Feature\Auth\RegisterTest` fails (2 tests, pre-existing). Needs re-enabling before the watchlist signup.
+- The public header has a "Get Started" link to `/auth/register`, which currently hits the disabled endpoint.
 
 ## Open items
 - Confirm Laravel Cloud deploy branch and backup status.
