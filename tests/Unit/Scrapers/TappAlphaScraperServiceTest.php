@@ -3,201 +3,112 @@
 namespace Tests\Unit\Services\Scrapers;
 
 use App\Models\Security;
-use App\Models\SecurityDetail;
 use App\Services\Scrapers\TappAlphaScraperService;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class TappAlphaScraperServiceTest extends TestCase
 {
-    private TappAlphaScraperService $service;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        DB::table('security_details')
-            ->truncate();
-
-        DB::table('securities')
-            ->truncate();
-
-        $this->service =
-            app(
-                TappAlphaScraperService::class
-            );
+        DB::table('security_details')->truncate();
+        DB::table('securities')->truncate();
     }
 
     protected function tearDown(): void
     {
-        DB::table('security_details')
-            ->truncate();
-
-        DB::table('securities')
-            ->truncate();
+        DB::table('security_details')->truncate();
+        DB::table('securities')->truncate();
 
         parent::tearDown();
     }
 
-    public function test_extract_returns_expected_tdaq_data(): void
+    /**
+     * Shape of the public fund data API (trimmed; Nov 2026).
+     */
+    private function payload(array $latest = [], string $mode = 'live'): array
     {
-        $security =
-            Security::create([
-
-                'symbol' => 'TDAQ',
-
-            ]);
-
-        SecurityDetail::create([
-
-            'security_id' => $security->id,
-
-            'website_url' => 'https://www.tappalphafunds.com/etfs/tdaq',
-
-        ]);
-
-        $html = <<<'HTML'
-<div class="as_of-wrap">
-    <p class="text-size-medium">As of:</p>
-    <p class="text-size-medium">May 29, 2026</p>
-</div>
-
-<div>
-    <div>NAV Price</div>
-    <div class="heading-style-h6">28.87</div>
-</div>
-
-<div>
-    <div>Net Assets</div>
-    <div data-format-number="true" class="heading-style-h6">210763410</div>
-</div>
-
-<div>
-    <div>Shares Outstanding</div>
-    <div data-format-number="true" class="table-text">7260000</div>
-</div>
-HTML;
-
-        Http::fake([
-
-            'www.tappalphafunds.com/*' => Http::response(
-                $html,
-                200
-            ),
-
-        ]);
-
-        $data =
-            $this->service
-                ->extract(
-                    $security
-                );
-
-        $this->assertEquals(
-            'TDAQ',
-            $data['symbol']
-        );
-
-        $this->assertEquals(
-            210763410,
-            $data['assets_under_management']
-        );
-
-        $this->assertEquals(
-            '2026-05-29',
-            $data['aum_date']
-        );
-
-        $this->assertEquals(
-            28.87,
-            $data['nav_per_share']
-        );
-
-        $this->assertEquals(
-            '2026-05-29',
-            $data['nav_date']
-        );
-
-        $this->assertEquals(
-            7260000,
-            $data['shares_outstanding']
-        );
+        return [
+            'fund' => ['ticker' => 'TDAQ'],
+            'latest' => array_merge([
+                'ticker' => 'TDAQ',
+                'as_of_date' => '2026-11-06',
+                'nav' => 23.95,
+                'market_price' => 23.89,
+                'net_assets' => 471343830.71,
+                'shares_outstanding' => 19680000,
+            ], $latest),
+            'chart' => [],
+            'mode' => $mode,
+        ];
     }
 
-    public function test_it_throws_exception_when_data_cannot_be_found(): void
+    private function extract(string $symbol = 'TDAQ'): array
     {
-        $security =
-            Security::create([
+        $security = Security::factory()->create(['symbol' => $symbol]);
 
-                'symbol' => 'TDAQ',
-
-            ]);
-
-        SecurityDetail::create([
-
-            'security_id' => $security->id,
-
-            'website_url' => 'https://www.tappalphafunds.com/etfs/tdaq',
-
-        ]);
-
-        Http::fake([
-
-            'www.tappalphafunds.com/*' => Http::response(
-                '<html>No ETF Data</html>',
-                200
-            ),
-
-        ]);
-
-        $this->expectException(
-            \Exception::class
-        );
-
-        $this->expectExceptionMessage(
-            'Unable to extract TappAlpha as-of date.'
-        );
-
-        $this->service
-            ->extract(
-                $security
-            );
+        return app(TappAlphaScraperService::class)->extract($security);
     }
 
-    public function test_it_throws_exception_when_page_cannot_be_retrieved(): void
+    public function test_it_extracts_fund_data_from_the_fund_api(): void
     {
-        $security =
-            Security::create([
+        Http::fake(['*' => Http::response($this->payload(), 200)]);
 
-                'symbol' => 'TDAQ',
+        $data = $this->extract();
 
-            ]);
+        $this->assertSame('TDAQ', $data['symbol']);
+        $this->assertEquals(471343830.71, $data['assets_under_management']);
+        $this->assertEquals(23.95, $data['nav_per_share']);
+        $this->assertSame(19680000, $data['shares_outstanding']);
+        $this->assertSame('2026-11-06', $data['aum_date']);
+        $this->assertSame('2026-11-06', $data['nav_date']);
 
-        SecurityDetail::create([
+        Http::assertSent(fn (Request $request) => str_starts_with($request->url(), config('scrapers.tappalpha.api_url'))
+            && $request['ticker'] === 'TDAQ'
+            && $request['view'] === 'all');
+    }
 
-            'security_id' => $security->id,
+    public function test_it_rejects_placeholder_data(): void
+    {
+        Http::fake(['*' => Http::response($this->payload(mode: 'placeholder'), 200)]);
 
-            'website_url' => 'https://www.tappalphafunds.com/etfs/tdaq',
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('TappAlpha fund data is not available for TDAQ.');
 
-        ]);
+        $this->extract();
+    }
 
-        Http::fake([
+    public function test_it_rejects_data_for_a_different_ticker(): void
+    {
+        Http::fake(['*' => Http::response($this->payload(['ticker' => 'TSPY']), 200)]);
 
-            'www.tappalphafunds.com/*' => Http::response(
-                [],
-                500
-            ),
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('TappAlpha fund data did not include TDAQ.');
 
-        ]);
+        $this->extract();
+    }
 
-        $this->expectException(
-            \Exception::class
-        );
+    public function test_it_throws_when_nav_or_net_assets_are_missing(): void
+    {
+        Http::fake(['*' => Http::response($this->payload(['net_assets' => null]), 200)]);
 
-        $this->service
-            ->extract(
-                $security
-            );
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Unable to extract TappAlpha NAV and net assets.');
+
+        $this->extract();
+    }
+
+    public function test_it_throws_when_the_api_cannot_be_reached(): void
+    {
+        Http::fake(['*' => Http::response('', 500)]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Unable to retrieve TappAlpha fund data.');
+
+        $this->extract();
     }
 }
