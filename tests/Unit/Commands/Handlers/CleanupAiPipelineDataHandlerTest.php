@@ -14,276 +14,82 @@ use Tests\TestCase;
 
 class CleanupAiPipelineDataHandlerTest extends TestCase
 {
+    private const TABLES = [
+        'security_ingestion_batch_items',
+        'security_ingestion_batches',
+        'ai_data_extractions',
+        'ai_signal_batch_items',
+        'ai_signal_batches',
+        'ai_market_signals',
+    ];
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        foreach (
-
-            config(
-                'security_pipeline_cleanup.tables'
-            ) as $table
-
-        ) {
-
-            DB::table($table)
-                ->truncate();
+        foreach (self::TABLES as $table) {
+            DB::table($table)->truncate();
         }
     }
 
     protected function tearDown(): void
     {
-        foreach (
-
-            config(
-                'security_pipeline_cleanup.tables'
-            ) as $table
-
-        ) {
-
-            DB::table($table)
-                ->truncate();
+        foreach (self::TABLES as $table) {
+            DB::table($table)->truncate();
         }
 
         parent::tearDown();
     }
 
-    public function test_it_deletes_records_older_than_retention_period()
+    private function runCleanup(): array
     {
-        $oldDate =
-            now()->subHours(73);
-
-        $recentDate =
-            now()->subHours(24);
-
-        $oldSecurityIngestionBatch =
-            SecurityIngestionBatch::factory()
-                ->create([
-                    'created_at' => $oldDate,
-                ]);
-
-        $recentSecurityIngestionBatch =
-            SecurityIngestionBatch::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
-
-        $oldSecurityIngestionBatchItem =
-            SecurityIngestionBatchItem::factory()
-                ->create([
-                    'created_at' => $oldDate,
-                ]);
-
-        $recentSecurityIngestionBatchItem =
-            SecurityIngestionBatchItem::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
-
-        $oldAiSignalBatch =
-            AiSignalBatch::factory()
-                ->create([
-                    'created_at' => $oldDate,
-                ]);
-
-        $recentAiSignalBatch =
-            AiSignalBatch::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
-
-        $oldAiSignalBatchItem =
-            AiSignalBatchItem::factory()
-                ->create([
-                    'created_at' => $oldDate,
-                ]);
-
-        $recentAiSignalBatchItem =
-            AiSignalBatchItem::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
-
-        $oldExtraction =
-            AiDataExtraction::factory()
-                ->create([
-                    'created_at' => $oldDate,
-                ]);
-
-        $recentExtraction =
-            AiDataExtraction::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
-
-        $oldSignal =
-            AiMarketSignal::factory()
-                ->create([
-                    'created_at' => $oldDate,
-                ]);
-
-        $recentSignal =
-            AiMarketSignal::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
-
-        $result =
-
-            app(
-                CleanupAiPipelineDataHandler::class
-            )->handleCleanupAiPipelineData();
-
-        $this->assertEquals(
-            1,
-            $result['success']
-        );
-
-        $this->assertNull(
-            $result['cron_fail_details']
-        );
-
-        $this->assertDatabaseMissing(
-            'security_ingestion_batches',
-            ['id' => $oldSecurityIngestionBatch->id]
-        );
-
-        $this->assertDatabaseMissing(
-            'security_ingestion_batch_items',
-            ['id' => $oldSecurityIngestionBatchItem->id]
-        );
-
-        $this->assertDatabaseMissing(
-            'ai_signal_batches',
-            ['id' => $oldAiSignalBatch->id]
-        );
-
-        $this->assertDatabaseMissing(
-            'ai_signal_batch_items',
-            ['id' => $oldAiSignalBatchItem->id]
-        );
-
-        $this->assertDatabaseMissing(
-            'ai_data_extractions',
-            ['id' => $oldExtraction->id]
-        );
-
-        $this->assertDatabaseMissing(
-            'ai_market_signals',
-            ['id' => $oldSignal->id]
-        );
-
-        $this->assertDatabaseHas(
-            'security_ingestion_batches',
-            ['id' => $recentSecurityIngestionBatch->id]
-        );
-
-        $this->assertDatabaseHas(
-            'security_ingestion_batch_items',
-            ['id' => $recentSecurityIngestionBatchItem->id]
-        );
-
-        $this->assertDatabaseHas(
-            'ai_signal_batches',
-            ['id' => $recentAiSignalBatch->id]
-        );
-
-        $this->assertDatabaseHas(
-            'ai_signal_batch_items',
-            ['id' => $recentAiSignalBatchItem->id]
-        );
-
-        $this->assertDatabaseHas(
-            'ai_data_extractions',
-            ['id' => $recentExtraction->id]
-        );
-
-        $this->assertDatabaseHas(
-            'ai_market_signals',
-            ['id' => $recentSignal->id]
-        );
+        return app(CleanupAiPipelineDataHandler::class)
+            ->handleCleanupAiPipelineData();
     }
 
-    public function test_it_keeps_records_inside_retention_period()
+    public function test_ai_data_extractions_are_kept_for_72_hours(): void
     {
-        $recentDate =
-            now()->subHours(24);
+        $old = AiDataExtraction::factory()->create(['created_at' => now()->subHours(73)]);
+        $recent = AiDataExtraction::factory()->create(['created_at' => now()->subHours(71)]);
 
-        $securityIngestionBatch =
-            SecurityIngestionBatch::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
+        $result = $this->runCleanup();
 
-        $securityIngestionBatchItem =
-            SecurityIngestionBatchItem::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
+        $this->assertSame(1, $result['success']);
+        $this->assertNull($result['cron_fail_details']);
 
-        $aiSignalBatch =
-            AiSignalBatch::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
+        $this->assertDatabaseMissing('ai_data_extractions', ['id' => $old->id]);
+        $this->assertDatabaseHas('ai_data_extractions', ['id' => $recent->id]);
+    }
 
-        $aiSignalBatchItem =
-            AiSignalBatchItem::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
+    public function test_scrape_batches_and_items_are_kept_for_14_days(): void
+    {
+        $oldBatch = SecurityIngestionBatch::factory()->create(['created_at' => now()->subDays(15)]);
+        $keptBatch = SecurityIngestionBatch::factory()->create(['created_at' => now()->subDays(10)]);
 
-        $extraction =
-            AiDataExtraction::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
+        $oldItem = SecurityIngestionBatchItem::factory()->create(['created_at' => now()->subDays(15)]);
+        $keptItem = SecurityIngestionBatchItem::factory()->create(['created_at' => now()->subDays(10)]);
 
-        $signal =
-            AiMarketSignal::factory()
-                ->create([
-                    'created_at' => $recentDate,
-                ]);
+        $this->runCleanup();
 
-        $result =
+        $this->assertDatabaseMissing('security_ingestion_batches', ['id' => $oldBatch->id]);
+        $this->assertDatabaseMissing('security_ingestion_batch_items', ['id' => $oldItem->id]);
 
-            app(
-                CleanupAiPipelineDataHandler::class
-            )->handleCleanupAiPipelineData();
+        // Older than the previous 72-hour retention, still inside 14 days:
+        // the admin Pipeline Health page relies on 7 days of history.
+        $this->assertDatabaseHas('security_ingestion_batches', ['id' => $keptBatch->id]);
+        $this->assertDatabaseHas('security_ingestion_batch_items', ['id' => $keptItem->id]);
+    }
 
-        $this->assertEquals(
-            1,
-            $result['success']
-        );
+    public function test_frozen_ai_signal_data_is_never_deleted(): void
+    {
+        $signal = AiMarketSignal::factory()->create(['created_at' => now()->subDays(200)]);
+        $batch = AiSignalBatch::factory()->create(['created_at' => now()->subDays(200)]);
+        $item = AiSignalBatchItem::factory()->create(['created_at' => now()->subDays(200)]);
 
-        $this->assertDatabaseHas(
-            'security_ingestion_batches',
-            ['id' => $securityIngestionBatch->id]
-        );
+        $this->runCleanup();
 
-        $this->assertDatabaseHas(
-            'security_ingestion_batch_items',
-            ['id' => $securityIngestionBatchItem->id]
-        );
-
-        $this->assertDatabaseHas(
-            'ai_signal_batches',
-            ['id' => $aiSignalBatch->id]
-        );
-
-        $this->assertDatabaseHas(
-            'ai_signal_batch_items',
-            ['id' => $aiSignalBatchItem->id]
-        );
-
-        $this->assertDatabaseHas(
-            'ai_data_extractions',
-            ['id' => $extraction->id]
-        );
-
-        $this->assertDatabaseHas(
-            'ai_market_signals',
-            ['id' => $signal->id]
-        );
+        $this->assertDatabaseHas('ai_market_signals', ['id' => $signal->id]);
+        $this->assertDatabaseHas('ai_signal_batches', ['id' => $batch->id]);
+        $this->assertDatabaseHas('ai_signal_batch_items', ['id' => $item->id]);
     }
 }

@@ -45,15 +45,15 @@ php artisan schedule:list            # view the cron schedule defined in routes/
 
 ### Data pipeline (scheduled)
 
-`routes/console.php` defines the schedule (all UTC, `withoutOverlapping`):
+The app is being narrowed to a free ETF AUM tracker (see `docs/aum-pivot-plan.md`). `routes/console.php` defines the schedule (all UTC, `withoutOverlapping`):
 
 | Command | When | What |
 |---|---|---|
-| `ai:generate-signals` | hourly (exits when market closed via `IsMarketOpenService`) | AI market signals: snapshot, conditions, ETF watchlist |
-| `securities:run-ai-price-extraction` | daily 21:00 (skips weekends unless `--force`) | pull latest prices per security |
-| `securities:calculate-metrics` | daily 02:00 | recompute security metrics after extractions finish |
-| `securities:run-scheduled-updates` | hourly | per-security scheduled updates (dividends/fund data) |
-| `app:cleanup-ai-pipeline-data`, `app:trim-cron-logs`, `app:trim-import-logs` | daily/weekly | retention |
+| `securities:run-scheduled-updates` | hourly | Dispatches FUND_DATA schedules at their `run_hour` (every day; `run_day` ignored) for issuers that have a scraper. Scrapes AUM + NAV. DIVIDEND schedules are skipped. |
+| `app:cleanup-ai-pipeline-data` | daily 05:15 | Per-table retention from `config/security_pipeline_cleanup.php` (ingestion batches/items 14 days, `ai_data_extractions` 72h). AI signal tables are deliberately excluded (frozen data). |
+| `app:trim-cron-logs`, `app:trim-import-logs` | weekly | Keep one week of logs |
+
+No longer scheduled (commands still exist): `ai:generate-signals` (OpenAI), `securities:run-ai-price-extraction` (Twelve Data), `securities:calculate-metrics` (fed only retired features). When changing the schedule, update `PipelineHealthQuery::EXPECTED_CRONS`; a test enforces they match.
 
 - Each command delegates to `CronService::runAndLogCron(...)`, which resolves a handler from `app/Services/Crons/Handlers/<Name>Handler.php` by class name, records a `CronLog`, and sends failure notifications. New crons follow the same Command → Handler pattern.
 - Heavy work fans out to queued batch jobs in `app/Jobs` (`Run*Job` per security plus a `Finalize*BatchJob`), so a queue worker must be running for these to complete outside tests.

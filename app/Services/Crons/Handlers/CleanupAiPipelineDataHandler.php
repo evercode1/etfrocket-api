@@ -16,23 +16,14 @@ class CleanupAiPipelineDataHandler
 
         try {
 
-            $retentionHours =
-
-                config(
-                    'security_pipeline_cleanup.retention_hours'
-                );
-
-            $cutoff =
-
-                now()->subHours(
-                    $retentionHours
-                );
+            // Each table has its own retention in hours; see
+            // config/security_pipeline_cleanup.php.
 
             foreach (
 
                 config(
                     'security_pipeline_cleanup.tables'
-                ) as $table
+                ) as $table => $retentionHours
 
             ) {
 
@@ -44,7 +35,9 @@ class CleanupAiPipelineDataHandler
 
                         '<',
 
-                        $cutoff
+                        now()->subHours(
+                            (int) $retentionHours
+                        )
 
                     )
 

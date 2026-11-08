@@ -43,11 +43,6 @@ class PipelineHealthQuery
             'schedule' => 'Hourly',
             'max_gap_hours' => 2,
         ],
-        'securities:calculate-metrics' => [
-            'label' => 'Metric calculation',
-            'schedule' => 'Daily 02:00 UTC',
-            'max_gap_hours' => 26,
-        ],
         'app:cleanup-ai-pipeline-data' => [
             'label' => 'Pipeline data cleanup',
             'schedule' => 'Daily 05:15 UTC',

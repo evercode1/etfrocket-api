@@ -183,7 +183,7 @@ class PipelineHealthTest extends TestCase
 
         $this->cronRun('securities:run-scheduled-updates', '2026-05-11 11:00:00');
         $this->cronRun('securities:run-scheduled-updates', '2026-05-11 10:00:00', Status::FAILED);
-        $this->cronRun('securities:calculate-metrics', '2026-05-09 02:00:00');
+        $this->cronRun('app:cleanup-ai-pipeline-data', '2026-05-09 02:00:00');
 
         $crons = collect(
             $this->getJson('/api/admin/pipeline-health')->assertOk()->json('data.crons')
@@ -197,7 +197,7 @@ class PipelineHealthTest extends TestCase
         $this->assertSame(1, $scraper['failures_last_24h']);
 
         // Daily cron last ran 58 hours ago.
-        $this->assertTrue($crons['securities:calculate-metrics']['is_overdue']);
+        $this->assertTrue($crons['app:cleanup-ai-pipeline-data']['is_overdue']);
 
         // Never ran.
         $this->assertNull($crons['app:trim-cron-logs']['last_run_at']);
