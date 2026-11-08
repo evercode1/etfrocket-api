@@ -118,6 +118,50 @@ class NicholasXScraperServiceTest extends TestCase
         );
     }
 
+    public function test_it_discovers_the_post_id_for_unconfigured_funds()
+    {
+        \Illuminate\Support\Facades\Cache::forget('scrapers:nicholasx:post-id:NEWX');
+
+        $security = Security::factory()->create(['symbol' => 'NEWX']);
+
+        Http::fake([
+            'nicholasx.com/wp-json/twm/v1/data*' => Http::sequence()
+                ->push(['html' => '<table><tr><td>Net Assets</td><td>$6.00m</td></tr><tr><td>NAV</td><td>$29.99</td></tr><tr><td>Shares Outstanding</td><td>200,000</td></tr></table>'], 200)
+                ->push(['html' => 'As of: 11/05/2026'], 200),
+            // Markup from nicholasx.com fund pages (Nov 2026).
+            'nicholasx.com/newx/' => Http::response(
+                '<link rel="alternate" type="application/json" href="https://nicholasx.com/wp-json/wp/v2/pages/4242" /><link rel="shortlink" href="https://nicholasx.com/?p=4242" />',
+                200
+            ),
+        ]);
+
+        $result = $this->service->extract($security);
+
+        $this->assertEquals(6000000, $result['assets_under_management']);
+        $this->assertEquals(29.99, $result['nav_per_share']);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'twm/v1/data')
+            && (int) $request['post_id'] === 4242);
+
+        $this->assertSame(4242, \Illuminate\Support\Facades\Cache::get('scrapers:nicholasx:post-id:NEWX'));
+
+        \Illuminate\Support\Facades\Cache::forget('scrapers:nicholasx:post-id:NEWX');
+    }
+
+    public function test_it_reports_when_an_unconfigured_post_id_cannot_be_found()
+    {
+        $security = Security::factory()->create(['symbol' => 'GONE']);
+
+        Http::fake([
+            'nicholasx.com/gone/' => Http::response('Not found', 404),
+        ]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('No NicholasX post ID configured for symbol: GONE, and it could not be found on the fund page.');
+
+        $this->service->extract($security);
+    }
+
     public function test_it_throws_exception_when_fund_data_cannot_be_found()
     {
         $security =
