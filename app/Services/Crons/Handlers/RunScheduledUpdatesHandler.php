@@ -2,17 +2,13 @@
 
 namespace App\Services\Crons\Handlers;
 
-use App\Jobs\RunScheduledSecurityUpdateJob;
-use App\Models\ImportType;
-use App\Models\SecurityIngestionBatch;
-use App\Models\SecurityIngestionBatchItem;
 use App\Models\SecurityDetail;
 use App\Models\SecurityUpdateSchedule;
 use App\Models\SecurityUpdateType;
 use App\Services\AI\Extractions\AiSecurityFundDataExtractionService;
+use App\Services\Crons\FundDataBatchDispatcher;
 use App\Models\Status;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Throwable;
 
 class RunScheduledUpdatesHandler
@@ -141,72 +137,17 @@ class RunScheduledUpdatesHandler
                 ];
             }
 
-            $batch =
+            app(FundDataBatchDispatcher::class)->dispatch(
 
-                SecurityIngestionBatch::create([
+                $schedules,
 
-                    'batch_uuid' => Str::uuid()->toString(),
+                'Scheduled fund data updates queued. '.
 
-                    'import_type_id' => ImportType::AI_DATA_EXTRACTION,
+                    "Run hour {$runHour}. ".
 
-                    'status_id' => Status::PENDING,
+                    "Total updates: {$schedules->count()}"
 
-                    'total_securities' => $schedules->count(),
-
-                    'processed_count' => 0,
-
-                    'success_count' => 0,
-
-                    'failure_count' => 0,
-
-                    'duplicate_count' => 0,
-
-                    'passed_data_integrity_check' => false,
-
-                    'processing_notes' => 'Scheduled fund data updates queued. '.
-
-                        "Run hour {$runHour}. ".
-
-                        "Total updates: {$schedules->count()}",
-
-                    'started_at' => now(),
-
-                ]);
-
-            foreach (
-
-                $schedules as $schedule
-
-            ) {
-
-                SecurityIngestionBatchItem::create([
-
-                    'security_ingestion_batch_id' => $batch->id,
-
-                    'security_update_schedule_id' => $schedule->id,
-
-                    'security_id' => $schedule->security_id,
-
-                    'security_update_type_id' => $schedule->security_update_type_id,
-
-                    'status_id' => Status::PENDING,
-
-                    'attempts' => 0,
-
-                    'is_processed' => false,
-
-                    'is_success' => false,
-
-                ]);
-
-                RunScheduledSecurityUpdateJob::dispatch(
-
-                    $batch->id,
-
-                    $schedule->id
-
-                );
-            }
+            );
 
             Log::info(
                 'SCHEDULED UPDATE HANDLER COMPLETE'
