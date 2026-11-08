@@ -4,6 +4,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | TappAlpha fund data API
+    |--------------------------------------------------------------------------
+    |
+    | The public fund data endpoint the tappalphafunds.com fund pages load
+    | their figures from (the pages ship placeholders and fill them in the
+    | browser). Queried as {api_url}?ticker=TDAQ&view=all.
+    |
+    */
+
+    'tappalpha' => [
+
+        'api_url' => env(
+            'TAPPALPHA_FUND_API_URL',
+            'https://jdkfnvgkfwotjlyovbrk.supabase.co/functions/v1/fund-public-api'
+        ),
+
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | NicholasX ETF Page IDs
     |--------------------------------------------------------------------------
     |

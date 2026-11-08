@@ -6,103 +6,111 @@ use App\Models\Security;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 
+/*
+|--------------------------------------------------------------------------
+| TappAlpha fund data scraper
+|--------------------------------------------------------------------------
+|
+| tappalphafunds.com fund pages no longer contain the figures in their
+| HTML: they render placeholders ("XX.XX") and a script fills them from the
+| public fund data API configured in config('scrapers.tappalpha.api_url').
+| We read the same API:
+|
+|   GET {api_url}?ticker=TDAQ&view=all
+|
+|   {
+|     "mode": "live",
+|     "latest": {
+|       "ticker": "TDAQ",
+|       "as_of_date": "2026-11-06",
+|       "nav": 23.95,
+|       "net_assets": 471343830.71,
+|       "shares_outstanding": 19680000
+|     },
+|     ...
+|   }
+|
+| net_assets is exact (not rounded), so it is used directly as AUM.
+|
+*/
+
 class TappAlphaScraperService
 {
     public function extract(Security $security): array
     {
-        $html = Http::timeout(30)
-            ->get($security->detail->website_url)
-            ->body();
+        $symbol = strtoupper($security->symbol);
 
-        $date = $this->extractAsOfDate($html);
+        $response = Http::timeout(30)
+            ->acceptJson()
+            ->get(
+                config('scrapers.tappalpha.api_url'),
+                [
+                    'ticker' => $symbol,
+                    'view' => 'all',
+                ]
+            );
 
-        return [
+        if (! $response->successful()) {
 
-            'symbol' => $security->symbol,
-
-            'assets_under_management' => $this->extractAum($html),
-
-            'aum_date' => $date,
-
-            'nav_per_share' => $this->extractNav($html),
-
-            'nav_date' => $date,
-
-            'shares_outstanding' => $this->extractSharesOutstanding($html),
-
-        ];
-    }
-
-    protected function extractAsOfDate(string $html): string
-    {
-        preg_match(
-            '/([A-Za-z]+\s+\d{1,2},\s+\d{4})/',
-            $html,
-            $matches
-        );
-
-        if (! isset($matches[1])) {
-
-            throw new \Exception(
-                'Unable to extract TappAlpha as-of date.'
+            throw new \RuntimeException(
+                'Unable to retrieve TappAlpha fund data.'
             );
         }
 
-        return Carbon::parse(
-            $matches[1]
-        )->toDateString();
-    }
+        $payload = $response->json();
 
-    protected function extractNav(string $html): float
-    {
-        preg_match(
-            '/NAV Price<\/div>.*?<div class="heading-style-h6">([\d\.]+)<\/div>/s',
-            $html,
-            $matches
-        );
+        if (! is_array($payload) || ($payload['mode'] ?? null) === 'placeholder') {
 
-        if (! isset($matches[1])) {
-            throw new \Exception('Unable to extract TappAlpha NAV.');
+            throw new \RuntimeException(
+                'TappAlpha fund data is not available for '.$symbol.'.'
+            );
         }
 
-        return (float) $matches[1];
-    }
+        $latest = $payload['latest'] ?? null;
 
-    protected function extractAum(string $html): float
-    {
-        preg_match(
-            '/Net Assets<\/div>.*?data-format-number="true" class="heading-style-h6">([\d,]+)<\/div>/s',
-            $html,
-            $matches
-        );
+        if (! is_array($latest) || strtoupper($latest['ticker'] ?? '') !== $symbol) {
 
-        if (! isset($matches[1])) {
-            throw new \Exception('Unable to extract TappAlpha AUM.');
+            throw new \RuntimeException(
+                'TappAlpha fund data did not include '.$symbol.'.'
+            );
         }
 
-        return (float) str_replace(
-            ',',
-            '',
-            $matches[1]
-        );
-    }
+        $nav = $this->positive($latest['nav'] ?? null);
 
-    protected function extractSharesOutstanding(string $html): int
-    {
-        preg_match(
-            '/Shares Outstanding<\/div>.*?<div data-format-number="true" class="table-text">([\d,]+)<\/div>/s',
-            $html,
-            $matches
-        );
+        $aum = $this->positive($latest['net_assets'] ?? null);
 
-        if (! isset($matches[1])) {
-            throw new \Exception('Unable to extract TappAlpha shares outstanding.');
+        if ($nav === null || $aum === null) {
+
+            throw new \RuntimeException(
+                'Unable to extract TappAlpha NAV and net assets.'
+            );
         }
 
-        return (int) str_replace(
-            ',',
-            '',
-            $matches[1]
-        );
+        $shares = $this->positive($latest['shares_outstanding'] ?? null);
+
+        $date = isset($latest['as_of_date'])
+            ? Carbon::parse($latest['as_of_date'])->toDateString()
+            : null;
+
+        return [
+            'symbol' => $symbol,
+            'assets_under_management' => $aum,
+            'aum_date' => $date,
+            'nav_per_share' => $nav,
+            'nav_date' => $date,
+            'shares_outstanding' => $shares === null ? null : (int) $shares,
+        ];
+    }
+
+    private function positive(mixed $value): ?float
+    {
+        if (! is_numeric($value)) {
+
+            return null;
+        }
+
+        $number = (float) $value;
+
+        return $number > 0 ? $number : null;
     }
 }

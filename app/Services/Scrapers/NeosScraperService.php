@@ -24,11 +24,12 @@ class NeosScraperService
 
         );
 
+        // Send the HTTP client's own User-Agent. neosfunds.com's firewall
+        // (Cloudflare) blocks the bare "Mozilla/5.0" string this scraper
+        // used to send, but serves the honest default identifier.
         $response = Http::timeout(30)
 
             ->withHeaders([
-
-                'User-Agent' => 'Mozilla/5.0',
 
                 'Accept' => 'text/html,application/xhtml+xml',
 
