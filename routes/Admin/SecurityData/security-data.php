@@ -29,6 +29,8 @@ Route::group(['middleware' => ['auth:sanctum', 'isAdmin']], function () {
 
     Route::put('/admin/security-data-retire/{id}', [SecuritiesController::class, 'retire']);
 
+    Route::post('/admin/security-data-run-update/{id}', [SecuritiesController::class, 'runFundDataUpdate']);
+
     // security history routes
 
     Route::put('/admin/data/price-history', [PriceHistoryController::class, 'update']);
